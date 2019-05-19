@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# See https://github.com/rocky/python-uncompyle6/pull/15
+# See https://github.com/rocky/python-decompyle3/pull/15
 
 # In Python 2.7, you should see
 #   mkfuncdeco0 ::= mkfunc

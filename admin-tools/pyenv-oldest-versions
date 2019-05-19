@@ -1,6 +1,6 @@
 # -*- shell-script -*-
 # Sets PYVERSIONS to be all pyenv the oldest versions we have.
-# These are not covered (yet) by uncompyle6, although
+# These are not covered (yet) by decompyle3, although
 # some programs do work here.
 if [[ $0 == ${BASH_SOURCE[0]} ]] ; then
     echo "This script should be *sourced* rather than run directly through bash"

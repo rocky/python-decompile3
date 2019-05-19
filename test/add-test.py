@@ -20,4 +20,4 @@ for path in py_source:
     print("byte-compiling %s to %s" % (path, cfile))
     py_compile.compile(path, cfile)
     if isinstance(version, str) or version >= (2, 6, 0):
-        os.system("../bin/uncompyle6 -a -t %s" % cfile)
+        os.system("../bin/decompyle3 -a -t %s" % cfile)

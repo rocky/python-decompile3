@@ -1,5 +1,5 @@
 # Python 3.6's changes for calling functions.
-# See https://github.com/rocky/python-uncompyle6/issues/58
+# See https://github.com/rocky/python-decompyle3/issues/58
 
 # CALL_FUNCTION_EX takes 2 to 3 arguments on the stack:
 # * the function,

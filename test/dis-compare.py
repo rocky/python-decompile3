@@ -22,9 +22,9 @@ Usage: %s [OPTIONS]... FILE
 
 usage_short = "Usage: %s [OPTIONS]... FILE" % program
 
-import uncompyle6
-from uncompyle6 import PYTHON_VERSION_STR, check_python_version
-from uncompyle6.disas import disco
+import decompyle3
+from decompyle3 import PYTHON_VERSION_STR, check_python_version
+from decompyle3.disas import disco
 
 def inst_fmt(inst):
     if inst.starts_line:
@@ -84,7 +84,7 @@ files = [
 
 for base in files:
     filename = "bytecode_%s/%s.pyc" % (PYTHON_VERSION_STR, base)
-    version, timestamp, magic_int, co = uncompyle6.load_module(filename)
+    version, timestamp, magic_int, co = decompyle3.load_module(filename)
     ok = True
 
     if type(co) == list:

@@ -180,7 +180,7 @@ cd $srcdir
 fulldir=$(pwd)
 
 # DECOMPILER=uncompyle2
-DECOMPILER=${DECOMPILER:-"$fulldir/../../bin/uncompyle6"}
+DECOMPILER=${DECOMPILER:-"$fulldir/../../bin/decompyle3"}
 TESTDIR=/tmp/test${PYVERSION}
 if [[ -e $TESTDIR ]] ; then
     rm -fr $TESTDIR

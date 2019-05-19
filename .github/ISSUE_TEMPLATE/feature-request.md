@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Tell us about a new feature that you would like to see in uncompyle6
+about: Tell us about a new feature that you would like to see in decompyle3
 
 ---
 

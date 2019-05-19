@@ -1,10 +1,10 @@
 ---
 name: Bug report
-about: Tell us about uncompyle6 bugs
+about: Tell us about decompyle3 bugs
 
 ---
 
-<!-- __Note:__ Have you read https://github.com/rocky/python-uncompyle6/blob/master/HOW-TO-REPORT-A-BUG.md ?
+<!-- __Note:__ Have you read https://github.com/rocky/python-decompyle3/blob/master/HOW-TO-REPORT-A-BUG.md ?
 
 Please remove any of the optional sections if they are not applicable.
 
@@ -41,7 +41,7 @@ output you got in describing how to reproduce the bug:
 or give a complete console log with input and output
 
 ```console
-$ uncompyle6 <command-line-options>
+$ decompyle3 <command-line-options>
 ...
 $
 ```
@@ -62,7 +62,7 @@ can add that too.
 
 Please modify for your setup
 
-- Uncompyle6 version: output from  `uncompyle6 --version` or `pip show uncompyle6`
+- Decompyle3 version: output from  `decompyle3 --version` or `pip show decompyle3`
 - Python version: `python -V`
 - OS and Version: [e.g. Ubuntu bionic]
 

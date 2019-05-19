@@ -1,11 +1,11 @@
-from uncompyle6.scanner import get_scanner
-from uncompyle6.parser import get_python_parser
+from decompyle3.scanner import get_scanner
+from decompyle3.parser import get_python_parser
 
 def test_get_scanner():
     # See that we can retrieve a scanner using a full version number
-    assert get_scanner('2.7.13')
+    assert get_scanner('3.7.3')
 
 
 def test_get_parser():
     # See that we can retrieve a sparser using a full version number
-    assert get_python_parser('2.7.13')
+    assert get_python_parser('3.7.3')

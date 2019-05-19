@@ -25,7 +25,7 @@ from __future__ import print_function
 import os, time, re, shutil, sys
 from fnmatch import fnmatch
 
-from uncompyle6 import main, PYTHON3
+from decompyle3 import main, PYTHON3
 import xdis.magics as magics
 
 #----- configure this for your needs

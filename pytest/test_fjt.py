@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-from uncompyle6 import PYTHON_VERSION, IS_PYPY
-from uncompyle6.scanner import get_scanner
+from decompyle3 import PYTHON_VERSION, IS_PYPY
+from decompyle3.scanner import get_scanner
 def bug(state, slotstate):
     if state:
         if slotstate is not None:

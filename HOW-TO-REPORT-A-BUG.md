@@ -28,7 +28,7 @@ versions.
 But at any given time, there are a number of valid Python bytecode
 files that I know of that will cause problems. See, for example, the
 list in
-[`test/stdlib/runtests.sh`](https://github.com/rocky/python-uncompyle6/blob/master/test/stdlib/runtests.sh).
+[`test/stdlib/runtests.sh`](https://github.com/rocky/python-decompile3/blob/master/test/stdlib/runtests.sh).
 
 But I understand: you would the bugs _you_ encounter addressed before
 all the other known bugs.
@@ -169,7 +169,7 @@ helpful. From this, I can figure out what OS you are running this on
 and what version of *uncomplye6* was used. Therefore, if you _don't_
 provide the input command and the output from that, please give:
 
-* _uncompyle6_ version used
+* _decompyle3_ version used
 * OS that you used this on
 * Python interpreter version used
 

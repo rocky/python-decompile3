@@ -21,7 +21,7 @@ def getvalue1(self):
 
 # From Python 3.6 asynchat.py
 # Bug is handling as why in the face of a return.
-# uncompyle6 shows removal of "why" after the return.
+# decompyle3 shows removal of "why" after the return.
 def handle_read(self):
     try:
         data = 5

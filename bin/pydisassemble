@@ -1,3 +1,0 @@
-#!/usr/bin/env python
-from uncompyle6.bin.pydisassemble import main
-main()

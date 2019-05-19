@@ -1,14 +1,8 @@
 import sys
-from uncompyle6 import PYTHON3
-if PYTHON3:
-    from io import StringIO
-    minint = -sys.maxsize-1
-    maxint = sys.maxsize
-else:
-    from StringIO import StringIO
-    minint = -sys.maxint-1
-    maxint = sys.maxint
-from uncompyle6.semantics.helper import print_docstring
+from io import StringIO
+minint = -sys.maxsize-1
+maxint = sys.maxsize
+from decompyle3.semantics.helper import print_docstring
 
 class PrintFake():
     def __init__(self):

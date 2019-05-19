@@ -15,4 +15,4 @@ if [[ `dirname $file` == '.' ]] ; then
     file=$BASEDIR/test_$file.pyc
 fi
 
-python -u ./scripts/uncompyle6 $options $file 2>&1 | $PAGER
+python -u ./scripts/decompyle3 $options $file 2>&1 | $PAGER

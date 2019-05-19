@@ -1,4 +1,4 @@
-from uncompyle6.scanners.tok import Token
+from decompyle3.scanners.tok import Token
 
 def test_token():
     # Test token formatting of: LOAD_CONST None

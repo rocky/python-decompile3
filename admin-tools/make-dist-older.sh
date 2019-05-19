@@ -1,5 +1,5 @@
 #!/bin/bash
-PACKAGE=uncompyle6
+PACKAGE=decompyle3
 
 # FIXME put some of the below in a common routine
 function finish {

@@ -12,7 +12,7 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""uncompyle6 packaging information"""
+"""decompyle3 packaging information"""
 
 # To the extent possible we make this file look more like a
 # configuration file rather than code like setup.py. I find putting
@@ -30,18 +30,6 @@ classifiers =  ['Development Status :: 5 - Production/Stable',
                 'Intended Audience :: Developers',
                 'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
                 'Operating System :: OS Independent',
-                'Programming Language :: Python',
-                'Programming Language :: Python :: 2.4',
-                'Programming Language :: Python :: 2.5',
-                'Programming Language :: Python :: 2.6',
-                'Programming Language :: Python :: 2.7',
-                'Programming Language :: Python :: 3.0',
-                'Programming Language :: Python :: 3.1',
-                'Programming Language :: Python :: 3.2',
-                'Programming Language :: Python :: 3.3',
-                'Programming Language :: Python :: 3.4',
-                'Programming Language :: Python :: 3.5',
-                'Programming Language :: Python :: 3.6',
                 'Programming Language :: Python :: 3.7',
                 'Programming Language :: Python :: 3.8',
                 'Topic :: Software Development :: Debuggers',
@@ -53,8 +41,8 @@ author             = "Rocky Bernstein, Hartmut Goebel, John Aycock, and others"
 author_email       = "rb@dustyfeet.com"
 entry_points       = {
     'console_scripts': [
-        'uncompyle6=uncompyle6.bin.uncompile:main_bin',
-        'pydisassemble=uncompyle6.bin.pydisassemble:main',
+        'decompyle3=decompyle3.bin.uncompile:main_bin',
+        'pydisassemble=decompyle3.bin.pydisassemble:main',
     ]}
 ftp_url            = None
 install_requires   = ['spark-parser >= 1.8.7, < 1.9.0',
@@ -62,10 +50,10 @@ install_requires   = ['spark-parser >= 1.8.7, < 1.9.0',
 
 license            = 'GPL3'
 mailing_list       = 'python-debugger@googlegroups.com'
-modname            = 'uncompyle6'
+modname            = 'decompyle3'
 py_modules         = None
 short_desc         = 'Python cross-version byte-code decompiler'
-web                = 'https://github.com/rocky/python-uncompyle6/'
+web                = 'https://github.com/rocky/python-decompyle3/'
 
 # tracebacks in zip files are funky and not debuggable
 zip_safe = True
@@ -83,4 +71,4 @@ def read(*rnames):
 
 # Get info from files; set: long_description and VERSION
 long_description   = ( read("README.rst") + '\n' )
-exec(read('uncompyle6/version.py'))
+exec(read('decompyle3/version.py'))

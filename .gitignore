@@ -16,7 +16,7 @@
 /how-to-make-a-release.txt
 /nose-*.egg
 /tmp
-/uncompyle6.egg-info
+/decompyle3.egg-info
 /unpyc
 ChangeLog
 __pycache__

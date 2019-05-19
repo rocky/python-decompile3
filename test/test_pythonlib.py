@@ -31,8 +31,8 @@ from __future__ import print_function
 
 import getopt, os, py_compile, sys, shutil, tempfile, time
 
-from uncompyle6 import PYTHON_VERSION
-from uncompyle6.main import main
+from decompyle3 import PYTHON_VERSION
+from decompyle3.main import main
 from fnmatch import fnmatch
 
 def get_srcdir():

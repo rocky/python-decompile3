@@ -1,5 +1,5 @@
 # From 2.3.7 dis.py. Bug ranged from 2.2 to 2.6.
-# bug was in "while". uncompyle6 doesn't
+# bug was in "while". decompyle3 doesn't
 # add in a COME_FROM after the while. Maybe it should?
 
 def distb(tb=None):

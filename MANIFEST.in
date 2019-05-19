@@ -8,9 +8,9 @@ include requirements.txt
 include requirements-dev.txt
 include DECOMPYLE-2.4-CHANGELOG.txt
 include __pkginfo__.py
-recursive-include uncompyle6 *.py
-include bin/uncompyle6
-include bin/pydisassemble
+recursive-include decompyle3 *.py
+include bin/decompyle3
+include bin/py3disassemble
 include pytest/Makefile
 include test/Makefile
 recursive-include test *.py *.pyc

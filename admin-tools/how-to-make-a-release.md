@@ -2,7 +2,7 @@
 **Table of Contents**
 
 - [Get latest sources:](#get-latest-sources)
-- [Change version in uncompyle6/version.py](#change-version-in-uncompyle6versionpy)
+- [Change version in decompyle3/version.py](#change-version-in-decompyle3versionpy)
 - [Update ChangeLog:](#update-changelog)
 - [Update NEWS from ChangeLog:](#update-news-from-changelog)
 - [Make sure pyenv is running and check newer versions](#make-sure-pyenv-is-running-and-check-newer-versions)
@@ -19,10 +19,10 @@
 
     git pull
 
-# Change version in uncompyle6/version.py:
+# Change version in decompyle3/version.py:
 
-    $ emacs uncompyle6/version.py
-    $ source uncompyle6/version.py
+    $ emacs decompyle3/version.py
+    $ source decompyle3/version.py
     $ echo $VERSION
     $ git commit -m"Get ready for release $VERSION" .
 
@@ -59,15 +59,15 @@
 
     $ . ./admin-tools/make-dist-newer.sh
 
-Goto https://github.com/rocky/python-uncompyle6/releases
+Goto https://github.com/rocky/python-decompyle3/releases
 
 # Upload single package and look at Rst Formating
 
-    $ twine upload dist/uncompyle6-${VERSION}-py3.3.egg
+    $ twine upload dist/decompyle3-${VERSION}-py3.3.egg
 
 # Upload rest of versions
 
-    $ twine upload dist/uncompyle6-${VERSION}*
+    $ twine upload dist/decompyle3-${VERSION}*
 
 # Push tags:
 
@@ -79,6 +79,6 @@ Goto https://github.com/rocky/python-uncompyle6/releases
 	$ vagrant up
 	$ vagrant ssh
 	$ pyenv local 3.5.2
-	$ pip install --upgrade uncompyle6
+	$ pip install --upgrade decompyle3
 	$ exit
 	$ vagrant halt

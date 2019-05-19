@@ -9,7 +9,7 @@
 version: 2
 jobs:
   build:
-    working_directory: ~/rocky/python-uncompyle6
+    working_directory: ~/rocky/python-decompyle3
     parallelism: 1
     shell: /bin/bash --login
     # CircleCI 2.0 does not support environment variables that refer to each other the same way as 1.0 did.
@@ -41,8 +41,8 @@ jobs:
     - run: mkdir -p $CIRCLE_ARTIFACTS $CIRCLE_TEST_REPORTS
     # This is based on your 1.0 configuration file or project settings
     - run:
-        working_directory: ~/rocky/python-uncompyle6
-        command: pyenv local 2.7.11 && pyenv rehash && pip install virtualenv && pip install nose && pip install pep8 && pip install six && pyenv rehash
+        working_directory: ~/rocky/python-decompyle3
+        command: pyenv local 3.7.3 && pyenv rehash && pip install virtualenv && pip install nose && pip install pep8 && pip install six && pyenv rehash
     # Dependencies
     #   This would typically go in either a build or a build-and-test job when using workflows
     # Restore the dependency cache

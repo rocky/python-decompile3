@@ -1,6 +1,6 @@
 # std
 # test
-from uncompyle6 import PYTHON_VERSION, deparse_code
+from decompyle3 import PYTHON_VERSION, deparse_code
 import pytest
 pytestmark = pytest.mark.skipif(PYTHON_VERSION <= 2.6,
                                 reason='hypothesis needs 2.7 or later')
@@ -9,7 +9,7 @@ if PYTHON_VERSION > 2.6:
     import hypothesis
     from hypothesis import strategies as st
 
-    # uncompyle6
+    # decompyle3
 
 
     @st.composite

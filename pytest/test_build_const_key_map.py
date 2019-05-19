@@ -1,6 +1,6 @@
 import pytest
-# uncompyle6
-from uncompyle6 import PYTHON_VERSION
+# decompyle3
+from decompyle3 import PYTHON_VERSION
 from validate import validate_uncompyle
 
 

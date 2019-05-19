@@ -1,4 +1,4 @@
-# Bug in uncompyle6 and pycdc for (some) Python 3 bytecodes.
+# Bug in decompyle3 and pycdc for (some) Python 3 bytecodes.
 # Problem is JUMP_IF_FALSE is optimized away leaving
 # the unreachible LOAD_CONST below
 

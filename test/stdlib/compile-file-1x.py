@@ -19,4 +19,4 @@ import py_compile
 print("# compiling %s to %s" % (source, bytecode))
 py_compile.compile(source, bytecode)
 # import os
-# os.system("../bin/uncompyle6 %s" % bytecode)
+# os.system("../bin/decompyle3 %s" % bytecode)

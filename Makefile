@@ -13,7 +13,7 @@ LINT    = flake8
 #EXTRA_DIST=ipython/ipy_trepan.py trepan
 PHONY=all check clean distcheck pytest check-long dist distclean lint flake8 test rmChangeLog clean_pyc
 
-TEST_TYPES=check-long check-short check-2.7 check-3.4
+TEST_TYPES=check-long check-short
 
 #: Default target - same as "check"
 all: check
@@ -27,29 +27,11 @@ check:
 check-short: pytest
 	$(MAKE) -C test check-short
 
-# Note for 2.6 use <=3.0.1 see requirements-dev.txt
-#: Tests for Python 2.7, 3.3 and 3.4
-check-2.6 check-2.7 check-3.3 check-3.4 check-3.5: pytest
-	$(MAKE) -C test $@
-
-#: Tests for Python 3.2 and 3.5 - pytest doesn't work here
-# Or rather 3.5 doesn't work not on Travis
-check-3.0 check-3.1 check-3.2 check-3.6:
-	$(MAKE) -C test $@
-
 check-3.7: pytest
 	$(MAKE) -C test check
 
 check-3.8:
 	$(MAKE) -C test check
-
-#:PyPy 2.6.1 PyPy 5.0.1, or PyPy 5.8.0-beta0
-# Skip for now
-2.6 5.0 5.3 5.6 5.8:
-
-#:PyPy pypy3-2.4.0 Python 3:
-pypy-3.2 2.4:
-	$(MAKE) -C test $@
 
 #: Run py.test tests
 pytest:
@@ -70,7 +52,7 @@ distcheck:
 
 #: Remove .pyc files
 clean_pyc:
-	( cd uncompyle6 && $(RM) -f *.pyc */*.pyc )
+	( cd decompyle3 && $(RM) -f *.pyc */*.pyc )
 
 #: Create source tarball
 sdist:
@@ -86,7 +68,7 @@ check-rst:
 
 #: Lint program
 flake8:
-	$(LINT) uncompyle6
+	$(LINT) decompyle3
 
 #: Create binary egg distribution
 bdist_egg:

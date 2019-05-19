@@ -1,5 +1,5 @@
 import string
-from uncompyle6 import PYTHON_VERSION
+from decompyle3 import PYTHON_VERSION
 import pytest
 pytestmark = pytest.mark.skip(PYTHON_VERSION < 2.7,
                               reason="need at least Python 2.7")
