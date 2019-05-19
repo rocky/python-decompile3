@@ -1,10 +1,8 @@
 import pytest
 # decompyle3
-from decompyle3 import PYTHON_VERSION
 from validate import validate_uncompyle
 
 
-@pytest.mark.skipif(PYTHON_VERSION < 3.6, reason='need at least python 3.6')
 @pytest.mark.parametrize('text', (
     "{0.: 'a', -1: 'b'}",   # BUILD_MAP
     "{'a':'b'}",            # BUILD_MAP

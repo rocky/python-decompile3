@@ -22,8 +22,6 @@ minint = -sys.maxsize-1
 maxint = sys.maxsize
 
 # Operator precidence See
-# https://docs.python.org/2/reference/expressions.html#operator-precedence
-# or
 # https://docs.python.org/3/reference/expressions.html#operator-precedence
 # for a list. We keep the same top-to-botom order here as in the above links,
 # so we start with low precedence (high values) and go down in value.
@@ -317,7 +315,6 @@ TABLE_DIRECT = {
 
     'assert_expr_or':   ( '%c or %c', 0, 2 ),
     'assert_expr_and':  ( '%c and %c', 0, 2 ),
-    'print_items_stmt': ( '%|print %c%c,\n', 0, 2 ),  # Python 2 only
     'print_items_nl_stmt': ( '%|print %c%c\n', 0, 2 ),
     'print_item':       ( ', %c', 0),
     'print_nl':	        ( '%|print\n', ),
@@ -394,7 +391,7 @@ TABLE_DIRECT = {
     'except_cond1':	    ( '%|except %c:\n', 1 ),
     'except_suite':     ( '%+%c%-%C', 0, (1, maxint, '') ),
 
-    # In Python 3.6, this is more complicated in the presence of "returns"
+    # In Python 3.6+, this is more complicated in the presence of "returns"
     'except_suite_finalize':     ( '%+%c%-%C', 1, (3, maxint, '') ),
 
     'pass':	            ( '%|pass\n', ),

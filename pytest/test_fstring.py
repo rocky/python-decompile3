@@ -115,7 +115,6 @@ if PYTHON_VERSION > 2.6:
         return "f{}'{}'".format('r' if is_raw else '', content)
 
 
-    @pytest.mark.skipif(PYTHON_VERSION != 3.6, reason='need Python 3.6')
     @hypothesis.given(format_specifiers())
     def test_format_specifiers(format_specifier):
         """Verify that format_specifiers generates valid specifiers"""
@@ -141,14 +140,12 @@ if PYTHON_VERSION > 2.6:
             assert 'dis(' + deparsed.text.strip('\n') + ')' == 'dis(' + expr.strip('\n') + ')'
 
 
-    @pytest.mark.skipif(PYTHON_VERSION != 3.6, reason='need Python 3.6')
     @hypothesis.given(fstrings())
     def test_uncompyle_fstring(fstring):
         """Verify uncompyling fstring bytecode"""
         run_test(fstring)
 
 
-    @pytest.mark.skipif(PYTHON_VERSION != 3.6, reason='need Python 3.6+')
     @pytest.mark.parametrize('fstring', [
         "f'{abc}{abc!s}'",
         "f'{abc}0'",

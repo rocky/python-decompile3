@@ -12,7 +12,7 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Isolate Python 3.6 version-specific semantic actions here.
+"""Isolate Python 3.8 version-specific semantic actions here.
 """
 
 ########################
