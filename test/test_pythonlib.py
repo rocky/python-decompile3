@@ -2,21 +2,18 @@
 # emacs-mode: -*-python-*-
 
 """
-test_pythonlib.py -- compile, uncompyle, and verify Python libraries
+test_pythonlib.py -- compile, decompile, and verify Python libraries
 
 Usage-Examples:
 
-  # decompile, and verify base set of python 2.7 byte-compiled files
-  test_pythonlib.py --base-2.7 --verify
+  # decompile, and verify the first 100 python 3.7 byte-compiled files
+  test_pythonlib.py --3.7 --verify
+
+  # Same as above longer decompile up to 2100
+  test_pythonlib.py --3.7 --verify --max=2100
 
   # Same as above but compile the base set first
-  test_pythonlib.py --base-2.7 --verify --compile
-
-  # Same as above but use a longer set from the python 2.7 library
-  test_pythonlib.py --ok-2.7 --verify --compile
-
-  # Just deompile the longer set of files
-  test_pythonlib.py --ok-2.7
+  test_pythonlib.py --3.7 --verify --max=2100 --compile
 
 Adding own test-trees:
 
@@ -26,8 +23,6 @@ Step 2: Run the test:
   test_pythonlib.py --mylib	  # decompile 'mylib'
   test_pythonlib.py --mylib --verify # decompile verify 'mylib'
 """
-
-from __future__ import print_function
 
 import getopt, os, py_compile, sys, shutil, tempfile, time
 
@@ -58,30 +53,9 @@ test_options = {
     # name:   (src_basedir, pattern, output_base_suffix, python_version)
     'test':
         ('test', PYC, 'test'),
-
-    'ok-2.6':    (os.path.join(src_dir, 'ok_lib2.6'),
-                 PYOC, 'ok-2.6', 2.6),
-
-    'ok-2.7':    (os.path.join(src_dir, 'ok_lib2.7'),
-                 PYOC, 'ok-2.7', 2.7),
-
-    'ok-3.2':    (os.path.join(src_dir, 'ok_lib3.2'),
-                 PYOC, 'ok-3.2', 3.2),
-
-    'base-2.7':  (os.path.join(src_dir, 'base_tests', 'python2.7'),
-                  PYOC, 'base_2.7', 2.7),
 }
 
-for  vers in (2.7, 3.4, 3.5, 3.6):
-    pythonlib = "ok_lib%s" % vers
-    key = "ok-%s" % vers
-    test_options[key] = (os.path.join(src_dir, pythonlib), PYOC, key, vers)
-    pass
-
-for  vers in (1.3, 1.4, 1.5,
-              2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7,
-              3.0, 3.1, 3.2, 3.3,
-              3.4, 3.5, 3.6, 3.7, 3.8, 'pypy3.2', 'pypy2.7', 'pypy3.6'):
+for  vers in (3.7, 3.8):
     bytecode = "bytecode_%s" % vers
     key = "bytecode-%s" % vers
     test_options[key] =  (bytecode, PYC, bytecode, vers)
@@ -99,14 +73,11 @@ for  vers in (1.3, 1.4, 1.5,
 def help():
     print("""Usage-Examples:
 
-  # compile, decompyle and verify short tests for Python 2.7:
-  test_pythonlib.py --bytecode-2.7 --verify --compile
+  # compile, decompyle and verify short tests for Python 3.7:
+  test_pythonlib.py --bytecode-3.7 --verify --compile
 
   # decompile all of Python's installed lib files
-  test_pythonlib.py --2.7
-
-  # decompile and verify known good python 2.7
-  test_pythonlib.py --ok-2.7 --verify
+  test_pythonlib.py --3.7
 """)
     sys.exit(1)
 

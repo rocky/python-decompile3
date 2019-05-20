@@ -6,7 +6,7 @@ from decompyle3.main import decompile
 from xdis.magics import sysinfo2float
 import sys, inspect
 
-def uncompyle_test():
+def decompile_test():
     frame = inspect.currentframe()
     try:
         co = frame.f_code
@@ -15,4 +15,4 @@ def uncompyle_test():
     finally:
         del frame
 
-uncompyle_test()
+decompile_test()

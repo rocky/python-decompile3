@@ -1,15 +1,12 @@
 #!/usr/bin/env python
 # emacs-mode: -*-python-*-
 """
-test_pyenvlib -- uncompyle and verify Python libraries
+test_pyenvlib -- decompile and verify Python libraries
 
 Usage-Examples:
 
-  test_pyenvlib.py --all		# decompile all tests (suite + libs)
-  test_pyenvlib.py --all --verify	# decomyile all tests and verify results
-  test_pyenvlib.py --test		# decompile only the testsuite
-  test_pyenvlib.py --2.7.12 --verify	# decompile and verify python lib 2.7.11
-  test_pyenvlib.py --3.6.4 --max 10	# decompile first 10 of 3.6.4
+  test_pyenvlib.py --3.7.3 --verify	# decompile and verify python lib 3.7.3
+  test_pyenvlib.py --3.7.3 --max 10	# decompile first 10 of 3.7.3
 
 Adding own test-trees:
 
@@ -25,7 +22,7 @@ from __future__ import print_function
 import os, time, re, shutil, sys
 from fnmatch import fnmatch
 
-from decompyle3 import main, PYTHON3
+from decompyle3 import main
 import xdis.magics as magics
 
 #----- configure this for your needs
@@ -37,8 +34,6 @@ python_versions = [v for v in magics.python_versions if
 # These include Jython, and Python bytecode changes pre release.
 
 TEST_VERSIONS = (
-               'pypy3-2.4.0', 'pypy-2.6.1',
-               'pypy-5.0.1', 'pypy-5.3.1', 'pypy3.5-5.7.1-beta',
                'pypy3.5-5.9.0', 'pypy3.5-6.0.0',
                'native') + tuple(python_versions)
 
@@ -90,17 +85,14 @@ def do_tests(src_dir, patterns, target_dir, start_with=None,
     files = []
     cwd = os.getcwd()
     os.chdir(src_dir)
-    if PYTHON3:
-        for root, dirname, names in os.walk(os.curdir):
-            files.extend(
-                [os.path.normpath(os.path.join(root, n))
-                     for n in names
-                        for pat in patterns
-                            if fnmatch(n, pat)])
-            pass
+    for root, dirname, names in os.walk(os.curdir):
+        files.extend(
+            [os.path.normpath(os.path.join(root, n))
+                 for n in names
+                    for pat in patterns
+                        if fnmatch(n, pat)])
         pass
-    else:
-        os.path.walk(os.curdir, visitor, files)
+    pass
     os.chdir(cwd)
     files.sort()
 
