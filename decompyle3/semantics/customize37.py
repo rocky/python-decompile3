@@ -100,9 +100,10 @@ def customize_for_version37(self, version):
             (0, 19 ) ),
         'compare_chained2c_37': (
             '%[3]{pattr.replace("-", " ")} %p %p', (0, 19), (6, 19) ),
-        'if_exp_37a': ( '%p if %p else %p', (1, 'expr', 27), (0, 27), (4, 'expr', 27) ),
-        'if_exp_37b': ( '%p if %p else %p', (2, 'expr', 27), (0, 'expr', 27), (5, 'expr', 27) ),
-        'unmap_dict':	       ( '{**%C}', (0, -1, ', **') ),
+        'if_exp_37a':   ( '%p if %p else %p', (1, 'expr', 27), (0, 27), (4, 'expr', 27) ),
+        'if_exp_37b':   ( '%p if %p else %p', (2, 'expr', 27), (0, 'expr', 27), (5, 'expr', 27) ),
+        'try_except36': ( '%|try:\n%+%c%-%c\n\n', 1, -2 ),
+        'unmap_dict':	( '{**%C}', (0, -1, ', **') ),
 
         })
 
