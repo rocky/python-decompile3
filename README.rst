@@ -28,7 +28,7 @@ jumps has made it harder to support detecting control flow strictly
 from code patterns. This was noticed as far back as Python 2.4 (2004)
 but since this is a difficult problem, so far it hasn't been tackled.
 
-The initial fix to this to add markers in the instruction stream,
+The initial attempt to fix to this problem was to add markers in the instruction stream,
 initially this was a `COME_FROM` instruction, and then use that in
 pattern detection.
 
