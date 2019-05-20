@@ -1,14 +1,14 @@
 #  Copyright (c) 2016-2017, 2019 Rocky Bernstein
 """
-spark grammar differences over Python 3.4 for Python 3.5.
+spark grammar differences over Python 3 for Python 3.5.
 """
 from __future__ import print_function
 
 from decompyle3.parser import PythonParserSingle, nop_func
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
-from decompyle3.parsers.parse34 import Python34Parser
+from decompyle3.parsers.parse3 import Python3Parser
 
-class Python35Parser(Python34Parser):
+class Python35Parser(Python3Parser):
 
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
         super(Python35Parser, self).__init__(debug_parser)
@@ -131,16 +131,6 @@ class Python35Parser(Python34Parser):
         """
 
     def customize_grammar_rules(self, tokens, customize):
-        self.remove_rules("""
-          yield_from ::= expr GET_ITER LOAD_CONST YIELD_FROM
-          yield_from ::= expr expr YIELD_FROM
-          withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt
-                         POP_BLOCK LOAD_CONST COME_FROM_WITH
-                         WITH_CLEANUP END_FINALLY
-          withasstmt ::= expr SETUP_WITH store suite_stmts_opt
-                         POP_BLOCK LOAD_CONST COME_FROM_WITH
-                         WITH_CLEANUP END_FINALLY
-        """)
         super(Python35Parser, self).customize_grammar_rules(tokens, customize)
         for i, token in enumerate(tokens):
             opname = token.kind

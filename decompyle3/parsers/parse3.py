@@ -242,14 +242,6 @@ class Python3Parser(PythonParser):
         jmp_abs ::= JUMP_ABSOLUTE
         jmp_abs ::= JUMP_BACK
 
-        withstmt ::= expr SETUP_WITH POP_TOP suite_stmts_opt
-                POP_BLOCK LOAD_CONST COME_FROM_WITH
-                WITH_CLEANUP END_FINALLY
-
-        withasstmt ::= expr SETUP_WITH store suite_stmts_opt
-                POP_BLOCK LOAD_CONST COME_FROM_WITH
-                WITH_CLEANUP END_FINALLY
-
         ## FIXME: Right now we have erroneous jump targets
         ## This below is probably not correct when the COME_FROM is put in the right place
         and ::= expr jmp_false expr COME_FROM
@@ -382,10 +374,6 @@ class Python3Parser(PythonParser):
                               else_suite COME_FROM_LOOP
 
         # FIXME: investigate - can code really produce a NOP?
-        whileTruestmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK NOP
-                              COME_FROM_LOOP
-        whileTruestmt     ::= SETUP_LOOP l_stmts_opt JUMP_BACK POP_BLOCK NOP
-                              COME_FROM_LOOP
         for               ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK NOP
                               COME_FROM_LOOP
         """

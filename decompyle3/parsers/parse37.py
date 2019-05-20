@@ -27,6 +27,97 @@ class Python37Parser(Python36Parser):
         super(Python37Parser, self).__init__(debug_parser)
         self.customized = {}
 
+    def p_32on(self, args):
+        """
+        # Before Python 3.2, DUP_TOP_TWO is DUP_TOPX
+        subscript2 ::= expr expr DUP_TOP_TWO BINARY_SUBSCR
+        """
+        return
+
+    def p_33on(self, args):
+        """
+        # Python 3.3+ adds yield from.
+        expr          ::= yield_from
+        yield_from    ::= expr expr YIELD_FROM
+
+        # We do the grammar hackery below for semantics
+        # actions that want c_stmts_opt at index 1
+
+        # Python 3.5+ has jump optimization to remove the redundant
+        # jump_excepts. But in 3.3 we need them added
+
+        try_except  ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                        except_handler
+                        jump_excepts come_from_except_clauses
+        """
+
+    def p_32to35(self, args):
+        """
+        expr        ::= conditional
+        conditional ::= expr jmp_false expr jump_forward_else expr COME_FROM
+
+        # compare_chained2 is used in a "chained_compare": x <= y <= z
+        # used exclusively in compare_chained
+        compare_chained2 ::= expr COMPARE_OP RETURN_VALUE
+        compare_chained2 ::= expr COMPARE_OP RETURN_VALUE_LAMBDA
+
+        # Python < 3.5 no POP BLOCK
+        whileTruestmt  ::= SETUP_LOOP l_stmts_opt JUMP_BACK COME_FROM_LOOP
+
+        # Python 3.5+ has jump optimization to remove the redundant
+        # jump_excepts. But in 3.3 we need them added
+
+        try_except     ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                           except_handler
+                           jump_excepts come_from_except_clauses
+
+        except_handler ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts
+                           END_FINALLY
+
+        tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                           except_handler else_suite
+                           jump_excepts come_from_except_clauses
+
+        jump_excepts   ::= jump_except+
+
+        # Python 3.2+ has more loop optimization that removes
+        # JUMP_FORWARD in some cases, and hence we also don't
+        # see COME_FROM
+        _ifstmts_jump ::= c_stmts_opt
+        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_froms
+
+        kv3       ::= expr expr STORE_MAP
+        """
+        return
+
+    def p_34on(self, args):
+        """
+        expr ::= LOAD_ASSERT
+
+        # passtmt is needed for semantic actions to add "pass"
+        suite_stmts_opt ::= pass
+
+        whilestmt     ::= SETUP_LOOP testexpr returns come_froms POP_BLOCK COME_FROM_LOOP
+
+        # Seems to be needed starting 3.4.4 or so
+        while1stmt    ::= SETUP_LOOP l_stmts
+                          COME_FROM JUMP_BACK POP_BLOCK COME_FROM_LOOP
+        while1stmt    ::= SETUP_LOOP l_stmts
+                          POP_BLOCK COME_FROM_LOOP
+
+        # FIXME the below masks a bug in not detecting COME_FROM_LOOP
+        # grammar rules with COME_FROM -> COME_FROM_LOOP already exist
+        whileelsestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
+                              else_suitel COME_FROM
+
+        while1elsestmt    ::= SETUP_LOOP l_stmts JUMP_BACK _come_froms POP_BLOCK else_suitel
+                              COME_FROM_LOOP
+
+        # Python 3.4+ optimizes the trailing two JUMPS away
+
+        _ifstmts_jump ::= c_stmts_opt JUMP_ABSOLUTE JUMP_FORWARD COME_FROM
+        """
+
     def p_37misc(self, args):
         """
         # Where does the POP_TOP really belong?
