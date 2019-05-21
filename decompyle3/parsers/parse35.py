@@ -17,8 +17,6 @@ class Python35Parser(Python3Parser):
     def p_35on(self, args):
         """
 
-        pb_ja ::= POP_BLOCK JUMP_ABSOLUTE
-
         # The number of canned instructions in new statements is mind boggling.
         # I'm sure by the time Python 4 comes around these will be turned
         # into special opcodes
@@ -57,44 +55,6 @@ class Python35Parser(Python3Parser):
                        WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
         # Python 3.5+ async additions
-        stmt               ::= async_for_stmt
-        async_for_stmt     ::= SETUP_LOOP expr
-                               GET_AITER
-                               LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST
-                               YIELD_FROM
-                               store
-                               POP_BLOCK jump_except COME_FROM_EXCEPT DUP_TOP
-                               LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_FALSE
-                               POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
-                               JUMP_ABSOLUTE END_FINALLY COME_FROM
-                               for_block POP_BLOCK JUMP_ABSOLUTE
-                               COME_FROM_LOOP
-
-        async_for_stmt     ::= SETUP_LOOP expr
-                               GET_AITER
-                               LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST
-                               YIELD_FROM
-                               store
-                               POP_BLOCK jump_except COME_FROM_EXCEPT DUP_TOP
-                               LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_FALSE
-                               POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
-                               JUMP_ABSOLUTE END_FINALLY JUMP_BACK
-                               pass POP_BLOCK JUMP_ABSOLUTE
-                               COME_FROM_LOOP
-
-        stmt               ::= async_forelse_stmt
-        async_forelse_stmt ::= SETUP_LOOP expr
-                               GET_AITER
-                               LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST
-                               YIELD_FROM
-                               store
-                               POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT DUP_TOP
-                               LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_FALSE
-                               POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
-                               JUMP_ABSOLUTE END_FINALLY COME_FROM
-                               for_block pb_ja
-                               else_suite COME_FROM_LOOP
-
 
         inplace_op ::= INPLACE_MATRIX_MULTIPLY
         binary_op  ::= BINARY_MATRIX_MULTIPLY
@@ -123,11 +83,6 @@ class Python35Parser(Python3Parser):
         # ifstmt ::= testexpr c_stmts_opt
 
         iflaststmt ::= testexpr c_stmts_opt JUMP_FORWARD
-
-        # Python 3.3+ also has yield from. 3.5 does it
-        # differently than 3.3, 3.4
-
-        yield_from ::= expr GET_YIELD_FROM_ITER LOAD_CONST YIELD_FROM
         """
 
     def customize_grammar_rules(self, tokens, customize):

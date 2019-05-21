@@ -255,8 +255,6 @@ class Python3Parser(PythonParser):
     def p_misc3(self, args):
         """
         except_handler ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts
-                           END_FINALLY COME_FROM
-        except_handler ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts
                             END_FINALLY COME_FROM_EXCEPT_CLAUSE
 
         for_block ::= l_stmts_opt COME_FROM_LOOP JUMP_BACK

@@ -46,7 +46,7 @@ check-bytecode: check-bytecode-3
 
 #: Get grammar coverage for Python 3.7
 grammar-coverage-3.7:
-#	rm $(COVER_DIR)/spark-grammar-3.7.cover || /bin/true
+	rm $(COVER_DIR)/spark-grammar-3.7.cover || /bin/true
 	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-3.7.cover $(PYTHON) test_pythonlib.py --bytecode-3.7-run --verify-run
 	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-3.7.cover $(PYTHON) test_pythonlib.py --bytecode-3.7 --weak-verify $(COMPILE)
 	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-3.7.cover $(PYTHON) test_pyenvlib.py --3.7.3 --max=1000

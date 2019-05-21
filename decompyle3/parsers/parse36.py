@@ -149,32 +149,6 @@ class Python36Parser(Python35Parser):
         # self.remove_rules("""
         # """)
         super(Python36Parser, self).customize_grammar_rules(tokens, customize)
-        self.remove_rules("""
-           except_handler     ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts END_FINALLY COME_FROM
-           async_for_stmt     ::= SETUP_LOOP expr
-                                  GET_AITER
-                                  LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST
-                                  YIELD_FROM
-                                  store
-                                  POP_BLOCK jump_except COME_FROM_EXCEPT DUP_TOP
-                                  LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_FALSE
-                                  POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
-                                  JUMP_ABSOLUTE END_FINALLY COME_FROM
-                                  for_block POP_BLOCK JUMP_ABSOLUTE
-                                  COME_FROM_LOOP
-           async_forelse_stmt ::= SETUP_LOOP expr
-                                  GET_AITER
-                                  LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST
-                                  YIELD_FROM
-                                  store
-                                  POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT DUP_TOP
-                                  LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_FALSE
-                                  POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
-                                  JUMP_ABSOLUTE END_FINALLY COME_FROM
-                                  for_block pb_ja
-                                  else_suite COME_FROM_LOOP
-
-        """)
         self.check_reduce['call_kw'] = 'AST'
 
         for i, token in enumerate(tokens):

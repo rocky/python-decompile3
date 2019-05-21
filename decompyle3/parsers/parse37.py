@@ -38,7 +38,7 @@ class Python37Parser(Python36Parser):
         """
         # Python 3.3+ adds yield from.
         expr          ::= yield_from
-        yield_from    ::= expr expr YIELD_FROM
+        yield_from    ::= expr GET_YIELD_FROM_ITER LOAD_CONST YIELD_FROM
 
         # We do the grammar hackery below for semantics
         # actions that want c_stmts_opt at index 1
@@ -120,9 +120,13 @@ class Python37Parser(Python36Parser):
 
     def p_37misc(self, args):
         """
-        # Where does the POP_TOP really belong?
         stmt     ::= import37
         stmt     ::= async_for_stmt37
+        stmt     ::= async_for_stmt
+        stmt     ::= async_forelse_stmt
+
+
+        # Where does the POP_TOP really belong?
         import37 ::= import POP_TOP
 
         async_for_stmt     ::= SETUP_LOOP expr
