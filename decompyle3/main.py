@@ -276,7 +276,7 @@ def main(in_base, out_base, compiled_files, source_files, outfile=None,
             sys.stderr.write("\nLast file: %s   " % (infile))
             raise
         except RuntimeError as e:
-            sys.stdout.write("\n{str(e)\n")
+            sys.stdout.write(f"\n{str(e)}\n")
             if str(e).startswith('Unsupported Python'):
                 sys.stdout.write("\n")
                 sys.stderr.write("\n# Unsupported bytecode in file %s\n# %s\n" % (infile, e))

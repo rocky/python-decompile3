@@ -54,6 +54,9 @@ def customize_for_version37(self, version):
         'async_for_stmt':  (
             '%|async for %c in %c:\n%+%c%-%-\n\n',
             (7, 'store'), (1, 'expr'), (17, 'for_block')),
+        'async_for_stmt36':  (
+            '%|async for %c in %c:\n%+%c%-%-\n\n',
+            (9, 'store'), (1, 'expr'), (18, 'for_block') ),
         'async_for_stmt37':  (
             '%|async for %c in %c:\n%+%c%-%-\n\n',
             (7, 'store'), (1, 'expr'), (16, 'for_block') ),
@@ -100,11 +103,17 @@ def customize_for_version37(self, version):
             (0, 19 ) ),
         'compare_chained2c_37': (
             '%[3]{pattr.replace("-", " ")} %p %p', (0, 19), (6, 19) ),
-        'if_exp_37a':   ( '%p if %p else %p', (1, 'expr', 27), (0, 27), (4, 'expr', 27) ),
-        'if_exp_37b':   ( '%p if %p else %p', (2, 'expr', 27), (0, 'expr', 27), (5, 'expr', 27) ),
-        'try_except36': ( '%|try:\n%+%c%-%c\n\n', 1, -2 ),
-        'unmap_dict':	( '{**%C}', (0, -1, ', **') ),
+        'except_return':       ( '%|except:\n%+%c%-', 3 ),
+        'if_exp_37a':          ( '%p if %p else %p',
+                                 (1, 'expr', 27), (0, 27), (4, 'expr', 27) ),
+        'if_exp_37b':          ( '%p if %p else %p',
+                                 (2, 'expr', 27), (0, 'expr', 27), (5, 'expr', 27) ),
+        'try_except36':        ( '%|try:\n%+%c%-%c\n\n', 1, -2 ),
+        'tryfinally36':        ( '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
+                                 (1, 'returns'), 3 ),
+        'unmap_dict':	       ( '{**%C}', (0, -1, ', **') ),
 
+        'unpack_list':         ( '*%c', (0, 'list') ),
         })
 
     TABLE_R.update({

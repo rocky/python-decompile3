@@ -831,9 +831,6 @@ class SourceWalker(GenericASTTraversal, object):
         p = self.prec
         self.prec = 100
         if self.version >= 2.7:
-            if self.is_pypy:
-                self.n_list_comp_pypy27(node)
-                return
             n = node[-1]
         elif node[-1] == 'del_stmt':
             if node[-2] == 'JUMP_BACK':
@@ -882,52 +879,6 @@ class SourceWalker(GenericASTTraversal, object):
             self.write(' ' * (len(indent) - len(self.indent) - 1) + ']')
         else:
             self.write( ' ]')
-        self.prec = p
-        self.prune() # stop recursing
-
-    def n_list_comp_pypy27(self, node):
-        """List comprehensions in PYPY."""
-        p = self.prec
-        self.prec = 27
-        if node[-1].kind == 'list_iter':
-            n = node[-1]
-        elif self.is_pypy and node[-1] == 'JUMP_BACK':
-            n = node[-2]
-        list_expr = node[1]
-
-        if len(node) >= 3:
-            store = node[3]
-        elif self.is_pypy and n[0] == 'list_for':
-            store = n[0][2]
-
-        assert n == 'list_iter'
-        assert store == 'store'
-
-        # Find the list comprehension body. It is the inner-most
-        # node.
-        # FIXME: DRY with other use
-        while n == 'list_iter':
-            n = n[0] # iterate one nesting deeper
-            if   n == 'list_for':	n = n[3]
-            elif n == 'list_if':	n = n[2]
-            elif n == 'list_if_not': n = n[2]
-        assert n == 'lc_body'
-        self.write( '[ ')
-
-        expr = n[0]
-        if self.is_pypy and node[-1] == 'JUMP_BACK':
-            list_iter = node[-2]
-        else:
-            list_iter = node[-1]
-
-        assert expr == 'expr'
-        assert list_iter == 'list_iter'
-
-        # FIXME: use source line numbers for directing line breaks
-
-        self.preorder(expr)
-        self.preorder(list_expr)
-        self.write( ' ]')
         self.prec = p
         self.prune() # stop recursing
 
@@ -1004,10 +955,7 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_generator_exp(self, node):
         self.write('(')
-        if self.version > 3.2:
-            code_index = -6
-        else:
-            code_index = -5
+        code_index = -6
         self.comprehension_walk(node, iter_index=3, code_index=code_index)
         self.write(')')
         self.prune()
@@ -1016,7 +964,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.write('{')
         if node[0] in ['LOAD_SETCOMP', 'LOAD_DICTCOMP']:
             self.comprehension_walk_newer(node, 1, 0)
-        elif node[0].kind == 'load_closure' and self.version >= 3.0:
+        elif node[0].kind == 'load_closure':
             self.setcomprehension_walk3(node, collection_index=4)
         else:
             self.comprehension_walk(node, iter_index=4)
@@ -1050,7 +998,6 @@ class SourceWalker(GenericASTTraversal, object):
         # * the variable we interate over: "store"
         # * the results we accumulate: "n"
 
-        is_30_dict_comp = False
         store = None
         n = ast[iter_index]
         if ast in ('set_comp_func', 'dict_comp_func',
@@ -1063,21 +1010,6 @@ class SourceWalker(GenericASTTraversal, object):
                     pass
                 pass
             pass
-        elif ast in ('dict_comp', 'set_comp'):
-            assert self.version == 3.0
-            for k in ast:
-                if k in ('dict_comp_header', 'set_comp_header'):
-                    n = k
-                elif k == 'store':
-                    store = k
-                elif k == 'dict_comp_iter':
-                    is_30_dict_comp = True
-                    n = (k[3], k[1])
-                    pass
-                elif k == 'comp_iter':
-                    n = k[0]
-                    pass
-                pass
         else:
             assert n == 'list_iter', n
 
@@ -1093,16 +1025,15 @@ class SourceWalker(GenericASTTraversal, object):
             comp_store = ast[3]
 
         have_not = False
+
+        # Iterate to find the innermost store
+        # We'll come back to the list iteration below.
         while n in ('list_iter', 'comp_iter'):
             # iterate one nesting deeper
-            if self.version == 3.0 and len(n) == 3:
-                assert n[0] == 'expr' and n[1] == 'expr'
-                n = n[1]
-            else:
-                n = n[0]
+            n = n[0]
 
             if n in ('list_for', 'comp_for'):
-                if n[2] == 'store':
+                if n[2] == 'store' and not store:
                     store = n[2]
                 n = n[3]
             elif n in ('list_if', 'list_if_not', 'comp_if', 'comp_if_not'):
@@ -1117,8 +1048,6 @@ class SourceWalker(GenericASTTraversal, object):
         # Python 2.7+ starts including set_comp_body
         # Python 3.5+ starts including set_comp_func
         # Python 3.0  is yet another snowflake
-        if self.version != 3.0:
-            assert n.kind in ('lc_body', 'comp_body', 'set_comp_func', 'set_comp_body'), ast
         assert store, "Couldn't find store in list/set comprehension"
 
         # A problem created with later Python code generation is that there
@@ -1130,33 +1059,29 @@ class SourceWalker(GenericASTTraversal, object):
         # Another approach might be to be able to pass in the source name
         # for the dummy argument.
 
-        if is_30_dict_comp:
-            self.preorder(n[0])
-            self.write(': ')
-            self.preorder(n[1])
-        else:
-            self.preorder(n[0])
+        self.preorder(n[0])
         self.write(' for ')
+
         if comp_store:
             self.preorder(comp_store)
         else:
             self.preorder(store)
 
-        # FIXME this is all merely approximate
         self.write(' in ')
         self.preorder(node[-3])
 
-        if ast == 'list_comp' and self.version != 3.0:
+        # Here is where we handle nested list iterations.
+        if ast == 'list_comp':
             list_iter = ast[1]
             assert list_iter == 'list_iter'
-            if list_iter == 'list_for':
-                self.preorder(list_iter[3])
+            if list_iter[0] == 'list_for':
+                self.preorder(list_iter[0][3])
                 self.prec = p
                 return
             pass
 
         if comp_store:
-            self.preorder(comp_for)
+            self.default(comp_for)
         elif if_node:
             self.write(' if ')
             if have_not:
