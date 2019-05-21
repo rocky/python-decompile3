@@ -631,34 +631,26 @@ class Python3Parser(PythonParser):
                     rule = 'kvlist_n ::='
                     self.add_unique_rule(rule, 'kvlist_n', 1, customize)
                     rule = "dict ::=  BUILD_MAP_n kvlist_n"
-                elif self.version >= 3.5:
-                    if not opname.startswith('BUILD_MAP_WITH_CALL'):
-                        # FIXME: Use the attr
-                        # so this doesn't run into exponential parsing time.
-                        if opname.startswith('BUILD_MAP_UNPACK'):
-                            self.add_unique_rule(rule, opname, token.attr, customize)
-                            rule = 'dict_entry ::= ' + 'expr ' * (token.attr*2)
-                            self.add_unique_rule(rule, opname, token.attr, customize)
 
-                            # FIXME: start here. The LHS should be unmap_dict, not dict.
-                            # FIXME: really we need a combination of dict_entry-like things.
-                            # It just so happens the most common case is not to mix
-                            # dictionary comphensions with dictionary, elements
-                            if 'LOAD_DICTCOMP' in self.seen_ops:
-                                rule = 'dict ::= %s%s' % ('dict_comp ' * token.attr, opname)
-                                self.addRule(rule, nop_func)
-                            rule = """
-                             expr       ::= unmap_dict
-                             unmap_dict ::= %s%s
-                             """ % ('expr ' * token.attr, opname)
-                        else:
-                            rule = "%s ::= %s %s" % (kvlist_n, 'expr ' * (token.attr*2), opname)
-                            self.add_unique_rule(rule, opname, token.attr, customize)
-                            rule = "dict ::=  %s" % kvlist_n
-                else:
-                    rule = kvlist_n + ' ::= ' + 'expr expr STORE_MAP ' * token.attr
-                    self.add_unique_rule(rule, opname, token.attr, customize)
-                    rule = "dict ::=  %s %s" % (opname, kvlist_n)
+                if not opname.startswith('BUILD_MAP_WITH_CALL'):
+                    # FIXME: Use the attr
+                    # so this doesn't run into exponential parsing time.
+                    if opname.startswith('BUILD_MAP_UNPACK'):
+                        # FIXME: start here. The LHS should be unmap_dict, not dict.
+                        # FIXME: really we need a combination of dict_entry-like things.
+                        # It just so happens the most common case is not to mix
+                        # dictionary comphensions with dictionary, elements
+                        if 'LOAD_DICTCOMP' in self.seen_ops:
+                            rule = 'dict ::= %s%s' % ('dict_comp ' * token.attr, opname)
+                            self.addRule(rule, nop_func)
+                        rule = """
+                         expr       ::= unmap_dict
+                         unmap_dict ::= %s%s
+                         """ % ('expr ' * token.attr, opname)
+                    else:
+                        rule = "%s ::= %s %s" % (kvlist_n, 'expr ' * (token.attr*2), opname)
+                        self.add_unique_rule(rule, opname, token.attr, customize)
+                        rule = "dict ::=  %s" % kvlist_n
                 self.add_unique_rule(rule, opname, token.attr, customize)
             elif opname.startswith('BUILD_MAP_UNPACK_WITH_CALL'):
                 v = token.attr
