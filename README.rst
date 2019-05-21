@@ -66,8 +66,8 @@ This uses setup.py, so it follows the standard Python routine:
 A GNU makefile is also provided so :code:`make install` (possibly as root or
 sudo) will do the steps above.
 
-Testing
--------
+Running Tests
+-------------
 
 ::
 
