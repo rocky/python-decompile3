@@ -42,7 +42,7 @@ author_email       = "rb@dustyfeet.com"
 entry_points       = {
     'console_scripts': [
         'decompyle3=decompyle3.bin.uncompile:main_bin',
-        'pydisassemble=decompyle3.bin.pydisassemble:main',
+        'py3disassemble=decompyle3.bin.py3disassemble:main',
     ]}
 ftp_url            = None
 install_requires   = ['spark-parser >= 1.8.7, < 1.9.0',

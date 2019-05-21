@@ -1,5 +1,3 @@
-|buildstatus| |Latest Version| |Supported Python Versions|
-
 decompyle3
 ==========
 
@@ -110,8 +108,8 @@ differently, bugs here often aren't in that, and vice versa.
 Also check against uncompyle6_.
 
 
-Known Bugs/Restrictions
------------------------
+Verification
+------------
 
 The verification checks to see if the resulting decompiled source
 is a valid Python program by running the Python interpreter. Because
@@ -126,6 +124,9 @@ when run check some computation, or even better themselves.
 And already Python has a set of programs like this: the test suite
 for the standard library that comes with Python. We have some
 code in `test/stdlib` to facilitate this kind of checking.
+
+Known Bugs/Restrictions
+-----------------------
 
 **We support only released versions, not candidate versions.** Note however
 that the magic of a released version is usually the same as the *last* candidate version prior to release.
@@ -145,12 +146,7 @@ There is lots to do, so please dig in and help.
 See Also
 --------
 
-* https://github.com/zrax/pycdc : purports to support all versions of Python. It is written in C++ and is most accurate for Python versions around 2.7 and 3.3 when the code was more actively developed. Accuracy for more recent versions of Python 3 and early versions of Python are especially lacking. See its `issue tracker <https://github.com/zrax/pycdc/issues>`_ for details. Currently lightly maintained.
-* https://code.google.com/archive/p/unpyc3/ : supports Python 3.2 only. The above projects use a different decompiling technique than what is used here. Currently unmaintained.
-* https://github.com/figment/unpyc3/ : fork of above, but supports Python 3.3 only. Includes some fixes like supporting function annotations. Currently unmaintained.
-* https://github.com/wibiti/uncompyle2 : supports Python 2.7 only, but does that fairly well. There are situations where `decompyle3` results are incorrect while `uncompyle2` results are not, but more often decompyle3 is correct when uncompyle2 is not. Because `decompyle3` adheres to accuracy over idiomatic Python, `uncompyle2` can produce more natural-looking code when it is correct. Currently `uncompyle2` is lightly maintained. See its issue `tracker <https://github.com/wibiti/uncompyle2/issues>`_ for more details
-* `How to report a bug <https://github.com/rocky/python-decompile3/blob/master/HOW-TO-REPORT-A-BUG.md>`_
-* The HISTORY_ file.
+* https://github.com/andrew-tavera/unpyc37/ : indirect fork of https://code.google.com/archive/p/unpyc3/ The above projects use a different decompiling technique than what is used here. Instructions are walked. Some instructions use the stack to generate strings, while others don't. Because control flow isn't dealt with directly, it too suffers the same problems as the various `uncompyle` and `decompyle` prorgrams.
 * https://github.com/rocky/python-xdis : Cross Python version disassembler
 * https://github.com/rocky/python-xasm : Cross Python version assembler
 * https://github.com/rocky/python-decompile3/wiki : Wiki Documents which describe the code and aspects of it in more detail
