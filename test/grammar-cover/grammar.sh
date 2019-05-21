@@ -1,7 +1,7 @@
 #!/bin/bash
 # Remake Python grammar statistics
 
-typeset -A ALL_VERS=([2.4]=2.4.6 [2.5]=2.5.6 [2.6]=2.6.9 [2.7]=2.7.14 [3.2]=3.2.6 [3.3]=3.3.6 [3.4]=3.4.8 [3.5]=3.5.5 [3.6]=3.6.4)
+typeset -A ALL_VERS=([3.7]=3.7.3)
 
 if (( $# == 0 )); then
     echo 1>&2 "usage: $0 two-digit-version"
@@ -24,11 +24,6 @@ while [[ -n $1 ]]  ; do
     COVER_FILE=${tmpdir}/spark-grammar-${SHORT_VERSION}.cover
     [[ -d  $tmpdir ]] || mkdir $tmpdir
     cd $workdir/../..
-    if [[ $SHORT_VERSION > 2.5 ]] ; then
-        source ./admin-tools/setup-master.sh
-    else
-        source ./admin-tools/setup-python-2.4.sh
-    fi
     GRAMMAR_TXT=$tmpdir/grammar-${SHORT_VERSION}.txt
     (cd ../.. && pyenv local ${LONG_VERSION})
     cd ./test

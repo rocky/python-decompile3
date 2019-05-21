@@ -4,9 +4,6 @@ PHONY=check clean dist distclean test test-unit test-functional rmChangeLog clea
       check-bytecode-2.2 check-byteocde-2.3 check-bytecode-2.4 \
       check-short check-2.6 check-2.7 check-3.0 check-3.1 check-3.2 check-3.3 \
       check-3.4 check-3.5 check-3.6 check-3.7 check-5.6 5.6 5.8 \
-      grammar-coverage-2.5 grammar-coverage-2.6 grammar-coverage-2.7 \
-      grammar-coverage-3.1 grammar-coverage-3.2 grammar-coverage-3.3 \
-      grammar-coverage-3.4 grammar-coverage-3.5 grammar-coverage-3.6 \
       grammar-coverage-3.7
 
 GIT2CL ?= git2cl
@@ -47,11 +44,10 @@ check-bytecode-3:
 check-bytecode: check-bytecode-3
 
 
-#: Get grammar coverage for Python 3.6
+#: Get grammar coverage for Python 3.7
 grammar-coverage-3.7:
-	rm $(COVER_DIR)/spark-grammar-3.6.cover || /bin/true
-	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-3.6.cover $(PYTHON) test_pythonlib.py --bytecode-3.6
-	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-3.6.cover $(PYTHON) test_pyenvlib.py --3.6.4 --max=280
+	rm $(COVER_DIR)/spark-grammar-3.7.cover || /bin/true
+	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-3.7.cover $(PYTHON) test_pyenvlib.py --3.7.3 --max=500
 
 #: Check deparsing Python 3.7
 check-bytecode-3.7:
