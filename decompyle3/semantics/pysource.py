@@ -1081,7 +1081,7 @@ class SourceWalker(GenericASTTraversal, object):
             pass
 
         if comp_store:
-            self.default(comp_for)
+            self.preorder(comp_for)
         elif if_node:
             self.write(' if ')
             if have_not:
