@@ -41,7 +41,7 @@ author             = "Rocky Bernstein, Hartmut Goebel, John Aycock, and others"
 author_email       = "rb@dustyfeet.com"
 entry_points       = {
     'console_scripts': [
-        'decompyle3=decompyle3.bin.uncompile:main_bin',
+        'decompyle3=decompyle3.bin.decompile:main_bin',
         'py3disassemble=decompyle3.bin.py3disassemble:main',
     ]}
 ftp_url            = None
