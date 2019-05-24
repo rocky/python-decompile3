@@ -19,7 +19,7 @@ Why this?
 Uncompyle6 is awesome, but it has has a fundamental problem in the way
 it handles control flow. In the early days of Python when there was
 little optimization and code was generated in a very template-oriented
-way, code generation could be done by simply looking at code patterns.
+way, figuring ot control flow-structures could be done by simply looking at code patterns.
 
 Over the years more code optimization, specifically around handling
 jumps has made it harder to support detecting control flow strictly
