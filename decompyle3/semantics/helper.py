@@ -94,14 +94,9 @@ def strip_quotes(str):
 
 
 def print_docstring(self, indent, docstring):
-    try:
-        if docstring.find('"""') == -1:
-            quote = '"""'
-        else:
-            quote = "'''"
-            docstring = docstring.replace("'''", "\\'''")
-    except:
-        return False
+    quote = '"""'
+    if docstring.find("'''") == -1:
+        quote = "'''"
     self.write(indent)
     docstring = repr(docstring.expandtabs())[1:-1]
 
@@ -122,18 +117,24 @@ def print_docstring(self, indent, docstring):
         and (docstring[-1] != '"'
              or docstring[-2] == '\t')):
         self.write('r') # raw string
-        # restore backslashes unescaped since raw
+        # Restore backslashes unescaped since raw
         docstring = docstring.replace('\t', '\\')
     else:
         # Escape '"' if it's the last character, so it doesn't
         # ruin the ending triple quote
         if len(docstring) and docstring[-1] == '"':
             docstring = docstring[:-1] + '\\"'
+
+        # Escape triple quote when needed
+        if quote == '"""':
+            docstring = docstring.replace(quote, '\\"""')
+        else:
+            assert quote == "'''"
+            docstring = docstring.replace(quote, "\\'''")
+
         # Restore escaped backslashes
         docstring = docstring.replace('\t', '\\\\')
-    # Escape triple quote when needed
-    if quote == '""""':
-        docstring = docstring.replace('"""', '\\"\\"\\"')
+
     lines = docstring.split('\n')
     calculate_indent = maxint
     for line in lines[1:]:
@@ -154,7 +155,10 @@ def print_docstring(self, indent, docstring):
     else:
         self.println(trimmed[0])
         for line in trimmed[1:-1]:
-            self.println( indent, line )
+            if line:
+                self.println( indent, line )
+            else:
+                self.println( "\n\n" )
         self.println(indent, trimmed[-1], quote)
     return True
 

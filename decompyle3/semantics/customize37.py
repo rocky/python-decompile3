@@ -22,7 +22,7 @@ from decompyle3.scanners.tok import Token
 from decompyle3.semantics.consts import (
     PRECEDENCE, TABLE_DIRECT, TABLE_R, INDENT_PER_LEVEL
     )
-from uncompyle6.semantics.helper import (
+from decompyle3.semantics.helper import (
     flatten_list, escape_string, strip_quotes
     )
 
