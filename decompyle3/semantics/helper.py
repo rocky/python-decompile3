@@ -120,10 +120,11 @@ def print_docstring(self, indent, docstring):
         # Restore backslashes unescaped since raw
         docstring = docstring.replace('\t', '\\')
     else:
-        # Escape '"' if it's the last character, so it doesn't
-        # ruin the ending triple quote
-        if len(docstring) and docstring[-1] == '"':
-            docstring = docstring[:-1] + '\\"'
+        # Escape the last character if it is the same as the
+        # triple quote character.
+        quote1 = quote[-1]
+        if len(docstring) and docstring[-1] == quote1:
+            docstring = docstring[:-1] + '\\' + quote1
 
         # Escape triple quote when needed
         if quote == '"""':
