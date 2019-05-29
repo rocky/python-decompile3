@@ -159,7 +159,8 @@ def print_docstring(self, indent, docstring):
                 self.println( indent, line )
             else:
                 self.println( "\n\n" )
-        self.println(indent, trimmed[-1], quote)
+                pass
+            pass
     return True
 
 
