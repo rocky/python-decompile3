@@ -123,7 +123,7 @@ PASS = SyntaxTree('stmts',
 ASSIGN_DOC_STRING = lambda doc_string: \
   SyntaxTree('stmt',
       [ SyntaxTree('assign',
-            [ SyntaxTree('expr', [ Token('LOAD_CONST', pattr=doc_string) ]),
+            [ SyntaxTree('expr', [ Token('LOAD_STR', pattr=doc_string) ]),
               SyntaxTree('store', [ Token('STORE_NAME', pattr='__doc__')])
             ])])
 
@@ -213,8 +213,9 @@ TABLE_DIRECT = {
     'IMPORT_FROM':              ( '%{pattr}', ),
     'attribute':	        ( '%c.%[1]{pattr}',
                                   (0, 'expr')),
-    'LOAD_FAST':	            ( '%{pattr}', ),
-    'LOAD_NAME':	            ( '%{pattr}', ),
+    'LOAD_STR':	                ( '%{pattr}', ),
+    'LOAD_FAST':	        ( '%{pattr}', ),
+    'LOAD_NAME':	        ( '%{pattr}', ),
     'LOAD_CLASSNAME':	        ( '%{pattr}', ),
     'LOAD_GLOBAL':	        ( '%{pattr}', ),
     'LOAD_DEREF':	        ( '%{pattr}', ),
