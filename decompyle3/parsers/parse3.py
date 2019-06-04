@@ -993,64 +993,31 @@ class Python3Parser(PythonParser):
                 else:
                     kwargs = 'kwargs'
 
-                if self.version < 3.3:
-                    # positional args after keyword args
-                    rule = ('mkfunc ::= %s %s%s%s' %
-                            (kwargs, 'pos_arg ' * args_pos, 'LOAD_CONST ',
-                             opname))
-                    self.add_unique_rule(rule, opname, token.attr, customize)
-                    rule = ('mkfunc ::= %s%s%s' %
-                            ('pos_arg ' * args_pos, 'LOAD_CONST ',
-                             opname))
-                elif self.version == 3.3:
-                    # positional args after keyword args
-                    rule = ('mkfunc ::= %s %s%s%s' %
-                            (kwargs, 'pos_arg ' * args_pos, 'LOAD_CONST '*2,
-                             opname))
-                elif self.version > 3.5:
-                    # positional args before keyword args
-                    rule = ('mkfunc ::= %s%s %s%s' %
-                            ('pos_arg ' * args_pos, kwargs, 'LOAD_CONST '*2,
-                             opname))
-                elif self.version > 3.3:
-                    # positional args before keyword args
-                    rule = ('mkfunc ::= %s%s %s%s' %
-                            ('pos_arg ' * args_pos, kwargs, 'LOAD_CONST '*2,
-                             opname))
-                else:
-                    rule = ('mkfunc ::= %s%sexpr %s' %
-                            (kwargs, 'pos_arg ' * args_pos, opname))
+                # positional args before keyword args
+                rule = ('mkfunc ::= %s%s %s%s' %
+                        ('pos_arg ' * args_pos, kwargs, 'LOAD_CONST '*2,
+                         opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
 
                 if opname.startswith('MAKE_FUNCTION_A'):
-                    if self.version >= 3.6:
-                        rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST %s' %
-                                (('pos_arg ' * (args_pos)),
-                                 ('call ' * (annotate_args-1)), opname))
-                        self.add_unique_rule(rule, opname, token.attr, customize)
-                        rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST %s' %
-                                (('pos_arg ' * (args_pos)),
-                                 ('annotate_arg ' * (annotate_args-1)), opname))
-                    if self.version >= 3.3:
-                        # Normally we remove EXTENDED_ARG from the opcodes, but in the case of
-                        # annotated functions can use the EXTENDED_ARG tuple to signal we have an annotated function.
-                        # Yes this is a little hacky
-                        rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST EXTENDED_ARG %s' %
-                                (('pos_arg ' * (args_pos)),
-                                 ('call ' * (annotate_args-1)), opname))
-                        self.add_unique_rule(rule, opname, token.attr, customize)
-                        rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST EXTENDED_ARG %s' %
-                                (('pos_arg ' * (args_pos)),
-                                 ('annotate_arg ' * (annotate_args-1)), opname))
-                    else:
-                        # See above comment about use of EXTENDED_ARG
-                        rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST EXTENDED_ARG %s' %
-                                (('pos_arg ' * (args_pos)),
-                                 ('annotate_arg ' * (annotate_args-1)), opname))
-                        self.add_unique_rule(rule, opname, token.attr, customize)
-                        rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST EXTENDED_ARG %s' %
-                                (('pos_arg ' * (args_pos)),
-                                 ('call ' * (annotate_args-1)), opname))
+                    rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST %s' %
+                            (('pos_arg ' * (args_pos)),
+                             ('call ' * (annotate_args-1)), opname))
+                    self.add_unique_rule(rule, opname, token.attr, customize)
+                    rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST %s' %
+                            (('pos_arg ' * (args_pos)),
+                             ('annotate_arg ' * (annotate_args-1)), opname))
+
+                    # Normally we remove EXTENDED_ARG from the opcodes, but in the case of
+                    # annotated functions can use the EXTENDED_ARG tuple to signal we have an annotated function.
+                    # Yes this is a little hacky
+                    rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST EXTENDED_ARG %s' %
+                            (('pos_arg ' * (args_pos)),
+                             ('call ' * (annotate_args-1)), opname))
+                    self.add_unique_rule(rule, opname, token.attr, customize)
+                    rule = ('mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST EXTENDED_ARG %s' %
+                            (('pos_arg ' * (args_pos)),
+                             ('annotate_arg ' * (annotate_args-1)), opname))
                     self.addRule(rule, nop_func)
             elif opname == 'RETURN_VALUE_LAMBDA':
                 self.addRule("""
@@ -1230,17 +1197,14 @@ def info(args):
     p = Python3Parser()
     if len(args) > 0:
         arg = args[0]
-        if arg == '3.5':
-            from decompyle3.parser.parse35 import Python35Parser
-            p = Python35Parser()
-        elif arg == '3.3':
-            from decompyle3.parser.parse33 import Python33Parser
-            p = Python33Parser()
-        elif arg == '3.2':
-            from decompyle3.parser.parse32 import Python32Parser
-            p = Python32Parser()
-        elif arg == '3.0':
-            p = Python30Parser()
+        if arg == '3.7':
+            from decompyle3.parser.parse37 import Python37Parser
+            p = Python37Parser()
+        elif arg == '3.8':
+            from decompyle3.parser.parse38 import Python38Parser
+            p = Python38Parser()
+        else:
+            raise RuntimeError("Only 3.7 and 3.8 supported")
     p.check_grammar()
     if len(sys.argv) > 1 and sys.argv[1] == 'dump':
         print('-' * 50)
