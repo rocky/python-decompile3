@@ -588,14 +588,7 @@ class SourceWalker(GenericASTTraversal, object):
             # strings are interpreted:
             #    u'xxx' -> 'xxx'
             #    xxx'   -> b'xxx'
-            if not PYTHON3 and isinstance(data, unicode):
-                try:
-                    data = str(data)
-                except UnicodeEncodeError:
-                    # Have to keep data as it is: in Unicode.
-                    pass
-                self.write(repr(data))
-            elif isinstance(data, str):
+            if isinstance(data, str):
                 self.write('b'+repr(data))
             else:
                 self.write(repr(data))

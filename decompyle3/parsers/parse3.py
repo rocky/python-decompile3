@@ -503,10 +503,7 @@ class Python3Parser(PythonParser):
         """Python 3.3 added a an addtional LOAD_CONST before MAKE_FUNCTION and
         this has an effect on many rules.
         """
-        if self.version >= 3.3:
-            new_rule = rule % (('LOAD_CONST ') * 1)
-        else:
-            new_rule = rule % (('LOAD_CONST ') * 0)
+        new_rule = rule % 'LOAD_CONST '
         self.add_unique_rule(new_rule, opname, attr, customize)
 
     def customize_grammar_rules(self, tokens, customize):
@@ -885,27 +882,14 @@ class Python3Parser(PythonParser):
                 else:
                     kwargs_str = ''
 
-                # Note order of kwargs and pos args changed between 3.3-3.4
-                if self.version <= 3.2:
-                    rule = ('mkfunc ::= %s%sload_closure LOAD_CONST %s'
-                            % (kwargs_str, 'expr ' * args_pos, opname))
-                elif self.version == 3.3:
-                    rule = ('mkfunc ::= %s%sload_closure LOAD_CONST LOAD_CONST %s'
-                            % (kwargs_str, 'expr ' * args_pos, opname))
-                elif self.version >= 3.4:
-                    rule = ('mkfunc ::= %s%s load_closure LOAD_CONST LOAD_CONST %s'
-                            % ('expr ' * args_pos, kwargs_str, opname))
+                rule = ('mkfunc ::= %s%s load_closure LOAD_CONST LOAD_CONST %s'
+                        % ('expr ' * args_pos, kwargs_str, opname))
 
                 self.add_unique_rule(rule, opname, token.attr, customize)
 
                 if args_kw == 0:
                     rule = ('mkfunc ::= %sload_closure load_genexpr %s'
                                 % ('pos_arg ' * args_pos, opname))
-                    self.add_unique_rule(rule, opname, token.attr, customize)
-
-                if self.version < 3.4:
-                    rule = ('mkfunc ::= %sload_closure LOAD_CONST %s'
-                            % ('expr ' * args_pos, opname))
                     self.add_unique_rule(rule, opname, token.attr, customize)
 
                 pass
