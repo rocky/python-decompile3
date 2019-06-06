@@ -471,7 +471,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
 
     # Thank you, Python.
 
-    def build_param(ast, name, default):
+    def build_param(ast, name, default, annotation=None):
         """build parameters:
             - handle defaults
             - handle format tuple parameters
@@ -481,7 +481,10 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
         else:
             value = self.traverse(default, indent='')
         maybe_show_tree_param_default(self.showast, name, value)
-        result = '%s=%s' % (name,  value)
+        if annotation:
+            result = '%s: %s=%s' % (name, annotation, value)
+        else:
+            result = '%s=%s' % (name, value)
 
         # The below can probably be removed. This is probably
         # a holdover from days when LOAD_CONST erroneously
@@ -637,16 +640,30 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
     params = []
     if defparams:
         for i, defparam in enumerate(defparams):
-            params.append(build_param(ast, paramnames[i], defparam))
+            params.append(build_param(ast, paramnames[i], defparam,
+                                      annotate_dict.get(paramnames[i])))
 
-        params += paramnames[i+1:]
+        for param in paramnames[i+1:]:
+            if param in annotate_dict:
+                params.append("%s: %s" % (param, annotate_dict[param]))
+            else:
+                params.append(param)
     else:
-        params = paramnames
+        for param in paramnames:
+            if param in annotate_dict:
+                params.append("%s: %s" % (param, annotate_dict[param]))
+            else:
+                params.append(param)
+
 
     params.reverse() # back to correct order
 
     if code_has_star_arg(code):
-        params.append('*%s' % code.co_varnames[argc + kw_pairs])
+        star_arg = code.co_varnames[argc + kw_pairs]
+        if star_arg in annotate_dict:
+            params.append('*%s: %s' %(star_arg, annotate_dict[star_arg]))
+        else:
+            params.append('*%s' % star_arg)
         argc += 1
 
     # dump parameter list (with default values)
@@ -669,7 +686,6 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
             ast[-1] = ast_expr
             pass
     else:
-        # FIXME: add annotations here
         self.write("(", ", ".join(params))
     # self.println(indent, '#flags:\t', int(code.co_flags))
 
@@ -730,7 +746,11 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
     if code_has_star_star_arg(code):
         if argc > 0 and not ends_in_comma:
             self.write(', ')
-        self.write('**%s' % code.co_varnames[argc + kw_pairs])
+        star_star_arg = code.co_varnames[argc + kw_pairs]
+        if star_star_arg in annotate_dict:
+            self.write('**%s: %s' %(star_star_arg, annotate_dict[star_star_arg]))
+        else:
+            self.write('**%s' % star_star_arg)
 
     if is_lambda:
         self.write(": ")
