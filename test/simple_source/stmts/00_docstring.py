@@ -4,26 +4,14 @@
 # RUNNABLE!
 r'''func placeholder - with ("""\nstring\n""")'''
 
-def dq0():
-    assert __doc__ == r'''func placeholder - with ("""\nstring\n""")'''
+def uni(word):
+  u"""        <----- SEE 'u' HERE
+  >>> mylen(u"áéíóú")
+  5
+  """
 
-def dq1():
-    """assert that dedent() has no effect on 'text'"""
-    assert dq1.__doc__ == """assert that dedent() has no effect on 'text'"""
 
-def dq2():
-    '''assert that dedent() has no effect on 'text\''''
-    assert dq1.__doc__ == '''assert that dedent() has no effect on 'text\''''
-
-def dq3():
-    """assert that dedent() has no effect on 'text\""""
-    assert dq3.__doc__ == """assert that dedent() has no effect on 'text\""""
-
-def dq4():
-    """assert that dedent() has no effect on 'text'"""
-    assert dq4.__doc__ == """assert that dedent() has no effect on 'text'"""
-
-def dq5():
+def foo():
     r'''func placeholder - ' and with ("""\nstring\n""")'''
     assert dq5.__doc__ == r'''func placeholder - ' and with ("""\nstring\n""")'''
 
@@ -69,6 +57,10 @@ def baz():
         >>> t.rundict(m1.__dict__, 'rundict_test_pvt')  # None are skipped.
         TestResults(failed=0, attempted=8)
     """
+    assert uni.__doc__ ==   u"""        <----- SEE 'u' HERE
+  >>> mylen(u"áéíóú")
+  5
+  """
 
 dq0()
 dq1()

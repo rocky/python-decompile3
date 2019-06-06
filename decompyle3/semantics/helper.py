@@ -95,8 +95,10 @@ def strip_quotes(str):
 
 def print_docstring(self, indent, docstring):
     quote = '"""'
-    if docstring.find("'''") == -1:
-        quote = "'''"
+    if docstring.find(quote) >= 0:
+        if docstring.find("'''") == -1:
+            quote = "'''"
+
     self.write(indent)
     docstring = repr(docstring.expandtabs())[1:-1]
 
@@ -128,39 +130,31 @@ def print_docstring(self, indent, docstring):
 
         # Escape triple quote when needed
         if quote == '"""':
-            docstring = docstring.replace(quote, '\\"""')
+            replace_str = '\\"""'
         else:
             assert quote == "'''"
-            docstring = docstring.replace(quote, "\\'''")
+            replace_str = "\\'''"
 
-        # Restore escaped backslashes
+        docstring = docstring.replace(quote, replace_str)
         docstring = docstring.replace('\t', '\\\\')
 
     lines = docstring.split('\n')
-    calculate_indent = maxint
-    for line in lines[1:]:
-        stripped = line.lstrip()
-        if len(stripped) > 0:
-            calculate_indent = min(calculate_indent, len(line) - len(stripped))
-    calculate_indent = min(calculate_indent, len(lines[-1]) - len(lines[-1].lstrip()))
-    # Remove indentation (first line is special):
-    trimmed = [lines[0]]
-    if calculate_indent < maxint:
-        trimmed += [line[calculate_indent:] for line in lines[1:]]
 
     self.write(quote)
-    if len(trimmed) == 0:
+    if len(lines) == 0:
         self.println(quote)
-    elif len(trimmed) == 1:
-        self.println(trimmed[0], quote)
+    elif len(lines) == 1:
+        self.println(lines[0], quote)
     else:
-        self.println(trimmed[0])
-        for line in trimmed[1:-1]:
+        self.println(lines[0])
+        for line in lines[1:-1]:
             if line:
-                self.println( indent, line )
+                self.println( line )
             else:
                 self.println( "\n\n" )
-        self.println(indent, trimmed[-1], quote)
+                pass
+            pass
+        self.println(lines[-1], quote)
     return True
 
 
