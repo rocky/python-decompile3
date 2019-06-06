@@ -747,7 +747,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
         if argc > 0 and not ends_in_comma:
             self.write(', ')
         star_star_arg = code.co_varnames[argc + kw_pairs]
-        if star_star_arg in annotate_dict:
+        if annotate_dict and star_star_arg in annotate_dict:
             self.write('**%s: %s' %(star_star_arg, annotate_dict[star_star_arg]))
         else:
             self.write('**%s' % star_star_arg)
