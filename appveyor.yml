@@ -15,13 +15,13 @@ environment:
     #   PYTHON_VERSION: "2.7.x"
     #   PYTHON_ARCH: "32"
 
-    - PYTHON: "C:\\Python27-x64"
-      PYTHON_VERSION: "2.7.x"
+    - PYTHON: "C:\\Python37-x64"
+      PYTHON_VERSION: "3.7.x"
       PYTHON_ARCH: "64"
 
-    # - PYTHON: "C:\\Python26"
-    #   PYTHON_VERSION: "2.6.x"
-    #   PYTHON_ARCH: "32"
+    - PYTHON: "C:\\Python37"
+      PYTHON_VERSION: "3.7.x"
+      PYTHON_ARCH: "32"
 
     # - PYTHON: "C:\\Python26-x64"
     #   PYTHON_VERSION: "2.6.x"
