@@ -135,6 +135,24 @@ def customize_for_version37(self, version):
     self.n_async_call = async_call
     self.n_build_list_unpack = self.n_list
 
+    def gen_function_parens_adjust(mapping_key, node):
+        """If we can avoid the outer parenthesis
+        of a generator function, set the node key to
+        'call_generator' and the caller will do the default
+        action on that. Otherwise we do nothing.
+        """
+        if mapping_key.kind != 'CALL_FUNCTION_1':
+            return
+
+        args_node = node[-2]
+        if args_node == 'pos_arg':
+            assert args_node[0] == 'expr'
+            n = args_node[0][0]
+            if n == 'generator_exp':
+                node.kind = 'call_generator'
+            pass
+        return
+
     def n_call(node):
         mapping = self._get_mapping(node)
         table = mapping[0]
@@ -190,6 +208,8 @@ def customize_for_version37(self, version):
                     template = ('*%c)', nargs+1)
                 self.template_engine(template, node)
             self.prune()
+        else:
+            gen_function_parens_adjust(key, node)
 
         self.default(node)
     self.n_call = n_call
