@@ -1,4 +1,4 @@
-|buildstatus| |Latest Version| |Supported Python Versions|
+|buildstatus|
 
 decompyle3
 ==========
