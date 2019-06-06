@@ -13,9 +13,21 @@ def uni(word):
 
 def foo():
     r'''func placeholder - ' and with ("""\nstring\n""")'''
+    assert dq5.__doc__ == r'''func placeholder - ' and with ("""\nstring\n""")'''
 
-def bar():
+def dq6():
     r"""func placeholder - ' and with ('''\nstring\n''') and \"\"\"\nstring\n\"\"\" """
+    assert dq6.__doc__ == r"""func placeholder - ' and with ('''\nstring\n''') and \"\"\"\nstring\n\"\"\" """
+
+def dq7():
+  u"""        <----- SEE 'u' HERE
+  >>> mylen(u"áéíóú")
+  5
+  """
+  assert dq7.__doc__ ==   u"""        <----- SEE 'u' HERE
+  >>> mylen(u"áéíóú")
+  5
+  """
 
 def baz():
     """
@@ -31,9 +43,6 @@ def baz():
         >>> t.rundict(m1.__dict__, 'rundict_test_pvt')  # None are skipped.
         TestResults(failed=0, attempted=8)
     """
-    assert __doc__ == r'''func placeholder - with ("""\nstring\n""")'''
-    assert foo.__doc__ == r'''func placeholder - ' and with ("""\nstring\n""")'''
-    assert bar.__doc__ == r"""func placeholder - ' and with ('''\nstring\n''') and \"\"\"\nstring\n\"\"\" """
     assert baz.__doc__ == \
     """
         ...     '''>>> assert 1 == 1
@@ -53,4 +62,13 @@ def baz():
   5
   """
 
+dq0()
+dq1()
+dq2()
+dq3()
+dq4()
+dq5()
+dq6()
+# FIXME: Reinstate
+# dq7()
 baz()
