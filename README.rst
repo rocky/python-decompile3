@@ -1,3 +1,5 @@
+|buildstatus| |Latest Version| |Supported Python Versions|
+
 decompyle3
 ==========
 
