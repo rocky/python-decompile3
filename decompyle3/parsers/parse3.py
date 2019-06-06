@@ -38,6 +38,87 @@ class Python3Parser(PythonParser):
         super(Python3Parser, self).__init__(SyntaxTree, 'stmts', debug=debug_parser)
         self.new_rules = set()
 
+    def p_expr(self, args):
+        '''
+        expr ::= _mklambda
+        expr ::= LOAD_CONST
+        expr ::= LOAD_DEREF
+        expr ::= LOAD_FAST
+        expr ::= LOAD_GLOBAL
+        expr ::= LOAD_NAME
+        expr ::= LOAD_STR
+        expr ::= binary_expr
+        expr ::= list
+        expr ::= compare
+        expr ::= dict
+        expr ::= and
+        expr ::= or
+        expr ::= unary_expr
+        expr ::= call
+        expr ::= unary_not
+        expr ::= subscript
+        expr ::= subscript2
+        expr ::= yield
+
+        binary_expr ::= expr expr binary_op
+        binary_op   ::= BINARY_ADD
+        binary_op   ::= BINARY_MULTIPLY
+        binary_op   ::= BINARY_AND
+        binary_op   ::= BINARY_OR
+        binary_op   ::= BINARY_XOR
+        binary_op   ::= BINARY_SUBTRACT
+        binary_op   ::= BINARY_TRUE_DIVIDE
+        binary_op   ::= BINARY_FLOOR_DIVIDE
+        binary_op   ::= BINARY_MODULO
+        binary_op   ::= BINARY_LSHIFT
+        binary_op   ::= BINARY_RSHIFT
+        binary_op   ::= BINARY_POWER
+
+        unary_expr  ::= expr unary_op
+        unary_op    ::= UNARY_POSITIVE
+        unary_op    ::= UNARY_NEGATIVE
+        unary_op    ::= UNARY_INVERT
+
+        unary_not ::= expr UNARY_NOT
+
+        subscript ::= expr expr BINARY_SUBSCR
+
+        attribute ::= expr LOAD_ATTR
+        get_iter  ::= expr GET_ITER
+
+        yield ::= expr YIELD_VALUE
+
+        _mklambda ::= mklambda
+
+        expr ::= conditional
+
+        ret_expr ::= expr
+        ret_expr ::= ret_and
+        ret_expr ::= ret_or
+
+        ret_expr_or_cond ::= ret_expr
+        ret_expr_or_cond ::= ret_cond
+
+        stmt ::= return_lambda
+
+        return_lambda ::= ret_expr RETURN_VALUE_LAMBDA LAMBDA_MARKER
+        return_lambda ::= ret_expr RETURN_VALUE_LAMBDA
+
+        compare        ::= compare_chained
+        compare        ::= compare_single
+        compare_single ::= expr expr COMPARE_OP
+
+        # A compare_chained is two comparisions like x <= y <= z
+        compare_chained  ::= expr compare_chained1 ROT_TWO POP_TOP _come_froms
+        compare_chained2 ::= expr COMPARE_OP JUMP_FORWARD
+
+        # Non-null kvlist items are broken out in the indiviual grammars
+        kvlist ::=
+
+        # Positional arguments in make_function
+        pos_arg ::= expr
+        '''
+
     def p_comprehension3(self, args):
         """
         # Python3 scanner adds LOAD_LISTCOMP. Python3 does list comprehension like
@@ -379,7 +460,7 @@ class Python3Parser(PythonParser):
     def p_generator_exp3(self, args):
         '''
         load_genexpr ::= LOAD_GENEXPR
-        load_genexpr ::= BUILD_TUPLE_1 LOAD_GENEXPR LOAD_CONST
+        load_genexpr ::= BUILD_TUPLE_1 LOAD_GENEXPR LOAD_STR
         '''
 
     def p_expr3(self, args):
@@ -426,7 +507,7 @@ class Python3Parser(PythonParser):
                 break
             pass
         assert i < len(tokens), "build_class needs to find MAKE_FUNCTION or MAKE_CLOSURE"
-        assert tokens[i+1].kind == 'LOAD_CONST', \
+        assert tokens[i+1].kind == 'LOAD_STR', \
           "build_class expecting CONST after MAKE_FUNCTION/MAKE_CLOSURE"
         call_fn_tok = None
         for i in range(i, len(tokens)):
@@ -500,10 +581,10 @@ class Python3Parser(PythonParser):
                 self.add_unique_rule(rule, token.kind, uniq_param, customize)
 
     def add_make_function_rule(self, rule, opname, attr, customize):
-        """Python 3.3 added a an addtional LOAD_CONST before MAKE_FUNCTION and
+        """Python 3.3 added a an addtional LOAD_STR before MAKE_FUNCTION and
         this has an effect on many rules.
         """
-        new_rule = rule % 'LOAD_CONST '
+        new_rule = rule % 'LOAD_STR '
         self.add_unique_rule(new_rule, opname, attr, customize)
 
     def customize_grammar_rules(self, tokens, customize):
@@ -715,7 +796,7 @@ class Python3Parser(PythonParser):
 
                 if opname == 'CALL_FUNCTION' and token.attr == 1:
                     rule = """
-                     dict_comp    ::= LOAD_DICTCOMP LOAD_CONST MAKE_FUNCTION_0 expr
+                     dict_comp    ::= LOAD_DICTCOMP LOAD_STR MAKE_FUNCTION_0 expr
                                       GET_ITER CALL_FUNCTION_1
                     classdefdeco1 ::= expr classdefdeco2 CALL_FUNCTION_1
                     """
@@ -882,7 +963,7 @@ class Python3Parser(PythonParser):
                 else:
                     kwargs_str = ''
 
-                rule = ('mkfunc ::= %s%s load_closure LOAD_CONST LOAD_CONST %s'
+                rule = ('mkfunc ::= %s%s load_closure LOAD_CONST LOAD_STR %s'
                         % ('expr ' * args_pos, kwargs_str, opname))
 
                 self.add_unique_rule(rule, opname, token.attr, customize)
@@ -905,17 +986,17 @@ class Python3Parser(PythonParser):
                             rule = ('mklambda ::= %s%s%s%s' %
                                         ('expr ' * stack_count,
                                          'load_closure ' * closure,
-                                         'BUILD_TUPLE_1 LOAD_LAMBDA LOAD_CONST ',
+                                         'BUILD_TUPLE_1 LOAD_LAMBDA LOAD_STR ',
                                         opname))
                         else:
                             rule = ('mklambda ::= %s%s%s' %
                                         ('load_closure ' * closure,
-                                         'LOAD_LAMBDA LOAD_CONST ',
+                                         'LOAD_LAMBDA LOAD_STR ',
                                         opname))
                         self.add_unique_rule(rule, opname, token.attr, customize)
 
                     else:
-                        rule = ('mklambda ::= %sLOAD_LAMBDA LOAD_CONST %s' %
+                        rule = ('mklambda ::= %sLOAD_LAMBDA LOAD_STR %s' %
                                 (('expr ' * stack_count), opname))
                         self.add_unique_rule(rule, opname, token.attr, customize)
 
@@ -923,7 +1004,7 @@ class Python3Parser(PythonParser):
                     rule = ('mkfunc ::= %s%s%s%s' %
                             ('expr ' * stack_count,
                              'load_closure ' * closure,
-                             'LOAD_CONST ' * 2,
+                             'LOAD_CONST LOAD_STR ',
                              opname))
                     self.add_unique_rule(rule, opname, token.attr, customize)
 
