@@ -192,9 +192,8 @@ class Python3Parser(PythonParser):
         continues ::= continue
 
 
-        kwarg      ::= LOAD_CONST expr
+        kwarg      ::= LOAD_STR expr
         kwargs     ::= kwarg+
-
 
         classdef ::= build_class store
 
@@ -660,16 +659,9 @@ class Python3Parser(PythonParser):
 
         # Determine if we have an iteration CALL_FUNCTION_1.
         has_get_iter_call_function1 = False
-        max_branches = 0
         for i, token in enumerate(tokens):
             if token == 'GET_ITER' and i < n-2 and self.call_fn_name(tokens[i+1]) == 'CALL_FUNCTION_1':
                 has_get_iter_call_function1 = True
-                max_branches += 1
-            elif (token == 'GET_AWAITABLE' and i < n-3
-                  and tokens[i+1] == 'LOAD_CONST' and tokens[i+2] == 'YIELD_FROM'):
-                max_branches += 1
-            if max_branches > 2:
-                break
 
         for i, token in enumerate(tokens):
             opname = token.kind
@@ -915,7 +907,7 @@ class Python3Parser(PythonParser):
                     # Note that 3.6+ doesn't do this, but we'll remove
                     # this rule in parse36.py
                     rule = """
-                        dict_comp ::= load_closure LOAD_DICTCOMP LOAD_CONST
+                        dict_comp ::= load_closure LOAD_DICTCOMP LOAD_STR
                                       MAKE_CLOSURE_0 expr
                                       GET_ITER CALL_FUNCTION_1
                     """
@@ -1076,7 +1068,7 @@ class Python3Parser(PythonParser):
 
                 # positional args before keyword args
                 rule = ('mkfunc ::= %s%s %s%s' %
-                        ('pos_arg ' * args_pos, kwargs, 'LOAD_CONST '*2,
+                        ('pos_arg ' * args_pos, kwargs, 'LOAD_CONST LOAD_STR ',
                          opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
 
@@ -1163,7 +1155,6 @@ class Python3Parser(PythonParser):
         self.check_reduce['while1elsestmt'] = 'noAST'
         self.check_reduce['ifelsestmt'] = 'AST'
         self.check_reduce['annotate_tuple'] = 'noAST'
-        self.check_reduce['kwarg'] = 'noAST'
         if self.version < 3.6:
             # 3.6+ can remove a JUMP_FORWARD which messes up our testing here
             self.check_reduce['try_except'] = 'AST'
@@ -1178,9 +1169,6 @@ class Python3Parser(PythonParser):
             return True
         elif lhs == 'annotate_tuple':
             return not isinstance(tokens[first].attr, tuple)
-        elif lhs == 'kwarg':
-            arg = tokens[first].attr
-            return not isinstance(arg, str)
         elif lhs == 'while1elsestmt':
 
             n  = len(tokens)
