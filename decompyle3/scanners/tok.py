@@ -96,6 +96,8 @@ class Token():
                 elif self.op in self.opc.CONST_OPS:
                     if self.kind == 'LOAD_STR':
                         pattr = self.attr
+                    if self.kind == 'LOAD_CODE':
+                        return "%s%s%s %s" % (prefix, offset_opname,  argstr, pattr)
                     elif self.attr is None:
                         pattr = None
                 elif self.op in self.opc.hascompare:
