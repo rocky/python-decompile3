@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2018 by Rocky Bernstein
+#  Copyright (c) 2016-2019 by Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
 #
@@ -54,7 +54,10 @@ class Token():
         """ '==' on kind and "pattr" attributes.
             It is okay if offsets and linestarts are different"""
         if isinstance(o, Token):
-            return (self.kind == o.kind) and (self.pattr == o.pattr)
+            return (
+                (self.kind == o.kind)
+                and ((self.pattr == o.pattr) or self.attr == o.attr)
+                )
         else:
             # ?? do we need this?
             return self.kind == o
@@ -79,12 +82,15 @@ class Token():
         prefix = ('\n%s%4d  ' % (line_prefix, self.linestart)
                   if self.linestart else (' ' * (6 + len(line_prefix))))
         offset_opname = '%6s  %-17s' % (self.offset, self.kind)
+
         if not self.has_arg:
             return "%s%s" % (prefix, offset_opname)
         argstr = "%6d " % self.attr if isinstance(self.attr, int) else (' '*7)
         if self.has_arg:
             pattr = self.pattr
             if self.opc:
+                name = self.kind
+                opname_base = name[:name.find('_')]
                 if self.op in self.opc.JREL_OPS:
                     if not self.pattr.startswith('to '):
                         pattr = "to " + self.pattr
@@ -94,15 +100,23 @@ class Token():
                         pattr = "to " + str(self.pattr)
                     pass
                 elif self.op in self.opc.CONST_OPS:
-                    if self.kind == 'LOAD_STR':
+                    if name == 'LOAD_STR':
                         pattr = self.attr
-                    if self.kind == 'LOAD_CODE':
+                    elif name == 'LOAD_CODE':
                         return "%s%s%s %s" % (prefix, offset_opname,  argstr, pattr)
-                    elif self.attr is None:
-                        pattr = None
+                    else:
+                        if self.attr is None:
+                            pattr = None
+                        return "%s%r%        %s" % (prefix, offset_opname, pattr)
+
                 elif self.op in self.opc.hascompare:
                     if isinstance(self.attr, int):
                         pattr = self.opc.cmp_op[self.attr]
+                    return "%s%s%s %s" % (prefix, offset_opname,  argstr, pattr)
+                elif self.op in self.opc.hasvargs:
+                    return "%s%s%s" % (prefix, offset_opname,  argstr)
+                elif self.op in self.opc.NAME_OPS:
+                    return "%s%s%s %s" % (prefix, offset_opname,  argstr, self.attr)
                 # And so on. See xdis/bytecode.py get_instructions_bytes
                 pass
         elif re.search(r'_\d+$', self.kind):
