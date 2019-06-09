@@ -202,7 +202,7 @@ def make_function3_annotate(self, node, is_lambda, nested=1,
                     if (line_number != self.line_number):
                         self.write("\n" + indent)
                         line_number = self.line_number
-                    self.write('%s=' % n[0].pattr)
+                    self.write('%s=' % n[0].attr)
                     self.preorder(n[1])
                     if i < last:
                         self.write(', ')
@@ -499,9 +499,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
 
     # Python 3.3+ adds a qualified name at TOS (-1)
     # moving down the LOAD_LAMBDA instruction
-    if 3.0 <= self.version <= 3.2:
-        lambda_index = -2
-    elif 3.03 <= self.version:
+    if 3.03 <= self.version:
         lambda_index = -3
     else:
         lambda_index = None
@@ -515,7 +513,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
     # not to be confused with keyword parameters which may appear after *.
     args_attr = args_node.attr
 
-    if isinstance(args_attr, tuple) or (self.version >= 3.6 and isinstance(args_attr, list)):
+    if isinstance(args_attr, tuple) or isinstance(args_attr, list):
         if len(args_attr) == 3:
             pos_args, kw_args, annotate_argc  = args_attr
         else:

@@ -765,41 +765,32 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_import_from(self, node):
         relative_path_index = 0
-        if self.version >= 2.5:
-            if node[relative_path_index].pattr > 0:
-                node[2].pattr = ('.' * node[relative_path_index].pattr) + node[2].pattr
-            if self.version > 2.7:
-                if isinstance(node[1].pattr, tuple):
-                    imports = node[1].pattr
-                    for pattr in imports:
-                        node[1].pattr = pattr
-                        self.default(node)
-                    return
-                pass
+        if node[relative_path_index].pattr > 0:
+            node[2].pattr = ('.' * node[relative_path_index].pattr) + node[2].pattr
+        if self.version > 2.7:
+            if isinstance(node[1].pattr, tuple):
+                imports = node[1].pattr
+                for pattr in imports:
+                    node[1].pattr = pattr
+                    self.default(node)
+                return
+            pass
         self.default(node)
 
     n_import_from_star = n_import_from
 
     def n_mkfunc(self, node):
 
-        if self.version >= 3.3 or node[-2] in ('kwargs', 'no_kwargs'):
-            # LOAD_CONST code object ..
-            # LOAD_CONST        'x0'  if >= 3.3
-            # MAKE_FUNCTION ..
-            code_node = node[-3]
-        elif node[-2] == 'expr':
-            code_node = node[-2][0]
-        else:
-            # LOAD_CONST code object ..
-            # MAKE_FUNCTION ..
-            code_node = node[-2]
+        # MAKE_FUNCTION ..
+        code_node = node[-3]
+        assert iscode(code_node.attr)
 
         func_name = code_node.attr.co_name
         self.write(func_name)
 
         self.indent_more()
 
-        self.make_function(node, is_lambda=False, code_node=code_node)
+        make_function3(self, node, is_lambda=False, code_node=code_node)
 
         if len(self.param_stack) > 1:
             self.write('\n\n')
@@ -808,15 +799,8 @@ class SourceWalker(GenericASTTraversal, object):
         self.indent_less()
         self.prune() # stop recursing
 
-    def make_function(self, node, is_lambda, nested=1,
-                      code_node=None, annotate=None):
-        if self.version >= 3.0:
-            make_function3(self, node, is_lambda, nested, code_node)
-        else:
-            make_function2(self, node, is_lambda, nested, code_node)
-
     def n_mklambda(self, node):
-        self.make_function(node, is_lambda=True, code_node=node[-2])
+        make_function3(self, node, is_lambda=True, code_node=node[-2])
         self.prune() # stop recursing
 
     def n_list_comp(self, node):
@@ -1335,7 +1319,7 @@ class SourceWalker(GenericASTTraversal, object):
         n = len(node) - 1
         if node.kind != 'expr':
             if node == 'kwarg':
-                self.template_engine(('(%[0]{pattr}=%c)', 1), node)
+                self.template_engine(('(%[0]{attr}=%c)', 1), node)
                 return
 
             kwargs = None
