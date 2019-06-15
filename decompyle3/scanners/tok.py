@@ -86,11 +86,11 @@ class Token():
         if not self.has_arg:
             return "%s%s" % (prefix, offset_opname)
         argstr = "%6d " % self.attr if isinstance(self.attr, int) else (' '*7)
+        name = self.kind
+
         if self.has_arg:
             pattr = self.pattr
             if self.opc:
-                name = self.kind
-                opname_base = name[:name.find('_')]
                 if self.op in self.opc.JREL_OPS:
                     if not self.pattr.startswith('to '):
                         pattr = "to " + self.pattr
@@ -105,9 +105,7 @@ class Token():
                     elif name == 'LOAD_CODE':
                         return "%s%s%s %s" % (prefix, offset_opname,  argstr, pattr)
                     else:
-                        if self.attr is None:
-                            pattr = None
-                        return "%s%r%        %s" % (prefix, offset_opname, pattr)
+                        return "%s%s        %r" % (prefix, offset_opname,  pattr)
 
                 elif self.op in self.opc.hascompare:
                     if isinstance(self.attr, int):
@@ -117,6 +115,9 @@ class Token():
                     return "%s%s%s" % (prefix, offset_opname,  argstr)
                 elif self.op in self.opc.NAME_OPS:
                     return "%s%s%s %s" % (prefix, offset_opname,  argstr, self.attr)
+                elif name == 'EXTENDED_ARG':
+                    return "%s%s%s 0x%x << %s = %s" % (prefix, offset_opname,  argstr, self.attr,
+                                                       self.opc.EXTENDED_ARG_SHIFT, pattr)
                 # And so on. See xdis/bytecode.py get_instructions_bytes
                 pass
         elif re.search(r'_\d+$', self.kind):
