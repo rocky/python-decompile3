@@ -41,6 +41,7 @@ class Python3Parser(PythonParser):
     def p_expr(self, args):
         '''
         expr ::= _mklambda
+        expr ::= LOAD_CODE
         expr ::= LOAD_CONST
         expr ::= LOAD_DEREF
         expr ::= LOAD_FAST
@@ -955,7 +956,7 @@ class Python3Parser(PythonParser):
                 else:
                     kwargs_str = ''
 
-                rule = ('mkfunc ::= %s%s load_closure LOAD_CONST LOAD_STR %s'
+                rule = ('mkfunc ::= %s%s load_closure LOAD_CODE LOAD_STR %s'
                         % ('expr ' * args_pos, kwargs_str, opname))
 
                 self.add_unique_rule(rule, opname, token.attr, customize)
@@ -996,7 +997,7 @@ class Python3Parser(PythonParser):
                     rule = ('mkfunc ::= %s%s%s%s' %
                             ('expr ' * stack_count,
                              'load_closure ' * closure,
-                             'LOAD_CONST LOAD_STR ',
+                             'LOAD_CODE LOAD_STR ',
                              opname))
                     self.add_unique_rule(rule, opname, token.attr, customize)
 
@@ -1068,7 +1069,7 @@ class Python3Parser(PythonParser):
 
                 # positional args before keyword args
                 rule = ('mkfunc ::= %s%s %s%s' %
-                        ('pos_arg ' * args_pos, kwargs, 'LOAD_CONST LOAD_STR ',
+                        ('pos_arg ' * args_pos, kwargs, 'LOAD_CODE LOAD_STR ',
                          opname))
                 self.add_unique_rule(rule, opname, token.attr, customize)
 

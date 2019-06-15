@@ -16,8 +16,8 @@ def test_token():
     # Make sure formatting of: LOAD_CONST False. We assume False is the 0th index
     # of co_consts.
     t = Token('LOAD_CONST', offset=1, attr=False, pattr=False, has_arg=True)
-    expect = '           1  LOAD_CONST            0  False'
-    assert t.format() == expect
+    expect = '           1  LOAD_CONST               False'
+    assert t.format() == expect, t.format()
 
 if __name__ == '__main__':
     test_token()
