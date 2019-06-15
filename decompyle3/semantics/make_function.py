@@ -617,10 +617,13 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
 
     # add defaults values to parameter names
     argc = code.co_argcount
+    kwonlyargcount = code.co_kwonlyargcount
+
     paramnames = list(scanner_code.co_varnames[:argc])
+    kwargs = list(scanner_code.co_varnames[argc:argc+kwonlyargcount])
 
     # defaults are for last n parameters, thus reverse
-    paramnames.reverse();
+    paramnames.reverse()
     defparams.reverse()
 
     try:
@@ -633,6 +636,9 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
         if not self.tolerate_errors:
             self.ERROR = p
         return
+
+    i = len(paramnames) - len(defparams)
+    no_paramnames = len(paramnames[:i]) == 0
 
     # build parameters
     params = []
@@ -657,7 +663,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
     params.reverse() # back to correct order
 
     if code_has_star_arg(code):
-        star_arg = code.co_varnames[argc + kw_pairs]
+        star_arg = code.co_varnames[argc + kwonlyargcount]
         if star_arg in annotate_dict:
             params.append('*%s: %s' %(star_arg, annotate_dict[star_arg]))
         else:
@@ -688,23 +694,23 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
     # self.println(indent, '#flags:\t', int(code.co_flags))
 
     ends_in_comma = False
-    if kw_args > 0:
-        if not (4 & code.co_flags):
-            if argc > 0:
-                self.write(", *, ")
+    if kwonlyargcount > 0:
+        if no_paramnames:
+            if not (4 & code.co_flags):
+                if argc > 0:
+                    self.write(", *, ")
+                else:
+                    self.write("*, ")
+                pass
             else:
-                self.write("*, ")
-            pass
+                self.write(", ")
+                ends_in_comma = True
         else:
-            self.write(", ")
-        ends_in_comma = True
+            if argc > 0:
+                self.write(', ')
+                ends_in_comma = True
 
-        # argc = node[-1].attr
-        # co = node[-3].attr
-        # argcount = co.co_argcount
-        # kwonlyargcount = co.co_kwonlyargcount
-
-        annotate_dict = kw_dict = default_tup = None
+        ann_dict = kw_dict = default_tup = None
         fn_bits = node[-1].attr
         index = -4  # Skip over:
                     #  MAKE_FUNCTION,
@@ -713,7 +719,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
         if fn_bits[-1]:
             index -= 1
         if fn_bits[-2]:
-            annotate_dict = node[index]
+            ann_dict = node[index]
             index -= 1
         if fn_bits[-3]:
             kw_dict = node[index]
@@ -724,7 +730,9 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
         if kw_dict == 'expr':
             kw_dict = kw_dict[0]
 
-        # FIXME: handle free_tup, annotate_dict, and default_tup
+        kw_args = [None] * kwonlyargcount
+
+        # FIXME: handle free_tup, ann_dict, and default_tup
         if kw_dict:
             assert kw_dict == 'dict'
             defaults = [self.traverse(n, indent='') for n in kw_dict[:-2]]
@@ -733,18 +741,36 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
             sep = ''
             # FIXME: possibly handle line breaks
             for i, n in enumerate(names):
-                self.write(sep)
-                self.write("%s=%s" % (n, defaults[i]))
-                sep = ', '
-                ends_in_comma = False
+                idx = kwargs.index(n)
+                if annotate_dict and n in annotate_dict:
+                    t = "%s: %s=%s" % (n, annotate_dict[n], defaults[i])
+                else:
+                    t = "%s=%s" % (n, defaults[i])
+                kw_args[idx] = t
                 pass
             pass
+        # handle others
+        if ann_dict:
+            ann_other_kw = [c == None for c in kw_args]
+
+            for i, flag in enumerate(ann_other_kw):
+                if flag:
+                    n = kwargs[i]
+                    if n in annotate_dict:
+                        kw_args[i] = "%s: %s" %(n, annotate_dict[n])
+                    else:
+                        kw_args[i] = "%s" % n
+        self.write(', '.join(kw_args))
+        ends_in_comma = False
         pass
+    else:
+        if argc == 0:
+            ends_in_comma = True
 
     if code_has_star_star_arg(code):
-        if argc > 0 and not ends_in_comma:
+        if not ends_in_comma:
             self.write(', ')
-        star_star_arg = code.co_varnames[argc + kw_pairs]
+        star_star_arg = code.co_varnames[argc + kwonlyargcount]
         if annotate_dict and star_star_arg in annotate_dict:
             self.write('**%s: %s' %(star_star_arg, annotate_dict[star_star_arg]))
         else:
