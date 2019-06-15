@@ -21,8 +21,8 @@ from decompyle3.parser import PythonParserSingle
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from decompyle3.parsers.parse37 import Python37Parser
 
-class Python38Parser(Python37Parser):
 
+class Python38Parser(Python37Parser):
     def p_38misc(self, args):
         """
         stmt               ::= async_for_stmt38
@@ -159,7 +159,8 @@ class Python38Parser(Python37Parser):
         self.customized = {}
 
     def customize_grammar_rules(self, tokens, customize):
-        self.remove_rules("""
+        self.remove_rules(
+            """
            stmt               ::= async_for_stmt37
            stmt               ::= for
            stmt               ::= forelsestmt
@@ -224,63 +225,72 @@ class Python38Parser(Python37Parser):
                                       LOAD_CONST COME_FROM_FINALLY
 
 
-        """)
+        """
+        )
         super(Python37Parser, self).customize_grammar_rules(tokens, customize)
-        self.check_reduce['ifstmt'] = 'tokens'
-        self.check_reduce['whileTruestmt38'] = 'tokens'
+        self.check_reduce["ifstmt"] = "tokens"
+        self.check_reduce["whileTruestmt38"] = "tokens"
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
-        invalid = super(Python38Parser,
-                        self).reduce_is_invalid(rule, ast,
-                                                tokens, first, last)
+        invalid = super(Python38Parser, self).reduce_is_invalid(
+            rule, ast, tokens, first, last
+        )
         if invalid:
             return invalid
-        if rule[0] == 'ifstmt':
+        if rule[0] == "ifstmt":
             # Make sure jumps don't extend beyond the end of the if statement.
             l = last
             if l == len(tokens):
                 l -= 1
             if isinstance(tokens[l].offset, str):
-                last_offset = int(tokens[l].offset.split('_')[0], 10)
+                last_offset = int(tokens[l].offset.split("_")[0], 10)
             else:
                 last_offset = tokens[l].offset
             for i in range(first, l):
                 t = tokens[i]
-                if t.kind == 'POP_JUMP_IF_FALSE':
+                if t.kind == "POP_JUMP_IF_FALSE":
                     if t.attr > last_offset:
                         return True
                     pass
                 pass
             pass
-        elif rule[0] == 'whileTruestmt38':
-            t = tokens[last-1]
-            if t.kind == 'JUMP_BACK':
+        elif rule[0] == "whileTruestmt38":
+            t = tokens[last - 1]
+            if t.kind == "JUMP_BACK":
                 return t.attr != tokens[first].offset
             pass
 
         return False
 
+
 class Python38ParserSingle(Python38Parser, PythonParserSingle):
     pass
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # Check grammar
     p = Python38Parser()
     p.check_grammar()
     from decompyle3 import PYTHON_VERSION, IS_PYPY
+
     if PYTHON_VERSION == 3.8:
         lhs, rhs, tokens, right_recursive = p.check_sets()
         from decompyle3.scanner import get_scanner
+
         s = get_scanner(PYTHON_VERSION, IS_PYPY)
-        opcode_set = set(s.opc.opname).union(set(
-            """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
+        opcode_set = set(s.opc.opname).union(
+            set(
+                """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
                LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_CLASSNAME
                LAMBDA_MARKER RETURN_LAST
-            """.split()))
+            """.split()
+            )
+        )
         remain_tokens = set(tokens) - opcode_set
         import re
-        remain_tokens = set([re.sub(r'_\d+$', '', t) for t in remain_tokens])
-        remain_tokens = set([re.sub('_CONT$', '', t) for t in remain_tokens])
+
+        remain_tokens = set([re.sub(r"_\d+$", "", t) for t in remain_tokens])
+        remain_tokens = set([re.sub("_CONT$", "", t) for t in remain_tokens])
         remain_tokens = set(remain_tokens) - opcode_set
         print(remain_tokens)
         # print(sorted(p.rule2name.items()))

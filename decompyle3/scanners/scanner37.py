@@ -27,24 +27,28 @@ from decompyle3.scanners.scanner3 import Scanner3
 
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_37 as opc
+
 JUMP_OPs = opc.JUMP_OPS
 
-class Scanner37(Scanner36):
 
+class Scanner37(Scanner36):
     def __init__(self, show_asm=None):
         Scanner3.__init__(self, 3.7, show_asm)
         return
+
     pass
+
 
 if __name__ == "__main__":
     from decompyle3 import PYTHON_VERSION
+
     if PYTHON_VERSION == 3.7:
         import inspect
+
         co = inspect.currentframe().f_code
         tokens, customize = Scanner37().ingest(co)
         for t in tokens:
             print(t.format())
         pass
     else:
-        print("Need to be Python 3.7 to demo; I am %s." %
-              PYTHON_VERSION)
+        print("Need to be Python 3.7 to demo; I am %s." % PYTHON_VERSION)

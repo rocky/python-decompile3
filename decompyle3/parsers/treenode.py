@@ -4,6 +4,7 @@ from spark_parser.ast import AST as spark_AST
 
 intern = sys.intern
 
+
 class SyntaxTree(spark_AST):
     def isNone(self):
         """An SyntaxTree None token. We can't use regular list comparisons
@@ -11,7 +12,7 @@ class SyntaxTree(spark_AST):
         return len(self.data) == 1 and NoneToken == self.data[0]
 
     def __repr__(self):
-        return self.__repr1__('', None)
+        return self.__repr1__("", None)
 
     def __repr1__(self, indent, sibNum=None):
         rv = str(self.kind)
@@ -22,16 +23,16 @@ class SyntaxTree(spark_AST):
             rv += " (%d)" % (len(self))
             enumerate_children = True
         rv = indent + rv
-        indent += '    '
+        indent += "    "
         i = 0
         for node in self:
-            if hasattr(node, '__repr1__'):
+            if hasattr(node, "__repr1__"):
                 if enumerate_children:
-                    child =  node.__repr1__(indent, i)
+                    child = node.__repr1__(indent, i)
                 else:
                     child = node.__repr1__(indent, None)
             else:
-                inst = node.format(line_prefix='L.')
+                inst = node.format(line_prefix="L.")
                 if inst.startswith("\n"):
                     # Nuke leading \n
                     inst = inst[1:]

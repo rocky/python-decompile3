@@ -11,11 +11,17 @@ alphanum = st.sampled_from(string.ascii_lowercase + string.digits)
 
 
 @st.composite
-def function_calls(draw,
-                   min_keyword_args=0, max_keyword_args=5,
-                   min_positional_args=0, max_positional_args=5,
-                   min_star_args=0, max_star_args=1,
-                   min_double_star_args=0, max_double_star_args=1):
+def function_calls(
+    draw,
+    min_keyword_args=0,
+    max_keyword_args=5,
+    min_positional_args=0,
+    max_positional_args=5,
+    min_star_args=0,
+    max_star_args=1,
+    min_double_star_args=0,
+    max_double_star_args=1,
+):
     """
     Strategy factory for generating function calls.
 
@@ -24,52 +30,36 @@ def function_calls(draw,
     :return: The function call text.
     """
     st_positional_args = st.lists(
-        alpha,
-        min_size=min_positional_args,
-        max_size=max_positional_args
+        alpha, min_size=min_positional_args, max_size=max_positional_args
     )
     st_keyword_args = st.lists(
-        alpha,
-        min_size=min_keyword_args,
-        max_size=max_keyword_args
+        alpha, min_size=min_keyword_args, max_size=max_keyword_args
     )
-    st_star_args = st.lists(
-        alpha,
-        min_size=min_star_args,
-        max_size=max_star_args
-    )
+    st_star_args = st.lists(alpha, min_size=min_star_args, max_size=max_star_args)
     st_double_star_args = st.lists(
-        alpha,
-        min_size=min_double_star_args,
-        max_size=max_double_star_args
+        alpha, min_size=min_double_star_args, max_size=max_double_star_args
     )
 
     positional_args = draw(st_positional_args)
     keyword_args = draw(st_keyword_args)
     st_values = st.lists(
-        expressions(),
-        min_size=len(keyword_args),
-        max_size=len(keyword_args)
+        expressions(), min_size=len(keyword_args), max_size=len(keyword_args)
     )
-    keyword_args = [
-        x + '=' + e
-        for x, e in
-        zip(keyword_args, draw(st_values))
-    ]
-    star_args = ['*' + x for x in draw(st_star_args)]
-    double_star_args = ['**' + x for x in draw(st_double_star_args)]
+    keyword_args = [x + "=" + e for x, e in zip(keyword_args, draw(st_values))]
+    star_args = ["*" + x for x in draw(st_star_args)]
+    double_star_args = ["**" + x for x in draw(st_double_star_args)]
 
     arguments = positional_args + keyword_args + star_args + double_star_args
     draw(st.randoms()).shuffle(arguments)
-    arguments = ','.join(arguments)
+    arguments = ",".join(arguments)
 
-    function_call = 'fn({arguments})'.format(arguments=arguments)
+    function_call = "fn({arguments})".format(arguments=arguments)
     try:
         # TODO: Figure out the exact rules for ordering of positional, keyword,
         # star args, double star args and in which versions the various
         # types of arguments are supported so we don't need to check that the
         # expression compiles like this.
-        compile(function_call, '<string>', 'single')
+        compile(function_call, "<string>", "single")
     except:
         assume(False)
     return function_call
@@ -77,6 +67,7 @@ def function_calls(draw,
 
 def test_function_no_args():
     validate_uncompyle("fn()")
+
 
 def isolated_function_calls(which):
     """
@@ -97,29 +88,29 @@ def isolated_function_calls(which):
         max_star_args=0,
         max_double_star_args=0,
     )
-    kwargs['_'.join(('min', which, 'args'))] = 1
-    kwargs['_'.join(('max', which, 'args'))] = 5 if 'star' not in which else 1
+    kwargs["_".join(("min", which, "args"))] = 1
+    kwargs["_".join(("max", which, "args"))] = 5 if "star" not in which else 1
     return function_calls(**kwargs)
 
 
 with settings(max_examples=25):
 
-    @given(isolated_function_calls('positional'))
+    @given(isolated_function_calls("positional"))
     @example("fn(0)")
     def test_function_positional_only(expr):
         validate_uncompyle(expr)
 
-    @given(isolated_function_calls('keyword'))
+    @given(isolated_function_calls("keyword"))
     @example("fn(a=0)")
     def test_function_call_keyword_only(expr):
         validate_uncompyle(expr)
 
-    @given(isolated_function_calls('star'))
+    @given(isolated_function_calls("star"))
     @example("fn(*items)")
     def test_function_call_star_only(expr):
         validate_uncompyle(expr)
 
-    @given(isolated_function_calls('double_star'))
+    @given(isolated_function_calls("double_star"))
     @example("fn(**{})")
     def test_function_call_double_star_only(expr):
         validate_uncompyle(expr)
@@ -165,7 +156,9 @@ def test_BUILD_CONST_KEY_MAP_CALL_FUNCTION_EX():
     validate_uncompyle("fn(i=0,y=0,*p)")
 
 
-@pytest.mark.skip(reason='skipping property based test until all individual tests are passing')
+@pytest.mark.skip(
+    reason="skipping property based test until all individual tests are passing"
+)
 @given(function_calls())
 def test_function_call(function_call):
     validate_uncompyle(function_call)

@@ -8,8 +8,8 @@ from decompyle3.parser import PythonParserSingle, nop_func
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from decompyle3.parsers.parse3 import Python3Parser
 
-class Python35Parser(Python3Parser):
 
+class Python35Parser(Python3Parser):
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
         super(Python35Parser, self).__init__(debug_parser)
         self.customized = {}
@@ -91,19 +91,19 @@ class Python35Parser(Python3Parser):
             opname = token.kind
             # FIXME: I suspect this is wrong for 3.6 and 3.5, but
             # I haven't verified what the 3.7ish fix is
-            if opname == 'BUILD_MAP_UNPACK_WITH_CALL':
+            if opname == "BUILD_MAP_UNPACK_WITH_CALL":
                 if self.version < 3.7:
                     self.addRule("expr ::= unmapexpr", nop_func)
                     nargs = token.attr % 256
                     map_unpack_n = "map_unpack_%s" % nargs
-                    rule = map_unpack_n + ' ::= ' + 'expr ' * (nargs)
+                    rule = map_unpack_n + " ::= " + "expr " * (nargs)
                     self.addRule(rule, nop_func)
                     rule = "unmapexpr ::=  %s %s" % (map_unpack_n, opname)
                     self.addRule(rule, nop_func)
-                    call_token = tokens[i+1]
-                    rule = 'call ::= expr unmapexpr ' + call_token.kind
+                    call_token = tokens[i + 1]
+                    rule = "call ::= expr unmapexpr " + call_token.kind
                     self.addRule(rule, nop_func)
-            elif opname == 'BEFORE_ASYNC_WITH' and self.version < 3.8:
+            elif opname == "BEFORE_ASYNC_WITH" and self.version < 3.8:
                 # Some Python 3.5+ async additions
                 rules_str = """
                    async_with_stmt ::= expr
@@ -128,13 +128,16 @@ class Python35Parser(Python3Parser):
                                WITH_CLEANUP_FINISH END_FINALLY
                 """
                 self.addRule(rules_str, nop_func)
-            elif opname == 'BUILD_MAP_UNPACK':
-                self.addRule("""
+            elif opname == "BUILD_MAP_UNPACK":
+                self.addRule(
+                    """
                    expr       ::= unmap_dict
                    unmap_dict ::= dict_comp BUILD_MAP_UNPACK
-                   """, nop_func)
+                   """,
+                    nop_func,
+                )
 
-            elif opname == 'SETUP_WITH':
+            elif opname == "SETUP_WITH":
                 # Python 3.5+ has WITH_CLEANUP_START/FINISH
                 rules_str = """
                   withstmt   ::= expr
@@ -159,19 +162,24 @@ class Python35Parser(Python3Parser):
         #  1 for CALL_FUNCTION_VAR or CALL_FUNCTION_KW
         #  2 for * and ** args (CALL_FUNCTION_VAR_KW).
         # Yes, this computation based on instruction name is a little bit hoaky.
-        nak = ( len(opname)-len('CALL_FUNCTION') ) // 3
+        nak = (len(opname) - len("CALL_FUNCTION")) // 3
         uniq_param = args_kw + args_pos
 
-        if frozenset(('GET_AWAITABLE', 'YIELD_FROM')).issubset(self.seen_ops):
-            rule = ('async_call ::= expr ' +
-                    ('pos_arg ' * args_pos) +
-                    ('kwarg ' * args_kw) +
-                    'expr ' * nak + token.kind +
-                    ' GET_AWAITABLE LOAD_CONST YIELD_FROM')
+        if frozenset(("GET_AWAITABLE", "YIELD_FROM")).issubset(self.seen_ops):
+            rule = (
+                "async_call ::= expr "
+                + ("pos_arg " * args_pos)
+                + ("kwarg " * args_kw)
+                + "expr " * nak
+                + token.kind
+                + " GET_AWAITABLE LOAD_CONST YIELD_FROM"
+            )
             self.add_unique_rule(rule, token.kind, uniq_param, customize)
-            self.add_unique_rule('expr ::= async_call', token.kind, uniq_param, customize)
+            self.add_unique_rule(
+                "expr ::= async_call", token.kind, uniq_param, customize
+            )
 
-        if opname.startswith('CALL_FUNCTION_VAR'):
+        if opname.startswith("CALL_FUNCTION_VAR"):
             # Python 3.5 changes the stack position of *args. KW args come
             # after *args.
 
@@ -179,41 +187,55 @@ class Python35Parser(Python3Parser):
             # CALL_FUNCTION_VAR_KW with CALL_FUNCTION_EX
 
             token.kind = self.call_fn_name(token)
-            if opname.endswith('KW'):
-                kw = 'expr '
+            if opname.endswith("KW"):
+                kw = "expr "
             else:
-                kw = ''
-            rule = ('call ::= expr expr ' +
-                    ('pos_arg ' * args_pos) +
-                    ('kwarg ' * args_kw) + kw + token.kind)
+                kw = ""
+            rule = (
+                "call ::= expr expr "
+                + ("pos_arg " * args_pos)
+                + ("kwarg " * args_kw)
+                + kw
+                + token.kind
+            )
 
             # Note: semantic actions make use of the fact of wheter  "args_pos"
             # zero or not in creating a template rule.
             self.add_unique_rule(rule, token.kind, args_pos, customize)
         else:
-            super(Python35Parser, self).custom_classfunc_rule(opname, token, customize, *args)
+            super(Python35Parser, self).custom_classfunc_rule(
+                opname, token, customize, *args
+            )
+
 
 class Python35ParserSingle(Python35Parser, PythonParserSingle):
     pass
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # Check grammar
     p = Python35Parser()
     p.check_grammar()
     from decompyle3 import PYTHON_VERSION, IS_PYPY
+
     if PYTHON_VERSION == 3.5:
         lhs, rhs, tokens, right_recursive = p.check_sets()
         from decompyle3.scanner import get_scanner
+
         s = get_scanner(PYTHON_VERSION, IS_PYPY)
-        opcode_set = set(s.opc.opname).union(set(
-            """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
+        opcode_set = set(s.opc.opname).union(
+            set(
+                """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
                LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_CLASSNAME
                LAMBDA_MARKER RETURN_LAST
-            """.split()))
+            """.split()
+            )
+        )
         remain_tokens = set(tokens) - opcode_set
         import re
-        remain_tokens = set([re.sub(r'_\d+$', '', t) for t in remain_tokens])
-        remain_tokens = set([re.sub('_CONT$', '', t) for t in remain_tokens])
+
+        remain_tokens = set([re.sub(r"_\d+$", "", t) for t in remain_tokens])
+        remain_tokens = set([re.sub("_CONT$", "", t) for t in remain_tokens])
         remain_tokens = set(remain_tokens) - opcode_set
         print(remain_tokens)
         # print(sorted(p.rule2name.items()))
