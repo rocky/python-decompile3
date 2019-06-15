@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 from decompyle3 import PYTHON_VERSION, IS_PYPY
 from decompyle3.scanner import get_scanner
+
+
 def bug(state, slotstate):
     if state:
         if slotstate is not None:
             for key, value in slotstate.items():
                 setattr(state, key, 2)
+
 
 # From 2.7 disassemble
 # Problem is not getting while, because
@@ -16,8 +19,10 @@ def bug_loop(disassemble, tb=None):
             tb = 5
         except AttributeError:
             raise RuntimeError
-        while tb: tb = tb.tb_next
+        while tb:
+            tb = tb.tb_next
     disassemble(tb)
+
 
 def test_if_in_for():
     code = bug.__code__
@@ -40,27 +45,29 @@ def test_if_in_for():
         code = bug_loop.__code__
         scan.build_instructions(code)
         fjt = scan.find_jump_targets(False)
-        assert{64: [42], 67: [42, 42], 42: [16, 41], 19: [6]} == fjt
+        assert {64: [42], 67: [42, 42], 42: [16, 41], 19: [6]} == fjt
         assert scan.structs == [
-            {'start': 0, 'end': 80, 'type': 'root'},
-            {'start': 3, 'end': 64, 'type': 'if-then'},
-            {'start': 6, 'end': 15, 'type': 'try'},
-            {'start': 19, 'end': 38, 'type': 'except'},
-            {'start': 45, 'end': 67, 'type': 'while-loop'},
-            {'start': 70, 'end': 64, 'type': 'while-else'},
+            {"start": 0, "end": 80, "type": "root"},
+            {"start": 3, "end": 64, "type": "if-then"},
+            {"start": 6, "end": 15, "type": "try"},
+            {"start": 19, "end": 38, "type": "except"},
+            {"start": 45, "end": 67, "type": "while-loop"},
+            {"start": 70, "end": 64, "type": "while-else"},
             # previous bug was not mistaking while-loop for if-then
-            {'start': 48, 'end': 67, 'type': 'while-loop'}]
+            {"start": 48, "end": 67, "type": "while-loop"},
+        ]
 
     elif 3.2 < PYTHON_VERSION <= 3.4:
         scan.build_instructions(code)
-        fjt  = scan.find_jump_targets(False)
+        fjt = scan.find_jump_targets(False)
         assert {69: [66], 63: [18]} == fjt
-        assert scan.structs == \
-          [{'end': 72, 'type': 'root', 'start': 0},
-           {'end': 66, 'type': 'if-then', 'start': 6},
-           {'end': 63, 'type': 'if-then', 'start': 18},
-           {'end': 59, 'type': 'for-loop', 'start': 31},
-           {'end': 63, 'type': 'for-else', 'start': 62}]
+        assert scan.structs == [
+            {"end": 72, "type": "root", "start": 0},
+            {"end": 66, "type": "if-then", "start": 6},
+            {"end": 63, "type": "if-then", "start": 18},
+            {"end": 59, "type": "for-loop", "start": 31},
+            {"end": 63, "type": "for-else", "start": 62},
+        ]
     else:
         print("FIXME: should fix for %s" % PYTHON_VERSION)
         assert True

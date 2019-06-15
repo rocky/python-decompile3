@@ -28,18 +28,18 @@
 
 import sys
 
-__docformat__ = 'restructuredtext'
+__docformat__ = "restructuredtext"
 
 # We do this crazy way to support Python 2.6 which
 # doesn't support version_major, and has a bug in
 # floating point so we can't divide 26 by 10 and get
 # 2.6
 PYTHON_VERSION = sys.version_info[0] + (sys.version_info[1] / 10.0)
-PYTHON_VERSION_STR  = "%s.%s" % (sys.version_info[0], sys.version_info[1])
+PYTHON_VERSION_STR = "%s.%s" % (sys.version_info[0], sys.version_info[1])
 
-IS_PYPY = '__pypy__' in sys.builtin_module_names
+IS_PYPY = "__pypy__" in sys.builtin_module_names
 
-if hasattr(sys, 'setrecursionlimit'):
+if hasattr(sys, "setrecursionlimit"):
     # pyston doesn't have setrecursionlimit
     sys.setrecursionlimit(5000)
 

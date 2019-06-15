@@ -21,8 +21,8 @@ from decompyle3.parser import PythonParserSingle
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from decompyle3.parsers.parse36 import Python36Parser
 
-class Python37Parser(Python36Parser):
 
+class Python37Parser(Python36Parser):
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
         super(Python37Parser, self).__init__(debug_parser)
         self.customized = {}
@@ -236,7 +236,8 @@ class Python37Parser(Python36Parser):
         """
 
     def customize_grammar_rules(self, tokens, customize):
-        self.remove_rules("""
+        self.remove_rules(
+            """
           async_forelse_stmt ::= SETUP_LOOP expr
                                  GET_AITER
                                  LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST
@@ -260,30 +261,39 @@ class Python37Parser(Python36Parser):
                                POP_TOP POP_TOP POP_TOP POP_EXCEPT
                                POP_TOP POP_BLOCK
                                COME_FROM_LOOP
-        """)
+        """
+        )
         super(Python37Parser, self).customize_grammar_rules(tokens, customize)
+
 
 class Python37ParserSingle(Python37Parser, PythonParserSingle):
     pass
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # Check grammar
     p = Python37Parser()
     p.check_grammar()
     from decompyle3 import PYTHON_VERSION, IS_PYPY
+
     if PYTHON_VERSION == 3.7:
         lhs, rhs, tokens, right_recursive = p.check_sets()
         from decompyle3.scanner import get_scanner
+
         s = get_scanner(PYTHON_VERSION, IS_PYPY)
-        opcode_set = set(s.opc.opname).union(set(
-            """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
+        opcode_set = set(s.opc.opname).union(
+            set(
+                """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
                LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_CLASSNAME
                LAMBDA_MARKER RETURN_LAST
-            """.split()))
+            """.split()
+            )
+        )
         remain_tokens = set(tokens) - opcode_set
         import re
-        remain_tokens = set([re.sub(r'_\d+$', '', t) for t in remain_tokens])
-        remain_tokens = set([re.sub('_CONT$', '', t) for t in remain_tokens])
+
+        remain_tokens = set([re.sub(r"_\d+$", "", t) for t in remain_tokens])
+        remain_tokens = set([re.sub("_CONT$", "", t) for t in remain_tokens])
         remain_tokens = set(remain_tokens) - opcode_set
         print(remain_tokens)
         # print(sorted(p.rule2name.items()))
