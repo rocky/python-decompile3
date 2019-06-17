@@ -145,6 +145,7 @@ from decompyle3.semantics.helper import (
     find_globals_and_nonlocals,
     flatten_list,
 )
+from decompyle3.semantics.transform import TreeTransform
 
 from decompyle3.scanners.tok import Token
 
@@ -2315,13 +2316,17 @@ def code_deparse(
 
     assert not nonlocals
 
+    transform = TreeTransform(
+        scanner, deparsed.p, walker.build_ast, debug_opts.get("ast", None)
+    )
+    transform.transform(deparsed.ast)
     # convert leading '__doc__ = "..." into doc string
     try:
-        if deparsed.ast[0][0] == ASSIGN_DOC_STRING(co.co_consts[0]):
+        if transform.ast[0][0] == ASSIGN_DOC_STRING(co.co_consts[0]):
             print_docstring(deparsed, "", co.co_consts[0])
-            del deparsed.ast[0]
-        if deparsed.ast[-1] == RETURN_NONE:
-            deparsed.ast.pop()  # remove last node
+            del transform.ast[0]
+        if transform[-1] == RETURN_NONE:
+            transform.ast.pop()  # remove last node
             # todo: if empty, add 'pass'
     except:
         pass
@@ -2331,7 +2336,7 @@ def code_deparse(
     )
 
     # What we've been waiting for: Generate source from Syntax Tree!
-    deparsed.gen_source(deparsed.ast, co.co_name, customize)
+    deparsed.gen_source(transform.ast, co.co_name, customize)
 
     for g in sorted(deparsed.mod_globs):
         deparsed.write("# global %s ## Warning: Unused global\n" % g)
