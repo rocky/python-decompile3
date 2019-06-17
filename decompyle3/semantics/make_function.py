@@ -86,12 +86,7 @@ def make_function3_annotate(self, node, is_lambda, nested=1,
         annotate_argc = 0
         pass
 
-    if 3.0 <= self.version <= 3.2:
-        lambda_index = -2
-    elif 3.03 <= self.version:
-        lambda_index = -3
-    else:
-        lambda_index = None
+    lambda_index = -3
 
     if lambda_index and is_lambda and iscode(node[lambda_index].attr):
         assert node[lambda_index].kind == 'LOAD_LAMBDA'
@@ -476,10 +471,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
             - handle defaults
             - handle format tuple parameters
         """
-        if self.version >= 3.6:
-            value = default
-        else:
-            value = self.traverse(default, indent='')
+        value = default
         maybe_show_tree_param_default(self.showast, name, value)
         if annotation:
             result = '%s: %s=%s' % (name, annotation, value)
@@ -499,10 +491,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
 
     # Python 3.3+ adds a qualified name at TOS (-1)
     # moving down the LOAD_LAMBDA instruction
-    if 3.03 <= self.version:
-        lambda_index = -3
-    else:
-        lambda_index = None
+    lambda_index = -3
 
     args_node = node[-1]
 

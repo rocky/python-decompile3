@@ -135,14 +135,13 @@ from decompyle3.parsers.treenode import SyntaxTree
 from spark_parser import GenericASTTraversal, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from decompyle3.scanner import Code, get_scanner
 import decompyle3.parser as python_parser
-from decompyle3.semantics.make_function import (
-    make_function2, make_function3
-    )
+from decompyle3.semantics.make_function import make_function3
 from decompyle3.semantics.parser_error import ParserError
 from decompyle3.semantics.check_ast import checker
 from decompyle3.semantics.customize import customize_for_version
 from decompyle3.semantics.helper import (
     print_docstring, find_globals_and_nonlocals, flatten_list)
+
 from decompyle3.scanners.tok import Token
 
 from decompyle3.semantics.consts import (
@@ -1237,8 +1236,7 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_classdef(self, node):
 
-        if self.version >= 3.0:
-            self.n_classdef3(node)
+        self.n_classdef3(node)
 
         # class definition ('class X(A,B,C):')
         cclass = self.currentclass
