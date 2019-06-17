@@ -210,8 +210,11 @@ class Python3Parser(PythonParser):
         stmt ::= classdefdeco
         classdefdeco ::= classdefdeco1 store
 
-        expr   ::= LOAD_ASSERT
-        assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 COME_FROM
+        expr    ::= LOAD_ASSERT
+        assert  ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 COME_FROM
+        stmt    ::= assert2
+        assert2 ::= assert_expr jmp_true LOAD_GLOBAL LOAD_STR
+                    CALL_FUNCTION_1 RAISE_VARARGS_1 COME_FROM
 
         assert_expr ::= expr
         assert_expr ::= assert_expr_or
