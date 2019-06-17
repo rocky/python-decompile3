@@ -145,6 +145,7 @@ from decompyle3.semantics.helper import (
     find_globals_and_nonlocals,
     flatten_list,
 )
+from decompyle3.semantics.transform import TreeTransform
 
 from decompyle3.scanners.tok import Token
 
@@ -227,6 +228,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         """
         GenericASTTraversal.__init__(self, ast=None)
+
         self.scanner = scanner
         params = {"f": out, "indent": ""}
         self.version = version
@@ -236,6 +238,9 @@ class SourceWalker(GenericASTTraversal, object):
             compile_mode=compile_mode,
             is_pypy=is_pypy,
         )
+
+        self.treeTransform = TreeTransform(scanner, self.p, self.build_ast,
+                                           debug_parser.get("ast", None))
         self.debug_parser = dict(debug_parser)
         self.showast = showast
         self.params = params
@@ -2152,10 +2157,11 @@ class SourceWalker(GenericASTTraversal, object):
             self.println(self.indent, "pass")
         else:
             self.customize(customize)
+            transform_ast = self.treeTransform.transform(ast)
             if is_lambda:
-                self.write(self.traverse(ast, is_lambda=is_lambda))
+                self.write(self.traverse(transform_ast, is_lambda=is_lambda))
             else:
-                self.text = self.traverse(ast, is_lambda=is_lambda)
+                self.text = self.traverse(transform_ast, is_lambda=is_lambda)
                 self.println(self.text)
         self.name = old_name
         self.return_none = rn
@@ -2185,7 +2191,7 @@ class SourceWalker(GenericASTTraversal, object):
             except (python_parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens)
             maybe_show_tree(self, ast)
-            return ast
+            return self.treeTransform.transform(ast)
 
         # The bytecode for the end of the main routine has a
         # "return None". However you can't issue a "return" statement in
@@ -2221,7 +2227,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         checker(ast, False, self.ast_errors)
 
-        return ast
+        return self.treeTransform.transform(ast)
 
     @classmethod
     def _get_mapping(cls, node):
@@ -2296,6 +2302,7 @@ def code_deparse(
     assert not nonlocals
 
     # convert leading '__doc__ = "..." into doc string
+    # FIXME: see if we can somehow do this in the transform phase.
     try:
         if deparsed.ast[0][0] == ASSIGN_DOC_STRING(co.co_consts[0]):
             print_docstring(deparsed, "", co.co_consts[0])
