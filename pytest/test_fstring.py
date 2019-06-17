@@ -1,7 +1,7 @@
 # std
 # test
-from decompyle3 import PYTHON_VERSION, deparse_code
-import os
+from decompyle3 import PYTHON_VERSION, code_deparse
+import os, sys
 import pytest
 
 pytestmark = pytest.mark.skipif("CI" in os.environ, reason="Running in CI is too slow")
@@ -131,7 +131,7 @@ def run_test(text):
     hypothesis.assume("f'{" in text)
     expr = text + "\n"
     code = compile(expr, "<string>", "single")
-    deparsed = deparse_code(PYTHON_VERSION, code, compile_mode="single")
+    deparsed = code_deparse(code, sys.stdout, PYTHON_VERSION, compile_mode="single")
     recompiled = compile(deparsed.text, "<string>", "single")
     if recompiled != code:
         print(recompiled)

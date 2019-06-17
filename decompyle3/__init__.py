@@ -49,14 +49,8 @@ import decompyle3.semantics.fragments
 # Export some functions
 from decompyle3.main import decompile_file
 
-# For compatibility
-uncompyle_file = decompile_file
-
 # Convenience functions so you can say:
 # from decompyle3 import (code_deparse, deparse_code2str)
 
-code_deparse = decompyle3.semantics.pysource.code_deparse
 deparse_code2str = decompyle3.semantics.pysource.deparse_code2str
-
-# This is deprecated:
-deparse_code = decompyle3.semantics.pysource.deparse_code
+code_deparse = decompyle3.semantics.pysource.code_deparse
