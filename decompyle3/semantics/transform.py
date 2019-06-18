@@ -15,7 +15,7 @@ class TreeTransform(GenericASTTraversal, object):
         self.currentclass = None
         self.scanner = scanner
         self.p = parser
-        self.hide_internal = False
+        self.hide_internal = True
         self.ast_errors = []
         return
 
@@ -109,29 +109,50 @@ class TreeTransform(GenericASTTraversal, object):
             stmt = stmts[0]
             raise_stmt = stmt[0]
             if raise_stmt == "raise_stmt1" and len(testexpr[0]) == 2:
-                # ifstmt
-                #   0. testexpr (2)
-                #      testtrue
-                #       0. expr
-                #   1. _ifstmts_jump (2)
-                #      0. c_stmts
-                #        stmts
-                #           raise_stmt1 (2)
-                #             0. expr
-                #                  LOAD_ASSERT
-                #             1.   RAISE_VARARGS_1
-                # becomes:
-                # assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 COME_FROM
                 assert_expr = testexpr[0][0]
                 assert_expr.kind = "assert_expr"
                 jmp_true = testexpr[0][1]
-                LOAD_ASSERT = raise_stmt[0][0]
+                expr = raise_stmt[0]
                 RAISE_VARARGS_1 = raise_stmt[1]
-                node = SyntaxTree(
-                    "assert", [assert_expr, jmp_true, LOAD_ASSERT, RAISE_VARARGS_1]
-                )
+                if expr[0] == "call":
+                    # ifstmt
+                    #     0. testexpr
+                    #         testtrue (2)
+                    #             0. expr
+                    #     1. _ifstmts_jump (2)
+                    #         0. c_stmts
+                    #             stmt
+                    #                 raise_stmt1 (2)
+                    #                     0. expr
+                    #                         call (3)
+                    #                     1. RAISE_VARARGS_1
+                    # becomes:
+                    # assert2 ::= assert_expr jmp_true LOAD_ASSERT expr RAISE_VARARGS_1 COME_FROM
+                    call = expr[0]
+                    LOAD_ASSERT = call[0]
+                    expr = call[1][0]
+                    node = SyntaxTree(
+                        "assert2", [assert_expr, jmp_true, LOAD_ASSERT, expr, RAISE_VARARGS_1]
+                    )
+                else:
+                    # ifstmt
+                    #   0. testexpr (2)
+                    #      testtrue
+                    #       0. expr
+                    #   1. _ifstmts_jump (2)
+                    #      0. c_stmts
+                    #        stmts
+                    #           raise_stmt1 (2)
+                    #             0. expr
+                    #                  LOAD_ASSERT
+                    #             1.   RAISE_VARARGS_1
+                    # becomes:
+                    # assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 COME_FROM
+                    LOAD_ASSERT = expr[0]
+                    node = SyntaxTree(
+                        "assert", [assert_expr, jmp_true, LOAD_ASSERT, RAISE_VARARGS_1]
+                    )
                 pass
-            # elif raise_stmt == "raise_stmt2" ...
             pass
         return node
 
