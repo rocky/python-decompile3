@@ -263,7 +263,9 @@ class Scanner3(Scanner):
                     next_inst.opname == "LOAD_GLOBAL"
                     and next_inst.argval == "AssertionError"
                 ):
-                    if i + 2 < n and self.insts[i + 2].opname.startswith(
+                    raise_idx = self.offset2inst_index[inst.argval - 2]
+                    raise_inst = self.insts[raise_idx]
+                    if raise_inst.opname.startswith(
                         "RAISE_VARARGS"
                     ):
                         self.load_asserts.add(next_inst.offset)
