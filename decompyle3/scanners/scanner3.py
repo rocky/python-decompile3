@@ -262,8 +262,9 @@ class Scanner3(Scanner):
                 if (
                     next_inst.opname == "LOAD_GLOBAL"
                     and next_inst.argval == "AssertionError"
+                    and inst.argval
                 ):
-                    raise_idx = self.offset2inst_index[inst.argval - 2]
+                    raise_idx = self.offset2inst_index[self.prev_op[inst.argval]]
                     raise_inst = self.insts[raise_idx]
                     if raise_inst.opname.startswith(
                         "RAISE_VARARGS"
@@ -389,12 +390,13 @@ class Scanner3(Scanner):
                     pos_args, name_pair_args, annotate_args = parse_fn_counts(
                         inst.argval
                     )
-                    pattr = "%d positional, %d keyword pair, %d annotated" % (
+                    pattr = "%d positional, %d keyword only, %d annotated" % (
                         pos_args,
                         name_pair_args,
                         annotate_args,
                     )
                     if name_pair_args > 0:
+                        # FIXME: this should probably be K_
                         opname = "%s_N%d" % (opname, name_pair_args)
                         pass
                     if annotate_args > 0:
