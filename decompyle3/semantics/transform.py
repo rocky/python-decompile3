@@ -97,6 +97,62 @@ class TreeTransform(GenericASTTraversal, object):
         self.currentclass = str(class_name)
         return node
 
+    def n_ifelsestmt(self, node):
+        # ifelsestmt
+        #          0. testexpr
+        #          1. c_stmts
+        #          2. jump_forward_else (2)
+        #          3. else_suite
+        #             suite_stmts
+        #                 stmt
+        #                     ifstmt (2)
+        # becomes:
+        #
+        # ifelifstmt
+        #          0 testexpr
+        #          1 c_stmts
+        #          2 jump_forward_else
+        #          3 elifelifstmtX
+        suite_stmts = node[3][0]
+        if suite_stmts != "suite_stmts":
+            return
+
+        if len(suite_stmts) == 1 == len(suite_stmts[0]) and suite_stmts[0] == "stmt":
+            n = suite_stmts[0][0]
+        elif suite_stmts[0].kind in ("lastc_stmt", "lastl_stmt"):
+            n = suite_stmts[0][0]
+        else:
+            return node
+
+        if n.kind in ("ifstmt", "iflaststmt", "iflaststmtl", "ifelsestmtr"):
+            kind = "ifelifstmt"
+            n.kind = "elifstmt"
+        else:
+            return node
+
+        # # The below handles multiple elifs.
+        #
+        #  elif n.kind in ('ifelsestmt', 'ifelsestmtc', 'ifelsestmtl'):
+        #    kind = 'ifelifstmt'
+        #    n.kind = 'elifelifstmt'
+        # else:
+        #     return node
+        #     self.n_ifelsestmt(n, preprocess=True)
+        #     if n == 'ifelifstmt':
+        #         n.kind = 'elifelifstmt'
+        #     elif n.kind in ('ifelsestmt', 'ifelsestmtc', 'ifelsestmtl'):
+        #         n.type = 'elifelsestmt'
+        #         pass
+        #     pass
+
+        testexpr = node[0]
+        c_stmts = node[1]
+        jump_forward_else = node[2]
+        elifelifstmt = n
+        node = SyntaxTree(kind, [testexpr, c_stmts, jump_forward_else, elifelifstmt])
+
+        return node
+
     def n_ifstmt(self, node):
         """Here we are just going to check if we can turn an 'ifstmt' into 'assert'"""
         testexpr = node[0]
@@ -132,7 +188,8 @@ class TreeTransform(GenericASTTraversal, object):
                     LOAD_ASSERT = call[0]
                     expr = call[1][0]
                     node = SyntaxTree(
-                        "assert2", [assert_expr, jmp_true, LOAD_ASSERT, expr, RAISE_VARARGS_1]
+                        "assert2",
+                        [assert_expr, jmp_true, LOAD_ASSERT, expr, RAISE_VARARGS_1],
                     )
                 else:
                     # ifstmt
