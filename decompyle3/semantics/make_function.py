@@ -627,7 +627,6 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
         return
 
     i = len(paramnames) - len(defparams)
-    no_paramnames = len(paramnames[:i]) == 0
 
     # build parameters
     params = []
@@ -684,19 +683,16 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
 
     ends_in_comma = False
     if kwonlyargcount > 0:
-        if no_paramnames:
-            if not (4 & code.co_flags):
-                if argc > 0:
-                    self.write(", *, ")
-                else:
-                    self.write("*, ")
-                pass
+        if not (4 & code.co_flags):
+            if argc > 0:
+                self.write(", *, ")
             else:
-                self.write(", ")
-                ends_in_comma = True
+                self.write("*, ")
+            pass
+            ends_in_comma = True
         else:
             if argc > 0:
-                self.write(', ')
+                self.write(", ")
                 ends_in_comma = True
 
         ann_dict = kw_dict = default_tup = None
@@ -739,16 +735,16 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
                 pass
             pass
         # handle others
-        if ann_dict:
-            ann_other_kw = [c == None for c in kw_args]
+        other_kw = [c == None for c in kw_args]
 
-            for i, flag in enumerate(ann_other_kw):
-                if flag:
-                    n = kwargs[i]
-                    if n in annotate_dict:
-                        kw_args[i] = "%s: %s" %(n, annotate_dict[n])
-                    else:
-                        kw_args[i] = "%s" % n
+        for i, flag in enumerate(other_kw):
+            if flag:
+                n = kwargs[i]
+                if n in annotate_dict:
+                    kw_args[i] = "%s: %s" %(n, annotate_dict[n])
+                else:
+                    kw_args[i] = "%s" % n
+
         self.write(', '.join(kw_args))
         ends_in_comma = False
         pass
