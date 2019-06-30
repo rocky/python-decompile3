@@ -529,28 +529,20 @@ class Python3Parser(PythonParser):
         # FIXME: What's the deal with the two rules? Different Python versions?
         # Different situations? Note that the above rule is based on the CALL_FUNCTION
         # token found, while this one doesn't.
-        if self.version < 3.6:
-            call_function = self.call_fn_name(call_fn_tok)
-            args_pos, args_kw = self.get_pos_kw(call_fn_tok)
-            rule = "build_class ::= LOAD_BUILD_CLASS mkfunc %s" "%s" % (
-                ("expr " * (args_pos - 1) + ("kwarg " * args_kw)),
+        # 3.6+ handling
+        call_function = call_fn_tok.kind
+        if call_function.startswith("CALL_FUNCTION_KW"):
+            self.addRule("classdef ::= build_class_kw store", nop_func)
+            rule = "build_class_kw ::= LOAD_BUILD_CLASS mkfunc %sLOAD_CONST %s" % (
+                "expr " * (call_fn_tok.attr - 1),
                 call_function,
             )
         else:
-            # 3.6+ handling
-            call_function = call_fn_tok.kind
-            if call_function.startswith("CALL_FUNCTION_KW"):
-                self.addRule("classdef ::= build_class_kw store", nop_func)
-                rule = "build_class_kw ::= LOAD_BUILD_CLASS mkfunc %sLOAD_CONST %s" % (
-                    "expr " * (call_fn_tok.attr - 1),
-                    call_function,
-                )
-            else:
-                call_function = self.call_fn_name(call_fn_tok)
-                rule = "build_class ::= LOAD_BUILD_CLASS mkfunc %s%s" % (
-                    "expr " * (call_fn_tok.attr - 1),
-                    call_function,
-                )
+            call_function = self.call_fn_name(call_fn_tok)
+            rule = "build_class ::= LOAD_BUILD_CLASS mkfunc %s%s" % (
+                "expr " * (call_fn_tok.attr - 1),
+                call_function,
+            )
         self.addRule(rule, nop_func)
         return
 
@@ -1068,9 +1060,10 @@ class Python3Parser(PythonParser):
                 else:
                     kwargs_str = ""
 
-                rule = "mkfunc ::= %s%s load_closure LOAD_CODE LOAD_STR %s" % (
+                rule = "mkfunc ::= %s%s%s load_closure LOAD_CODE LOAD_STR %s" % (
                     "expr " * args_pos,
                     kwargs_str,
+                    "expr " * annotate_args,
                     opname,
                 )
 
@@ -1169,15 +1162,9 @@ class Python3Parser(PythonParser):
                         )
                     continue
 
-                if self.version < 3.6:
-                    args_pos, args_kw, annotate_args = token.attr
-                else:
-                    args_pos, args_kw, annotate_args, closure = token.attr
+                args_pos, args_kw, annotate_args, closure = token.attr
 
-                if self.version < 3.3:
-                    j = 1
-                else:
-                    j = 2
+                j = 2
 
                 if has_get_iter_call_function1:
                     rule_pat = (
