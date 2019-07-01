@@ -1222,11 +1222,14 @@ class Python3Parser(PythonParser):
                     )
                     self.add_unique_rule(rule, opname, token.attr, customize)
                     if annotate_args > 0:
-                        rule = "mkfunc_annotate ::= %s%s%sannotate_tuple load_closure LOAD_CODE LOAD_STR %s" % (
-                            "pos_arg " * args_pos,
-                            kwargs_str,
-                            "annotate_arg " * (annotate_args - 1),
-                            opname,
+                        rule = (
+                            "mkfunc_annotate ::= %s%s%sannotate_tuple load_closure LOAD_CODE LOAD_STR %s"
+                            % (
+                                "pos_arg " * args_pos,
+                                kwargs_str,
+                                "annotate_arg " * (annotate_args - 1),
+                                opname,
+                            )
                         )
                     else:
                         rule = "mkfunc ::= %s%s load_closure LOAD_CODE LOAD_STR %s" % (

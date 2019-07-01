@@ -28,12 +28,12 @@ check:
 #: Run working tests from Python 3.7
 check-3.7: check-bytecode
 	$(PYTHON) test_pythonlib.py --bytecode-3.7-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-3.7 --weak-verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.7 --syntax-verify $(COMPILE)
 
 #: Run working tests from Python 3.8
 check-3.8: check-bytecode
 	$(PYTHON) test_pythonlib.py --bytecode-3.8-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-3.8 --weak-verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.8 --syntax-verify $(COMPILE)
 
 #: Check deparsing bytecode 3.x only
 check-bytecode-3:
@@ -48,18 +48,18 @@ check-bytecode: check-bytecode-3
 grammar-coverage-3.7:
 	rm $(COVER_DIR)/spark-grammar-3.7.cover || /bin/true
 	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-3.7.cover $(PYTHON) test_pythonlib.py --bytecode-3.7-run --verify-run
-	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-3.7.cover $(PYTHON) test_pythonlib.py --bytecode-3.7 --weak-verify $(COMPILE)
+	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-3.7.cover $(PYTHON) test_pythonlib.py --bytecode-3.7 --syntax-verify $(COMPILE)
 	SPARK_PARSER_COVERAGE=$(COVER_DIR)/spark-grammar-3.7.cover $(PYTHON) test_pyenvlib.py --3.7.3 --max=1000
 
 #: Check deparsing Python 3.7
 check-bytecode-3.7:
 	$(PYTHON) test_pythonlib.py --bytecode-3.7-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-3.7 --weak-verify
+	$(PYTHON) test_pythonlib.py --bytecode-3.7 --syntax-verify
 
 #: Check deparsing Python 3.8
 check-bytecode-3.8:
 	$(PYTHON) test_pythonlib.py --bytecode-3.8-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-3.8 --weak-verify
+	$(PYTHON) test_pythonlib.py --bytecode-3.8 --syntax-verify
 
 clean: clean-py-dis clean-dis clean-unverified
 

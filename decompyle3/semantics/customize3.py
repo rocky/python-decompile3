@@ -23,26 +23,30 @@ from decompyle3.semantics.make_function import make_function3_annotate
 from decompyle3.semantics.customize37 import customize_for_version37
 from decompyle3.semantics.customize38 import customize_for_version38
 
+
 def customize_for_version3(self, version):
-    TABLE_DIRECT.update({
-        'comp_for'       : ( ' for %c in %c',
-                            (2, 'store') , (0, 'expr') ),
-        'conditionalnot' : ( '%c if not %c else %c',
-                            (2, 'expr') , (0, 'expr'), (4, 'expr') ),
-        'except_cond2'   : ( '%|except %c as %c:\n', 1, 5 ),
-        'function_def_annotate': ( '\n\n%|def %c%c\n', -1, 0),
-
-        # When a generator is a single parameter of a function,
-        # it doesn't need the surrounding parenethesis.
-        'call_generator' : ('%c%P', 0, (1, -1, ', ', 100)),
-
-        'importmultiple' : ( '%|import %c%c\n', 2, 3 ),
-        'import_cont'    : ( ', %c', 2 ),
-        'raise_stmt2'    : ( '%|raise %c from %c\n', 0, 1),
-        'store_locals'   : ( '%|# inspect.currentframe().f_locals = __locals__\n', ),
-        'withstmt'       : ( '%|with %c:\n%+%c%-', 0, 3),
-        'withasstmt'     : ( '%|with %c as (%c):\n%+%c%-', 0, 2, 3),
-        })
+    TABLE_DIRECT.update(
+        {
+            "comp_for": (" for %c in %c", (2, "store"), (0, "expr")),
+            "conditionalnot": (
+                "%c if not %c else %c",
+                (2, "expr"),
+                (0, "expr"),
+                (4, "expr"),
+            ),
+            "except_cond2": ("%|except %c as %c:\n", 1, 5),
+            "function_def_annotate": ("\n\n%|def %c%c\n", -1, 0),
+            # When a generator is a single parameter of a function,
+            # it doesn't need the surrounding parenethesis.
+            "call_generator": ("%c%P", 0, (1, -1, ", ", 100)),
+            "importmultiple": ("%|import %c%c\n", 2, 3),
+            "import_cont": (", %c", 2),
+            "raise_stmt2": ("%|raise %c from %c\n", 0, 1),
+            "store_locals": ("%|# inspect.currentframe().f_locals = __locals__\n",),
+            "withstmt": ("%|with %c:\n%+%c%-", 0, 3),
+            "withasstmt": ("%|with %c as (%c):\n%+%c%-", 0, 2, 3),
+        }
+    )
 
     assert version >= 3.7
 
@@ -57,7 +61,7 @@ def customize_for_version3(self, version):
         #               ----------
         # * subclass_code - the code for the subclass body
         subclass_info = None
-        if node == 'classdefdeco2':
+        if node == "classdefdeco2":
             if self.version >= 3.6:
                 class_name = node[1][1].attr
             elif self.version <= 3.3:
@@ -68,17 +72,17 @@ def customize_for_version3(self, version):
         else:
             build_class = node[0]
             if self.version >= 3.6:
-                if build_class == 'build_class_kw':
+                if build_class == "build_class_kw":
                     mkfunc = build_class[1]
-                    assert mkfunc == 'mkfunc'
+                    assert mkfunc == "mkfunc"
                     subclass_info = build_class
-                    if hasattr(mkfunc[0], 'attr') and iscode(mkfunc[0].attr):
+                    if hasattr(mkfunc[0], "attr") and iscode(mkfunc[0].attr):
                         subclass_code = mkfunc[0].attr
                     else:
-                        assert mkfunc[0] == 'load_closure'
+                        assert mkfunc[0] == "load_closure"
                         subclass_code = mkfunc[1].attr
                         assert iscode(subclass_code)
-                if build_class[1][0] == 'load_closure':
+                if build_class[1][0] == "load_closure":
                     code_node = build_class[1][1]
                 else:
                     code_node = build_class[1][0]
@@ -87,72 +91,72 @@ def customize_for_version3(self, version):
                 class_name = node[1][0].attr
                 build_class = node[0]
 
-        assert 'mkfunc' == build_class[1]
+        assert "mkfunc" == build_class[1]
         mkfunc = build_class[1]
-        if mkfunc[0] in ('kwargs', 'no_kwargs'):
+        if mkfunc[0] in ("kwargs", "no_kwargs"):
             if 3.0 <= self.version <= 3.2:
                 for n in mkfunc:
-                    if hasattr(n, 'attr') and iscode(n.attr):
+                    if hasattr(n, "attr") and iscode(n.attr):
                         subclass_code = n.attr
                         break
-                    elif n == 'expr':
+                    elif n == "expr":
                         subclass_code = n[0].attr
                     pass
                 pass
             else:
                 for n in mkfunc:
-                    if hasattr(n, 'attr') and iscode(n.attr):
+                    if hasattr(n, "attr") and iscode(n.attr):
                         subclass_code = n.attr
                         break
                     pass
                 pass
-            if node == 'classdefdeco2':
+            if node == "classdefdeco2":
                 subclass_info = node
             else:
                 subclass_info = node[0]
-        elif build_class[1][0] == 'load_closure':
+        elif build_class[1][0] == "load_closure":
             # Python 3 with closures not functions
             load_closure = build_class[1]
-            if hasattr(load_closure[-3], 'attr'):
+            if hasattr(load_closure[-3], "attr"):
                 # Python 3.3 classes with closures work like this.
                 # Note have to test before 3.2 case because
                 # index -2 also has an attr.
                 subclass_code = load_closure[-3].attr
-            elif hasattr(load_closure[-2], 'attr'):
+            elif hasattr(load_closure[-2], "attr"):
                 # Python 3.2 works like this
                 subclass_code = load_closure[-2].attr
             else:
-                raise 'Internal Error n_classdef: cannot find class body'
-            if hasattr(build_class[3], '__len__'):
+                raise "Internal Error n_classdef: cannot find class body"
+            if hasattr(build_class[3], "__len__"):
                 if not subclass_info:
                     subclass_info = build_class[3]
-            elif hasattr(build_class[2], '__len__'):
+            elif hasattr(build_class[2], "__len__"):
                 subclass_info = build_class[2]
             else:
-                raise 'Internal Error n_classdef: cannot superclass name'
-        elif node == 'classdefdeco2':
+                raise "Internal Error n_classdef: cannot superclass name"
+        elif node == "classdefdeco2":
             subclass_info = node
             subclass_code = build_class[1][0].attr
         elif not subclass_info:
-            if mkfunc[0] in ('no_kwargs', 'kwargs'):
+            if mkfunc[0] in ("no_kwargs", "kwargs"):
                 subclass_code = mkfunc[1].attr
             else:
                 subclass_code = mkfunc[0].attr
-            if node == 'classdefdeco2':
+            if node == "classdefdeco2":
                 subclass_info = node
             else:
                 subclass_info = node[0]
 
-        if (node == 'classdefdeco2'):
-            self.write('\n')
+        if node == "classdefdeco2":
+            self.write("\n")
         else:
-            self.write('\n\n')
+            self.write("\n\n")
 
         self.currentclass = str(class_name)
-        self.write(self.indent, 'class ', self.currentclass)
+        self.write(self.indent, "class ", self.currentclass)
 
         self.print_super_classes3(subclass_info)
-        self.println(':')
+        self.println(":")
 
         # class body
         self.indent_more()
@@ -161,11 +165,12 @@ def customize_for_version3(self, version):
 
         self.currentclass = cclass
         if len(self.param_stack) > 1:
-            self.write('\n\n')
+            self.write("\n\n")
         else:
-            self.write('\n\n\n')
+            self.write("\n\n\n")
 
         self.prune()
+
     self.n_classdef3 = n_classdef3
 
     def n_mkfunc_annotate(node):
@@ -177,48 +182,52 @@ def customize_for_version3(self, version):
         # LOAD_CONST        'x0'  if >= 3.3
         # EXTENDED_ARG
         # MAKE_FUNCTION ..
-        code = node[-3+i]
+        code = node[-3 + i]
 
         self.indent_more()
-        for annotate_last in range(len(node)-1, -1, -1):
-            if node[annotate_last] == 'annotate_tuple':
+        for annotate_last in range(len(node) - 1, -1, -1):
+            if node[annotate_last] == "annotate_tuple":
                 break
 
         # FIXME: the real situation is that when derived from
         # function_def_annotate we the name has been filled in.
         # But when derived from funcdefdeco it hasn't Would like a better
         # way to distinquish.
-        if self.f.getvalue()[-4:] == 'def ':
+        if self.f.getvalue()[-4:] == "def ":
             self.write(code.attr.co_name)
 
         # FIXME: handle and pass full annotate args
-        make_function3_annotate(self, node, is_lambda=False,
-                                code_node=code, annotate_last=annotate_last)
+        make_function3_annotate(
+            self, node, is_lambda=False, code_node=code, annotate_last=annotate_last
+        )
 
         if len(self.param_stack) > 1:
-            self.write('\n\n')
+            self.write("\n\n")
         else:
-            self.write('\n\n\n')
+            self.write("\n\n\n")
         self.indent_less()
-        self.prune() # stop recursing
+        self.prune()  # stop recursing
+
     self.n_mkfunc_annotate = n_mkfunc_annotate
 
-    TABLE_DIRECT.update({
-        'tryelsestmtl3':   ( '%|try:\n%+%c%-%c%|else:\n%+%c%-',
-                             (1, 'suite_stmts_opt'),
-                             (3, 'except_handler'),
-                             (5, 'else_suitel') ),
-        'LOAD_CLASSDEREF': ( '%{pattr}', ),
-        })
+    TABLE_DIRECT.update(
+        {
+            "tryelsestmtl3": (
+                "%|try:\n%+%c%-%c%|else:\n%+%c%-",
+                (1, "suite_stmts_opt"),
+                (3, "except_handler"),
+                (5, "else_suitel"),
+            ),
+            "LOAD_CLASSDEREF": ("%{pattr}",),
+        }
+    )
 
-    TABLE_DIRECT.update({
-        'LOAD_CLASSDEREF':	( '%{pattr}', ),
-        })
+    TABLE_DIRECT.update({"LOAD_CLASSDEREF": ("%{pattr}",)})
 
     if version >= 3.7:
         customize_for_version37(self, version)
         if version >= 3.8:
             customize_for_version38(self, version)
             pass  # version >= 3.8
-        pass # 3.7
+        pass  # 3.7
     return
