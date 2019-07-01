@@ -1234,14 +1234,20 @@ class Python3Parser(PythonParser):
                         )
                     )
                     self.add_unique_rule(rule, opname, token.attr, customize)
-                    rule = (
-                        "mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST %s"
-                        % (
-                            ("pos_arg " * (args_pos)),
-                            ("annotate_arg " * (annotate_args - 1)),
+                    if annotate_args > 0:
+                        rule = "mkfunc_annotate ::= %s%s%sannotate_tuple load_closure LOAD_CODE LOAD_STR %s" % (
+                            "pos_arg " * args_pos,
+                            kwargs_str,
+                            "annotate_arg " * (annotate_args - 1),
                             opname,
                         )
-                    )
+                    else:
+                        rule = "mkfunc ::= %s%s load_closure LOAD_CODE LOAD_STR %s" % (
+                            "pos_arg " * args_pos,
+                            kwargs_str,
+                            opname,
+                        )
+                    self.add_unique_rule(rule, opname, token.attr, customize)
 
                     # Normally we remove EXTENDED_ARG from the opcodes, but in the case of
                     # annotated functions can use the EXTENDED_ARG tuple to signal we have an annotated function.

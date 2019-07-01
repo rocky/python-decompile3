@@ -68,7 +68,7 @@ def make_function3_annotate(self, node, is_lambda, nested=1,
         i = -1
         j = annotate_last-1
         l = -len(node)
-        while j >= l and node[j].kind in ('annotate_arg' 'annotate_tuple'):
+        while j >= l and node[j].kind in ('annotate_arg', 'annotate_tuple'):
             annotate_args[annotate_tup[i]] = node[j][0]
             i -= 1
             j -= 1
@@ -745,7 +745,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
                 else:
                     kw_args[i] = "%s" % n
 
-        self.write(', '.join(kw_args))
+        self.write(", ".join(kw_args))
         ends_in_comma = False
         pass
     else:
