@@ -386,24 +386,6 @@ class Scanner3(Scanner):
                         attr.append(bit)
                         flags >>= 1
                     attr = attr[:4]  # remove last value: attr[5] == False
-                else:
-                    pos_args, name_pair_args, annotate_args = parse_fn_counts(
-                        inst.argval
-                    )
-                    pattr = "%d positional, %d keyword only, %d annotated" % (
-                        pos_args,
-                        name_pair_args,
-                        annotate_args,
-                    )
-                    if name_pair_args > 0:
-                        # FIXME: this should probably be K_
-                        opname = "%s_N%d" % (opname, name_pair_args)
-                        pass
-                    if annotate_args > 0:
-                        opname = "%s_A_%d" % (opname, annotate_args)
-                        pass
-                    opname = "%s_%d" % (opname, pos_args)
-                    attr = (pos_args, name_pair_args, annotate_args)
                 tokens.append(
                     Token(
                         opname=opname,

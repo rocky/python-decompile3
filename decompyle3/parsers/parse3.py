@@ -346,26 +346,6 @@ class Python3Parser(PythonParser):
         iflaststmtl ::= testexpr c_stmts_opt
         """
 
-    def p_def_annotations3(self, args):
-        """
-        # Annotated functions
-        stmt                  ::= function_def_annotate
-        function_def_annotate ::= mkfunc_annotate store
-
-        mkfuncdeco0 ::= mkfunc_annotate
-
-        # This has the annotation value.
-        # LOAD_NAME is used in an annotation type like
-        # int, float, str
-        annotate_arg    ::= LOAD_NAME
-        # LOAD_CONST is used in an annotation string
-        annotate_arg    ::= expr
-
-        # This stores the tuple of parameter names
-        # that have been annotated
-        annotate_tuple    ::= LOAD_CONST
-        """
-
     def p_come_from3(self, args):
         """
         opt_come_from_except ::= COME_FROM_EXCEPT
@@ -1211,55 +1191,6 @@ class Python3Parser(PythonParser):
                 )
                 self.add_unique_rule(rule, opname, token.attr, customize)
 
-                if opname.startswith("MAKE_FUNCTION_A"):
-                    rule = (
-                        "mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST %s"
-                        % (
-                            ("pos_arg " * (args_pos)),
-                            ("call " * (annotate_args - 1)),
-                            opname,
-                        )
-                    )
-                    self.add_unique_rule(rule, opname, token.attr, customize)
-                    if annotate_args > 0:
-                        rule = (
-                            "mkfunc_annotate ::= %s%s%sannotate_tuple load_closure LOAD_CODE LOAD_STR %s"
-                            % (
-                                "pos_arg " * args_pos,
-                                kwargs_str,
-                                "annotate_arg " * (annotate_args - 1),
-                                opname,
-                            )
-                        )
-                    else:
-                        rule = "mkfunc ::= %s%s load_closure LOAD_CODE LOAD_STR %s" % (
-                            "pos_arg " * args_pos,
-                            kwargs_str,
-                            opname,
-                        )
-                    self.add_unique_rule(rule, opname, token.attr, customize)
-
-                    # Normally we remove EXTENDED_ARG from the opcodes, but in the case of
-                    # annotated functions can use the EXTENDED_ARG tuple to signal we have an annotated function.
-                    # Yes this is a little hacky
-                    rule = (
-                        "mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST EXTENDED_ARG %s"
-                        % (
-                            ("pos_arg " * (args_pos)),
-                            ("call " * (annotate_args - 1)),
-                            opname,
-                        )
-                    )
-                    self.add_unique_rule(rule, opname, token.attr, customize)
-                    rule = (
-                        "mkfunc_annotate ::= %s%sannotate_tuple LOAD_CONST LOAD_CONST EXTENDED_ARG %s"
-                        % (
-                            ("pos_arg " * (args_pos)),
-                            ("annotate_arg " * (annotate_args - 1)),
-                            opname,
-                        )
-                    )
-                    self.addRule(rule, nop_func)
             elif opname == "RETURN_VALUE_LAMBDA":
                 self.addRule(
                     """

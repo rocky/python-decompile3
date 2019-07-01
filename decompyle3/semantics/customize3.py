@@ -19,7 +19,6 @@
 from decompyle3.semantics.consts import TABLE_DIRECT
 
 from xdis.code import iscode
-from decompyle3.semantics.make_function import make_function3_annotate
 from decompyle3.semantics.customize37 import customize_for_version37
 from decompyle3.semantics.customize38 import customize_for_version38
 
@@ -172,43 +171,6 @@ def customize_for_version3(self, version):
         self.prune()
 
     self.n_classdef3 = n_classdef3
-
-    def n_mkfunc_annotate(node):
-
-        # Handling EXTENDED_ARG before MAKE_FUNCTION ...
-        i = -1 if node[-2] == "EXTENDED_ARG" else 0
-
-        # LOAD_CONST code object ..
-        # LOAD_CONST        'x0'  if >= 3.3
-        # EXTENDED_ARG
-        # MAKE_FUNCTION ..
-        code = node[-3 + i]
-
-        self.indent_more()
-        for annotate_last in range(len(node) - 1, -1, -1):
-            if node[annotate_last] == "annotate_tuple":
-                break
-
-        # FIXME: the real situation is that when derived from
-        # function_def_annotate we the name has been filled in.
-        # But when derived from funcdefdeco it hasn't Would like a better
-        # way to distinquish.
-        if self.f.getvalue()[-4:] == "def ":
-            self.write(code.attr.co_name)
-
-        # FIXME: handle and pass full annotate args
-        make_function3_annotate(
-            self, node, is_lambda=False, code_node=code, annotate_last=annotate_last
-        )
-
-        if len(self.param_stack) > 1:
-            self.write("\n\n")
-        else:
-            self.write("\n\n\n")
-        self.indent_less()
-        self.prune()  # stop recursing
-
-    self.n_mkfunc_annotate = n_mkfunc_annotate
 
     TABLE_DIRECT.update(
         {
