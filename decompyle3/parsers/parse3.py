@@ -346,26 +346,6 @@ class Python3Parser(PythonParser):
         iflaststmtl ::= testexpr c_stmts_opt
         """
 
-    def p_def_annotations3(self, args):
-        """
-        # Annotated functions
-        stmt                  ::= function_def_annotate
-        function_def_annotate ::= mkfunc_annotate store
-
-        mkfuncdeco0 ::= mkfunc_annotate
-
-        # This has the annotation value.
-        # LOAD_NAME is used in an annotation type like
-        # int, float, str
-        annotate_arg    ::= LOAD_NAME
-        # LOAD_CONST is used in an annotation string
-        annotate_arg    ::= expr
-
-        # This stores the tuple of parameter names
-        # that have been annotated
-        annotate_tuple    ::= LOAD_CONST
-        """
-
     def p_come_from3(self, args):
         """
         opt_come_from_except ::= COME_FROM_EXCEPT
