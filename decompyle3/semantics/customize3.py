@@ -130,7 +130,7 @@ def customize_for_version3(self, version):
                 subclass_info = build_class[2]
             else:
                 raise 'Internal Error n_classdef: cannot superclass name'
-        elif self.version >= 3.6 and node == 'classdefdeco2':
+        elif node == 'classdefdeco2':
             subclass_info = node
             subclass_code = build_class[1][0].attr
         elif not subclass_info:
@@ -168,32 +168,16 @@ def customize_for_version3(self, version):
         self.prune()
     self.n_classdef3 = n_classdef3
 
-    def n_yield_from(node):
-        self.write('yield from')
-        self.write(' ')
-        if 3.3 <= self.version <= 3.4:
-            self.preorder(node[0][0][0][0])
-        elif self.version >= 3.5:
-            self.preorder(node[0])
-        else:
-            assert False, "dunno about this python version"
-        self.prune() # stop recursing
-    self.n_yield_from = n_yield_from
-
     def n_mkfunc_annotate(node):
 
-        if self.version >= 3.3 or node[-2] == 'kwargs':
-            # LOAD_CONST code object ..
-            # LOAD_CONST        'x0'  if >= 3.3
-            # EXTENDED_ARG
-            # MAKE_FUNCTION ..
-            code = node[-4]
-        elif node[-3] == 'expr':
-            code = node[-3][0]
-        else:
-            # LOAD_CONST code object ..
-            # MAKE_FUNCTION ..
-            code = node[-3]
+        # Handling EXTENDED_ARG before MAKE_FUNCTION ...
+        i = -1 if node[-2] == "EXTENDED_ARG" else 0
+
+        # LOAD_CONST code object ..
+        # LOAD_CONST        'x0'  if >= 3.3
+        # EXTENDED_ARG
+        # MAKE_FUNCTION ..
+        code = node[-3+i]
 
         self.indent_more()
         for annotate_last in range(len(node)-1, -1, -1):
