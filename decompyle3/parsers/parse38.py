@@ -23,6 +23,14 @@ from decompyle3.parsers.parse37 import Python37Parser
 
 
 class Python38Parser(Python37Parser):
+    def p_38walrus(self, args):
+        """
+        # named_expr is also known as the "walrus op" :=
+        expr              ::= named_expr
+        named_expr        ::= expr DUP_TOP store
+        """
+
+
     def p_38misc(self, args):
         """
         stmt               ::= async_for_stmt38

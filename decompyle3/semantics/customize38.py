@@ -98,4 +98,7 @@ def customize_for_version38(self, version):
         'tryfinally38': (
             '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
                    (3, 'returns'), 6 ),
+        "named_expr": ( # AKA "walrus operatotr"
+            "%c := %c", (2, "store"), (0, "expr")
+            )
     })

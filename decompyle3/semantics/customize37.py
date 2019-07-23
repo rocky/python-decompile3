@@ -296,6 +296,9 @@ def customize_for_version37(self, version):
                     template = ("*%c)", nargs + 1)
                 self.template_engine(template, node)
             self.prune()
+        elif key.kind.startswith("CALL_FUNCTION_1"):
+            self.template_engine(("%c(%c)", (0, "expr"), 1), node)
+            self.prune()
         else:
             gen_function_parens_adjust(key, node)
 
