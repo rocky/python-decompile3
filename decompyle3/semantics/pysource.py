@@ -438,14 +438,12 @@ class SourceWalker(GenericASTTraversal, object):
             and node[0][0][0] == "LOAD_CONST"
             and node[0][0][0].pattr is None
         )
-        if self.version <= 2.6:
-            return ret
-        else:
-            # FIXME: should the SyntaxTree expression be folded into
-            # the global RETURN_NONE constant?
-            return ret or node == SyntaxTree(
-                "return", [SyntaxTree("ret_expr", [NONE]), Token("RETURN_VALUE")]
-            )
+
+        # FIXME: should the SyntaxTree expression be folded into
+        # the global RETURN_NONE constant?
+        return ret or node == SyntaxTree(
+            "return", [SyntaxTree("ret_expr", [NONE]), Token("RETURN_VALUE")]
+        )
 
     # Python 3.x can have be dead code as a result of its optimization?
     # So we'll add a # at the end of the return lambda so the rest is ignored
