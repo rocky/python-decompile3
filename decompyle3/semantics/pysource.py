@@ -239,8 +239,7 @@ class SourceWalker(GenericASTTraversal, object):
             is_pypy=is_pypy,
         )
 
-        self.treeTransform = TreeTransform(scanner, self.p, self.build_ast,
-                                           debug_parser.get("ast", None))
+        self.treeTransform = TreeTransform(debug_parser.get("ast", None))
         self.debug_parser = dict(debug_parser)
         self.showast = showast
         self.params = params
@@ -2158,6 +2157,7 @@ class SourceWalker(GenericASTTraversal, object):
         else:
             self.customize(customize)
             transform_ast = self.treeTransform.transform(ast)
+            del ast # save memory
             if is_lambda:
                 self.write(self.traverse(transform_ast, is_lambda=is_lambda))
             else:
@@ -2191,7 +2191,9 @@ class SourceWalker(GenericASTTraversal, object):
             except (python_parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens)
             maybe_show_tree(self, ast)
-            return self.treeTransform.transform(ast)
+            transform_ast = self.treeTransform.transform(ast)
+            del ast # save memory
+            return transform_ast
 
         # The bytecode for the end of the main routine has a
         # "return None". However you can't issue a "return" statement in
@@ -2227,7 +2229,9 @@ class SourceWalker(GenericASTTraversal, object):
 
         checker(ast, False, self.ast_errors)
 
-        return self.treeTransform.transform(ast)
+        transform_ast = self.treeTransform.transform(ast)
+        del ast # save memory
+        return transform_ast
 
     @classmethod
     def _get_mapping(cls, node):

@@ -1,22 +1,28 @@
+#  Copyright (c) 2019 by Rocky Bernstein
+
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 from decompyle3.show import maybe_show_tree
 from copy import copy
 import sys
-
-from xdis.code import iscode
 from spark_parser import GenericASTTraversal, GenericASTTraversalPruningException
-from decompyle3.scanner import Code
+
 from decompyle3.parsers.treenode import SyntaxTree
 
-
 class TreeTransform(GenericASTTraversal, object):
-    def __init__(self, scanner, parser, build_ast, show_ast=None):
+    def __init__(self, show_ast=None):
         self.showast = show_ast
-        self.build_ast = build_ast
-        self.currentclass = None
-        self.scanner = scanner
-        self.p = parser
-        self.hide_internal = True
-        self.ast_errors = []
         return
 
     def str_with_template(self, ast):
@@ -26,9 +32,7 @@ class TreeTransform(GenericASTTraversal, object):
         """Walk the tree in roughly 'preorder' (a bit of a lie explained below).
         For each node with typestring name *name* if the
         node has a method called n_*name*, call that before walking
-        children. If there is no method define, call a
-        self.default(node) instead. Subclasses of GenericASTTtraversal
-        ill probably want to override this method.
+        children.
 
         In typical use a node with children can call "preorder" in any
         order it wants which may skip children or order then in ways
@@ -43,22 +47,12 @@ class TreeTransform(GenericASTTraversal, object):
             if hasattr(self, name):
                 func = getattr(self, name)
                 node = func(node)
-            else:
-                node = self.default(node)
         except GenericASTTraversalPruningException:
             return
 
         for i, kid in enumerate(node):
             node[i] = self.preorder(kid)
         return node
-
-    def default(self, node):
-        # print(f"node is {node.kind}")
-        return node
-
-        # if key.kind in table:
-        #     self.template_engine(table[key.kind], node)
-        #     self.prune()
 
     def n_ifstmt(self, node):
         """Here we are just going to check if we can turn an 'ifstmt' into 'assert'"""
@@ -118,6 +112,85 @@ class TreeTransform(GenericASTTraversal, object):
                 pass
             pass
         return node
+
+    # preprocess is used for handling chains of
+    # if elif elif
+    def n_ifelsestmt(self, node, preprocess=False):
+        """
+        Here we turn:
+
+          if ...
+          else
+             if ..
+
+        into:
+
+          if ..
+          elif ...
+
+          [else ...]
+
+        where appropriate
+        """
+        else_suite = node[3]
+
+        n = else_suite[0]
+        old_stmts = None
+
+        if len(n) == 1 == len(n[0]) and n[0] == "stmt":
+            n = n[0][0]
+        elif n[0].kind in ("lastc_stmt", "lastl_stmt"):
+            n = n[0]
+            if n[0].kind in (
+                "ifstmt",
+                "iflaststmt",
+                "iflaststmtl",
+                "ifelsestmtl",
+                "ifelsestmtc",
+            ):
+                # This seems needed for Python 2.5-2.7
+                n = n[0]
+                pass
+            pass
+        elif len(n) > 1 and 1 == len(n[0]) and n[0] == "stmt" and n[1].kind == "stmt":
+            else_suite_stmts = n[0]
+            if else_suite_stmts[0].kind not in ("ifstmt", "iflaststmt", "ifelsestmtl"):
+                return node
+            old_stmts = n
+            n = else_suite_stmts[0]
+        else:
+            return node
+
+        if n.kind in ("ifstmt", "iflaststmt", "iflaststmtl"):
+            node.kind = "ifelifstmt"
+            n.kind = "elifstmt"
+        elif n.kind in ("ifelsestmtr",):
+            node.kind = "ifelifstmt"
+            n.kind = "elifelsestmtr"
+        elif n.kind in ("ifelsestmt", "ifelsestmtc", "ifelsestmtl"):
+            node.kind = "ifelifstmt"
+            self.n_ifelsestmt(n, preprocess=True)
+            if n == "ifelifstmt":
+                n.kind = "elifelifstmt"
+            elif n.kind in ("ifelsestmt", "ifelsestmtc", "ifelsestmtl"):
+                n.kind = "elifelsestmt"
+        if not preprocess:
+            if old_stmts:
+                if n.kind == "elifstmt":
+                    trailing_else = SyntaxTree("stmts", old_stmts[1:])
+                    # We use elifelsestmtr because it has 3 nodes
+                    elifelse_stmt = SyntaxTree(
+                        "elifelsestmtr", [n[0], n[1], trailing_else]
+                    )
+                    node[3] = elifelse_stmt
+                    pass
+                else:
+                    # Other cases for n.kind may happen here
+                    pass
+                pass
+            return node
+
+    n_ifelsestmtc = n_ifelsestmtl = n_ifelsestmt
 
     def traverse(self, node, is_lambda=False):
         node = self.preorder(node)
