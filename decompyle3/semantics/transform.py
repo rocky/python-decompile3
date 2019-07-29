@@ -20,6 +20,7 @@ from spark_parser import GenericASTTraversal, GenericASTTraversalPruningExceptio
 
 from decompyle3.parsers.treenode import SyntaxTree
 
+
 class TreeTransform(GenericASTTraversal, object):
     def __init__(self, show_ast=None):
         self.showast = show_ast
@@ -55,13 +56,22 @@ class TreeTransform(GenericASTTraversal, object):
         return node
 
     def n_ifstmt(self, node):
-        """Here we are just going to check if we can turn an 'ifstmt' into 'assert'"""
+        """Here we check if we can turn an `ifstmt` or 'iflaststmtl` into
+           some kind of `assert` statement"""
+
         testexpr = node[0]
-        ifstmts_jump = node[1]
-        if testexpr != "testexpr" or node[1] != "_ifstmts_jump":
-            # No dice
+
+        if testexpr != "testexpr":
             return node
-        stmts = ifstmts_jump[0]
+        if node.kind == "ifstmt":
+            ifstmts_jump = node[1]
+            if node[1] != "_ifstmts_jump":
+                return node
+            stmts = ifstmts_jump[0]
+        else:
+            # iflaststmtl works this way
+            stmts = node[1]
+
         if stmts in ("c_stmts",) and len(stmts) == 1:
             stmt = stmts[0]
             raise_stmt = stmt[0]
@@ -89,7 +99,8 @@ class TreeTransform(GenericASTTraversal, object):
                     LOAD_ASSERT = call[0]
                     expr = call[1][0]
                     node = SyntaxTree(
-                        "assert2", [assert_expr, jmp_true, LOAD_ASSERT, expr, RAISE_VARARGS_1]
+                        "assert2",
+                        [assert_expr, jmp_true, LOAD_ASSERT, expr, RAISE_VARARGS_1],
                     )
                 else:
                     # ifstmt
@@ -112,6 +123,8 @@ class TreeTransform(GenericASTTraversal, object):
                 pass
             pass
         return node
+
+    n_iflaststmtl = n_ifstmt
 
     # preprocess is used for handling chains of
     # if elif elif
