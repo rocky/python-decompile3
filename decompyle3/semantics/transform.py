@@ -19,7 +19,15 @@ import sys
 from spark_parser import GenericASTTraversal, GenericASTTraversalPruningException
 
 from decompyle3.parsers.treenode import SyntaxTree
+from decompyle3.scanners.tok import Token
+from decompyle3.semantics.consts import RETURN_NONE
 
+
+def is_docstring(node):
+    try:
+        return node[0][0].kind == "assign" and node[0][0][1][0].pattr == "__doc__"
+    except:
+        return False
 
 class TreeTransform(GenericASTTraversal, object):
     def __init__(self, show_ast=None):
@@ -53,6 +61,24 @@ class TreeTransform(GenericASTTraversal, object):
 
         for i, kid in enumerate(node):
             node[i] = self.preorder(kid)
+        return node
+
+    def n_mkfunc(self, node):
+
+        code_node = node[-3]
+        code = code_node.attr
+
+        if (
+            node[-1].pattr != "closure"
+            and len(code.co_consts) > 0
+            and code.co_consts[0] is not None
+        ):
+            docstring_node = SyntaxTree(
+                "docstring",
+                [Token("LOAD_STR", has_arg=True, pattr=code.co_consts[0])],
+            )
+            node = SyntaxTree("mkfunc", node[:-1] + [docstring_node, node[-1]])
+
         return node
 
     def n_ifstmt(self, node):
@@ -212,6 +238,23 @@ class TreeTransform(GenericASTTraversal, object):
     def transform(self, ast):
         self.ast = copy(ast)
         self.ast = self.traverse(self.ast, is_lambda=False)
+
+        try:
+            if is_docstring(self.ast[0]):
+                self.ast[0] = SyntaxTree(
+                    "docstring",
+                    [
+                        Token(
+                            "LOAD_STR", has_arg=True, offset=0, pattr=self.ast[0][0][0][0][0].attr
+                        )
+                    ],
+                )
+            if self.ast[-1] == RETURN_NONE:
+                self.ast.pop()  # remove last node
+                # todo: if empty, add 'pass'
+        except:
+            pass
+
         maybe_show_tree(self, self.ast)
         return self.ast
 

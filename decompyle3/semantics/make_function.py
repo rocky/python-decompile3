@@ -380,10 +380,10 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
         self.println(":")
 
     if (
-        len(code.co_consts) > 0 and code.co_consts[0] is not None and not is_lambda
-    ):  # ugly
+        node[-2] == "docstring" and not is_lambda
+    ):
         # docstring exists, dump it
-        print_docstring(self, self.indent, code.co_consts[0])
+        self.println(self.traverse(node[-2]))
 
     scanner_code._tokens = None  # save memory
     assert ast == "stmts"
