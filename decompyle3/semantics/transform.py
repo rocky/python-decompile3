@@ -34,9 +34,6 @@ class TreeTransform(GenericASTTraversal, object):
         self.showast = show_ast
         return
 
-    def str_with_template(self, ast):
-        sys.stdout.write(str(ast))
-
     def preorder(self, node=None):
         """Walk the tree in roughly 'preorder' (a bit of a lie explained below).
         For each node with typestring name *name* if the
@@ -64,6 +61,11 @@ class TreeTransform(GenericASTTraversal, object):
         return node
 
     def n_mkfunc(self, node):
+        """If the function has a docstring (this is found in the code
+        constants), pull that out and make it part of the syntax
+        tree. When generating the source string that AST node rather
+        than the code field is seen and used.
+        """
 
         code_node = node[-3]
         code = code_node.attr
