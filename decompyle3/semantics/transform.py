@@ -15,7 +15,6 @@
 
 from decompyle3.show import maybe_show_tree
 from copy import copy
-import sys
 from spark_parser import GenericASTTraversal, GenericASTTraversalPruningException
 
 from decompyle3.parsers.treenode import SyntaxTree

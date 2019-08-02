@@ -665,38 +665,6 @@ class SourceWalker(GenericASTTraversal, object):
         self.println()
         self.prune()  # stop recursing
 
-    def n_ifelsestmt(self, node, preprocess=False):
-        else_suite = node[3]
-
-        n = else_suite[0]
-
-        if len(n) == 1 == len(n[0]) and n[0] == "_stmts":
-            n = n[0][0][0]
-        elif n[0].kind in ("lastc_stmt", "lastl_stmt"):
-            n = n[0][0]
-        else:
-            if not preprocess:
-                self.default(node)
-            return
-
-        if n.kind in ("ifstmt", "iflaststmt", "iflaststmtl"):
-            node.kind = "ifelifstmt"
-            n.kind = "elifstmt"
-        elif n.kind in ("ifelsestmtr",):
-            node.kind = "ifelifstmt"
-            n.kind = "elifelsestmtr"
-        elif n.kind in ("ifelsestmt", "ifelsestmtc", "ifelsestmtl"):
-            node.kind = "ifelifstmt"
-            self.n_ifelsestmt(n, preprocess=True)
-            if n == "ifelifstmt":
-                n.kind = "elifelifstmt"
-            elif n.kind in ("ifelsestmt", "ifelsestmtc", "ifelsestmtl"):
-                n.kind = "elifelsestmt"
-        if not preprocess:
-            self.default(node)
-
-    n_ifelsestmtc = n_ifelsestmtl = n_ifelsestmt
-
     def n_ifelsestmtr(self, node):
         if node[2] == "COME_FROM":
             return_stmts_node = node[3]
@@ -2256,7 +2224,9 @@ class SourceWalker(GenericASTTraversal, object):
             except (python_parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens)
             maybe_show_tree(self, ast)
-            return ast
+            transform_ast = self.treeTransform.transform(ast)
+            del ast # Save memory
+            return transform_ast
 
         # The bytecode for the end of the main routine has a
         # "return None". However you can't issue a "return" statement in
@@ -2293,7 +2263,10 @@ class SourceWalker(GenericASTTraversal, object):
         checker(ast, False, self.ast_errors)
 
         self.customize(customize)
-        return ast
+
+        transform_ast = self.treeTransform.transform(ast)
+        del ast # Save memory
+        return transform_ast
 
     @classmethod
     def _get_mapping(cls, node):
@@ -2351,7 +2324,6 @@ def code_deparse(
 
     isTopLevel = co.co_name == "<module>"
     deparsed.ast = deparsed.build_ast(tokens, customize, isTopLevel=isTopLevel)
-    deparsed.ast = deparsed.treeTransform.transform(deparsed.ast)
 
     #### XXX workaround for profiling
     if deparsed.ast is None:
