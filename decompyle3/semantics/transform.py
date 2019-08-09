@@ -28,10 +28,15 @@ def is_docstring(node):
     except:
         return False
 
+
 class TreeTransform(GenericASTTraversal, object):
     def __init__(self, show_ast=None):
         self.showast = show_ast
         return
+
+    def maybe_show_tree(self, ast):
+        if isinstance(self.showast, dict) and self.showast.get("after", False):
+            maybe_show_tree(self, ast)
 
     def preorder(self, node=None):
         """Walk the tree in roughly 'preorder' (a bit of a lie explained below).
@@ -77,8 +82,13 @@ class TreeTransform(GenericASTTraversal, object):
             docstring_node = SyntaxTree(
                 "docstring",
                 [Token("LOAD_STR", has_arg=True, pattr=code.co_consts[0])],
+                transformed_by="n_mkfunc",
             )
-            node = SyntaxTree("mkfunc", node[:-1] + [docstring_node, node[-1]])
+            node = SyntaxTree(
+                "mkfunc",
+                node[:-1] + [docstring_node, node[-1]],
+                transformed_by="n_mkfunc",
+            )
 
         return node
 
@@ -128,6 +138,7 @@ class TreeTransform(GenericASTTraversal, object):
                     node = SyntaxTree(
                         "assert2",
                         [assert_expr, jmp_true, LOAD_ASSERT, expr, RAISE_VARARGS_1],
+                        transformed_by="n_ifstmt",
                     )
                 else:
                     # ifstmt
@@ -145,7 +156,9 @@ class TreeTransform(GenericASTTraversal, object):
                     # assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 COME_FROM
                     LOAD_ASSERT = expr[0]
                     node = SyntaxTree(
-                        "assert", [assert_expr, jmp_true, LOAD_ASSERT, RAISE_VARARGS_1]
+                        "assert",
+                        [assert_expr, jmp_true, LOAD_ASSERT, RAISE_VARARGS_1],
+                        transformed_by="n_ifstmt",
                     )
                 pass
             pass
@@ -228,6 +241,7 @@ class TreeTransform(GenericASTTraversal, object):
                     # Other cases for n.kind may happen here
                     pass
                 pass
+            node.transformed_by = "n_ifelsestmt"
             return node
 
     n_ifelsestmtc = n_ifelsestmtl = n_ifelsestmt
@@ -241,22 +255,31 @@ class TreeTransform(GenericASTTraversal, object):
         self.ast = self.traverse(self.ast, is_lambda=False)
 
         try:
-            if is_docstring(self.ast[0]):
-                self.ast[0] = SyntaxTree(
-                    "docstring",
-                    [
-                        Token(
-                            "LOAD_STR", has_arg=True, offset=0, pattr=self.ast[0][0][0][0][0].attr
-                        )
-                    ],
-                )
+            for i in range(len(self.ast)):
+                if is_docstring(self.ast[i]):
+                    docstring_ast = SyntaxTree(
+                        "docstring",
+                        [
+                            Token(
+                                "LOAD_STR",
+                                has_arg=True,
+                                offset=0,
+                                pattr=self.ast[i][0][0][0][0].attr,
+                            )
+                        ],
+                        transformed_by="transform",
+                    )
+                    del self.ast[i]
+                    self.ast.insert(0, docstring_ast)
+                    break
+
             if self.ast[-1] == RETURN_NONE:
                 self.ast.pop()  # remove last node
                 # todo: if empty, add 'pass'
         except:
             pass
 
-        maybe_show_tree(self, self.ast)
+        self.maybe_show_tree(self.ast)
         return self.ast
 
     # Write template_engine

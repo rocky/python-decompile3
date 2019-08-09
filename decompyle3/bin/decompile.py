@@ -89,7 +89,7 @@ def main_bin():
     try:
         opts, pyc_paths = getopt.getopt(sys.argv[1:], 'hac:gtTdrVo:p:',
                                     'help asm compile= grammar linemaps recurse '
-                                    'timestamp tree tree+ '
+                                    'timestamp tree= tree+ '
                                     'fragments verify verify-run version '
                                     'syntax-verify '
                                     'showgrammar'.split(' '))
@@ -119,10 +119,19 @@ def main_bin():
             options['showasm'] = 'after'
             options['do_verify'] = None
         elif opt in ('--tree', '-t'):
-            options['showast'] = True
+            if 'showast' not in options:
+                options['showast'] = {}
+            if val == 'before':
+                options['showast'][val] = True
+            elif val == 'after':
+                options['showast'][val] = True
+            else:
+                options['showast']['before'] = True
             options['do_verify'] = None
         elif opt in ('--tree+', '-T'):
-            options['showast'] = 'Full'
+            if 'showast' not in options:
+                options['showast'] = {}
+            options['showast']['Full'] = True
             options['do_verify'] = None
         elif opt in ('--grammar', '-g'):
             options['showgrammar'] = True

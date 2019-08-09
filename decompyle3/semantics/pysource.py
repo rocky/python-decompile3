@@ -237,7 +237,7 @@ class SourceWalker(GenericASTTraversal, object):
             is_pypy=is_pypy,
         )
 
-        self.treeTransform = TreeTransform(debug_parser.get("ast", None))
+        self.treeTransform = TreeTransform(showast)
         self.debug_parser = dict(debug_parser)
         self.showast = showast
         self.params = params
@@ -275,6 +275,10 @@ class SourceWalker(GenericASTTraversal, object):
         customize_for_version(self, is_pypy, version)
 
         return
+
+    def maybe_show_tree(self, ast):
+        if isinstance(self.showast, dict) and self.showast.get("before", False):
+            maybe_show_tree(self, ast)
 
     def str_with_template(self, ast):
         stream = sys.stdout
@@ -2079,6 +2083,11 @@ class SourceWalker(GenericASTTraversal, object):
         code._tokens = None  # save memory
         assert ast == "stmts"
 
+
+        if ast[0] == "docstring":
+            self.println(self.traverse(ast[0]))
+            del ast[0]
+
         first_stmt = ast[0][0]
         if 3.0 <= self.version <= 3.3:
             try:
@@ -2135,24 +2144,6 @@ class SourceWalker(GenericASTTraversal, object):
             if self.hide_internal:
                 del ast[0]
             pass
-
-        # if docstring exists, dump it
-        if code.co_consts and code.co_consts[0] is not None and len(ast) > 0:
-            do_doc = False
-            if is_docstring(ast[0]):
-                i = 0
-                do_doc = True
-            elif len(ast) > 1 and is_docstring(ast[1]):
-                i = 1
-                do_doc = True
-            if do_doc and self.hide_internal:
-                try:
-                    docstring = ast[i][0][0][0][0].pattr
-                except:
-                    docstring = code.co_consts[0]
-                if print_docstring(self, indent, docstring):
-                    self.println()
-                    del ast[i]
 
         # the function defining a class normally returns locals(); we
         # don't want this to show up in the source, thus remove the node
@@ -2223,7 +2214,7 @@ class SourceWalker(GenericASTTraversal, object):
                 self.p.insts = p_insts
             except (python_parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens)
-            maybe_show_tree(self, ast)
+            self.maybe_show_tree(ast)
             transform_ast = self.treeTransform.transform(ast)
             del ast # Save memory
             return transform_ast
@@ -2258,7 +2249,7 @@ class SourceWalker(GenericASTTraversal, object):
         except (python_parser.ParserError, AssertionError) as e:
             raise ParserError(e, tokens)
 
-        maybe_show_tree(self, ast)
+        self.maybe_show_tree(ast)
 
         checker(ast, False, self.ast_errors)
 
