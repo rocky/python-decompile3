@@ -46,10 +46,12 @@ Options:
   --help        show this message
 
 Debugging Options:
-  --asm     | -a  include byte-code       (disables --verify)
-  --grammar | -g  show matching grammar
-  --tree    | -t  include syntax tree     (disables --verify)
-  --tree++        add template rules to --tree when possible
+  --asm     | -a        include byte-code       (disables --verify)
+  --grammar | -g        show matching grammar
+  --tree={before|after}
+  -t {before|after}     include syntax before (or after) tree transformation
+                        (disables --verify)
+  --tree++ | -T         add template rules to --tree=before when possible
 
 Extensions of generated files:
   '.pyc_dis' '.pyo_dis'   successfully decompiled (and verified if --verify)
