@@ -277,7 +277,14 @@ class SourceWalker(GenericASTTraversal, object):
         return
 
     def maybe_show_tree(self, ast):
-        if isinstance(self.showast, dict) and self.showast.get("before", False):
+        if self.showast and self.treeTransform.showast:
+            self.println("""
+---- end before transform
+---- begin after transform
+""" + "    "
+            )
+
+        if isinstance(self.showast, dict) and self.showast.get:
             maybe_show_tree(self, ast)
 
     def str_with_template(self, ast):
@@ -302,6 +309,13 @@ class SourceWalker(GenericASTTraversal, object):
             key = key[i]
             pass
 
+        if ast.transformed_by is not None:
+            if ast.transformed_by is True:
+                rv += " transformed"
+            else:
+                rv += " transformed by %s" % ast.transformed_by
+                pass
+            pass
         if key.kind in table:
             rv += ": %s" % str(table[key.kind])
 
@@ -309,6 +323,7 @@ class SourceWalker(GenericASTTraversal, object):
         indent += "    "
         i = 0
         for node in ast:
+
             if hasattr(node, "__repr1__"):
                 if enumerate_children:
                     child = self.str_with_template1(node, indent, i)
@@ -2214,8 +2229,8 @@ class SourceWalker(GenericASTTraversal, object):
                 self.p.insts = p_insts
             except (python_parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens)
-            self.maybe_show_tree(ast)
             transform_ast = self.treeTransform.transform(ast)
+            self.maybe_show_tree(ast)
             del ast # Save memory
             return transform_ast
 
@@ -2249,13 +2264,13 @@ class SourceWalker(GenericASTTraversal, object):
         except (python_parser.ParserError, AssertionError) as e:
             raise ParserError(e, tokens)
 
-        self.maybe_show_tree(ast)
-
         checker(ast, False, self.ast_errors)
 
         self.customize(customize)
-
         transform_ast = self.treeTransform.transform(ast)
+
+        self.maybe_show_tree(ast)
+
         del ast # Save memory
         return transform_ast
 

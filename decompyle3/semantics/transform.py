@@ -35,7 +35,7 @@ class TreeTransform(GenericASTTraversal, object):
         return
 
     def maybe_show_tree(self, ast):
-        if isinstance(self.showast, dict) and self.showast.get("after", False):
+        if isinstance(self.showast, dict) and self.showast:
             maybe_show_tree(self, ast)
 
     def preorder(self, node=None):
@@ -251,6 +251,7 @@ class TreeTransform(GenericASTTraversal, object):
         return node
 
     def transform(self, ast):
+        self.maybe_show_tree(ast)
         self.ast = copy(ast)
         self.ast = self.traverse(self.ast, is_lambda=False)
 
@@ -279,7 +280,6 @@ class TreeTransform(GenericASTTraversal, object):
         except:
             pass
 
-        self.maybe_show_tree(self.ast)
         return self.ast
 
     # Write template_engine
