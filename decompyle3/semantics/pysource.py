@@ -153,9 +153,7 @@ from decompyle3.semantics.consts import (
     LINE_LENGTH,
     RETURN_LOCALS,
     NONE,
-    RETURN_NONE,
     PASS,
-    ASSIGN_DOC_STRING,
     NAME_MODULE,
     TAB,
     INDENT_PER_LEVEL,
@@ -239,7 +237,7 @@ class SourceWalker(GenericASTTraversal, object):
             is_pypy=is_pypy,
         )
 
-        self.treeTransform = TreeTransform(debug_parser.get("ast", None))
+        self.treeTransform = TreeTransform(showast)
         self.debug_parser = dict(debug_parser)
         self.showast = showast
         self.params = params
@@ -278,6 +276,17 @@ class SourceWalker(GenericASTTraversal, object):
 
         return
 
+    def maybe_show_tree(self, ast):
+        if self.showast and self.treeTransform.showast:
+            self.println("""
+---- end before transform
+---- begin after transform
+""" + "    "
+            )
+
+        if isinstance(self.showast, dict) and self.showast.get:
+            maybe_show_tree(self, ast)
+
     def str_with_template(self, ast):
         stream = sys.stdout
         stream.write(self.str_with_template1(ast, "", None))
@@ -300,6 +309,13 @@ class SourceWalker(GenericASTTraversal, object):
             key = key[i]
             pass
 
+        if ast.transformed_by is not None:
+            if ast.transformed_by is True:
+                rv += " transformed"
+            else:
+                rv += " transformed by %s" % ast.transformed_by
+                pass
+            pass
         if key.kind in table:
             rv += ": %s" % str(table[key.kind])
 
@@ -307,6 +323,7 @@ class SourceWalker(GenericASTTraversal, object):
         indent += "    "
         i = 0
         for node in ast:
+
             if hasattr(node, "__repr1__"):
                 if enumerate_children:
                     child = self.str_with_template1(node, indent, i)
@@ -798,6 +815,9 @@ class SourceWalker(GenericASTTraversal, object):
 
         # MAKE_FUNCTION ..
         code_node = node[-3]
+        if not iscode(code_node.attr):
+            # docstring exists
+            code_node = node[-4]
         assert iscode(code_node.attr)
 
         func_name = code_node.attr.co_name
@@ -813,6 +833,75 @@ class SourceWalker(GenericASTTraversal, object):
             self.write("\n\n\n")
         self.indent_less()
         self.prune()  # stop recursing
+
+    def n_docstring(self, node):
+
+        indent = self.indent
+        docstring = node[0].pattr
+
+        quote = '"""'
+        if docstring.find(quote) >= 0:
+            if docstring.find("'''") == -1:
+                quote = "'''"
+
+        self.write(indent)
+        docstring = repr(docstring.expandtabs())[1:-1]
+
+        for (orig, replace) in (('\\\\', '\t'),
+                                ('\\r\\n', '\n'),
+                                ('\\n', '\n'),
+                                ('\\r', '\n'),
+                                ('\\"', '"'),
+                                ("\\'", "'")):
+            docstring = docstring.replace(orig, replace)
+
+        # Do a raw string if there are backslashes but no other escaped characters:
+        # also check some edge cases
+        if ('\t' in docstring
+            and '\\' not in docstring
+            and len(docstring) >= 2
+            and docstring[-1] != '\t'
+            and (docstring[-1] != '"'
+                or docstring[-2] == '\t')):
+            self.write('r') # raw string
+            # Restore backslashes unescaped since raw
+            docstring = docstring.replace('\t', '\\')
+        else:
+            # Escape the last character if it is the same as the
+            # triple quote character.
+            quote1 = quote[-1]
+            if len(docstring) and docstring[-1] == quote1:
+                docstring = docstring[:-1] + '\\' + quote1
+
+            # Escape triple quote when needed
+            if quote == '"""':
+                replace_str = '\\"""'
+            else:
+                assert quote == "'''"
+                replace_str = "\\'''"
+
+            docstring = docstring.replace(quote, replace_str)
+            docstring = docstring.replace('\t', '\\\\')
+
+        lines = docstring.split('\n')
+
+        self.write(quote)
+        if len(lines) == 0:
+            self.println(quote)
+        elif len(lines) == 1:
+            self.println(lines[0], quote)
+        else:
+            self.println(lines[0])
+            for line in lines[1:-1]:
+                if line:
+                    self.println( line )
+                else:
+                    self.println( "\n\n" )
+                    pass
+                pass
+            self.println(lines[-1], quote)
+        self.prune()
+
 
     def n_mklambda(self, node):
         make_function3(self, node, is_lambda=True, code_node=node[-2])
@@ -2009,6 +2098,11 @@ class SourceWalker(GenericASTTraversal, object):
         code._tokens = None  # save memory
         assert ast == "stmts"
 
+
+        if ast[0] == "docstring":
+            self.println(self.traverse(ast[0]))
+            del ast[0]
+
         first_stmt = ast[0][0]
         if 3.0 <= self.version <= 3.3:
             try:
@@ -2066,24 +2160,6 @@ class SourceWalker(GenericASTTraversal, object):
                 del ast[0]
             pass
 
-        # if docstring exists, dump it
-        if code.co_consts and code.co_consts[0] is not None and len(ast) > 0:
-            do_doc = False
-            if is_docstring(ast[0]):
-                i = 0
-                do_doc = True
-            elif len(ast) > 1 and is_docstring(ast[1]):
-                i = 1
-                do_doc = True
-            if do_doc and self.hide_internal:
-                try:
-                    docstring = ast[i][0][0][0][0].pattr
-                except:
-                    docstring = code.co_consts[0]
-                if print_docstring(self, indent, docstring):
-                    self.println()
-                    del ast[i]
-
         # the function defining a class normally returns locals(); we
         # don't want this to show up in the source, thus remove the node
         if len(ast) > 0 and ast[-1][0] == RETURN_LOCALS:
@@ -2121,13 +2197,10 @@ class SourceWalker(GenericASTTraversal, object):
         if len(ast) == 0:
             self.println(self.indent, "pass")
         else:
-            self.customize(customize)
-            transform_ast = self.treeTransform.transform(ast)
-            del ast # save memory
             if is_lambda:
-                self.write(self.traverse(transform_ast, is_lambda=is_lambda))
+                self.write(self.traverse(ast, is_lambda=is_lambda))
             else:
-                self.text = self.traverse(transform_ast, is_lambda=is_lambda)
+                self.text = self.traverse(ast, is_lambda=is_lambda)
                 self.println(self.text)
         self.name = old_name
         self.return_none = rn
@@ -2156,9 +2229,9 @@ class SourceWalker(GenericASTTraversal, object):
                 self.p.insts = p_insts
             except (python_parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens)
-            maybe_show_tree(self, ast)
             transform_ast = self.treeTransform.transform(ast)
-            del ast # save memory
+            self.maybe_show_tree(ast)
+            del ast # Save memory
             return transform_ast
 
         # The bytecode for the end of the main routine has a
@@ -2191,12 +2264,14 @@ class SourceWalker(GenericASTTraversal, object):
         except (python_parser.ParserError, AssertionError) as e:
             raise ParserError(e, tokens)
 
-        maybe_show_tree(self, ast)
-
         checker(ast, False, self.ast_errors)
 
+        self.customize(customize)
         transform_ast = self.treeTransform.transform(ast)
-        del ast # save memory
+
+        self.maybe_show_tree(ast)
+
+        del ast # Save memory
         return transform_ast
 
     @classmethod
@@ -2270,18 +2345,6 @@ def code_deparse(
     )
 
     assert not nonlocals
-
-    # convert leading '__doc__ = "..." into doc string
-    # FIXME: see if we can somehow do this in the transform phase.
-    try:
-        if deparsed.ast[0][0] == ASSIGN_DOC_STRING(co.co_consts[0]):
-            print_docstring(deparsed, "", co.co_consts[0])
-            del deparsed.ast[0]
-        if deparsed.ast[-1] == RETURN_NONE:
-            deparsed.ast.pop()  # remove last node
-            # todo: if empty, add 'pass'
-    except:
-        pass
 
     deparsed.FUTURE_UNICODE_LITERALS = (
         COMPILER_FLAG_BIT["FUTURE_UNICODE_LITERALS"] & co.co_flags != 0

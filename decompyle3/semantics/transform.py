@@ -15,10 +15,18 @@
 
 from decompyle3.show import maybe_show_tree
 from copy import copy
-import sys
 from spark_parser import GenericASTTraversal, GenericASTTraversalPruningException
 
 from decompyle3.parsers.treenode import SyntaxTree
+from decompyle3.scanners.tok import Token
+from decompyle3.semantics.consts import RETURN_NONE
+
+
+def is_docstring(node):
+    try:
+        return node[0][0].kind == "assign" and node[0][0][1][0].pattr == "__doc__"
+    except:
+        return False
 
 
 class TreeTransform(GenericASTTraversal, object):
@@ -26,8 +34,9 @@ class TreeTransform(GenericASTTraversal, object):
         self.showast = show_ast
         return
 
-    def str_with_template(self, ast):
-        sys.stdout.write(str(ast))
+    def maybe_show_tree(self, ast):
+        if isinstance(self.showast, dict) and self.showast:
+            maybe_show_tree(self, ast)
 
     def preorder(self, node=None):
         """Walk the tree in roughly 'preorder' (a bit of a lie explained below).
@@ -53,6 +62,34 @@ class TreeTransform(GenericASTTraversal, object):
 
         for i, kid in enumerate(node):
             node[i] = self.preorder(kid)
+        return node
+
+    def n_mkfunc(self, node):
+        """If the function has a docstring (this is found in the code
+        constants), pull that out and make it part of the syntax
+        tree. When generating the source string that AST node rather
+        than the code field is seen and used.
+        """
+
+        code_node = node[-3]
+        code = code_node.attr
+
+        if (
+            node[-1].pattr != "closure"
+            and len(code.co_consts) > 0
+            and code.co_consts[0] is not None
+        ):
+            docstring_node = SyntaxTree(
+                "docstring",
+                [Token("LOAD_STR", has_arg=True, pattr=code.co_consts[0])],
+                transformed_by="n_mkfunc",
+            )
+            node = SyntaxTree(
+                "mkfunc",
+                node[:-1] + [docstring_node, node[-1]],
+                transformed_by="n_mkfunc",
+            )
+
         return node
 
     def n_ifstmt(self, node):
@@ -101,6 +138,7 @@ class TreeTransform(GenericASTTraversal, object):
                     node = SyntaxTree(
                         "assert2",
                         [assert_expr, jmp_true, LOAD_ASSERT, expr, RAISE_VARARGS_1],
+                        transformed_by="n_ifstmt",
                     )
                 else:
                     # ifstmt
@@ -118,7 +156,9 @@ class TreeTransform(GenericASTTraversal, object):
                     # assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 COME_FROM
                     LOAD_ASSERT = expr[0]
                     node = SyntaxTree(
-                        "assert", [assert_expr, jmp_true, LOAD_ASSERT, RAISE_VARARGS_1]
+                        "assert",
+                        [assert_expr, jmp_true, LOAD_ASSERT, RAISE_VARARGS_1],
+                        transformed_by="n_ifstmt",
                     )
                 pass
             pass
@@ -201,6 +241,7 @@ class TreeTransform(GenericASTTraversal, object):
                     # Other cases for n.kind may happen here
                     pass
                 pass
+            node.transformed_by = "n_ifelsestmt"
             return node
 
     n_ifelsestmtc = n_ifelsestmtl = n_ifelsestmt
@@ -210,9 +251,35 @@ class TreeTransform(GenericASTTraversal, object):
         return node
 
     def transform(self, ast):
+        self.maybe_show_tree(ast)
         self.ast = copy(ast)
         self.ast = self.traverse(self.ast, is_lambda=False)
-        maybe_show_tree(self, self.ast)
+
+        try:
+            for i in range(len(self.ast)):
+                if is_docstring(self.ast[i]):
+                    docstring_ast = SyntaxTree(
+                        "docstring",
+                        [
+                            Token(
+                                "LOAD_STR",
+                                has_arg=True,
+                                offset=0,
+                                pattr=self.ast[i][0][0][0][0].attr,
+                            )
+                        ],
+                        transformed_by="transform",
+                    )
+                    del self.ast[i]
+                    self.ast.insert(0, docstring_ast)
+                    break
+
+            if self.ast[-1] == RETURN_NONE:
+                self.ast.pop()  # remove last node
+                # todo: if empty, add 'pass'
+        except:
+            pass
+
         return self.ast
 
     # Write template_engine
