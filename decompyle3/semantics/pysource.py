@@ -145,7 +145,10 @@ from decompyle3.semantics.helper import (
     find_globals_and_nonlocals,
     flatten_list,
 )
-from decompyle3.semantics.transform import TreeTransform
+from decompyle3.semantics.transform import (
+    is_docstring,
+    TreeTransform,
+)
 
 from decompyle3.scanners.tok import Token
 
@@ -170,13 +173,6 @@ from decompyle3.semantics.consts import (
 from decompyle3.show import maybe_show_tree
 
 from io import StringIO
-
-
-def is_docstring(node):
-    try:
-        return node[0][0].kind == "assign" and node[0][0][1][0].pattr == "__doc__"
-    except:
-        return False
 
 
 class SourceWalkerError(Exception):

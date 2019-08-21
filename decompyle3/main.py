@@ -371,7 +371,7 @@ def main(
         #     failed_files += 1
         #     if current_outfile:
         #         outstream.close()
-        #         os.rename(current_outfile, current_outfile + '_failed')
+        #         os.rename(current_outfile, current_outfile + "_failed")
         #     else:
         #         sys.stderr.write("\n# %s" % sys.exc_info()[1])
         #         sys.stderr.write("\n# Can't uncompile %s\n" % infile)
