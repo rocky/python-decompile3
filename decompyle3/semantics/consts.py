@@ -146,11 +146,7 @@ TABLE_R = {
     'DELETE_ATTR':	( '%|del %c.%[-1]{pattr}\n', 0 ),
 }
 
-TABLE_R0 = {
-#    'BUILD_LIST':	( '[%C]',      (0,-1,', ') ),
-#    'BUILD_TUPLE':	( '(%C)',      (0,-1,', ') ),
-#    'CALL_FUNCTION':	( '%c(%P)', 0, (1,-1,', ') ),
-}
+TABLE_R0 = {}
 
 TABLE_DIRECT = {
     'BINARY_ADD':               ( '+' ,),

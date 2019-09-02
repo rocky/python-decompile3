@@ -28,6 +28,7 @@ from decompyle3.scanners.scanner3 import Scanner3
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_37 as opc
 
+# bytecode verification, verify(), uses JUMP_OPS from here
 JUMP_OPs = opc.JUMP_OPS
 
 

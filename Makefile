@@ -27,10 +27,7 @@ check:
 check-short: pytest
 	$(MAKE) -C test check-short
 
-check-3.7: pytest
-	$(MAKE) -C test check
-
-check-3.8:
+check-3.7 check-3.8: pytest
 	$(MAKE) -C test check
 
 #: Run py.test tests

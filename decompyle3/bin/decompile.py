@@ -7,7 +7,7 @@
 from __future__ import print_function
 import sys, os, getopt, time
 
-program = 'decompyle3'
+program = "decompyle3"
 
 __doc__ = """
 Usage:
@@ -57,13 +57,16 @@ Extensions of generated files:
   '.pyc_dis' '.pyo_dis'   successfully decompiled (and verified if --verify)
     + '_unverified'       successfully decompile but --verify failed
     + '_failed'           decompile failed (contact author for enhancement)
-""" % ((program,) * 5)
+""" % (
+    (program,) * 5
+)
 
-program = 'decompyle3'
+program = "decompyle3"
 
 from decompyle3 import verify
 from decompyle3.main import main, status_msg
 from decompyle3.version import VERSION
+
 
 def usage():
     print(__doc__)
@@ -71,84 +74,88 @@ def usage():
 
 
 def main_bin():
-    if not (sys.version_info[0:2] in ((2, 6), (2, 7), (3, 0),
-                                      (3, 1), (3, 2), (3, 3),
-                                      (3, 4), (3, 5), (3, 6),
-                                      (3, 7), (3, 8)
-        )):
-        print('Error: %s requires Python 2.6-3.8' % program,
-              file=sys.stderr)
+    if not (
+        sys.version_info[0:2]
+        in (
+            (3, 7),
+            (3, 8),
+        )
+    ):
+        print("Error: %s requires Python 3.7-3.8" % program, file=sys.stderr)
         sys.exit(-1)
 
     do_verify = recurse_dirs = False
     numproc = 0
-    outfile = '-'
+    outfile = "-"
     out_base = None
     source_paths = []
     timestamp = False
     timestampfmt = "# %Y.%m.%d %H:%M:%S %Z"
 
     try:
-        opts, pyc_paths = getopt.getopt(sys.argv[1:], 'hac:gtTdrVo:p:',
-                                    'help asm compile= grammar linemaps recurse '
-                                    'timestamp tree= tree+ '
-                                    'fragments verify verify-run version '
-                                    'syntax-verify '
-                                    'showgrammar'.split(' '))
+        opts, pyc_paths = getopt.getopt(
+            sys.argv[1:],
+            "hac:gtTdrVo:p:",
+            "help asm compile= grammar linemaps recurse "
+            "timestamp tree= tree+ "
+            "fragments verify verify-run version "
+            "syntax-verify "
+            "showgrammar".split(" "),
+        )
     except getopt.GetoptError as e:
-        print('%s: %s' % (os.path.basename(sys.argv[0]), e),  file=sys.stderr)
+        print("%s: %s" % (os.path.basename(sys.argv[0]), e), file=sys.stderr)
         sys.exit(-1)
 
     options = {}
     for opt, val in opts:
-        if opt in ('-h', '--help'):
+        if opt in ("-h", "--help"):
             print(__doc__)
             sys.exit(0)
-        elif opt in ('-V', '--version'):
+        elif opt in ("-V", "--version"):
             print("%s %s" % (program, VERSION))
             sys.exit(0)
-        elif opt == '--verify':
-            options['do_verify'] = 'strong'
-        elif opt == '--syntax-verify':
-            options['do_verify'] = 'weak'
-        elif opt == '--fragments':
-            options['do_fragments'] = True
-        elif opt == '--verify-run':
-            options['do_verify'] = 'verify-run'
-        elif opt == '--linemaps':
-            options['do_linemaps'] = True
-        elif opt in ('--asm', '-a'):
-            options['showasm'] = 'after'
-            options['do_verify'] = None
-        elif opt in ('--tree', '-t'):
-            if 'showast' not in options:
-                options['showast'] = {}
-            if val == 'before':
-                options['showast'][val] = True
-            elif val == 'after':
-                options['showast'][val] = True
+        elif opt == "--verify":
+            options["do_verify"] = "strong"
+        elif opt == "--syntax-verify":
+            options["do_verify"] = "weak"
+        elif opt == "--fragments":
+            options["do_fragments"] = True
+        elif opt == "--verify-run":
+            options["do_verify"] = "verify-run"
+        elif opt == "--linemaps":
+            options["do_linemaps"] = True
+        elif opt in ("--asm", "-a"):
+            options["showasm"] = "after"
+            options["do_verify"] = None
+        elif opt in ("--tree", "-t"):
+            if "showast" not in options:
+                options["showast"] = {}
+            if val == "before":
+                options["showast"][val] = True
+            elif val == "after":
+                options["showast"][val] = True
             else:
-                options['showast']['before'] = True
-            options['do_verify'] = None
-        elif opt in ('--tree+', '-T'):
-            if 'showast' not in options:
-                options['showast'] = {}
-            options['showast']['Full'] = True
-            options['do_verify'] = None
-        elif opt in ('--grammar', '-g'):
-            options['showgrammar'] = True
-        elif opt == '-o':
+                options["showast"]["before"] = True
+            options["do_verify"] = None
+        elif opt in ("--tree+", "-T"):
+            if "showast" not in options:
+                options["showast"] = {}
+            options["showast"]["Full"] = True
+            options["do_verify"] = None
+        elif opt in ("--grammar", "-g"):
+            options["showgrammar"] = True
+        elif opt == "-o":
             outfile = val
-        elif opt in ('--timestamp', '-d'):
+        elif opt in ("--timestamp", "-d"):
             timestamp = True
-        elif opt in ('--compile', '-c'):
+        elif opt in ("--compile", "-c"):
             source_paths.append(val)
-        elif opt == '-p':
+        elif opt == "-p":
             numproc = int(val)
-        elif opt in ('--recurse', '-r'):
+        elif opt in ("--recurse", "-r"):
             recurse_dirs = True
-        elif opt == '--encoding':
-            options['source_encoding'] = val
+        elif opt == "--encoding":
+            options["source_encoding"] = val
         else:
             print(opt, file=sys.stderr)
             usage()
@@ -160,7 +167,7 @@ def main_bin():
             if os.path.isdir(f):
                 for root, _, dir_files in os.walk(f):
                     for df in dir_files:
-                        if df.endswith('.pyc') or df.endswith('.pyo'):
+                        if df.endswith(".pyc") or df.endswith(".pyo"):
                             expanded_files.append(os.path.join(root, df))
         pyc_paths = expanded_files
 
@@ -171,31 +178,34 @@ def main_bin():
     if src_base[-1:] != os.sep:
         src_base = os.path.dirname(src_base)
     if src_base:
-        sb_len = len( os.path.join(src_base, '') )
+        sb_len = len(os.path.join(src_base, ""))
         pyc_paths = [f[sb_len:] for f in pyc_paths]
 
     if not pyc_paths and not source_paths:
         print("No input files given to decompile", file=sys.stderr)
         usage()
 
-    if outfile == '-':
-        outfile = None # use stdout
+    if outfile == "-":
+        outfile = None  # use stdout
     elif outfile and os.path.isdir(outfile):
-        out_base = outfile; outfile = None
+        out_base = outfile
+        outfile = None
     elif outfile and len(pyc_paths) > 1:
-        out_base = outfile; outfile = None
+        out_base = outfile
+        outfile = None
 
     if timestamp:
         print(time.strftime(timestampfmt))
 
     if numproc <= 1:
         try:
-            result = main(src_base, out_base, pyc_paths, source_paths, outfile,
-                          **options)
-            result = list(result) + [options.get('do_verify', None)]
+            result = main(
+                src_base, out_base, pyc_paths, source_paths, outfile, **options
+            )
+            result = list(result) + [options.get("do_verify", None)]
             if len(pyc_paths) > 1:
                 mess = status_msg(do_verify, *result)
-                print('# ' + mess)
+                print("# " + mess)
                 pass
         except (KeyboardInterrupt):
             pass
@@ -209,7 +219,7 @@ def main_bin():
         except ImportError:
             from queue import Empty
 
-        fqueue = Queue(len(pyc_paths)+numproc)
+        fqueue = Queue(len(pyc_paths) + numproc)
         for f in pyc_paths:
             fqueue.put(f)
         for i in range(numproc):
@@ -219,13 +229,19 @@ def main_bin():
 
         def process_func():
             try:
-                (tot_files, okay_files, failed_files, verify_failed_files) = (0, 0, 0, 0)
+                (tot_files, okay_files, failed_files, verify_failed_files) = (
+                    0,
+                    0,
+                    0,
+                    0,
+                )
                 while 1:
                     f = fqueue.get()
                     if f is None:
                         break
-                    (t, o, f, v) = \
-                      main(src_base, out_base, [f], None, outfile, **options)
+                    (t, o, f, v) = main(
+                        src_base, out_base, [f], None, outfile, **options
+                    )
                     tot_files += t
                     okay_files += o
                     failed_files += f
@@ -242,7 +258,12 @@ def main_bin():
             for p in procs:
                 p.join()
             try:
-                (tot_files, okay_files, failed_files, verify_failed_files) = (0, 0, 0, 0)
+                (tot_files, okay_files, failed_files, verify_failed_files) = (
+                    0,
+                    0,
+                    0,
+                    0,
+                )
                 while True:
                     (t, o, f, v) = rqueue.get(False)
                     tot_files += t
@@ -251,8 +272,10 @@ def main_bin():
                     verify_failed_files += v
             except Empty:
                 pass
-            print('# decompiled %i files: %i okay, %i failed, %i verify failed' %
-                  (tot_files, okay_files, failed_files, verify_failed_files))
+            print(
+                "# decompiled %i files: %i okay, %i failed, %i verify failed"
+                % (tot_files, okay_files, failed_files, verify_failed_files)
+            )
         except (KeyboardInterrupt, OSError):
             pass
 
@@ -261,5 +284,6 @@ def main_bin():
 
     return
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main_bin()

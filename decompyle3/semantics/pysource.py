@@ -967,30 +967,18 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec = 27
 
         # FIXME: clean this up
-        if self.version >= 3.0 and node == "dict_comp":
+        if node == "dict_comp":
             cn = node[1]
-        elif self.version <= 2.7 and node == "generator_exp":
-            if node[0] == "LOAD_GENEXPR":
-                cn = node[0]
-            elif node[0] == "load_closure":
-                cn = node[1]
-
-        elif self.version >= 3.0 and node == "generator_exp":
+        elif node == "generator_exp":
             if node[0] == "load_genexpr":
                 load_genexpr = node[0]
             elif node[1] == "load_genexpr":
                 load_genexpr = node[1]
             cn = load_genexpr[0]
-        elif hasattr(node[code_index], "attr"):
-            # Python 2.5+ (and earlier?) does this
-            cn = node[code_index]
         else:
             if len(node[1]) > 1 and hasattr(node[1][1], "attr"):
                 # Python 3.3+ does this
                 cn = node[1][1]
-            elif hasattr(node[1][0], "attr"):
-                # Python 3.2 does this
-                cn = node[1][0]
             else:
                 assert False, "Can't find code for comprehension"
 
@@ -1486,7 +1474,7 @@ class SourceWalker(GenericASTTraversal, object):
                     pass
             pass
         else:
-            if self.version >= 3.6 and node[0] == "LOAD_CONST":
+            if node[0] == "LOAD_CONST":
                 return
             value = self.traverse(node[0])
             self.write("(")
