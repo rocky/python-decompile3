@@ -136,7 +136,7 @@ class TreeTransform(GenericASTTraversal, object):
                     LOAD_ASSERT = call[0]
                     expr = call[1][0]
                     node = SyntaxTree(
-                        "assert2",
+                        "assert2not",
                         [assert_expr, jmp_true, LOAD_ASSERT, expr, RAISE_VARARGS_1],
                         transformed_by="n_ifstmt",
                     )

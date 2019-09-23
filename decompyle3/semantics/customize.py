@@ -17,7 +17,7 @@
 """
 
 from decompyle3.semantics.consts import (
-    TABLE_R, TABLE_DIRECT)
+    PRECEDENCE, TABLE_R, TABLE_DIRECT)
 
 from decompyle3.parsers.treenode import SyntaxTree
 from decompyle3.scanners.tok import Token
@@ -42,6 +42,7 @@ def customize_for_version(self, is_pypy, version):
         TABLE_DIRECT.update({
             'assert':		( '%|assert %c\n' , 0 ),
             'assert2':		( '%|assert %c, %c\n' , 0, 3 ),
+            'assert2not':	( '%|assert not %p, %c\n' , (0, PRECEDENCE['unary_not']), 3 ),
             'try_except':	( '%|try:\n%+%c%-%c\n\n', 1, 3 ),
             'assign2':          ( '%|%c, %c = %c, %c\n',
                                   3, 4, 0, 1 ),

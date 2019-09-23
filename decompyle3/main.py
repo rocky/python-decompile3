@@ -41,10 +41,7 @@ def _get_outstream(outfile):
         os.makedirs(dir)
     except OSError:
         pass
-    if PYTHON_VERSION < 3.0:
-        return open(outfile, mode="wb")
-    else:
-        return open(outfile, mode="w", encoding="utf-8")
+    return open(outfile, mode="w", encoding="utf-8")
 
 
 def decompile(
@@ -284,14 +281,9 @@ def main(
 
                 # Unbuffer output if possible
                 buffering = -1 if sys.stdout.isatty() else 0
-                if PYTHON_VERSION >= 3.5:
-                    t = tempfile.NamedTemporaryFile(
-                        mode="w+b", buffering=buffering, suffix=".py", prefix=prefix
-                    )
-                else:
-                    t = tempfile.NamedTemporaryFile(
-                        mode="w+b", suffix=".py", prefix=prefix
-                    )
+                t = tempfile.NamedTemporaryFile(
+                    mode="w+b", buffering=buffering, suffix=".py", prefix=prefix
+                )
                 current_outfile = t.name
                 sys.stdout = os.fdopen(sys.stdout.fileno(), "w", buffering)
                 tee = subprocess.Popen(["tee", current_outfile], stdin=subprocess.PIPE)

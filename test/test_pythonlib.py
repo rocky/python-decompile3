@@ -34,13 +34,14 @@ def get_srcdir():
     filename = os.path.normcase(os.path.dirname(__file__))
     return os.path.realpath(filename)
 
+
 src_dir = get_srcdir()
 
 
-#----- configure this for your needs
+# ----- configure this for your needs
 
 lib_prefix = '/usr/lib'
-#lib_prefix = [src_dir, '/usr/lib/', '/usr/local/lib/']
+# lib_prefix = [src_dir, '/usr/lib/', '/usr/local/lib/']
 
 target_base = tempfile.mkdtemp(prefix='py-dis-')
 
@@ -68,7 +69,7 @@ for  vers in (3.7, 3.8):
         pythonlib = os.path.join(pythonlib, '__pycache__')
     test_options[key] =  (os.path.join(lib_prefix, pythonlib), PYOC, pythonlib, vers)
 
-#-----
+# -----
 
 def help():
     print("""Usage-Examples:
@@ -154,6 +155,7 @@ def do_tests(src_dir, obj_patterns, target_dir, opts):
         parent_dir = os.path.dirname(target_dir)
         print("Everything good, removing %s" % parent_dir)
         shutil.rmtree(parent_dir)
+
 
 if __name__ == '__main__':
     test_dirs = []
