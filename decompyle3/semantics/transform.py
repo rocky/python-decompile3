@@ -138,12 +138,11 @@ class TreeTransform(GenericASTTraversal, object):
                         assert jump_cond == "jmp_false"
                         kind = "assert2not"
 
-                    kind = "assert"
                     call = expr[0]
                     LOAD_ASSERT = call[0]
                     expr = call[1][0]
                     node = SyntaxTree(
-                        "assert2not",
+                        kind,
                         [assert_expr, jump_cond, LOAD_ASSERT, expr, RAISE_VARARGS_1],
                         transformed_by="n_ifstmt",
                     )
