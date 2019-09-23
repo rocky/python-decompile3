@@ -115,7 +115,7 @@ class TreeTransform(GenericASTTraversal, object):
             if raise_stmt == "raise_stmt1" and len(testexpr[0]) == 2:
                 assert_expr = testexpr[0][0]
                 assert_expr.kind = "assert_expr"
-                jmp_true = testexpr[0][1]
+                jump_cond = testexpr[0][1]
                 expr = raise_stmt[0]
                 RAISE_VARARGS_1 = raise_stmt[1]
                 if expr[0] == "call":
@@ -132,12 +132,19 @@ class TreeTransform(GenericASTTraversal, object):
                     #                     1. RAISE_VARARGS_1
                     # becomes:
                     # assert2 ::= assert_expr jmp_true LOAD_ASSERT expr RAISE_VARARGS_1 COME_FROM
+                    if jump_cond == "jmp_true":
+                        kind = "assert2"
+                    else:
+                        assert jump_cond == "jmp_false"
+                        kind = "assert2not"
+
+                    kind = "assert"
                     call = expr[0]
                     LOAD_ASSERT = call[0]
                     expr = call[1][0]
                     node = SyntaxTree(
                         "assert2not",
-                        [assert_expr, jmp_true, LOAD_ASSERT, expr, RAISE_VARARGS_1],
+                        [assert_expr, jump_cond, LOAD_ASSERT, expr, RAISE_VARARGS_1],
                         transformed_by="n_ifstmt",
                     )
                 else:
@@ -154,10 +161,16 @@ class TreeTransform(GenericASTTraversal, object):
                     #             1.   RAISE_VARARGS_1
                     # becomes:
                     # assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 COME_FROM
+                    if jump_cond == "jmp_true":
+                        kind = "assert"
+                    else:
+                        assert jump_cond == "jmp_false"
+                        kind = "assertnot"
+
                     LOAD_ASSERT = expr[0]
                     node = SyntaxTree(
-                        "assert",
-                        [assert_expr, jmp_true, LOAD_ASSERT, RAISE_VARARGS_1],
+                        kind,
+                        [assert_expr, jump_cond, LOAD_ASSERT, RAISE_VARARGS_1],
                         transformed_by="n_ifstmt",
                     )
                 pass

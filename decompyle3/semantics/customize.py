@@ -40,15 +40,15 @@ def customize_for_version(self, is_pypy, version):
         # Without PyPy
         #######################
         TABLE_DIRECT.update({
-            'assert':		( '%|assert %c\n' , 0 ),
-            'assert2':		( '%|assert %c, %c\n' , 0, 3 ),
-            'assert2not':	( '%|assert not %p, %c\n' , (0, PRECEDENCE['unary_not']), 3 ),
-            'try_except':	( '%|try:\n%+%c%-%c\n\n', 1, 3 ),
-            'assign2':          ( '%|%c, %c = %c, %c\n',
-                                  3, 4, 0, 1 ),
-            'assign3':          ( '%|%c, %c, %c = %c, %c, %c\n',
-                                  5, 6, 7, 0, 1, 2 ),
-            })
+            "assert": ("%|assert %c\n", (0, "assert_expr")),
+            "assertnot": ("%|assert not %p\n", (0, PRECEDENCE['unary_not'])),
+            "assert2": ("%|assert %c, %c\n", (0, "assert_expr"), 3),
+            "assert2not": ( "%|assert not %p, %c\n" ,
+                            (0, PRECEDENCE['unary_not']), 3 ),
+            "assign2": ("%|%c, %c = %c, %c\n", 3, 4, 0, 1),
+            "assign3": ("%|%c, %c, %c = %c, %c, %c\n", 5, 6, 7, 0, 1, 2),
+            "try_except": ("%|try:\n%+%c%-%c\n\n", 1, 3),
+        })
 
     if version >= 3.2:
         TABLE_DIRECT.update({
