@@ -45,8 +45,8 @@ entry_points       = {
         'py3disassemble=decompyle3.bin.py3disassemble:main',
     ]}
 ftp_url            = None
-install_requires   = ['spark-parser >= 1.8.9, < 1.9.0',
-                      'xdis >= 4.0.3, < 4.1.0']
+install_requires   = ["spark-parser >= 1.8.9, < 1.9.0",
+                      "xdis >= 4.1.0, < 4.2.0"]
 
 license            = 'GPL3'
 mailing_list       = 'python-debugger@googlegroups.com'
