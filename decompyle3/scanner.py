@@ -21,8 +21,6 @@ scanner/ingestion module. From here we call various version-specific
 scanners, e.g. for Python 2.7 or 3.4.
 """
 
-from __future__ import print_function
-
 from array import array
 from collections import namedtuple
 import sys
@@ -67,7 +65,7 @@ class Code(object):
 
 
 class Scanner(object):
-    def __init__(self, version, show_asm=None, is_pypy=False):
+    def __init__(self, version: str, show_asm=None, is_pypy=False):
         self.version = version
         self.show_asm = show_asm
         self.is_pypy = is_pypy
@@ -158,7 +156,7 @@ class Scanner(object):
             for _ in range(instruction_size(op, self.opc)):
                 self.prev_op.append(offset)
 
-    def is_jump_forward(self, offset):
+    def is_jump_forward(self, offset: int) -> bool:
         """
         Return True if the code at offset is some sort of jump forward.
         That is, it is ether "JUMP_FORWARD" or an absolute jump that
@@ -171,10 +169,10 @@ class Scanner(object):
             return False
         return offset < self.get_target(offset)
 
-    def prev_offset(self, offset):
+    def prev_offset(self, offset: int) -> int:
         return self.insts[self.offset2inst_index[offset] - 1].offset
 
-    def get_inst(self, offset):
+    def get_inst(self, offset: int):
         # Instructions can get moved as a result of EXTENDED_ARGS removal.
         # So if "offset" is not in self.offset2inst_index, then
         # we assume that it was an instruction moved back.
@@ -198,11 +196,11 @@ class Scanner(object):
             target = next_offset(inst.opcode, self.opc, inst.offset)
         return target
 
-    def get_argument(self, pos):
+    def get_argument(self, pos: int):
         arg = self.code[pos + 1] + self.code[pos + 2] * 256
         return arg
 
-    def next_offset(self, op, offset):
+    def next_offset(self, op, offset: int) -> int:
         return xdis.next_offset(op, self.opc, offset)
 
     def print_bytecode(self):
@@ -214,7 +212,7 @@ class Scanner(object):
             else:
                 print("%i\t%s\t" % (i, self.opname[op]))
 
-    def first_instr(self, start, end, instr, target=None, exact=True):
+    def first_instr(self, start: int, end: int, instr, target=None, exact=True):
         """
         Find the first <instr> in the block from start to end.
         <instr> is any python bytecode instruction or a list of opcodes
@@ -228,9 +226,7 @@ class Scanner(object):
         code = self.code
         assert start >= 0 and end <= len(code)
 
-        try:
-            None in instr
-        except:
+        if not isinstance(instr, list):
             instr = [instr]
 
         result_offset = None
@@ -250,7 +246,7 @@ class Scanner(object):
                         result_offset = offset
         return result_offset
 
-    def last_instr(self, start, end, instr, target=None, exact=True):
+    def last_instr(self, start: int, end: int, instr, target=None, exact=True):
         """
         Find the last <instr> in the block from start to end.
         <instr> is any python bytecode instruction or a list of opcodes
@@ -268,9 +264,7 @@ class Scanner(object):
         if not (start >= 0 and end <= len(code)):
             return None
 
-        try:
-            None in instr
-        except:
+        if not isinstance(instr, list):
             instr = [instr]
 
         result_offset = None

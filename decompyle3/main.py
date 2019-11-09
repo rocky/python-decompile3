@@ -12,7 +12,6 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import print_function
 import datetime, py_compile, os, subprocess, sys, tempfile
 
 from decompyle3 import verify, IS_PYPY, PYTHON_VERSION
@@ -45,7 +44,7 @@ def _get_outstream(outfile):
 
 
 def decompile(
-    bytecode_version,
+    bytecode_version: str,
     co,
     out=None,
     showasm=None,
@@ -59,7 +58,7 @@ def decompile(
     magic_int=None,
     mapstream=None,
     do_fragments=False,
-):
+)->None:
     """
     ingests and deparses a given code block 'co'
 
@@ -159,7 +158,7 @@ def compile_file(source_path):
 
 
 def decompile_file(
-    filename,
+    filename: str,
     outstream=None,
     showasm=None,
     showast={},
@@ -225,8 +224,8 @@ def decompile_file(
 def main(
     in_base,
     out_base,
-    compiled_files,
-    source_files,
+    compiled_files: list,
+    source_files: list,
     outfile=None,
     showasm=None,
     showast={},

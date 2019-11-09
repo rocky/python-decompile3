@@ -58,7 +58,7 @@ def disco(version: str, co, out=None, is_pypy=False)->None:
     disco_loop(scanner.ingest, queue, real_out)
 
 
-def disco_loop(disasm, queue, real_out):
+def disco_loop(disasm, queue: list, real_out):
     while len(queue) > 0:
         co = queue.popleft()
         if co.co_name != "<module>":
