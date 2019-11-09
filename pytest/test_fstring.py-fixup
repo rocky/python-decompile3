@@ -4,7 +4,8 @@ from decompyle3 import PYTHON_VERSION, code_deparse
 import os, sys
 import pytest
 
-pytestmark = pytest.mark.skipif("CI" in os.environ, reason="Running in CI is too slow")
+pytestmark = pytest.mark.skipif("CI" in os.environ, reason="Running in CI is too slow") or PYTHON_VERSION >= 3.8
+
 import hypothesis
 from hypothesis import strategies as st
 

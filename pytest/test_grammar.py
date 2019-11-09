@@ -9,6 +9,7 @@ def test_grammar():
         remain_tokens = set(tokens) - opcode_set
         remain_tokens = set([re.sub(r"_\d+$", "", t) for t in remain_tokens])
         remain_tokens = set([re.sub("_CONT$", "", t) for t in remain_tokens])
+        remain_tokens = set([re.sub("LOAD_CODE$", "", t) for t in remain_tokens])
         remain_tokens = set(remain_tokens) - opcode_set
         assert remain_tokens == set([]), "Remaining tokens %s\n====\n%s" % (
             remain_tokens,
@@ -20,8 +21,8 @@ def test_grammar():
 
     # We have custom rules that create the below
     expect_lhs = set(["pos_arg", "attribute"])
-    if PYTHON_VERSION < 3.8:
-        expect_lhs.add("get_iter")
+    expect_lhs.add("async_with_as_stmt")
+    expect_lhs.add("async_with_stmt")
 
     unused_rhs = set(["list", "mkfunc", "mklambda", "unpack"])
 

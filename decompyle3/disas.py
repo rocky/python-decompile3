@@ -34,14 +34,12 @@ from __future__ import print_function
 import sys
 from collections import deque
 
-import decompyle3
-
 from xdis.code import iscode
 from xdis.load import check_object_path, load_module
 from decompyle3.scanner import get_scanner
 
 
-def disco(version, co, out=None, is_pypy=False):
+def disco(version: str, co, out=None, is_pypy=False)->None:
     """
     diassembles and deparses a given code block 'co'
     """
@@ -50,9 +48,9 @@ def disco(version, co, out=None, is_pypy=False):
 
     # store final output stream for case of error
     real_out = out or sys.stdout
-    print("# Python %s" % version, file=real_out)
+    print(f"# Python {version}", file=real_out)
     if co.co_filename:
-        print("# Embedded file name: %s" % co.co_filename, file=real_out)
+        print("# Embedded file name: {co.co_filename}", file=real_out)
 
     scanner = get_scanner(version, is_pypy=is_pypy)
 
@@ -94,7 +92,7 @@ def disco_loop(disasm, queue, real_out):
 #     co = None
 
 
-def disassemble_file(filename, outstream=None):
+def disassemble_file(filename: str, outstream=None)->None:
     """
     disassemble Python byte-code file (.pyc)
 
