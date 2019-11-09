@@ -21,8 +21,9 @@ def test_grammar():
 
     # We have custom rules that create the below
     expect_lhs = set(["pos_arg", "attribute"])
-    expect_lhs.add("async_with_as_stmt")
-    expect_lhs.add("async_with_stmt")
+    if PYTHON3 >= 3.8:
+        expect_lhs.add("async_with_as_stmt")
+        expect_lhs.add("async_with_stmt")
 
     unused_rhs = set(["list", "mkfunc", "mklambda", "unpack"])
 
