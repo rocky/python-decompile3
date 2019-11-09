@@ -109,7 +109,7 @@ def disassemble_file(filename: str, outstream=None)->None:
     co = None
 
 
-def _test():
+def _test()->None:
     """Simple test program to disassemble a file."""
     argc = len(sys.argv)
     if argc != 2:
