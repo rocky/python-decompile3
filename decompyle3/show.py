@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Rocky Bernstein <rocky@gnu.org>
+# Copyright (C) 2018-2019 Rocky Bernstein <rocky@gnu.org>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
 import sys
 
 
-def maybe_show_asm(showasm, tokens):
+def maybe_show_asm(showasm: bool, tokens: list) -> None:
     """
     Show the asm based on the showasm flag (or file object), writing to the
     appropriate stream depending on the type of the flag.
@@ -32,7 +32,7 @@ def maybe_show_asm(showasm, tokens):
             stream.write("\n")
 
 
-def maybe_show_tree(walker, ast):
+def maybe_show_tree(walker, ast) -> None:
     """
     Show the ast based on the showast flag (or file object), writing to the
     appropriate stream depending on the type of the flag.
@@ -47,15 +47,18 @@ def maybe_show_tree(walker, ast):
             stream = walker.showast
         else:
             stream = sys.stdout
-        if (isinstance(walker.showast, dict) and walker.showast.get("Full", False)
-            and hasattr(walker, "str_with_template")):
+        if (
+            isinstance(walker.showast, dict)
+            and walker.showast.get("Full", False)
+            and hasattr(walker, "str_with_template")
+        ):
             walker.str_with_template(ast)
         else:
             stream.write(str(ast))
         stream.write("\n")
 
 
-def maybe_show_tree_param_default(show_tree, name, default):
+def maybe_show_tree_param_default(show_tree, name: str, default):
     """
     Show a function parameter with default for an grammar-tree based on the show_tree flag
     (or file object), writing to the appropriate stream depending on the type
