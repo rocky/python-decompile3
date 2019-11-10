@@ -15,7 +15,6 @@
 """
 spark grammar differences over Python 3.7 for Python 3.8
 """
-from __future__ import print_function
 
 from decompyle3.parser import PythonParserSingle
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
@@ -29,7 +28,6 @@ class Python38Parser(Python37Parser):
         expr              ::= named_expr
         named_expr        ::= expr DUP_TOP store
         """
-
 
     def p_38misc(self, args):
         """

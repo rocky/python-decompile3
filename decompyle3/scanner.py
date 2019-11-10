@@ -18,7 +18,7 @@
 #
 """
 scanner/ingestion module. From here we call various version-specific
-scanners, e.g. for Python 2.7 or 3.4.
+scanners, e.g. for Python 3.7 or 3.7.
 """
 
 from array import array
@@ -37,10 +37,6 @@ from xdis.util import code2num
 PYTHON_VERSIONS = frozenset((3.7, 3.8))
 
 CANONIC2VERSION = dict((canonic_python_version[str(v)], v) for v in PYTHON_VERSIONS)
-
-# Magic changed mid version for Python 3.5.2. Compatibility was added for
-# the older 3.5 interpreter magic.
-CANONIC2VERSION["3.5.2"] = 3.5
 
 L65536 = 65536
 
@@ -342,7 +338,7 @@ class Scanner(object):
     # FIXME: this is broken on 3.6+. Replace remaining (2.x-based) calls
     # with inst_matches
 
-    def all_instr(self, start, end, instr, target=None, include_beyond_target=False):
+    def all_instr(self, start: int, end: int, instr, target=None, include_beyond_target=False):
         """
         Find all `instr` in the block from start to end.
         `instr` is any Python opcode or a list of opcodes
@@ -355,9 +351,7 @@ class Scanner(object):
         code = self.code
         assert start >= 0 and end <= len(code)
 
-        try:
-            None in instr
-        except:
+        if not isinstance(instr, list):
             instr = [instr]
 
         result = []
@@ -541,7 +535,5 @@ if __name__ == "__main__":
     import inspect, decompyle3
 
     co = inspect.currentframe().f_code
-    # scanner = get_scanner('2.7.13', True)
-    # scanner = get_scanner(sys.version[:5], False)
     scanner = get_scanner(decompyle3.PYTHON_VERSION, IS_PYPY, True)
     tokens, customize = scanner.ingest(co, {}, show_asm="after")

@@ -29,8 +29,6 @@ Second, we need structured instruction information for the
 want to run on earlier Python versions.
 """
 
-from __future__ import print_function
-
 import sys
 from collections import deque
 
@@ -39,7 +37,7 @@ from xdis.load import check_object_path, load_module
 from decompyle3.scanner import get_scanner
 
 
-def disco(version: str, co, out=None, is_pypy=False)->None:
+def disco(version: str, co, out=None, is_pypy=False) -> None:
     """
     diassembles and deparses a given code block 'co'
     """
@@ -92,7 +90,7 @@ def disco_loop(disasm, queue: list, real_out):
 #     co = None
 
 
-def disassemble_file(filename: str, outstream=None)->None:
+def disassemble_file(filename: str, outstream=None) -> None:
     """
     disassemble Python byte-code file (.pyc)
 
@@ -109,7 +107,7 @@ def disassemble_file(filename: str, outstream=None)->None:
     co = None
 
 
-def _test()->None:
+def _test() -> None:
     """Simple test program to disassemble a file."""
     argc = len(sys.argv)
     if argc != 2:

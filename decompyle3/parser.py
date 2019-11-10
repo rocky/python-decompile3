@@ -16,8 +16,6 @@
 Common decompyle3 parser routines.
 """
 
-from __future__ import print_function
-
 import sys
 
 from xdis.code import iscode
@@ -27,7 +25,7 @@ from decompyle3.show import maybe_show_asm
 
 
 class ParserError(Exception):
-    def __init__(self, token, offset):
+    def __init__(self, token, offset: int):
         self.token = token
         self.offset = offset
 
@@ -102,7 +100,9 @@ class PythonParser(GenericASTBuilder):
         else:
             return self.ast_first_offset(ast[0])
 
-    def add_unique_rule(self, rule, opname: str, arg_count: int, customize: dict) -> None:
+    def add_unique_rule(
+        self, rule, opname: str, arg_count: int, customize: dict
+    ) -> None:
         """Add rule to grammar, but only if it hasn't been added previously
            opname and stack_count are used in the customize() semantic
            the actions to add the semantic action rule. Stack_count is
@@ -627,7 +627,7 @@ def python_parser(
 
 if __name__ == "__main__":
 
-    def parse_test(co):
+    def parse_test(co) -> None:
         from decompyle3 import IS_PYPY
 
         ast = python_parser("3.7.3", co, showasm=True, is_pypy=IS_PYPY)

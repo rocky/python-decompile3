@@ -15,7 +15,6 @@
 """
 spark grammar differences over Python 3.5 for Python 3.6.
 """
-from __future__ import print_function
 
 from decompyle3.parser import PythonParserSingle, nop_func
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
@@ -420,26 +419,3 @@ if __name__ == "__main__":
     # Check grammar
     p = Python36Parser()
     p.check_grammar()
-    from decompyle3 import PYTHON_VERSION, IS_PYPY
-
-    if PYTHON_VERSION == 3.6:
-        lhs, rhs, tokens, right_recursive = p.check_sets()
-        from decompyle3.scanner import get_scanner
-
-        s = get_scanner(PYTHON_VERSION, IS_PYPY)
-        opcode_set = set(s.opc.opname).union(
-            set(
-                """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
-               LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_CLASSNAME
-               LAMBDA_MARKER RETURN_LAST
-            """.split()
-            )
-        )
-        remain_tokens = set(tokens) - opcode_set
-        import re
-
-        remain_tokens = set([re.sub(r"_\d+$", "", t) for t in remain_tokens])
-        remain_tokens = set([re.sub("_CONT$", "", t) for t in remain_tokens])
-        remain_tokens = set(remain_tokens) - opcode_set
-        print(remain_tokens)
-        # print(sorted(p.rule2name.items()))

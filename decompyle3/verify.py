@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2015-2018 by Rocky Bernstein
+# (C) Copyright 2015-2019 by Rocky Bernstein
 # (C) Copyright 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 #  This program is free software: you can redistribute it and/or modify
@@ -17,8 +17,6 @@
 """
 byte-code verification
 """
-
-from __future__ import print_function
 
 import operator, sys
 import xdis.std as dis
