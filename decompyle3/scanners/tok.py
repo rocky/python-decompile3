@@ -32,7 +32,7 @@ class Token:
     #    pattr = argrepr
     def __init__(
         self,
-        opname,
+        opname: str,
         attr=None,
         pattr=None,
         offset=-1,
@@ -86,10 +86,10 @@ class Token:
     #     return (prefix +
     #             ('%9s  %-18s %r' % (self.offset, self.kind, pattr)))
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.format(line_prefix="")
 
-    def format(self, line_prefix=""):
+    def format(self, line_prefix="") -> str:
         prefix = (
             "\n%s%4d  " % (line_prefix, self.linestart)
             if self.linestart

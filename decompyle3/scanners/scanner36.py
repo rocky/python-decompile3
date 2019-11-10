@@ -11,12 +11,13 @@ from decompyle3.scanners.scanner3 import Scanner3
 # bytecode verification, verify(), uses JUMP_OPS from here
 from xdis.opcodes import opcode_36 as opc
 
+
 class Scanner36(Scanner3):
     def __init__(self, show_asm=None, is_pypy=False):
         Scanner3.__init__(self, 3.6, show_asm, is_pypy)
         return
 
-    def ingest(self, co, classname=None, code_objects={}, show_asm=None):
+    def ingest(self, co, classname=None, code_objects={}, show_asm=None) -> tuple:
         tokens, customize = Scanner3.ingest(self, co, classname, code_objects, show_asm)
         not_pypy36 = not (self.version == 3.6 and self.is_pypy)
         for t in tokens:

@@ -33,8 +33,6 @@ For example:
 Finally we save token information.
 """
 
-from __future__ import print_function
-
 from xdis.code import iscode
 from xdis.bytecode import instruction_size, _get_const_info
 
@@ -52,7 +50,7 @@ globals().update(op3.opmap)
 
 
 class Scanner3(Scanner):
-    def __init__(self, version, show_asm=None, is_pypy=False):
+    def __init__(self, version: str, show_asm=None, is_pypy=False):
         super(Scanner3, self).__init__(version, show_asm, is_pypy)
 
         # Create opcode classification sets
@@ -500,7 +498,7 @@ class Scanner3(Scanner):
             print()
         return tokens, customize
 
-    def find_jump_targets(self, debug):
+    def find_jump_targets(self, debug) -> dict:
         """
         Detect all offsets in a byte code which are jump targets
         where we might insert a COME_FROM instruction.
@@ -663,7 +661,7 @@ class Scanner3(Scanner):
         # Finish filling the list for last statement
         slist += [codelen] * (codelen - len(slist))
 
-    def detect_control_flow(self, offset, targets, inst_index):
+    def detect_control_flow(self, offset: int, targets: list, inst_index: int):
         """
         Detect type of block structures and their boundaries to fix optimized jumps
         in python2.3+
@@ -1263,5 +1261,5 @@ if __name__ == "__main__":
         for t in tokens:
             print(t)
     else:
-        print("Need to be Python 3.2 or greater to demo; I am %s." % PYTHON_VERSION)
+        print("Need to be Python 3.2 or greater to demo; I am version {PYTHON_VERSION}." % PYTHON_VERSION)
     pass

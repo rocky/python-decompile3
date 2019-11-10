@@ -52,4 +52,4 @@ if __name__ == "__main__":
             print(t.format())
         pass
     else:
-        print("Need to be Python 3.7 to demo; I am %s." % PYTHON_VERSION)
+        print(f"Need to be Python 3.7 to demo; I am version {PYTHON_VERSION}.")
