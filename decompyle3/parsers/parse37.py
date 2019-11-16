@@ -234,7 +234,7 @@ class Python37Parser(Python36Parser):
         if_exp_37b                 ::= expr jmp_false expr POP_JUMP_IF_FALSE jump_forward_else expr
         """
 
-    def customize_grammar_rules(self, tokens, customize):
+    def remove_rules_37(self):
         self.remove_rules(
             """
           async_forelse_stmt ::= SETUP_LOOP expr
@@ -262,7 +262,10 @@ class Python37Parser(Python36Parser):
                                COME_FROM_LOOP
         """
         )
+
+    def customize_grammar_rules(self, tokens, customize):
         super(Python37Parser, self).customize_grammar_rules(tokens, customize)
+        self.remove_rules_37()
 
 
 class Python37ParserSingle(Python37Parser, PythonParserSingle):
@@ -271,12 +274,14 @@ class Python37ParserSingle(Python37Parser, PythonParserSingle):
 
 if __name__ == "__main__":
     # Check grammar
+    # FIXME: DRY this with other parseXX.py routines
     p = Python37Parser()
+    p.remove_rules_37()
     p.check_grammar()
     from decompyle3 import PYTHON_VERSION, IS_PYPY
 
     if PYTHON_VERSION == 3.7:
-        lhs, rhs, tokens, right_recursive = p.check_sets()
+        lhs, rhs, tokens, right_recursive, dup_rhs = p.check_sets()
         from decompyle3.scanner import get_scanner
 
         s = get_scanner(PYTHON_VERSION, IS_PYPY)
@@ -295,4 +300,8 @@ if __name__ == "__main__":
         remain_tokens = set([re.sub("_CONT$", "", t) for t in remain_tokens])
         remain_tokens = set(remain_tokens) - opcode_set
         print(remain_tokens)
-        # print(sorted(p.rule2name.items()))
+        import sys
+        if len(sys.argv) > 1:
+            from spark_parser.spark import rule2str
+            for rule in sorted(p.rule2name.items()):
+                print(rule2str(rule[0]))

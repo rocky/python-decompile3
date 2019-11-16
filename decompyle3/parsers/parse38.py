@@ -164,7 +164,7 @@ class Python38Parser(Python37Parser):
         super(Python38Parser, self).__init__(debug_parser)
         self.customized = {}
 
-    def customize_grammar_rules(self, tokens, customize):
+    def remove_rules_38(self):
         self.remove_rules(
             """
            stmt               ::= async_for_stmt37
@@ -229,11 +229,12 @@ class Python38Parser(Python37Parser):
                                   COME_FROM_FINALLY suite_stmts_opt END_FINALLY
            tryfinally_return_stmt ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
                                       LOAD_CONST COME_FROM_FINALLY
-
-
         """
         )
+
+    def customize_grammar_rules(self, tokens, customize):
         super(Python37Parser, self).customize_grammar_rules(tokens, customize)
+        self.remove_rules_38()
         self.check_reduce["ifstmt"] = "tokens"
         self.check_reduce["whileTruestmt38"] = "tokens"
 
@@ -275,12 +276,14 @@ class Python38ParserSingle(Python38Parser, PythonParserSingle):
 
 if __name__ == "__main__":
     # Check grammar
+    # FIXME: DRY this with other parseXX.py routines
     p = Python38Parser()
+    p.remove_rules_38()
     p.check_grammar()
     from decompyle3 import PYTHON_VERSION, IS_PYPY
 
     if PYTHON_VERSION == 3.8:
-        lhs, rhs, tokens, right_recursive = p.check_sets()
+        lhs, rhs, tokens, right_recursive, dup_rhs = p.check_sets()
         from decompyle3.scanner import get_scanner
 
         s = get_scanner(PYTHON_VERSION, IS_PYPY)
@@ -299,4 +302,8 @@ if __name__ == "__main__":
         remain_tokens = set([re.sub("_CONT$", "", t) for t in remain_tokens])
         remain_tokens = set(remain_tokens) - opcode_set
         print(remain_tokens)
-        # print(sorted(p.rule2name.items()))
+        import sys
+        if len(sys.argv) > 1:
+            from spark_parser.spark import rule2str
+            for rule in sorted(p.rule2name.items()):
+                print(rule2str(rule[0]))
