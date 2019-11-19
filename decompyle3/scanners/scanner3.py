@@ -958,10 +958,6 @@ class Scanner3(Scanner):
                     self.fixed_jumps[offset] = prev_op[next]
                     return
 
-            # Don't add a struct for a while test, it's already taken care of
-            if offset in self.ignore_if:
-                return
-
             rtarget_is_ja = code[pre_rtarget] == self.opc.JUMP_ABSOLUTE
             if (
                 rtarget_is_ja
