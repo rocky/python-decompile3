@@ -72,18 +72,11 @@ class Scanner3(Scanner):
             setup_ops = [self.opc.SETUP_FINALLY]
             self.setup_ops_no_loop = frozenset(setup_ops)
 
-        if self.version >= 3.2:
-            setup_ops.append(self.opc.SETUP_WITH)
+        setup_ops.append(self.opc.SETUP_WITH)
         self.setup_ops = frozenset(setup_ops)
 
-        if self.version == 3.0:
-            self.pop_jump_tf = frozenset(
-                [self.opc.JUMP_IF_FALSE, self.opc.JUMP_IF_TRUE]
-            )
-            self.not_continue_follow = ("END_FINALLY", "POP_BLOCK", "POP_TOP")
-        else:
-            self.pop_jump_tf = frozenset([self.opc.PJIF, self.opc.PJIT])
-            self.not_continue_follow = ("END_FINALLY", "POP_BLOCK")
+        self.pop_jump_tf = frozenset([self.opc.PJIF, self.opc.PJIT])
+        self.not_continue_follow = ("END_FINALLY", "POP_BLOCK")
 
         # Opcodes that can start a statement.
         statement_opcodes = [
@@ -175,24 +168,21 @@ class Scanner3(Scanner):
             ]
         )
 
-        if is_pypy or self.version >= 3.7:
-            varargs_ops.add(self.opc.CALL_METHOD)
-        if self.version >= 3.5:
-            varargs_ops |= set(
-                [
-                    self.opc.BUILD_SET_UNPACK,
-                    self.opc.BUILD_MAP_UNPACK,  # we will handle this later
-                    self.opc.BUILD_LIST_UNPACK,
-                    self.opc.BUILD_TUPLE_UNPACK,
-                ]
-            )
-            if self.version >= 3.6:
-                varargs_ops.add(self.opc.BUILD_CONST_KEY_MAP)
-                # Below is in bit order, "default = bit 0, closure = bit 3
-                self.MAKE_FUNCTION_FLAGS = tuple(
-                    """
-                 default keyword-only annotation closure""".split()
-                )
+        varargs_ops.add(self.opc.CALL_METHOD)
+        varargs_ops |= set(
+            [
+                self.opc.BUILD_SET_UNPACK,
+                self.opc.BUILD_MAP_UNPACK,  # we will handle this later
+                self.opc.BUILD_LIST_UNPACK,
+                self.opc.BUILD_TUPLE_UNPACK,
+            ]
+        )
+        varargs_ops.add(self.opc.BUILD_CONST_KEY_MAP)
+        # Below is in bit order, "default = bit 0, closure = bit 3
+        self.MAKE_FUNCTION_FLAGS = tuple(
+            """
+            default keyword-only annotation closure""".split()
+        )
 
         self.varargs_ops = frozenset(varargs_ops)
         # FIXME: remove the above in favor of:
@@ -264,9 +254,7 @@ class Scanner3(Scanner):
                 ):
                     raise_idx = self.offset2inst_index[self.prev_op[inst.argval]]
                     raise_inst = self.insts[raise_idx]
-                    if raise_inst.opname.startswith(
-                        "RAISE_VARARGS"
-                    ):
+                    if raise_inst.opname.startswith("RAISE_VARARGS"):
                         self.load_asserts.add(next_inst.offset)
                     pass
                 pass
@@ -498,7 +486,7 @@ class Scanner3(Scanner):
             print()
         return tokens, customize
 
-    def find_jump_targets(self, debug) -> dict:
+    def find_jump_targets(self, debug: str) -> dict:
         """
         Detect all offsets in a byte code which are jump targets
         where we might insert a COME_FROM instruction.
@@ -995,9 +983,7 @@ class Scanner3(Scanner):
             else:
                 rtarget_break = (self.opc.RETURN_VALUE,)
 
-            if self.is_jump_forward(pre_rtarget) or (
-                rtarget_is_ja and self.version >= 3.5
-            ):
+            if self.is_jump_forward(pre_rtarget) or (rtarget_is_ja):
                 if_end = self.get_target(pre_rtarget)
 
                 # If the jump target is back, we are looping
@@ -1040,29 +1026,21 @@ class Scanner3(Scanner):
                 if self.is_pypy and code[jump_prev] == self.opc.COMPARE_OP:
                     if self.opc.cmp_op[code[jump_prev + 1]] == "exception-match":
                         return
-                if self.version >= 3.5:
-                    # Python 3.5 may remove as dead code a JUMP
-                    # instruction after a RETURN_VALUE. So we check
-                    # based on seeing SETUP_EXCEPT various places.
-                    if self.version < 3.6 and code[rtarget] == self.opc.SETUP_EXCEPT:
-                        return
-                    # Check that next instruction after pops and jump is
-                    # not from SETUP_EXCEPT
-                    next_op = rtarget
-                    if code[next_op] == self.opc.POP_BLOCK:
-                        next_op += instruction_size(self.code[next_op], self.opc)
-                    if code[next_op] == self.opc.JUMP_ABSOLUTE:
-                        next_op += instruction_size(self.code[next_op], self.opc)
-                    if next_op in targets:
-                        for try_op in targets[next_op]:
-                            come_from_op = code[try_op]
-                            if (
-                                self.version < 3.8
-                                and come_from_op == self.opc.SETUP_EXCEPT
-                            ):
-                                return
-                            pass
                     pass
+
+                # Check that next instruction after pops and jump is
+                # not from SETUP_EXCEPT
+                next_op = rtarget
+                if code[next_op] == self.opc.POP_BLOCK:
+                    next_op += instruction_size(self.code[next_op], self.opc)
+                if code[next_op] == self.opc.JUMP_ABSOLUTE:
+                    next_op += instruction_size(self.code[next_op], self.opc)
+                if next_op in targets:
+                    for try_op in targets[next_op]:
+                        come_from_op = code[try_op]
+                        if self.version < 3.8 and come_from_op == self.opc.SETUP_EXCEPT:
+                            return
+                        pass
 
                 self.fixed_jumps[offset] = rtarget
 
@@ -1223,10 +1201,7 @@ class Scanner3(Scanner):
             start, end, instr, target, include_beyond_target
         )
         # Get all POP_JUMP_IF_TRUE (or) offsets
-        if self.version == 3.0:
-            jump_true_op = self.opc.JUMP_IF_TRUE
-        else:
-            jump_true_op = self.opc.POP_JUMP_IF_TRUE
+        jump_true_op = self.opc.POP_JUMP_IF_TRUE
         pjit_offsets = self.inst_matches(start, end, jump_true_op)
         filtered = []
         for pjit_offset in pjit_offsets:
@@ -1252,5 +1227,8 @@ if __name__ == "__main__":
         for t in tokens:
             print(t)
     else:
-        print("Need to be Python 3.7 or greater to demo; I am version {PYTHON_VERSION}." % PYTHON_VERSION)
+        print(
+            "Need to be Python 3.7 or greater to demo; I am version {PYTHON_VERSION}."
+            % PYTHON_VERSION
+        )
     pass
