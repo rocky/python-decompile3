@@ -36,7 +36,7 @@ Finally we save token information.
 from xdis.code import iscode
 from xdis.bytecode import instruction_size, _get_const_info
 
-from decompyle3.scanner import Token, parse_fn_counts
+from decompyle3.scanner import Token
 import xdis
 
 # Get all the opcodes into globals
@@ -929,16 +929,12 @@ class Scanner3(Scanner):
                                     last_jump_good = False
                             self.fixed_jumps[offset] = fix or match[-1]
                             return
-                    else:
-                        if self.version < 3.6:
-                            # FIXME: this is putting in COME_FROMs in the wrong place.
-                            # Fix up grammar so we don't need to do this.
-                            # See cf_for_iter use in parser36.py
-                            self.fixed_jumps[offset] = match[-1]
-                        elif target > offset:
-                            # Right now we only add COME_FROMs in forward (not loop) jumps
-                            self.fixed_jumps[offset] = target
+                        pass
+                    elif target > offset:
+                        # Right now we only add COME_FROMs in forward (not loop) jumps
+                        self.fixed_jumps[offset] = target
                         return
+                    pass
             # op == POP_JUMP_IF_TRUE
             else:
                 next = self.next_stmt[offset]
@@ -1072,8 +1068,7 @@ class Scanner3(Scanner):
                             pass
                     pass
 
-                if self.version >= 3.4:
-                    self.fixed_jumps[offset] = rtarget
+                self.fixed_jumps[offset] = rtarget
 
                 if code[pre_rtarget] == self.opc.RETURN_VALUE:
                     # If we are at some sort of POP_JUMP_IF and the instruction before was
@@ -1142,7 +1137,7 @@ class Scanner3(Scanner):
                     self.fixed_jumps[offset] = self.restrict_to_parent(target, parent)
                     pass
                 pass
-        elif self.version >= 3.5:
+        else:
             # 3.5+ has Jump optimization which too often causes RETURN_VALUE to get
             # misclassified as RETURN_END_IF. Handle that here.
             # In RETURN_VALUE, JUMP_ABSOLUTE, RETURN_VALUE is never RETURN_END_IF
@@ -1261,5 +1256,5 @@ if __name__ == "__main__":
         for t in tokens:
             print(t)
     else:
-        print("Need to be Python 3.2 or greater to demo; I am version {PYTHON_VERSION}." % PYTHON_VERSION)
+        print("Need to be Python 3.7 or greater to demo; I am version {PYTHON_VERSION}." % PYTHON_VERSION)
     pass
