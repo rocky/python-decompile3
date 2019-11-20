@@ -275,16 +275,16 @@ class Python3Parser(PythonParser):
                            COME_FROM_FINALLY suite_stmts_opt END_FINALLY
 
         except_handler ::= jmp_abs COME_FROM except_stmts
-                           END_FINALLY
+                           come_froms END_FINALLY
         except_handler ::= jmp_abs COME_FROM_EXCEPT except_stmts
-                           END_FINALLY
+                           come_froms END_FINALLY
 
         # FIXME: remove this
         except_handler ::= JUMP_FORWARD COME_FROM except_stmts
-                           END_FINALLY COME_FROM
+                           come_froms END_FINALLY COME_FROM
 
         except_handler ::= JUMP_FORWARD COME_FROM except_stmts
-                           END_FINALLY COME_FROM_EXCEPT
+                           come_froms END_FINALLY COME_FROM_EXCEPT
 
         except_stmts ::= except_stmts except_stmt
         except_stmts ::= except_stmt
@@ -339,7 +339,7 @@ class Python3Parser(PythonParser):
     def p_misc3(self, args):
         """
         except_handler ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts
-                            END_FINALLY COME_FROM_EXCEPT_CLAUSE
+                           come_froms END_FINALLY
 
         for_block ::= l_stmts_opt COME_FROM_LOOP JUMP_BACK
         for_block ::= l_stmts
@@ -1291,6 +1291,7 @@ class Python3Parser(PythonParser):
                 if last == len(tokens):
                     return True
                 jmp_target = jmp[0].attr
+                jmp_offset = jmp[0].offset
 
                 if tokens[first].off2int() <= jmp_target < tokens[last].off2int():
                     return True
@@ -1298,9 +1299,11 @@ class Python3Parser(PythonParser):
                     jmp2_target = ast[3][0].attr
                     return jmp_target != jmp2_target
                 elif rule == ("and", ("expr", "jmp_false", "expr")):
-                    jmp2_target = tokens[last]
                     if tokens[last] == "POP_JUMP_IF_FALSE":
                         return jmp_target != tokens[last].attr
+                # elif rule == ("and", ("expr", "jmp_false", "expr", "COME_FROM")):
+                #     return jmp_offset != tokens[first+3].attr
+
                 return jmp_target != tokens[last].off2int()
             return False
 

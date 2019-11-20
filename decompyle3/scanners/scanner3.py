@@ -821,108 +821,9 @@ class Scanner3(Scanner):
             # in making a determination of what we have. Save that.
             pre_rtarget = prev_op[rtarget]
 
-            # Is it an "and" inside an "if" or "while" block
             if op == self.opc.POP_JUMP_IF_FALSE:
+                self.fixed_jumps[offset] = target
 
-                # Search for another POP_JUMP_IF_FALSE targetting the same op,
-                # in current statement, starting from current offset, and filter
-                # everything inside inner 'or' jumps and midline ifs
-                match = self.rem_or(
-                    start, self.next_stmt[offset], self.opc.POP_JUMP_IF_FALSE, target
-                )
-
-                # If we still have any offsets in set, start working on it
-                if match:
-                    is_jump_forward = self.is_jump_forward(pre_rtarget)
-                    if (
-                        is_jump_forward
-                        and pre_rtarget not in self.stmts
-                        and self.restrict_to_parent(
-                            self.get_target(pre_rtarget), parent
-                        )
-                        == rtarget
-                    ):
-                        if (
-                            code[prev_op[pre_rtarget]] == self.opc.JUMP_ABSOLUTE
-                            and self.remove_mid_line_ifs([offset])
-                            and target == self.get_target(prev_op[pre_rtarget])
-                            and (
-                                prev_op[pre_rtarget] not in self.stmts
-                                or self.get_target(prev_op[pre_rtarget])
-                                > prev_op[pre_rtarget]
-                            )
-                            and 1
-                            == len(
-                                self.remove_mid_line_ifs(
-                                    self.rem_or(
-                                        start,
-                                        prev_op[pre_rtarget],
-                                        self.pop_jump_tf,
-                                        target,
-                                    )
-                                )
-                            )
-                        ):
-                            pass
-                        elif (
-                            code[prev_op[pre_rtarget]] == self.opc.RETURN_VALUE
-                            and self.remove_mid_line_ifs([offset])
-                            and 1
-                            == (
-                                len(
-                                    set(
-                                        self.remove_mid_line_ifs(
-                                            self.rem_or(
-                                                start,
-                                                prev_op[pre_rtarget],
-                                                self.pop_jump_tf,
-                                                target,
-                                            )
-                                        )
-                                    )
-                                    | set(
-                                        self.remove_mid_line_ifs(
-                                            self.rem_or(
-                                                start,
-                                                prev_op[pre_rtarget],
-                                                (
-                                                    self.opc.POP_JUMP_IF_FALSE,
-                                                    self.opc.POP_JUMP_IF_TRUE,
-                                                    self.opc.JUMP_ABSOLUTE,
-                                                ),
-                                                pre_rtarget,
-                                                True,
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        ):
-                            pass
-                        else:
-                            fix = None
-                            jump_ifs = self.inst_matches(
-                                start,
-                                self.next_stmt[offset],
-                                self.opc.POP_JUMP_IF_FALSE,
-                            )
-                            last_jump_good = True
-                            for j in jump_ifs:
-                                if target == self.get_target(j):
-                                    # FIXME: remove magic number
-                                    if self.lines[j].next == j + 3 and last_jump_good:
-                                        fix = j
-                                        break
-                                else:
-                                    last_jump_good = False
-                            self.fixed_jumps[offset] = fix or match[-1]
-                            return
-                        pass
-                    elif target > offset:
-                        # Right now we only add COME_FROMs in forward (not loop) jumps
-                        self.fixed_jumps[offset] = target
-                        return
-                    pass
             # op == POP_JUMP_IF_TRUE
             else:
                 next = self.next_stmt[offset]
@@ -1057,26 +958,9 @@ class Scanner3(Scanner):
                     self.not_continue.add(pre_rtarget)
             else:
 
-                # FIXME: this is very convoluted and based on rather hacky
-                # empirical evidence. It should go a way when
-                # we have better control-flow analysis
-                normal_jump = self.version >= 3.6
-                if self.version == 3.5:
-                    j = self.offset2inst_index[target]
-                    if j + 2 < len(self.insts) and self.insts[j + 2].is_jump_target:
-                        normal_jump = self.insts[j + 1].opname == "POP_BLOCK"
-
-                if normal_jump:
-                    # For now, we'll only tag forward jump.
-                    if target > offset:
-                        self.fixed_jumps[offset] = target
-                        pass
-                else:
-                    # FIXME: This is probably a bug in < 3.5 and we should
-                    # instead use the above code. But until we smoke things
-                    # out we'll stick with it.
-                    if rtarget > offset:
-                        self.fixed_jumps[offset] = rtarget
+                if target > offset:
+                    self.fixed_jumps[offset] = target
+                    pass
 
         elif self.version < 3.8 and op == self.opc.SETUP_EXCEPT:
             target = self.get_target(offset)
