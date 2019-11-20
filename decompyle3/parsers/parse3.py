@@ -1265,11 +1265,13 @@ class Python3Parser(PythonParser):
                 pass
             pass
 
+        self.check_reduce["and"] = "AST"
         self.check_reduce["aug_assign1"] = "AST"
         self.check_reduce["aug_assign2"] = "AST"
         self.check_reduce["while1stmt"] = "noAST"
         self.check_reduce["while1elsestmt"] = "noAST"
         self.check_reduce["ifelsestmt"] = "AST"
+        self.check_reduce["ifstmt"] = "AST"
         self.check_reduce["annotate_tuple"] = "noAST"
         if self.version < 3.6:
             # 3.6+ can remove a JUMP_FORWARD which messes up our testing here
@@ -1281,7 +1283,28 @@ class Python3Parser(PythonParser):
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         lhs = rule[0]
-        if lhs in ("aug_assign1", "aug_assign2") and ast[0][0] == "and":
+        if lhs == "and" and ast:
+            # FIXME: put in a routine somewhere
+            # Compare with parse30.py of uncompyle6
+            jmp = ast[1]
+            if jmp.kind.startswith("jmp_"):
+                if last == len(tokens):
+                    return True
+                jmp_target = jmp[0].attr
+
+                if tokens[first].off2int() <= jmp_target < tokens[last].off2int():
+                    return True
+                if rule == ("and", ("expr", "jmp_false", "expr", "jmp_false")):
+                    jmp2_target = ast[3][0].attr
+                    return jmp_target != jmp2_target
+                elif rule == ("and", ("expr", "jmp_false", "expr")):
+                    jmp2_target = tokens[last]
+                    if tokens[last] == "POP_JUMP_IF_FALSE":
+                        return jmp_target != tokens[last].attr
+                return jmp_target != tokens[last].off2int()
+            return False
+
+        elif lhs in ("aug_assign1", "aug_assign2") and ast[0][0] == "and":
             return True
         elif lhs == "annotate_tuple":
             return not isinstance(tokens[first].attr, tuple)
@@ -1305,12 +1328,8 @@ class Python3Parser(PythonParser):
             # if SETUP_LOOP target spans the else part, then this is
             # not while1else. Also do for whileTrue?
             last += 1
-            while last < n and isinstance(tokens[last].offset, str):
-                last += 1
-            if last == n:
-                return False
             # 3.8+ Doesn't have SETUP_LOOP
-            return self.version < 3.8 and tokens[first].attr > tokens[last].offset
+            return self.version < 3.8 and tokens[first].attr > tokens[last].off2int()
 
         elif rule == (
             "try_except",
@@ -1357,13 +1376,30 @@ class Python3Parser(PythonParser):
             ):
                 # jump_back should be right before COME_FROM_LOOP?
                 last += 1
-            while last < len(tokens) and isinstance(tokens[last].offset, str):
-                last += 1
-            if last < len(tokens):
-                offset = tokens[last].offset
-                assert tokens[first] == "SETUP_LOOP"
-                if offset != tokens[first].attr:
-                    return True
+            if last == len(tokens):
+                last -= 1
+            offset = tokens[last].off2int()
+            assert tokens[first] == "SETUP_LOOP"
+            if offset != tokens[first].attr:
+                return True
+            return False
+        elif lhs == "ifstmt" and ast:
+            # FIXME: put in a routine somewhere
+            testexpr = ast[0]
+
+            # Compare with parse30.py of uncompyle6
+            if testexpr[0] in ("testtrue", "testfalse"):
+                test = testexpr[0]
+                if len(test) > 1 and test[1].kind.startswith("jmp_"):
+                    if last == len(tokens):
+                        last -= 1
+                    jmp_target = test[1][0].attr
+                    if tokens[first].off2int() <= jmp_target < tokens[last].off2int():
+                        return True
+                    # jmp_target less than tokens[first] is okay - is to a loop
+                    # jmp_target equal tokens[last] is also okay: normal non-optimized non-loop jump
+                    return jmp_target > tokens[last].off2int()
+                pass
             return False
         elif rule == (
             "ifelsestmt",
@@ -1379,6 +1415,24 @@ class Python3Parser(PythonParser):
             come_froms = ast[-1]
             if not isinstance(come_froms, Token):
                 return tokens[first].offset > come_froms[-1].attr
+
+            # FIXME: put in a routine somewhere
+            testexpr = ast[0]
+
+            # Compare with parse30.py of uncompyle6
+            if testexpr[0] in ("testtrue", "testfalse"):
+                test = testexpr[0]
+                if test[1].kind.startswith("jmp_"):
+                    if last == len(tokens):
+                        last -= 1
+                    jmp = test[1]
+                    jmp_target = jmp[0].attr
+                    if tokens[first].off2int() > jmp_target:
+                        return True
+                    return (jmp_target > tokens[last].off2int()) and tokens[
+                        last
+                    ] != "JUMP_FORWARD"
+
             return False
 
         return False
