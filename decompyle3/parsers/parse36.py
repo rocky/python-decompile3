@@ -37,9 +37,9 @@ class Python36Parser(Python35Parser):
         for_block       ::= l_stmts_opt come_from_loops JUMP_BACK
         come_from_loops ::= COME_FROM_LOOP*
 
-        whilestmt       ::= SETUP_LOOP testexpr l_stmts_opt
+        whilestmt       ::= setup_loop testexpr l_stmts_opt
                             JUMP_BACK come_froms POP_BLOCK COME_FROM_LOOP
-        whilestmt       ::= SETUP_LOOP testexpr l_stmts_opt
+        whilestmt       ::= setup_loop testexpr l_stmts_opt
                             come_froms JUMP_BACK come_froms POP_BLOCK COME_FROM_LOOP
 
         # 3.6 due to jump optimization, we sometimes add RETURN_END_IF where
@@ -58,7 +58,7 @@ class Python36Parser(Python35Parser):
 
         conditional ::= expr jmp_false expr jf_cf expr COME_FROM
 
-        async_for_stmt     ::= SETUP_LOOP expr
+        async_for_stmt     ::= setup_loop expr
                                GET_AITER
                                LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST
                                YIELD_FROM
@@ -69,34 +69,6 @@ class Python36Parser(Python35Parser):
                                JUMP_ABSOLUTE END_FINALLY COME_FROM
                                for_block POP_BLOCK
                                COME_FROM_LOOP
-
-        stmt      ::= async_for_stmt36
-
-        async_for_stmt36   ::= SETUP_LOOP expr
-                               GET_AITER
-                               LOAD_CONST YIELD_FROM
-                               SETUP_EXCEPT GET_ANEXT LOAD_CONST
-                               YIELD_FROM
-                               store
-                               POP_BLOCK JUMP_BACK COME_FROM_EXCEPT DUP_TOP
-                               LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
-                               END_FINALLY for_block
-                               COME_FROM
-                               POP_TOP POP_TOP POP_TOP POP_EXCEPT
-                               POP_TOP POP_BLOCK
-                               COME_FROM_LOOP
-
-        async_forelse_stmt ::= SETUP_LOOP expr
-                               GET_AITER
-                               LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST
-                               YIELD_FROM
-                               store
-                               POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT DUP_TOP
-                               LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_FALSE
-                               POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
-                               JUMP_ABSOLUTE END_FINALLY COME_FROM
-                               for_block POP_BLOCK
-                               else_suite COME_FROM_LOOP
 
         # Adds a COME_FROM_ASYNC_WITH over 3.5
         # FIXME: remove corresponding rule for 3.5?
@@ -121,7 +93,7 @@ class Python36Parser(Python35Parser):
                              opt_come_from_except
         try_except36     ::= SETUP_EXCEPT suite_stmts
         try_except36     ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                             except_handler36 opt_come_from_except
+                             except_handler36 come_from_opt
 
         # 3.6 omits END_FINALLY sometimes
         except_handler36 ::= COME_FROM_EXCEPT except_stmts

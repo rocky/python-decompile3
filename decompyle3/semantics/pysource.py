@@ -1024,7 +1024,7 @@ class SourceWalker(GenericASTTraversal, object):
     def n_generator_exp(self, node):
         self.write("(")
         code_index = -6
-        self.comprehension_walk(node, iter_index=3, code_index=code_index)
+        self.comprehension_walk(node, iter_index=4, code_index=code_index)
         self.write(")")
         self.prune()
 
@@ -1804,8 +1804,9 @@ class SourceWalker(GenericASTTraversal, object):
         self.default(node)
 
     def n_except_cond2(self, node):
-        if node[-2][0] == "unpack":
-            node[-2][0].kind = "unpack_w_parens"
+        unpack_node = -3 if node[-1] == "come_from_opt" else -2
+        if node[unpack_node][0] == "unpack":
+            node[unpack_node][0].kind = "unpack_w_parens"
         self.default(node)
 
     def template_engine(self, entry, startnode):

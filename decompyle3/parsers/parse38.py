@@ -96,12 +96,12 @@ class Python38Parser(Python37Parser):
         return             ::= ret_expr ROT_TWO POP_TOP RETURN_VALUE
 
         for38              ::= expr get_iter store for_block JUMP_BACK
-        for38              ::= expr for_iter store for_block JUMP_BACK
-        for38              ::= expr for_iter store for_block JUMP_BACK POP_BLOCK
+        for38              ::= expr get_for_iter store for_block JUMP_BACK
+        for38              ::= expr get_for_iter store for_block JUMP_BACK POP_BLOCK
 
-        forelsestmt38      ::= expr for_iter store for_block POP_BLOCK else_suite
-        forelselaststmt38  ::= expr for_iter store for_block POP_BLOCK else_suitec
-        forelselaststmtl38 ::= expr for_iter store for_block POP_BLOCK else_suitel
+        forelsestmt38      ::= expr get_for_iter store for_block POP_BLOCK else_suite
+        forelselaststmt38  ::= expr get_for_iter store for_block POP_BLOCK else_suitec
+        forelselaststmtl38 ::= expr get_for_iter store for_block POP_BLOCK else_suitel
 
         whilestmt38        ::= testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
         whilestmt38        ::= testexpr l_stmts_opt JUMP_BACK POP_BLOCK
@@ -171,8 +171,9 @@ class Python38Parser(Python37Parser):
            stmt               ::= for
            stmt               ::= forelsestmt
            stmt               ::= try_except36
+           stmt               ::= async_forelse_stmt
 
-           async_for_stmt     ::= SETUP_LOOP expr
+           async_for_stmt     ::= setup_loop expr
                                   GET_AITER
                                   SETUP_EXCEPT GET_ANEXT LOAD_CONST
                                   YIELD_FROM
@@ -184,7 +185,7 @@ class Python38Parser(Python37Parser):
                                   COME_FROM
                                   POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP POP_BLOCK
                                   COME_FROM_LOOP
-           async_for_stmt37   ::= SETUP_LOOP expr
+           async_for_stmt37   ::= setup_loop expr
                                   GET_AITER
                                   SETUP_EXCEPT GET_ANEXT
                                   LOAD_CONST YIELD_FROM
@@ -196,7 +197,7 @@ class Python38Parser(Python37Parser):
                                   POP_TOP POP_BLOCK
                                   COME_FROM_LOOP
 
-          async_forelse_stmt ::= SETUP_LOOP expr
+          async_forelse_stmt ::= setup_loop expr
                                  GET_AITER
                                  SETUP_EXCEPT GET_ANEXT LOAD_CONST
                                  YIELD_FROM
@@ -209,13 +210,13 @@ class Python38Parser(Python37Parser):
                                  POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP POP_BLOCK
                                  else_suite COME_FROM_LOOP
 
-           for                ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK
-           for                ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK NOP
+           for                ::= setup_loop expr get_for_iter store for_block POP_BLOCK
+           for                ::= setup_loop expr get_for_iter store for_block POP_BLOCK NOP
 
            for_block          ::= l_stmts_opt COME_FROM_LOOP JUMP_BACK
-           forelsestmt        ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suite
-           forelselaststmt    ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suitec
-           forelselaststmtl   ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suitel
+           forelsestmt        ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suite
+           forelselaststmt    ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suitec
+           forelselaststmtl   ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suitel
 
            tryelsestmtl3      ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                                   except_handler COME_FROM else_suitel

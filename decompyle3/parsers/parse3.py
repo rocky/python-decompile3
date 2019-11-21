@@ -129,12 +129,14 @@ class Python3Parser(PythonParser):
         # one may be a continue - sometimes classifies a JUMP_BACK
         # as a CONTINUE. The two are kind of the same in a comprehension.
 
-        comp_for ::= expr for_iter store comp_iter CONTINUE
-        comp_for ::= expr for_iter store comp_iter JUMP_BACK
+        comp_for ::= expr get_for_iter store comp_iter CONTINUE
+        comp_for ::= expr get_for_iter store comp_iter JUMP_BACK
+
+        for_iter ::= _come_froms FOR_ITER
 
         list_comp ::= BUILD_LIST_0 list_iter
         lc_body   ::= expr LIST_APPEND
-        list_for ::= expr FOR_ITER store list_iter jb_or_c
+        list_for ::= expr for_iter store list_iter jb_or_c
 
         # This is seen in PyPy, but possibly it appears on other Python 3?
         list_if     ::= expr jmp_false list_iter COME_FROM
@@ -145,10 +147,10 @@ class Python3Parser(PythonParser):
 
         stmt ::= set_comp_func
 
-        set_comp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
+        set_comp_func ::= BUILD_SET_0 LOAD_FAST for_iter store comp_iter
                           JUMP_BACK RETURN_VALUE RETURN_LAST
 
-        set_comp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
+        set_comp_func ::= BUILD_SET_0 LOAD_FAST for_iter store comp_iter
                           COME_FROM JUMP_BACK RETURN_VALUE RETURN_LAST
 
         comp_body ::= dict_comp_body
@@ -163,7 +165,7 @@ class Python3Parser(PythonParser):
         """"
         expr ::= dict_comp
         stmt ::= dict_comp_func
-        dict_comp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER store
+        dict_comp_func ::= BUILD_MAP_0 LOAD_FAST for_iter store
                            comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
 
         comp_iter     ::= comp_if
@@ -281,16 +283,13 @@ class Python3Parser(PythonParser):
 
         # FIXME: remove this
         except_handler ::= JUMP_FORWARD COME_FROM except_stmts
-                           come_froms END_FINALLY COME_FROM
-
-        except_handler ::= JUMP_FORWARD COME_FROM except_stmts
-                           come_froms END_FINALLY COME_FROM_EXCEPT
+                           come_froms END_FINALLY come_from_opt
 
         except_stmts ::= except_stmts except_stmt
         except_stmts ::= except_stmt
 
-        except_stmt ::= except_cond1 except_suite
-        except_stmt ::= except_cond2 except_suite
+        except_stmt ::= except_cond1 except_suite come_from_opt
+        except_stmt ::= except_cond2 except_suite come_from_opt
         except_stmt ::= except_cond2 except_suite_finalize
         except_stmt ::= except
 
@@ -318,7 +317,7 @@ class Python3Parser(PythonParser):
                          jmp_false POP_TOP POP_TOP POP_TOP
 
         except_cond2 ::= DUP_TOP expr COMPARE_OP
-                         jmp_false POP_TOP store POP_TOP
+                         jmp_false POP_TOP store POP_TOP come_from_opt
 
         except  ::=  POP_TOP POP_TOP POP_TOP c_stmts_opt POP_EXCEPT _jump
         except  ::=  POP_TOP POP_TOP POP_TOP returns
@@ -397,46 +396,47 @@ class Python3Parser(PythonParser):
 
     def p_loop_stmt3(self, args):
         """
-        for               ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK
+        setup_loop        ::= SETUP_LOOP _come_froms
+        for               ::= setup_loop expr get_for_iter store for_block POP_BLOCK
                               COME_FROM_LOOP
 
-        forelsestmt       ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suite
+        forelsestmt       ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suite
                               COME_FROM_LOOP
 
-        forelselaststmt   ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suitec
+        forelselaststmt   ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suitec
                               COME_FROM_LOOP
 
-        forelselaststmtl  ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suitel
+        forelselaststmtl  ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suitel
                               COME_FROM_LOOP
 
-        whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
+        whilestmt         ::= setup_loop testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
                               COME_FROM_LOOP
 
-        whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
+        whilestmt         ::= setup_loop testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               COME_FROM_LOOP
 
-        whilestmt         ::= SETUP_LOOP testexpr returns          POP_BLOCK
+        whilestmt         ::= setup_loop testexpr returns          POP_BLOCK
                               COME_FROM_LOOP
 
-        while1elsestmt    ::= SETUP_LOOP          l_stmts     JUMP_BACK
+        while1elsestmt    ::= setup_loop          l_stmts     JUMP_BACK
                               else_suitel
 
-        whileelsestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
+        whileelsestmt     ::= setup_loop testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               else_suitel COME_FROM_LOOP
 
-        whileTruestmt     ::= SETUP_LOOP l_stmts_opt          JUMP_BACK POP_BLOCK
+        whileTruestmt     ::= setup_loop l_stmts_opt          JUMP_BACK POP_BLOCK
                               COME_FROM_LOOP
 
         # FIXME: Python 3.? starts adding branch optimization? Put this starting there.
 
-        while1stmt        ::= SETUP_LOOP l_stmts COME_FROM_LOOP
-        while1stmt        ::= SETUP_LOOP l_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
+        while1stmt        ::= setup_loop l_stmts COME_FROM_LOOP
+        while1stmt        ::= setup_loop l_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
 
-        while1elsestmt    ::= SETUP_LOOP l_stmts JUMP_BACK
+        while1elsestmt    ::= setup_loop l_stmts JUMP_BACK
                               else_suite COME_FROM_LOOP
 
         # FIXME: investigate - can code really produce a NOP?
-        for               ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK NOP
+        for               ::= setup_loop expr get_for_iter store for_block POP_BLOCK NOP
                               COME_FROM_LOOP
         """
 
@@ -702,7 +702,7 @@ class Python3Parser(PythonParser):
                 if opname == "BUILD_MAP_n":
                     # PyPy sometimes has no count. Sigh.
                     rule = (
-                        "dict_comp_func ::= BUILD_MAP_n LOAD_FAST FOR_ITER store "
+                        "dict_comp_func ::= BUILD_MAP_n LOAD_FAST for_iter store "
                         "comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST"
                     )
                     self.add_unique_rule(rule, "dict_comp_func", 1, customize)

@@ -382,7 +382,7 @@ class PythonParser(GenericASTBuilder):
         expr ::= generator_exp
         stmt ::= genexpr_func
 
-        genexpr_func ::= LOAD_FAST FOR_ITER store comp_iter JUMP_BACK
+        genexpr_func ::= LOAD_FAST _come_froms FOR_ITER store comp_iter JUMP_BACK
         """
 
     def p_jump(self, args):
@@ -445,17 +445,17 @@ class PythonParser(GenericASTBuilder):
 
     def p_forstmt(self, args):
         """
-        for_iter ::= GET_ITER FOR_ITER
+        get_for_iter ::= GET_ITER _come_froms FOR_ITER
 
         for_block ::= l_stmts_opt _come_froms JUMP_BACK
 
-        forelsestmt ::= SETUP_LOOP expr for_iter store
+        forelsestmt ::= SETUP_LOOP expr get_for_iter store
                         for_block POP_BLOCK else_suite _come_froms
 
-        forelselaststmt ::= SETUP_LOOP expr for_iter store
+        forelselaststmt ::= SETUP_LOOP expr get_for_iter store
                 for_block POP_BLOCK else_suitec _come_froms
 
-        forelselaststmtl ::= SETUP_LOOP expr for_iter store
+        forelselaststmtl ::= SETUP_LOOP expr get_for_iter store
                 for_block POP_BLOCK else_suitel _come_froms
         """
 
