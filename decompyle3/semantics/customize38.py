@@ -81,9 +81,9 @@ def customize_for_version38(self, version):
             (3, 'for_block'), -2 ),
 
         'whilestmt38': ( '%|while %c:\n%+%c%-\n\n',
-                         (0, 'testexpr'), (1, 'l_stmts') ),
+                         (1, 'testexpr'), (2, 'l_stmts') ),
         'whileTruestmt38': ( '%|while True:\n%+%c%-\n\n',
-                         (0, 'l_stmts') ),
+                         (1, 'l_stmts') ),
         'try_elsestmtl38': (
             '%|try:\n%+%c%-%c%|else:\n%+%c%-',
             (1, 'suite_stmts_opt'),

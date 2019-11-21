@@ -103,18 +103,19 @@ class Python38Parser(Python37Parser):
         forelselaststmt38  ::= expr get_for_iter store for_block POP_BLOCK else_suitec
         forelselaststmtl38 ::= expr get_for_iter store for_block POP_BLOCK else_suitel
 
-        whilestmt38        ::= testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
-        whilestmt38        ::= testexpr l_stmts_opt JUMP_BACK POP_BLOCK
-        whilestmt38        ::= testexpr returns               POP_BLOCK
-        whilestmt38        ::= testexpr l_stmts     JUMP_BACK
+        whilestmt38        ::= _come_froms testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
+        whilestmt38        ::= _come_froms testexpr l_stmts_opt JUMP_BACK POP_BLOCK
+        whilestmt38        ::= _come_froms testexpr l_stmts_opt JUMP_BACK come_froms
+        whilestmt38        ::= _come_froms testexpr returns               POP_BLOCK
+        whilestmt38        ::= _come_froms testexpr l_stmts     JUMP_BACK
 
         # while1elsestmt   ::=          l_stmts     JUMP_BACK
-        whileTruestmt      ::= l_stmts              JUMP_BACK POP_BLOCK
-        while1stmt         ::= l_stmts COME_FROM_LOOP
-        while1stmt         ::= l_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
-        whileTruestmt38    ::= l_stmts JUMP_BACK
+        whileTruestmt      ::= _come_froms l_stmts              JUMP_BACK POP_BLOCK
+        while1stmt         ::= _come_froms l_stmts COME_FROM_LOOP
+        while1stmt         ::= _come_froms l_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
+        whileTruestmt38    ::= _come_froms l_stmts JUMP_BACK
 
-        for_block          ::= l_stmts_opt _come_from_loops JUMP_BACK
+        for_block          ::= _come_froms l_stmts_opt _come_from_loops JUMP_BACK
 
         except_cond1       ::= DUP_TOP expr COMPARE_OP jmp_false
                                POP_TOP POP_TOP POP_TOP

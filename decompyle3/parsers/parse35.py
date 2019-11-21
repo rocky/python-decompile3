@@ -64,6 +64,7 @@ class Python35Parser(Python3Parser):
         return_if_lambda   ::= RETURN_END_IF_LAMBDA COME_FROM
 
         jb_else     ::= JUMP_BACK ELSE
+        jb_else     ::= JUMP_BACK COME_FROM
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_FORWARD else_suitec
         ifelsestmtl ::= testexpr c_stmts_opt jb_else else_suitel
 

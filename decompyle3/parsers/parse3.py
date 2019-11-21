@@ -242,7 +242,9 @@ class Python3Parser(PythonParser):
 
         # These are used to keep parse tree indices the same
         jump_forward_else  ::= JUMP_FORWARD ELSE
+        jump_forward_else  ::= JUMP_FORWARD COME_FROM
         jump_absolute_else ::= JUMP_ABSOLUTE ELSE
+        jump_absolute_else ::= JUMP_ABSOLUTE COME_FROM
 
         # Note: in if/else kinds of statements, we err on the side
         # of missing "else" clauses. Therefore we include grammar
@@ -261,7 +263,6 @@ class Python3Parser(PythonParser):
 
         ifelsestmtr ::= testexpr return_if_stmts returns
 
-        ifelsestmtl ::= testexpr c_stmts_opt JUMP_BACK else_suitel
         ifelsestmtl ::= testexpr c_stmts_opt cf_jump_back else_suitel
 
         cf_jump_back ::= COME_FROM JUMP_BACK
@@ -1283,6 +1284,7 @@ class Python3Parser(PythonParser):
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         lhs = rule[0]
+
         if lhs == "and" and ast:
             # FIXME: put in a routine somewhere
             # Compare with parse30.py of uncompyle6
@@ -1404,24 +1406,49 @@ class Python3Parser(PythonParser):
                     return jmp_target > tokens[last].off2int()
                 pass
             return False
-        elif rule == (
-            "ifelsestmt",
-            (
-                "testexpr",
-                "c_stmts_opt",
-                "jump_forward_else",
-                "else_suite",
-                "_come_froms",
-            ),
+        elif rule in (
+                ("ifelsestmt",
+                 (
+                     "testexpr",
+                     "c_stmts_opt",
+                     "jump_forward_else",
+                     "else_suite",
+                     "_come_froms",
+                 )),
+                ("ifelsestmt",
+                 (
+                     "testexpr",
+                     "c_stmts_opt",
+                     "jf_cfs",
+                     "else_suite",
+                     "opt_come_from_except",
+                 )),
         ):
-            # Make sure the highest/smallest "come from" offset comes inside the "if".
+            # FIXME: put in a routine somewhere
+
+            # Make sure all of the "come froms" offset at the
+            # end of the "if" come from somewhere inside the "if".
+            # Since the come_froms are ordered so that lowest
+            # offset COME_FROM is last, it is sufficient to test
+            # just the last one.
             come_froms = ast[-1]
+            if come_froms == "opt_come_from_except" and len(come_froms) > 0:
+                come_froms = come_froms[0]
             if not isinstance(come_froms, Token):
                 return tokens[first].offset > come_froms[-1].attr
+            elif tokens[first].offset > come_froms.attr:
+                return True
 
-            # FIXME: put in a routine somewhere
+            # For mysterious reasons a COME_FROM in tokens[last+1] might be part of the grammar rule
+            # even though it is not found in come_froms.
+            # Work around this.
+            if last < len(tokens) and tokens[last] == "COME_FROM" and tokens[first].offset > tokens[last].attr:
+                return True
+
             testexpr = ast[0]
 
+            # Check that the condition portion of the "if"
+            # jumps to the "else" part.
             # Compare with parse30.py of uncompyle6
             if testexpr[0] in ("testtrue", "testfalse"):
                 test = testexpr[0]
