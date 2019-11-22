@@ -245,6 +245,7 @@ class Python3Parser(PythonParser):
         jump_forward_else  ::= JUMP_FORWARD COME_FROM
         jump_absolute_else ::= JUMP_ABSOLUTE ELSE
         jump_absolute_else ::= JUMP_ABSOLUTE COME_FROM
+        jump_absolute_else ::= come_froms _jump COME_FROM
 
         # Note: in if/else kinds of statements, we err on the side
         # of missing "else" clauses. Therefore we include grammar
@@ -254,6 +255,11 @@ class Python3Parser(PythonParser):
                        else_suite opt_come_from_except
         ifelsestmt ::= testexpr c_stmts_opt jump_forward_else
                        else_suite _come_froms
+
+        # This handles the case where a "JUMP_ABSOLUTE" is part
+        # of an inner if in c_stmts_opt
+        ifelsestmt ::= testexpr c_stmts_opt come_froms
+                       else_suite come_froms
 
         # ifelsestmt ::= testexpr c_stmts_opt jump_forward_else
         #                pass  _come_froms
@@ -1271,6 +1277,7 @@ class Python3Parser(PythonParser):
         self.check_reduce["aug_assign2"] = "AST"
         self.check_reduce["while1stmt"] = "noAST"
         self.check_reduce["while1elsestmt"] = "noAST"
+        self.check_reduce["_ifstmts_jump"] = "AST"
         self.check_reduce["ifelsestmt"] = "AST"
         self.check_reduce["ifstmt"] = "AST"
         self.check_reduce["annotate_tuple"] = "noAST"
@@ -1388,6 +1395,33 @@ class Python3Parser(PythonParser):
             if offset != tokens[first].attr:
                 return True
             return False
+        elif lhs == "_ifstmts_jump" and len(rule[1]) > 1 and ast:
+            come_froms = ast[-1]
+            # Make sure all of the "come froms" offset at the
+            # end of the "if" come from somewhere inside the "if".
+            # Since the come_froms are ordered so that lowest
+            # offset COME_FROM is last, it is sufficient to test
+            # just the last one.
+
+            # This is complicated, but note that the JUMP_IF instruction comes immediately
+            # *before* _ifstmts_jump so that's what we have to test
+            # the COME_FROM against. This can be complicated by intervening
+            # POP_TOP, and pseudo COME_FROM, ELSE instructions
+            #
+            pop_jump_index = first - 1
+            while pop_jump_index > 0 and tokens[pop_jump_index] in ("ELSE", "POP_TOP",
+                                                                    "JUMP_FORWARD",
+                                                                    "COME_FROM"):
+                pop_jump_index -= 1
+            come_froms = ast[-1]
+            if isinstance(come_froms, Token):
+                return come_froms.attr is not None and tokens[pop_jump_index].offset > come_froms.attr
+
+            elif len(come_froms) == 0:
+                return False
+            else:
+                return tokens[pop_jump_index].offset > come_froms[-1].attr
+
         elif lhs == "ifstmt" and ast:
             # FIXME: put in a routine somewhere
             testexpr = ast[0]
@@ -1403,7 +1437,18 @@ class Python3Parser(PythonParser):
                         return True
                     # jmp_target less than tokens[first] is okay - is to a loop
                     # jmp_target equal tokens[last] is also okay: normal non-optimized non-loop jump
-                    return jmp_target > tokens[last].off2int()
+                    if jmp_target > tokens[last].off2int():
+                        # One more weird case to look out for
+                        #   if c1:
+                        #      if c2:  # Jumps around the *outer* "else"
+                        #       ...
+                        #   else:
+                        if jmp_target == tokens[last-1].attr:
+                            return False
+                        if last < len(tokens) and tokens[last].kind.startswith("JUMP"):
+                            return False
+                        return True
+
                 pass
             return False
         elif rule in (
@@ -1452,7 +1497,7 @@ class Python3Parser(PythonParser):
             # Compare with parse30.py of uncompyle6
             if testexpr[0] in ("testtrue", "testfalse"):
                 test = testexpr[0]
-                if test[1].kind.startswith("jmp_"):
+                if len(test) > 1 and test[1].kind.startswith("jmp_"):
                     if last == len(tokens):
                         last -= 1
                     jmp = test[1]
@@ -1472,7 +1517,7 @@ class Python30Parser(Python3Parser):
     def p_30(self, args):
         """
         jmp_true ::= JUMP_IF_TRUE_OR_POP POP_TOP
-        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD POP_TOP COME_FROM
+        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD POP_TOP _come_froms
         """
 
 

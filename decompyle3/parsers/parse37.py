@@ -82,7 +82,6 @@ class Python37Parser(Python36Parser):
         # Python 3.2+ has more loop optimization that removes
         # JUMP_FORWARD in some cases, and hence we also don't
         # see COME_FROM
-        _ifstmts_jump ::= c_stmts_opt
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_froms
 
         kv3       ::= expr expr STORE_MAP
@@ -114,7 +113,7 @@ class Python37Parser(Python36Parser):
 
         # Python 3.4+ optimizes the trailing two JUMPS away
 
-        _ifstmts_jump ::= c_stmts_opt JUMP_ABSOLUTE JUMP_FORWARD COME_FROM
+        _ifstmts_jump ::= c_stmts_opt JUMP_ABSOLUTE JUMP_FORWARD _come_froms
         """
 
     def p_37misc(self, args):
