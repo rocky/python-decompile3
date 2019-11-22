@@ -278,9 +278,9 @@ class Python3Parser(PythonParser):
                            COME_FROM_FINALLY suite_stmts_opt END_FINALLY
 
         except_handler ::= jmp_abs COME_FROM except_stmts
-                           come_froms END_FINALLY
+                           _come_froms END_FINALLY
         except_handler ::= jmp_abs COME_FROM_EXCEPT except_stmts
-                           come_froms END_FINALLY
+                           _come_froms END_FINALLY
 
         # FIXME: remove this
         except_handler ::= JUMP_FORWARD COME_FROM except_stmts
