@@ -1301,6 +1301,9 @@ class Python3Parser(PythonParser):
                     jmp2_target = tokens[last]
                     if tokens[last] == "POP_JUMP_IF_FALSE":
                         return jmp_target != tokens[last].attr
+                elif rule == ("and", ("expr", "jmp_false", "expr", "COME_FROM")):
+                    # Is this a COME_FROM from the jmp_xxx's offset
+                    return jmp[0].offset != tokens[last-1].attr
                 return jmp_target != tokens[last].off2int()
             return False
 
