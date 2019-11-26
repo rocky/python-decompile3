@@ -78,6 +78,12 @@ class Scanner3(Scanner):
         self.pop_jump_tf = frozenset([self.opc.PJIF, self.opc.PJIT])
         self.not_continue_follow = ("END_FINALLY", "POP_BLOCK")
 
+        # Add back these opcodes which help us structurally
+        # FIXME: change the 3.8 ingest process to look for instnaces of JUMP_ABSOLUTE or whatever
+        # and convert those
+        self.opc.BREAK_LOOP = 80
+        self.opc.CONTINUE_LOOP = 119
+
         # Opcodes that can start a statement.
         statement_opcodes = [
             self.opc.POP_BLOCK,
@@ -98,10 +104,11 @@ class Scanner3(Scanner):
             self.opc.RAISE_VARARGS,
             self.opc.PRINT_EXPR,
             self.opc.JUMP_ABSOLUTE,
-        ]
 
-        if self.version < 3.8:
-            statement_opcodes += [self.opc.BREAK_LOOP, self.opc.CONTINUE_LOOP]
+            # These are phony for 3.8+
+            self.opc.BREAK_LOOP,
+            self.opc.CONTINUE_LOOP
+        ]
 
         self.statement_opcodes = frozenset(statement_opcodes) | self.setup_ops_no_loop
 
@@ -872,17 +879,14 @@ class Scanner3(Scanner):
             # or a conditional assignment like:
             #   x = 1 if x else 2
             #
-            # For 3.5, in addition the JUMP_FORWARD above we could have
+            # For 3.5, for JUMP_FORWARD above we could have also
             # JUMP_BACK or CONTINUE
             #
             # There are other situations we may need to consider, like
             # if the condition jump is to a forward location.
             # Also the existence of a jump to the instruction after "END_FINALLY"
             # will distinguish "try/else" from "try".
-            if self.version < 3.8:
-                rtarget_break = (self.opc.RETURN_VALUE, self.opc.BREAK_LOOP)
-            else:
-                rtarget_break = (self.opc.RETURN_VALUE,)
+            rtarget_break = (self.opc.RETURN_VALUE, self.opc.BREAK_LOOP)
 
             if self.is_jump_forward(pre_rtarget) or (rtarget_is_ja):
                 if_end = self.get_target(pre_rtarget)
