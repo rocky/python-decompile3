@@ -9,3 +9,9 @@ while True:
         break
     except Exception:
         pass
+
+while True:
+    try:
+        x -= 1
+    except Exception:
+        break

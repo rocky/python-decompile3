@@ -39,6 +39,27 @@ class Scanner38(Scanner37):
 
     pass
 
+    def ingest(self, co, classname=None, code_objects={}, show_asm=None) -> None:
+        tokens, customize = super(Scanner38, self).ingest(co, classname, code_objects, show_asm)
+        for token in tokens:
+            opname = token.kind
+            if opname in ("JUMP_FORWARD", "JUMP_ABSOLUTE"):
+                # Turn JUMPs into BREAK_LOOP
+                jump_target = token.attr
+                if opname == "JUMP_ABSOLUTE" and token.offset >= jump_target:
+                    # Not a forward jump, so continue
+                    continue
+                target_index = self.offset2inst_index[jump_target]
+                # FIXME: have a way to map offsets to token indexes
+                target_token = [token for token in tokens if token.offset == jump_target -2][0]
+                # target_inst = self.insts[target_index-1]
+                if target_token == "JUMP_BACK" and target_token.attr < token.offset:
+                    token.kind = "BREAK_LOOP"
+                pass
+            pass
+        return tokens, customize
+
+
 
 if __name__ == "__main__":
     from decompyle3 import PYTHON_VERSION

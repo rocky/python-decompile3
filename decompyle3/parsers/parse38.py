@@ -48,8 +48,8 @@ class Python38Parser(Python37Parser):
         # FIXME: change the below when we have BREAK_LOOP/CONTINUE detection
         # done. Until then we should probably add a reduce rule for "break"
         # to ensure it jump out of the block
-        # break ::= POP_BLOCK BREAK_LOOP
-        break ::= POP_BLOCK JUMP_ABSOLUTE
+        break ::= POP_BLOCK BREAK_LOOP
+        break ::= POP_EXCEPT BREAK_LOOP
 
         # FIXME: this should be restricted to being inside a try block
         stmt               ::= except_ret38
@@ -120,6 +120,7 @@ class Python38Parser(Python37Parser):
         while1stmt         ::= _come_froms l_stmts COME_FROM_LOOP
         while1stmt         ::= _come_froms l_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
         whileTruestmt38    ::= _come_froms l_stmts JUMP_BACK
+        whileTruestmt38    ::= _come_froms l_stmts JUMP_BACK COME_FROM_EXCEPT_CLAUSE
 
         for_block          ::= _come_froms l_stmts_opt _come_from_loops JUMP_BACK
 
