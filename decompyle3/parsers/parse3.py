@@ -332,14 +332,6 @@ class Python3Parser(PythonParser):
         jmp_abs ::= JUMP_ABSOLUTE
         jmp_abs ::= JUMP_BACK
 
-        ## FIXME: Right now we have erroneous jump targets
-        ## This below is probably not correct when the COME_FROM is put in the right place
-        and ::= expr jmp_false expr COME_FROM
-        or  ::= expr jmp_true  expr COME_FROM
-
-        # # something like the below is needed when the jump targets are fixed
-        ## or  ::= expr JUMP_IF_TRUE_OR_POP COME_FROM expr
-        ## and ::= expr JUMP_IF_FALSE_OR_POP COME_FROM expr
         """
 
     def p_misc3(self, args):
@@ -372,7 +364,13 @@ class Python3Parser(PythonParser):
         ret_cond ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
 
         or   ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
+        or   ::= expr JUMP_IF_TRUE expr COME_FROM
         and  ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
+        and  ::= expr JUMP_IF_FALSE expr COME_FROM
+
+        ## FIXME: Is the below needed or is it covered above??
+        and ::= expr jmp_false expr COME_FROM
+        or  ::= expr jmp_true  expr COME_FROM
 
         # compare_chained1 is used exclusively in chained_compare
         compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
@@ -1310,6 +1308,8 @@ class Python3Parser(PythonParser):
                 elif rule == ("and", ("expr", "jmp_false", "expr")):
                     if tokens[last] == "POP_JUMP_IF_FALSE":
                         return jmp_target != tokens[last].attr
+                elif rule == ("and", ("expr", "jmp_false", "expr", "COME_FROM")):
+                    return ast[-1].attr != jmp_offset
                 # elif rule == ("and", ("expr", "jmp_false", "expr", "COME_FROM")):
                 #     return jmp_offset != tokens[first+3].attr
 
