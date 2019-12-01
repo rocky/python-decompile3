@@ -72,17 +72,17 @@ class Scanner3(Scanner):
             setup_ops = [self.opc.SETUP_FINALLY]
             self.setup_ops_no_loop = frozenset(setup_ops)
 
+            # Add back these opcodes which help us detect "break" and
+            # "continue" statements via parsing.
+            self.opc.BREAK_LOOP = 80
+            self.opc.CONTINUE_LOOP = 119
+            pass
+
         setup_ops.append(self.opc.SETUP_WITH)
         self.setup_ops = frozenset(setup_ops)
 
         self.pop_jump_tf = frozenset([self.opc.PJIF, self.opc.PJIT])
         self.not_continue_follow = ("END_FINALLY", "POP_BLOCK")
-
-        # Add back these opcodes which help us structurally
-        # FIXME: change the 3.8 ingest process to look for instnaces of JUMP_ABSOLUTE or whatever
-        # and convert those
-        self.opc.BREAK_LOOP = 80
-        self.opc.CONTINUE_LOOP = 119
 
         # Opcodes that can start a statement.
         statement_opcodes = [
@@ -213,6 +213,13 @@ class Scanner3(Scanner):
         cause specific rules for the specific number of arguments they take.
         """
 
+        def tokens_append(j, token):
+            tokens.append(token)
+            self.offset2tok_index[token.offset] = j
+            j += 1
+            return j
+
+
         if not show_asm:
             show_asm = self.show_asm
 
@@ -222,9 +229,6 @@ class Scanner3(Scanner):
         if show_asm in ("both", "before"):
             for instr in bytecode.get_instructions(co):
                 print(instr.disassemble())
-
-        # list of tokens/instructions
-        tokens = []
 
         # "customize" is in the process of going away here
         customize = {}
@@ -236,6 +240,10 @@ class Scanner3(Scanner):
         # turn 'LOAD_GLOBAL' to 'LOAD_ASSERT'.
         # 'LOAD_ASSERT' is used in assert statements.
         self.load_asserts = set()
+
+        # list of tokens/instructions
+        tokens = []
+        self.offset2tok_index = {}
 
         n = len(self.insts)
         for i, inst in enumerate(self.insts):
@@ -273,6 +281,7 @@ class Scanner3(Scanner):
 
         last_op_was_break = False
 
+        j = 0
         for i, inst in enumerate(self.insts):
 
             argval = inst.argval
@@ -305,7 +314,7 @@ class Scanner3(Scanner):
                         pass
                     elif inst.offset in self.except_targets:
                         come_from_name = "COME_FROM_EXCEPT_CLAUSE"
-                    tokens.append(
+                    j = tokens_append(j,
                         Token(
                             come_from_name,
                             jump_offset,
@@ -320,7 +329,7 @@ class Scanner3(Scanner):
                 pass
             elif inst.offset in self.else_start:
                 end_offset = self.else_start[inst.offset]
-                tokens.append(
+                j = tokens_append(j,
                     Token(
                         "ELSE",
                         None,
@@ -379,7 +388,7 @@ class Scanner3(Scanner):
                         attr.append(bit)
                         flags >>= 1
                     attr = attr[:4]  # remove last value: attr[5] == False
-                tokens.append(
+                j = tokens_append(j,
                     Token(
                         opname=opname,
                         attr=attr,
@@ -473,7 +482,7 @@ class Scanner3(Scanner):
                 opname = "LOAD_ASSERT"
 
             last_op_was_break = opname == "BREAK_LOOP"
-            tokens.append(
+            j = tokens_append(j,
                 Token(
                     opname=opname,
                     attr=argval,
