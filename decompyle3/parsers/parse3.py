@@ -234,6 +234,7 @@ class Python3Parser(PythonParser):
         _ifstmts_jump ::= return_if_stmts
         _ifstmts_jump ::= c_stmts_opt COME_FROM
 
+        iflaststmt ::= testexpr c_stmts_opt
         iflaststmt ::= testexpr c_stmts_opt JUMP_ABSOLUTE
 
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK

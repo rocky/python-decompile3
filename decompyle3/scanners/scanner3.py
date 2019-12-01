@@ -104,10 +104,9 @@ class Scanner3(Scanner):
             self.opc.RAISE_VARARGS,
             self.opc.PRINT_EXPR,
             self.opc.JUMP_ABSOLUTE,
-
             # These are phony for 3.8+
             self.opc.BREAK_LOOP,
-            self.opc.CONTINUE_LOOP
+            self.opc.CONTINUE_LOOP,
         ]
 
         self.statement_opcodes = frozenset(statement_opcodes) | self.setup_ops_no_loop
@@ -217,8 +216,8 @@ class Scanner3(Scanner):
             tokens.append(token)
             self.offset2tok_index[token.offset] = j
             j += 1
+            assert j == len(tokens)
             return j
-
 
         if not show_asm:
             show_asm = self.show_asm
@@ -305,8 +304,8 @@ class Scanner3(Scanner):
                     come_from_name = "COME_FROM"
                     opname = self.opname_for_offset(jump_offset)
                     if opname == "EXTENDED_ARG":
-                        j = xdis.next_offset(op, self.opc, jump_offset)
-                        opname = self.opname_for_offset(j)
+                        k = xdis.next_offset(op, self.opc, jump_offset)
+                        opname = self.opname_for_offset(k)
 
                     if opname.startswith("SETUP_"):
                         come_from_type = opname[len("SETUP_") :]
@@ -314,7 +313,8 @@ class Scanner3(Scanner):
                         pass
                     elif inst.offset in self.except_targets:
                         come_from_name = "COME_FROM_EXCEPT_CLAUSE"
-                    j = tokens_append(j,
+                    j = tokens_append(
+                        j,
                         Token(
                             come_from_name,
                             jump_offset,
@@ -322,14 +322,15 @@ class Scanner3(Scanner):
                             offset="%s_%s" % (inst.offset, jump_idx),
                             has_arg=True,
                             opc=self.opc,
-                        )
+                        ),
                     )
                     jump_idx += 1
                     pass
                 pass
             elif inst.offset in self.else_start:
                 end_offset = self.else_start[inst.offset]
-                j = tokens_append(j,
+                j = tokens_append(
+                    j,
                     Token(
                         "ELSE",
                         None,
@@ -337,7 +338,7 @@ class Scanner3(Scanner):
                         offset="%s" % (inst.offset),
                         has_arg=True,
                         opc=self.opc,
-                    )
+                    ),
                 )
 
                 pass
@@ -388,7 +389,8 @@ class Scanner3(Scanner):
                         attr.append(bit)
                         flags >>= 1
                     attr = attr[:4]  # remove last value: attr[5] == False
-                j = tokens_append(j,
+                j = tokens_append(
+                    j,
                     Token(
                         opname=opname,
                         attr=attr,
@@ -398,7 +400,7 @@ class Scanner3(Scanner):
                         op=op,
                         has_arg=inst.has_arg,
                         opc=self.opc,
-                    )
+                    ),
                 )
                 continue
             elif op in self.varargs_ops:
@@ -448,11 +450,14 @@ class Scanner3(Scanner):
                         and self.insts[i + 1].opname == "JUMP_FORWARD"
                     )
 
-                    if is_continue or (
-                        inst.offset in self.stmts
-                        and (
-                            inst.starts_line
-                            and next_opname not in self.not_continue_follow
+                    if self.version < 3.8 and (
+                        is_continue
+                        or (
+                            inst.offset in self.stmts
+                            and (
+                                inst.starts_line
+                                and next_opname not in self.not_continue_follow
+                            )
                         )
                     ):
                         opname = "CONTINUE"
@@ -482,7 +487,8 @@ class Scanner3(Scanner):
                 opname = "LOAD_ASSERT"
 
             last_op_was_break = opname == "BREAK_LOOP"
-            j = tokens_append(j,
+            j = tokens_append(
+                j,
                 Token(
                     opname=opname,
                     attr=argval,
@@ -492,7 +498,7 @@ class Scanner3(Scanner):
                     op=op,
                     has_arg=inst.has_arg,
                     opc=self.opc,
-                )
+                ),
             )
             pass
 
