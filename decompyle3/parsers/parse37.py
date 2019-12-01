@@ -225,6 +225,7 @@ class Python37Parser(Python36Parser):
         _ifstmts_jump              ::= c_stmts_opt come_froms
 
         and_not                    ::= expr jmp_false expr POP_JUMP_IF_TRUE
+        testfalse                  ::= and_not
 
         expr                       ::= if_exp_37a
         expr                       ::= if_exp_37b

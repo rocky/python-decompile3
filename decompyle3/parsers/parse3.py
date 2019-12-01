@@ -341,6 +341,7 @@ class Python3Parser(PythonParser):
 
         for_block ::= l_stmts_opt COME_FROM_LOOP JUMP_BACK
         for_block ::= l_stmts
+        for_block ::= l_stmts JUMP_BACK
         iflaststmtl ::= testexpr c_stmts_opt
         """
 
