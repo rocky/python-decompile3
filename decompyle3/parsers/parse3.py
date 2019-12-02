@@ -1279,6 +1279,7 @@ class Python3Parser(PythonParser):
         self.check_reduce["while1elsestmt"] = "noAST"
         self.check_reduce["_ifstmts_jump"] = "AST"
         self.check_reduce["ifelsestmt"] = "AST"
+        self.check_reduce["iflaststmt"] = "AST"
         self.check_reduce["ifstmt"] = "AST"
         self.check_reduce["annotate_tuple"] = "noAST"
         if self.version < 3.6:
@@ -1439,6 +1440,42 @@ class Python3Parser(PythonParser):
                         return True
                     # jmp_target less than tokens[first] is okay - is to a loop
                     # jmp_target equal tokens[last] is also okay: normal non-optimized non-loop jump
+                    if jmp_target > tokens[last].off2int():
+                        # One more weird case to look out for
+                        #   if c1:
+                        #      if c2:  # Jumps around the *outer* "else"
+                        #       ...
+                        #   else:
+                        if jmp_target == tokens[last-1].attr:
+                            return False
+                        if last < len(tokens) and tokens[last].kind.startswith("JUMP"):
+                            return False
+                        return True
+
+                pass
+            return False
+        elif lhs == "iflaststmt" and ast:
+            # FIXME: put in a routine somewhere
+            testexpr = ast[0]
+
+            # Compare with parse30.py of uncompyle6
+            if testexpr[0] in ("testtrue", "testfalse"):
+                test = testexpr[0]
+                if len(test) > 1 and test[1].kind.startswith("jmp_"):
+                    if last == len(tokens):
+                        last -= 1
+                    jmp_target = test[1][0].attr
+                    if tokens[first].off2int() <= jmp_target < tokens[last].off2int():
+                        return True
+                    # jmp_target less than tokens[first] is okay - is to a loop
+                    # jmp_target equal tokens[last] is also okay: normal non-optimized non-loop jump
+
+                    # If the instruction before "first" is a "POP_JUMP_IF_FALSE" which goes
+                    # to the same target as jmp_target, then this not nested "if .. if .."
+                    # but rather "if ... and ..."
+                    if first > 0 and tokens[first-1] == "POP_JUMP_IF_FALSE":
+                        return tokens[first-1].attr == jmp_target
+
                     if jmp_target > tokens[last].off2int():
                         # One more weird case to look out for
                         #   if c1:
