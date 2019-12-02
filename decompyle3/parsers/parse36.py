@@ -75,7 +75,7 @@ class Python36Parser(Python35Parser):
 
         except_suite ::= c_stmts_opt COME_FROM POP_EXCEPT jump_except COME_FROM
 
-        jb_cfs      ::= JUMP_BACK come_froms
+        jb_cfs      ::= come_from_opt JUMP_BACK come_froms
         ifelsestmtl ::= testexpr c_stmts_opt jb_cfs else_suitel
         ifelsestmtl ::= testexpr c_stmts_opt cf_jf_else else_suitel
 
