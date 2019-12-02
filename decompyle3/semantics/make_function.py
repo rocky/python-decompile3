@@ -307,10 +307,12 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
 
         ann_dict = kw_dict = default_tup = None
         fn_bits = node[-1].attr
-        index = -4  # Skip over:
+        # Skip over:
         #  MAKE_FUNCTION,
+        #  optional docstring
         #  LOAD_CONST qualified name,
         #  LOAD_CONST code object
+        index = -5 if node[-2] == "docstring" else -4
         if fn_bits[-1]:
             index -= 1
         if fn_bits[-2]:
