@@ -245,7 +245,7 @@ class Python3Parser(PythonParser):
         jump_forward_else  ::= JUMP_FORWARD ELSE
         jump_forward_else  ::= JUMP_FORWARD COME_FROM
         jump_absolute_else ::= JUMP_ABSOLUTE ELSE
-        jump_absolute_else ::= JUMP_ABSOLUTE COME_FROM
+        jump_absolute_else ::= JUMP_ABSOLUTE _come_froms
         jump_absolute_else ::= come_froms _jump COME_FROM
 
         # Note: in if/else kinds of statements, we err on the side
