@@ -65,6 +65,8 @@ for vers in TEST_VERSIONS:
     else:
         if vers == "native":
             short_vers = os.path.basename(sys.path[-1])
+            from xdis import PYTHON_VERSION
+            PYC = (f"*.cpython-{int(PYTHON_VERSION * 10)}.pyc",)
             test_options[vers] = (sys.path[-1], PYC, short_vers)
         else:
             short_vers = vers[:3]

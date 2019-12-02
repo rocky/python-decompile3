@@ -82,7 +82,6 @@ class Python37Parser(Python36Parser):
         # Python 3.2+ has more loop optimization that removes
         # JUMP_FORWARD in some cases, and hence we also don't
         # see COME_FROM
-        _ifstmts_jump ::= c_stmts_opt
         _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_froms
 
         kv3       ::= expr expr STORE_MAP
@@ -96,25 +95,25 @@ class Python37Parser(Python36Parser):
         # passtmt is needed for semantic actions to add "pass"
         suite_stmts_opt ::= pass
 
-        whilestmt     ::= SETUP_LOOP testexpr returns come_froms POP_BLOCK COME_FROM_LOOP
+        whilestmt     ::= setup_loop testexpr returns come_froms POP_BLOCK COME_FROM_LOOP
 
         # Seems to be needed starting 3.4.4 or so
-        while1stmt    ::= SETUP_LOOP l_stmts
+        while1stmt    ::= setup_loop l_stmts
                           COME_FROM JUMP_BACK POP_BLOCK COME_FROM_LOOP
-        while1stmt    ::= SETUP_LOOP l_stmts
+        while1stmt    ::= setup_loop l_stmts
                           POP_BLOCK COME_FROM_LOOP
 
         # FIXME the below masks a bug in not detecting COME_FROM_LOOP
         # grammar rules with COME_FROM -> COME_FROM_LOOP already exist
-        whileelsestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
+        whileelsestmt     ::= setup_loop testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               else_suitel COME_FROM
 
-        while1elsestmt    ::= SETUP_LOOP l_stmts JUMP_BACK _come_froms POP_BLOCK else_suitel
+        while1elsestmt    ::= setup_loop l_stmts JUMP_BACK _come_froms POP_BLOCK else_suitel
                               COME_FROM_LOOP
 
         # Python 3.4+ optimizes the trailing two JUMPS away
 
-        _ifstmts_jump ::= c_stmts_opt JUMP_ABSOLUTE JUMP_FORWARD COME_FROM
+        _ifstmts_jump ::= c_stmts_opt JUMP_ABSOLUTE JUMP_FORWARD _come_froms
         """
 
     def p_37misc(self, args):
@@ -124,11 +123,10 @@ class Python37Parser(Python36Parser):
         stmt     ::= async_for_stmt
         stmt     ::= async_forelse_stmt
 
-
         # Where does the POP_TOP really belong?
         import37 ::= import POP_TOP
 
-        async_for_stmt     ::= SETUP_LOOP expr
+        async_for_stmt     ::= setup_loop expr
                                GET_AITER
                                SETUP_EXCEPT GET_ANEXT LOAD_CONST
                                YIELD_FROM
@@ -142,7 +140,7 @@ class Python37Parser(Python36Parser):
                                COME_FROM_LOOP
 
         # Order of LOAD_CONST YIELD_FROM is switched from 3.6 to save a LOAD_CONST
-        async_for_stmt37   ::= SETUP_LOOP expr
+        async_for_stmt37   ::= setup_loop expr
                                GET_AITER
                                SETUP_EXCEPT GET_ANEXT
                                LOAD_CONST YIELD_FROM
@@ -154,7 +152,7 @@ class Python37Parser(Python36Parser):
                                POP_TOP POP_BLOCK
                                COME_FROM_LOOP
 
-        async_forelse_stmt ::= SETUP_LOOP expr
+        async_forelse_stmt ::= setup_loop expr
                                GET_AITER
                                SETUP_EXCEPT GET_ANEXT LOAD_CONST
                                YIELD_FROM
@@ -195,7 +193,7 @@ class Python37Parser(Python36Parser):
 
         compare_chained1a_37      ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
         compare_chained1a_37      ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
-                                      compare_chained2a_37 ELSE POP_TOP COME_FROM
+                                      compare_chained2a_37 COME_FROM POP_TOP COME_FROM
         compare_chained1b_37      ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
                                       compare_chained2b_37 POP_TOP JUMP_FORWARD COME_FROM
         compare_chained1c_37      ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
@@ -204,13 +202,13 @@ class Python37Parser(Python36Parser):
         compare_chained1_false_37 ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
                                       compare_chained2c_37 POP_TOP JUMP_FORWARD COME_FROM
         compare_chained2_false_37 ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
-                                      compare_chained2a_false_37 ELSE POP_TOP JUMP_BACK COME_FROM
+                                      compare_chained2a_false_37 POP_TOP JUMP_BACK COME_FROM
 
-        compare_chained2a_37       ::= expr COMPARE_OP POP_JUMP_IF_TRUE JUMP_FORWARD
-        compare_chained2a_37       ::= expr COMPARE_OP POP_JUMP_IF_TRUE JUMP_BACK
-        compare_chained2a_false_37 ::= expr COMPARE_OP POP_JUMP_IF_FALSE jf_cfs
+        compare_chained2a_37       ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_TRUE JUMP_FORWARD
+        compare_chained2a_37       ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_TRUE JUMP_BACK
+        compare_chained2a_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE jf_cfs
 
-        compare_chained2b_37       ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE JUMP_FORWARD ELSE
+        compare_chained2b_37       ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE JUMP_FORWARD COME_FROM
         compare_chained2b_37       ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE JUMP_FORWARD
 
         compare_chained2c_37       ::= expr DUP_TOP ROT_THREE COMPARE_OP come_from_opt POP_JUMP_IF_FALSE
@@ -227,45 +225,17 @@ class Python37Parser(Python36Parser):
         _ifstmts_jump              ::= c_stmts_opt come_froms
 
         and_not                    ::= expr jmp_false expr POP_JUMP_IF_TRUE
+        testfalse                  ::= and_not
 
         expr                       ::= if_exp_37a
         expr                       ::= if_exp_37b
-        if_exp_37a                 ::= and_not expr JUMP_FORWARD COME_FROM expr COME_FROM
+        if_exp_37a                 ::= and_not expr JUMP_FORWARD come_froms expr COME_FROM
         if_exp_37b                 ::= expr jmp_false expr POP_JUMP_IF_FALSE jump_forward_else expr
         """
 
-    def remove_rules_37(self):
-        self.remove_rules(
-            """
-          async_forelse_stmt ::= SETUP_LOOP expr
-                                 GET_AITER
-                                 LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST
-                                 YIELD_FROM
-                                 store
-                                 POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT DUP_TOP
-                                 LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_FALSE
-                                 POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
-                                 JUMP_ABSOLUTE END_FINALLY COME_FROM
-                                 for_block POP_BLOCK
-                                 else_suite COME_FROM_LOOP
-        stmt      ::= async_for_stmt36
-        async_for_stmt36   ::= SETUP_LOOP expr
-                               GET_AITER
-                               LOAD_CONST YIELD_FROM SETUP_EXCEPT GET_ANEXT LOAD_CONST
-                               YIELD_FROM
-                               store
-                               POP_BLOCK JUMP_BACK COME_FROM_EXCEPT DUP_TOP
-                               LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
-                               END_FINALLY continues COME_FROM
-                               POP_TOP POP_TOP POP_TOP POP_EXCEPT
-                               POP_TOP POP_BLOCK
-                               COME_FROM_LOOP
-        """
-        )
-
     def customize_grammar_rules(self, tokens, customize):
         super(Python37Parser, self).customize_grammar_rules(tokens, customize)
-        self.remove_rules_37()
+        # self.remove_rules_37()
 
 
 class Python37ParserSingle(Python37Parser, PythonParserSingle):
@@ -301,7 +271,9 @@ if __name__ == "__main__":
         remain_tokens = set(remain_tokens) - opcode_set
         print(remain_tokens)
         import sys
+
         if len(sys.argv) > 1:
             from spark_parser.spark import rule2str
+
             for rule in sorted(p.rule2name.items()):
                 print(rule2str(rule[0]))

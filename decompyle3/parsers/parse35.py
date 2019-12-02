@@ -19,10 +19,10 @@ class Python35Parser(Python3Parser):
         # I'm sure by the time Python 4 comes around these will be turned
         # into special opcodes
 
-        while1stmt     ::= SETUP_LOOP l_stmts COME_FROM JUMP_BACK
+        while1stmt     ::= setup_loop l_stmts COME_FROM JUMP_BACK
                            POP_BLOCK COME_FROM_LOOP
-        while1stmt     ::= SETUP_LOOP l_stmts POP_BLOCK COME_FROM_LOOP
-        while1elsestmt ::= SETUP_LOOP l_stmts JUMP_BACK
+        while1stmt     ::= setup_loop l_stmts POP_BLOCK COME_FROM_LOOP
+        while1elsestmt ::= setup_loop l_stmts JUMP_BACK
                            POP_BLOCK else_suite COME_FROM_LOOP
 
         # The following rule is for Python 3.5+ where we can have stuff like
@@ -64,6 +64,7 @@ class Python35Parser(Python3Parser):
         return_if_lambda   ::= RETURN_END_IF_LAMBDA COME_FROM
 
         jb_else     ::= JUMP_BACK ELSE
+        jb_else     ::= JUMP_BACK COME_FROM
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_FORWARD else_suitec
         ifelsestmtl ::= testexpr c_stmts_opt jb_else else_suitel
 

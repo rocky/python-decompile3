@@ -129,12 +129,14 @@ class Python3Parser(PythonParser):
         # one may be a continue - sometimes classifies a JUMP_BACK
         # as a CONTINUE. The two are kind of the same in a comprehension.
 
-        comp_for ::= expr for_iter store comp_iter CONTINUE
-        comp_for ::= expr for_iter store comp_iter JUMP_BACK
+        comp_for ::= expr get_for_iter store comp_iter CONTINUE
+        comp_for ::= expr get_for_iter store comp_iter JUMP_BACK
+
+        for_iter ::= _come_froms FOR_ITER
 
         list_comp ::= BUILD_LIST_0 list_iter
         lc_body   ::= expr LIST_APPEND
-        list_for ::= expr FOR_ITER store list_iter jb_or_c
+        list_for ::= expr for_iter store list_iter jb_or_c
 
         # This is seen in PyPy, but possibly it appears on other Python 3?
         list_if     ::= expr jmp_false list_iter COME_FROM
@@ -145,10 +147,10 @@ class Python3Parser(PythonParser):
 
         stmt ::= set_comp_func
 
-        set_comp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
+        set_comp_func ::= BUILD_SET_0 LOAD_FAST for_iter store comp_iter
                           JUMP_BACK RETURN_VALUE RETURN_LAST
 
-        set_comp_func ::= BUILD_SET_0 LOAD_FAST FOR_ITER store comp_iter
+        set_comp_func ::= BUILD_SET_0 LOAD_FAST for_iter store comp_iter
                           COME_FROM JUMP_BACK RETURN_VALUE RETURN_LAST
 
         comp_body ::= dict_comp_body
@@ -163,7 +165,7 @@ class Python3Parser(PythonParser):
         """"
         expr ::= dict_comp
         stmt ::= dict_comp_func
-        dict_comp_func ::= BUILD_MAP_0 LOAD_FAST FOR_ITER store
+        dict_comp_func ::= BUILD_MAP_0 LOAD_FAST for_iter store
                            comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
 
         comp_iter     ::= comp_if
@@ -232,6 +234,7 @@ class Python3Parser(PythonParser):
         _ifstmts_jump ::= return_if_stmts
         _ifstmts_jump ::= c_stmts_opt COME_FROM
 
+        iflaststmt ::= testexpr c_stmts_opt
         iflaststmt ::= testexpr c_stmts_opt JUMP_ABSOLUTE
 
         iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK
@@ -240,7 +243,10 @@ class Python3Parser(PythonParser):
 
         # These are used to keep parse tree indices the same
         jump_forward_else  ::= JUMP_FORWARD ELSE
+        jump_forward_else  ::= JUMP_FORWARD COME_FROM
         jump_absolute_else ::= JUMP_ABSOLUTE ELSE
+        jump_absolute_else ::= JUMP_ABSOLUTE _come_froms
+        jump_absolute_else ::= come_froms _jump COME_FROM
 
         # Note: in if/else kinds of statements, we err on the side
         # of missing "else" clauses. Therefore we include grammar
@@ -251,6 +257,11 @@ class Python3Parser(PythonParser):
         ifelsestmt ::= testexpr c_stmts_opt jump_forward_else
                        else_suite _come_froms
 
+        # This handles the case where a "JUMP_ABSOLUTE" is part
+        # of an inner if in c_stmts_opt
+        ifelsestmt ::= testexpr c_stmts_opt come_froms
+                       else_suite come_froms
+
         # ifelsestmt ::= testexpr c_stmts_opt jump_forward_else
         #                pass  _come_froms
 
@@ -259,7 +270,6 @@ class Python3Parser(PythonParser):
 
         ifelsestmtr ::= testexpr return_if_stmts returns
 
-        ifelsestmtl ::= testexpr c_stmts_opt JUMP_BACK else_suitel
         ifelsestmtl ::= testexpr c_stmts_opt cf_jump_back else_suitel
 
         cf_jump_back ::= COME_FROM JUMP_BACK
@@ -275,22 +285,19 @@ class Python3Parser(PythonParser):
                            COME_FROM_FINALLY suite_stmts_opt END_FINALLY
 
         except_handler ::= jmp_abs COME_FROM except_stmts
-                           END_FINALLY
+                           _come_froms END_FINALLY
         except_handler ::= jmp_abs COME_FROM_EXCEPT except_stmts
-                           END_FINALLY
+                           _come_froms END_FINALLY
 
         # FIXME: remove this
         except_handler ::= JUMP_FORWARD COME_FROM except_stmts
-                           END_FINALLY COME_FROM
-
-        except_handler ::= JUMP_FORWARD COME_FROM except_stmts
-                           END_FINALLY COME_FROM_EXCEPT
+                           come_froms END_FINALLY come_from_opt
 
         except_stmts ::= except_stmts except_stmt
         except_stmts ::= except_stmt
 
-        except_stmt ::= except_cond1 except_suite
-        except_stmt ::= except_cond2 except_suite
+        except_stmt ::= except_cond1 except_suite come_from_opt
+        except_stmt ::= except_cond2 except_suite come_from_opt
         except_stmt ::= except_cond2 except_suite_finalize
         except_stmt ::= except
 
@@ -318,7 +325,7 @@ class Python3Parser(PythonParser):
                          jmp_false POP_TOP POP_TOP POP_TOP
 
         except_cond2 ::= DUP_TOP expr COMPARE_OP
-                         jmp_false POP_TOP store POP_TOP
+                         jmp_false POP_TOP store POP_TOP come_from_opt
 
         except  ::=  POP_TOP POP_TOP POP_TOP c_stmts_opt POP_EXCEPT _jump
         except  ::=  POP_TOP POP_TOP POP_TOP returns
@@ -326,23 +333,16 @@ class Python3Parser(PythonParser):
         jmp_abs ::= JUMP_ABSOLUTE
         jmp_abs ::= JUMP_BACK
 
-        ## FIXME: Right now we have erroneous jump targets
-        ## This below is probably not correct when the COME_FROM is put in the right place
-        and ::= expr jmp_false expr COME_FROM
-        or  ::= expr jmp_true  expr COME_FROM
-
-        # # something like the below is needed when the jump targets are fixed
-        ## or  ::= expr JUMP_IF_TRUE_OR_POP COME_FROM expr
-        ## and ::= expr JUMP_IF_FALSE_OR_POP COME_FROM expr
         """
 
     def p_misc3(self, args):
         """
         except_handler ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts
-                            END_FINALLY COME_FROM_EXCEPT_CLAUSE
+                           come_froms END_FINALLY
 
         for_block ::= l_stmts_opt COME_FROM_LOOP JUMP_BACK
         for_block ::= l_stmts
+        for_block ::= l_stmts JUMP_BACK
         iflaststmtl ::= testexpr c_stmts_opt
         """
 
@@ -366,7 +366,13 @@ class Python3Parser(PythonParser):
         ret_cond ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
 
         or   ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
+        or   ::= expr JUMP_IF_TRUE expr COME_FROM
         and  ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
+        and  ::= expr JUMP_IF_FALSE expr COME_FROM
+
+        ## FIXME: Is the below needed or is it covered above??
+        and ::= expr jmp_false expr COME_FROM
+        or  ::= expr jmp_true  expr COME_FROM
 
         # compare_chained1 is used exclusively in chained_compare
         compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
@@ -397,46 +403,47 @@ class Python3Parser(PythonParser):
 
     def p_loop_stmt3(self, args):
         """
-        for               ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK
+        setup_loop        ::= SETUP_LOOP _come_froms
+        for               ::= setup_loop expr get_for_iter store for_block POP_BLOCK
                               COME_FROM_LOOP
 
-        forelsestmt       ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suite
+        forelsestmt       ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suite
                               COME_FROM_LOOP
 
-        forelselaststmt   ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suitec
+        forelselaststmt   ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suitec
                               COME_FROM_LOOP
 
-        forelselaststmtl  ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK else_suitel
+        forelselaststmtl  ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suitel
                               COME_FROM_LOOP
 
-        whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
+        whilestmt         ::= setup_loop testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
                               COME_FROM_LOOP
 
-        whilestmt         ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
+        whilestmt         ::= setup_loop testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               COME_FROM_LOOP
 
-        whilestmt         ::= SETUP_LOOP testexpr returns          POP_BLOCK
+        whilestmt         ::= setup_loop testexpr returns          POP_BLOCK
                               COME_FROM_LOOP
 
-        while1elsestmt    ::= SETUP_LOOP          l_stmts     JUMP_BACK
+        while1elsestmt    ::= setup_loop          l_stmts     JUMP_BACK
                               else_suitel
 
-        whileelsestmt     ::= SETUP_LOOP testexpr l_stmts_opt JUMP_BACK POP_BLOCK
+        whileelsestmt     ::= setup_loop testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               else_suitel COME_FROM_LOOP
 
-        whileTruestmt     ::= SETUP_LOOP l_stmts_opt          JUMP_BACK POP_BLOCK
+        whileTruestmt     ::= setup_loop l_stmts_opt          JUMP_BACK POP_BLOCK
                               COME_FROM_LOOP
 
         # FIXME: Python 3.? starts adding branch optimization? Put this starting there.
 
-        while1stmt        ::= SETUP_LOOP l_stmts COME_FROM_LOOP
-        while1stmt        ::= SETUP_LOOP l_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
+        while1stmt        ::= setup_loop l_stmts COME_FROM_LOOP
+        while1stmt        ::= setup_loop l_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
 
-        while1elsestmt    ::= SETUP_LOOP l_stmts JUMP_BACK
+        while1elsestmt    ::= setup_loop l_stmts JUMP_BACK
                               else_suite COME_FROM_LOOP
 
         # FIXME: investigate - can code really produce a NOP?
-        for               ::= SETUP_LOOP expr for_iter store for_block POP_BLOCK NOP
+        for               ::= setup_loop expr get_for_iter store for_block POP_BLOCK NOP
                               COME_FROM_LOOP
         """
 
@@ -702,7 +709,7 @@ class Python3Parser(PythonParser):
                 if opname == "BUILD_MAP_n":
                     # PyPy sometimes has no count. Sigh.
                     rule = (
-                        "dict_comp_func ::= BUILD_MAP_n LOAD_FAST FOR_ITER store "
+                        "dict_comp_func ::= BUILD_MAP_n LOAD_FAST for_iter store "
                         "comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST"
                     )
                     self.add_unique_rule(rule, "dict_comp_func", 1, customize)
@@ -1270,7 +1277,9 @@ class Python3Parser(PythonParser):
         self.check_reduce["aug_assign2"] = "AST"
         self.check_reduce["while1stmt"] = "noAST"
         self.check_reduce["while1elsestmt"] = "noAST"
+        self.check_reduce["_ifstmts_jump"] = "AST"
         self.check_reduce["ifelsestmt"] = "AST"
+        self.check_reduce["iflaststmt"] = "AST"
         self.check_reduce["ifstmt"] = "AST"
         self.check_reduce["annotate_tuple"] = "noAST"
         if self.version < 3.6:
@@ -1283,6 +1292,7 @@ class Python3Parser(PythonParser):
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         lhs = rule[0]
+
         if lhs == "and" and ast:
             # FIXME: put in a routine somewhere
             # Compare with parse30.py of uncompyle6
@@ -1291,6 +1301,7 @@ class Python3Parser(PythonParser):
                 if last == len(tokens):
                     return True
                 jmp_target = jmp[0].attr
+                jmp_offset = jmp[0].offset
 
                 if tokens[first].off2int() <= jmp_target < tokens[last].off2int():
                     return True
@@ -1298,12 +1309,13 @@ class Python3Parser(PythonParser):
                     jmp2_target = ast[3][0].attr
                     return jmp_target != jmp2_target
                 elif rule == ("and", ("expr", "jmp_false", "expr")):
-                    jmp2_target = tokens[last]
                     if tokens[last] == "POP_JUMP_IF_FALSE":
                         return jmp_target != tokens[last].attr
                 elif rule == ("and", ("expr", "jmp_false", "expr", "COME_FROM")):
-                    # Is this a COME_FROM from the jmp_xxx's offset
-                    return jmp[0].offset != tokens[last-1].attr
+                    return ast[-1].attr != jmp_offset
+                # elif rule == ("and", ("expr", "jmp_false", "expr", "COME_FROM")):
+                #     return jmp_offset != tokens[first+3].attr
+
                 return jmp_target != tokens[last].off2int()
             return False
 
@@ -1386,6 +1398,43 @@ class Python3Parser(PythonParser):
             if offset != tokens[first].attr:
                 return True
             return False
+        elif lhs == "_ifstmts_jump" and len(rule[1]) > 1 and ast:
+            come_froms = ast[-1]
+            # Make sure all of the "come froms" offset at the
+            # end of the "if" come from somewhere inside the "if".
+            # Since the come_froms are ordered so that lowest
+            # offset COME_FROM is last, it is sufficient to test
+            # just the last one.
+
+            # This is complicated, but note that the JUMP_IF instruction comes immediately
+            # *before* _ifstmts_jump so that's what we have to test
+            # the COME_FROM against. This can be complicated by intervening
+            # POP_TOP, and pseudo COME_FROM, ELSE instructions
+            #
+            pop_jump_index = first - 1
+            while pop_jump_index > 0 and tokens[pop_jump_index] in ("ELSE", "POP_TOP",
+                                                                    "JUMP_FORWARD",
+                                                                    "COME_FROM"):
+                pop_jump_index -= 1
+            come_froms = ast[-1]
+
+            # FIXME: something is fishy when and EXTENDED ARG is needed before the
+            # pop_jump_index instruction to get the argment. In this case, the
+            # _ifsmtst_jump can jump to a spot beyond the come_froms.
+            # That is going on in the non-EXTENDED_ARG case is that the POP_JUMP_IF
+            # jumps to a JUMP_(FORWARD) which is changed into an EXTENDED_ARG POP_JUMP_IF
+            # to the jumped forwareded address
+            if tokens[pop_jump_index].attr > 256:
+                return False
+
+            if isinstance(come_froms, Token):
+                return come_froms.attr is not None and tokens[pop_jump_index].offset > come_froms.attr
+
+            elif len(come_froms) == 0:
+                return False
+            else:
+                return tokens[pop_jump_index].offset > come_froms[-1].attr
+
         elif lhs == "ifstmt" and ast:
             # FIXME: put in a routine somewhere
             testexpr = ast[0]
@@ -1401,31 +1450,103 @@ class Python3Parser(PythonParser):
                         return True
                     # jmp_target less than tokens[first] is okay - is to a loop
                     # jmp_target equal tokens[last] is also okay: normal non-optimized non-loop jump
-                    return jmp_target > tokens[last].off2int()
+                    if jmp_target > tokens[last].off2int():
+                        # One more weird case to look out for
+                        #   if c1:
+                        #      if c2:  # Jumps around the *outer* "else"
+                        #       ...
+                        #   else:
+                        if jmp_target == tokens[last-1].attr:
+                            return False
+                        if last < len(tokens) and tokens[last].kind.startswith("JUMP"):
+                            return False
+                        return True
+
                 pass
             return False
-        elif rule == (
-            "ifelsestmt",
-            (
-                "testexpr",
-                "c_stmts_opt",
-                "jump_forward_else",
-                "else_suite",
-                "_come_froms",
-            ),
-        ):
-            # Make sure the highest/smallest "come from" offset comes inside the "if".
-            come_froms = ast[-1]
-            if not isinstance(come_froms, Token):
-                return tokens[first].offset > come_froms[-1].attr
-
+        elif lhs == "iflaststmt" and ast:
             # FIXME: put in a routine somewhere
             testexpr = ast[0]
 
             # Compare with parse30.py of uncompyle6
             if testexpr[0] in ("testtrue", "testfalse"):
                 test = testexpr[0]
-                if test[1].kind.startswith("jmp_"):
+                if len(test) > 1 and test[1].kind.startswith("jmp_"):
+                    if last == len(tokens):
+                        last -= 1
+                    jmp_target = test[1][0].attr
+                    if tokens[first].off2int() <= jmp_target < tokens[last].off2int():
+                        return True
+                    # jmp_target less than tokens[first] is okay - is to a loop
+                    # jmp_target equal tokens[last] is also okay: normal non-optimized non-loop jump
+
+                    # If the instruction before "first" is a "POP_JUMP_IF_FALSE" which goes
+                    # to the same target as jmp_target, then this not nested "if .. if .."
+                    # but rather "if ... and ..."
+                    if first > 0 and tokens[first-1] == "POP_JUMP_IF_FALSE":
+                        return tokens[first-1].attr == jmp_target
+
+                    if jmp_target > tokens[last].off2int():
+                        # One more weird case to look out for
+                        #   if c1:
+                        #      if c2:  # Jumps around the *outer* "else"
+                        #       ...
+                        #   else:
+                        if jmp_target == tokens[last-1].attr:
+                            return False
+                        if last < len(tokens) and tokens[last].kind.startswith("JUMP"):
+                            return False
+                        return True
+
+                pass
+            return False
+        elif rule in (
+                ("ifelsestmt",
+                 (
+                     "testexpr",
+                     "c_stmts_opt",
+                     "jump_forward_else",
+                     "else_suite",
+                     "_come_froms",
+                 )),
+                ("ifelsestmt",
+                 (
+                     "testexpr",
+                     "c_stmts_opt",
+                     "jf_cfs",
+                     "else_suite",
+                     "opt_come_from_except",
+                 )),
+        ):
+            # FIXME: put in a routine somewhere
+
+            # Make sure all of the "come froms" offset at the
+            # end of the "if" come from somewhere inside the "if".
+            # Since the come_froms are ordered so that lowest
+            # offset COME_FROM is last, it is sufficient to test
+            # just the last one.
+            come_froms = ast[-1]
+            if come_froms == "opt_come_from_except" and len(come_froms) > 0:
+                come_froms = come_froms[0]
+            if not isinstance(come_froms, Token):
+                return tokens[first].offset > come_froms[-1].attr
+            elif tokens[first].offset > come_froms.attr:
+                return True
+
+            # For mysterious reasons a COME_FROM in tokens[last+1] might be part of the grammar rule
+            # even though it is not found in come_froms.
+            # Work around this.
+            if last < len(tokens) and tokens[last] == "COME_FROM" and tokens[first].offset > tokens[last].attr:
+                return True
+
+            testexpr = ast[0]
+
+            # Check that the condition portion of the "if"
+            # jumps to the "else" part.
+            # Compare with parse30.py of uncompyle6
+            if testexpr[0] in ("testtrue", "testfalse"):
+                test = testexpr[0]
+                if len(test) > 1 and test[1].kind.startswith("jmp_"):
                     if last == len(tokens):
                         last -= 1
                     jmp = test[1]
@@ -1445,7 +1566,7 @@ class Python30Parser(Python3Parser):
     def p_30(self, args):
         """
         jmp_true ::= JUMP_IF_TRUE_OR_POP POP_TOP
-        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD POP_TOP COME_FROM
+        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD POP_TOP _come_froms
         """
 
 
