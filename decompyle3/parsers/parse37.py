@@ -13,16 +13,16 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-spark grammar differences over for Python 3.7.
 TODO: make this self-sufficient and not rely on 3.6
 """
 
-from decompyle3.parser import PythonParserSingle
+from decompyle3.parser import PythonParserSingle, nop_func
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
-from decompyle3.parsers.parse36 import Python36Parser
+from decompyle3.parsers.parse35 import Python35Parser
+from decompyle3.scanners.tok import Token
 
 
-class Python37Parser(Python36Parser):
+class Python37Parser(Python35Parser):
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
         super(Python37Parser, self).__init__(debug_parser)
         self.customized = {}
@@ -108,8 +108,6 @@ class Python37Parser(Python36Parser):
         stmt ::= try_except
         stmt ::= tryelsestmt
         stmt ::= tryfinallystmt
-        stmt ::= withstmt
-        stmt ::= withasstmt
 
         stmt ::= del_stmt
         del_stmt ::= DELETE_FAST
@@ -488,18 +486,6 @@ class Python37Parser(Python36Parser):
 
         stmt       ::= await_stmt
         await_stmt ::= await_expr POP_TOP
-
-        # Python 3.5+ has WITH_CLEANUP_START/FINISH
-
-        withstmt   ::= expr
-                       SETUP_WITH POP_TOP suite_stmts_opt
-                       POP_BLOCK LOAD_CONST COME_FROM_WITH
-                       WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
-
-        withasstmt ::= expr
-                       SETUP_WITH store suite_stmts_opt
-                       POP_BLOCK LOAD_CONST COME_FROM_WITH
-                       WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
         # Python 3.5+ async additions
 
@@ -1089,6 +1075,287 @@ class Python37Parser(Python36Parser):
 
     def customize_grammar_rules(self, tokens, customize):
         super(Python37Parser, self).customize_grammar_rules(tokens, customize)
+        self.check_reduce["call_kw"] = "AST"
+
+        for i, token in enumerate(tokens):
+            opname = token.kind
+
+            if opname == "LOAD_ASSERT":
+                if "PyPy" in customize:
+                    rules_str = """
+                    stmt ::= JUMP_IF_NOT_DEBUG stmts COME_FROM
+                    """
+                    self.add_unique_doc_rules(rules_str, customize)
+            elif opname == "FORMAT_VALUE":
+                rules_str = """
+                    expr              ::= formatted_value1
+                    formatted_value1  ::= expr FORMAT_VALUE
+                """
+                self.add_unique_doc_rules(rules_str, customize)
+            elif opname == "FORMAT_VALUE_ATTR":
+                rules_str = """
+                expr              ::= formatted_value2
+                formatted_value2  ::= expr expr FORMAT_VALUE_ATTR
+                """
+                self.add_unique_doc_rules(rules_str, customize)
+            elif opname == "MAKE_FUNCTION_8":
+                if "LOAD_DICTCOMP" in self.seen_ops:
+                    # Is there something general going on here?
+                    rule = """
+                       dict_comp ::= load_closure LOAD_DICTCOMP LOAD_STR
+                                     MAKE_FUNCTION_8 expr
+                                     GET_ITER CALL_FUNCTION_1
+                       """
+                    self.addRule(rule, nop_func)
+                elif "LOAD_SETCOMP" in self.seen_ops:
+                    rule = """
+                       set_comp ::= load_closure LOAD_SETCOMP LOAD_STR
+                                    MAKE_FUNCTION_8 expr
+                                    GET_ITER CALL_FUNCTION_1
+                       """
+                    self.addRule(rule, nop_func)
+
+            elif opname == "BEFORE_ASYNC_WITH":
+                rules_str = """
+                  stmt ::= async_with_stmt
+                  async_with_as_stmt ::= expr
+                               BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
+                               SETUP_ASYNC_WITH store
+                               suite_stmts_opt
+                               POP_BLOCK LOAD_CONST
+                               COME_FROM_ASYNC_WITH
+                               WITH_CLEANUP_START
+                               GET_AWAITABLE LOAD_CONST YIELD_FROM
+                               WITH_CLEANUP_FINISH END_FINALLY
+                 stmt ::= async_with_as_stmt
+                 async_with_stmt ::= expr
+                               BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
+                               SETUP_ASYNC_WITH POP_TOP suite_stmts_opt
+                               POP_BLOCK LOAD_CONST
+                               COME_FROM_ASYNC_WITH
+                               WITH_CLEANUP_START
+                               GET_AWAITABLE LOAD_CONST YIELD_FROM
+                               WITH_CLEANUP_FINISH END_FINALLY
+                """
+                self.addRule(rules_str, nop_func)
+
+            elif opname.startswith("BUILD_STRING"):
+                v = token.attr
+                rules_str = """
+                    expr                 ::= joined_str
+                    joined_str           ::= %sBUILD_STRING_%d
+                """ % (
+                    "expr " * v,
+                    v,
+                )
+                self.add_unique_doc_rules(rules_str, customize)
+                if "FORMAT_VALUE_ATTR" in self.seen_ops:
+                    rules_str = """
+                      formatted_value_attr ::= expr expr FORMAT_VALUE_ATTR expr BUILD_STRING
+                      expr                 ::= formatted_value_attr
+                    """
+                    self.add_unique_doc_rules(rules_str, customize)
+            elif opname.startswith("BUILD_MAP_UNPACK_WITH_CALL"):
+                v = token.attr
+                rule = "build_map_unpack_with_call ::= %s%s" % ("expr " * v, opname)
+                self.addRule(rule, nop_func)
+            elif opname.startswith("BUILD_TUPLE_UNPACK_WITH_CALL"):
+                v = token.attr
+                rule = (
+                    "build_tuple_unpack_with_call ::= "
+                    + "expr1024 " * int(v // 1024)
+                    + "expr32 " * int((v // 32) % 32)
+                    + "expr " * (v % 32)
+                    + opname
+                )
+                self.addRule(rule, nop_func)
+                rule = "starred ::= %s %s" % ("expr " * v, opname)
+                self.addRule(rule, nop_func)
+            elif opname == "SETUP_WITH":
+                rules_str = """
+                withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt COME_FROM_WITH
+                               WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+
+                # Removes POP_BLOCK LOAD_CONST from 3.6-
+                withasstmt ::= expr SETUP_WITH store suite_stmts_opt COME_FROM_WITH
+                               WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+                """
+                if self.version < 3.8:
+                    rules_str += """
+                    withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
+                                   LOAD_CONST
+                                   WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+                    """
+                else:
+                    rules_str += """
+                    withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
+                                   BEGIN_FINALLY COME_FROM_WITH
+                                   WITH_CLEANUP_START WITH_CLEANUP_FINISH
+                                   END_FINALLY
+                    """
+                self.addRule(rules_str, nop_func)
+                pass
+            pass
+
+    def custom_classfunc_rule(self, opname, token, customize, next_token):
+
+        args_pos, args_kw = self.get_pos_kw(token)
+
+        # Additional exprs for * and ** args:
+        #  0 if neither
+        #  1 for CALL_FUNCTION_VAR or CALL_FUNCTION_KW
+        #  2 for * and ** args (CALL_FUNCTION_VAR_KW).
+        # Yes, this computation based on instruction name is a little bit hoaky.
+        nak = (len(opname) - len("CALL_FUNCTION")) // 3
+        uniq_param = args_kw + args_pos
+
+        if frozenset(("GET_AWAITABLE", "YIELD_FROM")).issubset(self.seen_ops):
+            rule = (
+                "async_call ::= expr "
+                + ("pos_arg " * args_pos)
+                + ("kwarg " * args_kw)
+                + "expr " * nak
+                + token.kind
+                + " GET_AWAITABLE LOAD_CONST YIELD_FROM"
+            )
+            self.add_unique_rule(rule, token.kind, uniq_param, customize)
+            self.add_unique_rule(
+                "expr ::= async_call", token.kind, uniq_param, customize
+            )
+
+        if opname.startswith("CALL_FUNCTION_KW"):
+            self.addRule("expr ::= call_kw36", nop_func)
+            values = "expr " * token.attr
+            rule = "call_kw36 ::= expr {values} LOAD_CONST {opname}".format(**locals())
+            self.add_unique_rule(rule, token.kind, token.attr, customize)
+        elif opname == "CALL_FUNCTION_EX_KW":
+            # Note: this doesn't exist in 3.7 and later
+            self.addRule(
+                """expr        ::= call_ex_kw4
+                            call_ex_kw4 ::= expr
+                                            expr
+                                            expr
+                                            CALL_FUNCTION_EX_KW
+                         """,
+                nop_func,
+            )
+            if "BUILD_MAP_UNPACK_WITH_CALL" in self.seen_op_basenames:
+                self.addRule(
+                    """expr        ::= call_ex_kw
+                                call_ex_kw  ::= expr expr build_map_unpack_with_call
+                                                CALL_FUNCTION_EX_KW
+                             """,
+                    nop_func,
+                )
+            if "BUILD_TUPLE_UNPACK_WITH_CALL" in self.seen_op_basenames:
+                # FIXME: should this be parameterized by EX value?
+                self.addRule(
+                    """expr        ::= call_ex_kw3
+                                call_ex_kw3 ::= expr
+                                                build_tuple_unpack_with_call
+                                                expr
+                                                CALL_FUNCTION_EX_KW
+                             """,
+                    nop_func,
+                )
+                if "BUILD_MAP_UNPACK_WITH_CALL" in self.seen_op_basenames:
+                    # FIXME: should this be parameterized by EX value?
+                    self.addRule(
+                        """expr        ::= call_ex_kw2
+                                    call_ex_kw2 ::= expr
+                                                    build_tuple_unpack_with_call
+                                                    build_map_unpack_with_call
+                                                    CALL_FUNCTION_EX_KW
+                             """,
+                        nop_func,
+                    )
+
+        elif opname == "CALL_FUNCTION_EX":
+            self.addRule(
+                """
+                         expr        ::= call_ex
+                         starred     ::= expr
+                         call_ex     ::= expr starred CALL_FUNCTION_EX
+                         """,
+                nop_func,
+            )
+            if "BUILD_MAP_UNPACK_WITH_CALL" in self.seen_ops:
+                self.addRule(
+                    """
+                        expr        ::= call_ex_kw
+                        call_ex_kw  ::= expr expr
+                                        build_map_unpack_with_call CALL_FUNCTION_EX
+                        """,
+                    nop_func,
+                )
+            if "BUILD_TUPLE_UNPACK_WITH_CALL" in self.seen_ops:
+                self.addRule(
+                    """
+                        expr        ::= call_ex_kw3
+                        call_ex_kw3 ::= expr
+                                        build_tuple_unpack_with_call
+                                        %s
+                                        CALL_FUNCTION_EX
+                        """
+                    % "expr "
+                    * token.attr,
+                    nop_func,
+                )
+                pass
+
+            # FIXME: Is this right?
+            self.addRule(
+                """
+                        expr        ::= call_ex_kw4
+                        call_ex_kw4 ::= expr
+                                        expr
+                                        expr
+                                        CALL_FUNCTION_EX
+                        """,
+                nop_func,
+            )
+            pass
+        else:
+            super(Python37Parser, self).custom_classfunc_rule(
+                opname, token, customize, next_token
+            )
+
+    def reduce_is_invalid(self, rule, ast, tokens, first, last):
+        invalid = super(Python37Parser, self).reduce_is_invalid(
+            rule, ast, tokens, first, last
+        )
+        if invalid:
+            return invalid
+        if rule[0] == "call_kw":
+            # Make sure we don't derive call_kw
+            nt = ast[0]
+            while not isinstance(nt, Token):
+                if nt[0] == "call_kw":
+                    return True
+                nt = nt[0]
+                pass
+            pass
+        return False
+
+def info(args):
+    # Check grammar
+    p = Python37Parser()
+    if len(args) > 0:
+        arg = args[0]
+        if arg == "3.7":
+            from decompyle3.parser.parse37 import Python37Parser
+
+            p = Python37Parser()
+        elif arg == "3.8":
+            from decompyle3.parser.parse38 import Python38Parser
+
+            p = Python38Parser()
+        else:
+            raise RuntimeError("Only 3.7 and 3.8 supported")
+    p.check_grammar()
+    if len(sys.argv) > 1 and sys.argv[1] == "dump":
+        print("-" * 50)
+        p.dump_grammar()
 
 
 class Python37ParserSingle(Python37Parser, PythonParserSingle):

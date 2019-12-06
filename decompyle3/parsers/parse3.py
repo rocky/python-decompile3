@@ -1113,27 +1113,6 @@ class Python3Parser(PythonParser):
         return False
 
 
-def info(args):
-    # Check grammar
-    p = Python3Parser()
-    if len(args) > 0:
-        arg = args[0]
-        if arg == "3.7":
-            from decompyle3.parser.parse37 import Python37Parser
-
-            p = Python37Parser()
-        elif arg == "3.8":
-            from decompyle3.parser.parse38 import Python38Parser
-
-            p = Python38Parser()
-        else:
-            raise RuntimeError("Only 3.7 and 3.8 supported")
-    p.check_grammar()
-    if len(sys.argv) > 1 and sys.argv[1] == "dump":
-        print("-" * 50)
-        p.dump_grammar()
-
-
 if __name__ == "__main__":
     import sys
 
