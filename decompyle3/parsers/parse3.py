@@ -411,10 +411,6 @@ class Python3Parser(PythonParser):
                                       GET_ITER CALL_FUNCTION_1
                     classdefdeco1 ::= expr classdefdeco2 CALL_FUNCTION_1
                     """
-                    if self.version < 3.5:
-                        rule += """
-                        classdefdeco1 ::= expr classdefdeco1 CALL_FUNCTION_1
-                        """
                     self.addRule(rule, nop_func)
 
                 self.custom_classfunc_rule(opname, token, customize, tokens[i + 1])
@@ -559,10 +555,7 @@ class Python3Parser(PythonParser):
                 args_pos, args_kw, annotate_args = token.attr
 
                 # FIXME: Fold test  into add_make_function_rule
-                if self.version < 3.3:
-                    j = 1
-                else:
-                    j = 2
+                j = 2
                 if is_pypy or (i >= j and tokens[i - j] == "LOAD_LAMBDA"):
                     rule_pat = "mklambda ::= %sload_closure LOAD_LAMBDA %%s%s" % (
                         "pos_arg " * args_pos,
@@ -634,89 +627,84 @@ class Python3Parser(PythonParser):
 
                 pass
             elif opname_base.startswith("MAKE_FUNCTION"):
-                # DRY with MAKE_CLOSURE
-                if self.version >= 3.6:
-                    # The semantics of MAKE_FUNCTION in 3.6 are totally different from
-                    # before.
-                    args_pos, args_kw, annotate_args, closure = token.attr
-                    stack_count = args_pos + args_kw + annotate_args
-                    if closure:
-                        if args_pos:
-                            rule = "mklambda ::= %s%s%s%s" % (
-                                "expr " * stack_count,
-                                "load_closure " * closure,
-                                "BUILD_TUPLE_1 LOAD_LAMBDA LOAD_STR ",
-                                opname,
-                            )
-                        else:
-                            rule = "mklambda ::= %s%s%s" % (
-                                "load_closure " * closure,
-                                "LOAD_LAMBDA LOAD_STR ",
-                                opname,
-                            )
-                        self.add_unique_rule(rule, opname, token.attr, customize)
-
-                    else:
-                        rule = "mklambda ::= %sLOAD_LAMBDA LOAD_STR %s" % (
-                            ("expr " * stack_count),
+                args_pos, args_kw, annotate_args, closure = token.attr
+                stack_count = args_pos + args_kw + annotate_args
+                if closure:
+                    if args_pos:
+                        rule = "mklambda ::= %s%s%s%s" % (
+                            "expr " * stack_count,
+                            "load_closure " * closure,
+                            "BUILD_TUPLE_1 LOAD_LAMBDA LOAD_STR ",
                             opname,
                         )
-                        self.add_unique_rule(rule, opname, token.attr, customize)
+                    else:
+                        rule = "mklambda ::= %s%s%s" % (
+                            "load_closure " * closure,
+                            "LOAD_LAMBDA LOAD_STR ",
+                            opname,
+                        )
+                    self.add_unique_rule(rule, opname, token.attr, customize)
 
-                    rule = "mkfunc ::= %s%s%s%s" % (
-                        "expr " * stack_count,
-                        "load_closure " * closure,
-                        "LOAD_CODE LOAD_STR ",
+                else:
+                    rule = "mklambda ::= %sLOAD_LAMBDA LOAD_STR %s" % (
+                        ("expr " * stack_count),
                         opname,
                     )
                     self.add_unique_rule(rule, opname, token.attr, customize)
 
-                    if has_get_iter_call_function1:
-                        rule_pat = (
-                            "generator_exp ::= %sload_genexpr %%s%s expr "
-                            "GET_ITER CALL_FUNCTION_1" % ("pos_arg " * args_pos, opname)
-                        )
-                        self.add_make_function_rule(
-                            rule_pat, opname, token.attr, customize
-                        )
-                        rule_pat = (
-                            "generator_exp ::= %sload_closure load_genexpr %%s%s expr "
-                            "GET_ITER CALL_FUNCTION_1" % ("pos_arg " * args_pos, opname)
-                        )
-                        self.add_make_function_rule(
-                            rule_pat, opname, token.attr, customize
-                        )
-                        if is_pypy or (i >= 2 and tokens[i - 2] == "LOAD_LISTCOMP"):
-                            if self.version >= 3.6:
-                                # 3.6+ sometimes bundles all of the
-                                # 'exprs' in the rule above into a
-                                # tuple.
-                                rule_pat = (
-                                    "listcomp ::= load_closure LOAD_LISTCOMP %%s%s "
-                                    "expr GET_ITER CALL_FUNCTION_1" % (opname,)
-                                )
-                                self.add_make_function_rule(
-                                    rule_pat, opname, token.attr, customize
-                                )
-                            rule_pat = (
-                                "listcomp ::= %sLOAD_LISTCOMP %%s%s expr "
-                                "GET_ITER CALL_FUNCTION_1"
-                                % ("expr " * args_pos, opname)
-                            )
-                            self.add_make_function_rule(
-                                rule_pat, opname, token.attr, customize
-                            )
+                rule = "mkfunc ::= %s%s%s%s" % (
+                    "expr " * stack_count,
+                    "load_closure " * closure,
+                    "LOAD_CODE LOAD_STR ",
+                    opname,
+                )
+                self.add_unique_rule(rule, opname, token.attr, customize)
 
-                    if is_pypy or (i >= 2 and tokens[i - 2] == "LOAD_LAMBDA"):
-                        rule_pat = "mklambda ::= %s%sLOAD_LAMBDA %%s%s" % (
-                            ("pos_arg " * args_pos),
-                            ("kwarg " * args_kw),
-                            opname,
+                if has_get_iter_call_function1:
+                    rule_pat = (
+                        "generator_exp ::= %sload_genexpr %%s%s expr "
+                        "GET_ITER CALL_FUNCTION_1" % ("pos_arg " * args_pos, opname)
+                    )
+                    self.add_make_function_rule(
+                        rule_pat, opname, token.attr, customize
+                    )
+                    rule_pat = (
+                        "generator_exp ::= %sload_closure load_genexpr %%s%s expr "
+                        "GET_ITER CALL_FUNCTION_1" % ("pos_arg " * args_pos, opname)
+                    )
+                    self.add_make_function_rule(
+                        rule_pat, opname, token.attr, customize
+                    )
+                    if is_pypy or (i >= 2 and tokens[i - 2] == "LOAD_LISTCOMP"):
+                        # 3.6+ sometimes bundles all of the
+                        # 'exprs' in the rule above into a
+                        # tuple.
+                        rule_pat = (
+                            "listcomp ::= load_closure LOAD_LISTCOMP %%s%s "
+                            "expr GET_ITER CALL_FUNCTION_1" % (opname,)
                         )
                         self.add_make_function_rule(
                             rule_pat, opname, token.attr, customize
                         )
-                    continue
+                        rule_pat = (
+                            "listcomp ::= %sLOAD_LISTCOMP %%s%s expr "
+                            "GET_ITER CALL_FUNCTION_1"
+                            % ("expr " * args_pos, opname)
+                        )
+                        self.add_make_function_rule(
+                            rule_pat, opname, token.attr, customize
+                        )
+
+                if is_pypy or (i >= 2 and tokens[i - 2] == "LOAD_LAMBDA"):
+                    rule_pat = "mklambda ::= %s%sLOAD_LAMBDA %%s%s" % (
+                        ("pos_arg " * args_pos),
+                        ("kwarg " * args_kw),
+                        opname,
+                    )
+                    self.add_make_function_rule(
+                        rule_pat, opname, token.attr, customize
+                    )
+                continue
 
                 args_pos, args_kw, annotate_args, closure = token.attr
 
@@ -851,9 +839,6 @@ class Python3Parser(PythonParser):
         self.check_reduce["iflaststmt"] = "AST"
         self.check_reduce["ifstmt"] = "AST"
         self.check_reduce["annotate_tuple"] = "noAST"
-        if self.version < 3.6:
-            # 3.6+ can remove a JUMP_FORWARD which messes up our testing here
-            self.check_reduce["try_except"] = "AST"
 
         # FIXME: remove parser errors caused by the below
         # self.check_reduce['while1elsestmt'] = 'noAST'
@@ -915,23 +900,6 @@ class Python3Parser(PythonParser):
             # 3.8+ Doesn't have SETUP_LOOP
             return self.version < 3.8 and tokens[first].attr > tokens[last].off2int()
 
-        elif rule == (
-            "try_except",
-            (
-                "SETUP_EXCEPT",
-                "suite_stmts_opt",
-                "POP_BLOCK",
-                "except_handler",
-                "opt_come_from_except",
-            ),
-        ):
-            come_from_except = ast[-1]
-            if come_from_except[0] == "COME_FROM":
-                # There should be at last two COME_FROMs, one from an
-                # exception handler and one from the try. Otherwise
-                # we have a try/else.
-                return True
-            pass
         elif lhs == "while1stmt":
 
             # If there is a fall through to the COME_FROM_LOOP, then this is
@@ -981,9 +949,12 @@ class Python3Parser(PythonParser):
             # POP_TOP, and pseudo COME_FROM, ELSE instructions
             #
             pop_jump_index = first - 1
-            while pop_jump_index > 0 and tokens[pop_jump_index] in ("ELSE", "POP_TOP",
-                                                                    "JUMP_FORWARD",
-                                                                    "COME_FROM"):
+            while pop_jump_index > 0 and tokens[pop_jump_index] in (
+                "ELSE",
+                "POP_TOP",
+                "JUMP_FORWARD",
+                "COME_FROM",
+            ):
                 pop_jump_index -= 1
             come_froms = ast[-1]
 
@@ -997,7 +968,10 @@ class Python3Parser(PythonParser):
                 return False
 
             if isinstance(come_froms, Token):
-                return come_froms.attr is not None and tokens[pop_jump_index].offset > come_froms.attr
+                return (
+                    come_froms.attr is not None
+                    and tokens[pop_jump_index].offset > come_froms.attr
+                )
 
             elif len(come_froms) == 0:
                 return False
@@ -1025,7 +999,7 @@ class Python3Parser(PythonParser):
                         #      if c2:  # Jumps around the *outer* "else"
                         #       ...
                         #   else:
-                        if jmp_target == tokens[last-1].attr:
+                        if jmp_target == tokens[last - 1].attr:
                             return False
                         if last < len(tokens) and tokens[last].kind.startswith("JUMP"):
                             return False
@@ -1052,8 +1026,8 @@ class Python3Parser(PythonParser):
                     # If the instruction before "first" is a "POP_JUMP_IF_FALSE" which goes
                     # to the same target as jmp_target, then this not nested "if .. if .."
                     # but rather "if ... and ..."
-                    if first > 0 and tokens[first-1] == "POP_JUMP_IF_FALSE":
-                        return tokens[first-1].attr == jmp_target
+                    if first > 0 and tokens[first - 1] == "POP_JUMP_IF_FALSE":
+                        return tokens[first - 1].attr == jmp_target
 
                     if jmp_target > tokens[last].off2int():
                         # One more weird case to look out for
@@ -1061,7 +1035,7 @@ class Python3Parser(PythonParser):
                         #      if c2:  # Jumps around the *outer* "else"
                         #       ...
                         #   else:
-                        if jmp_target == tokens[last-1].attr:
+                        if jmp_target == tokens[last - 1].attr:
                             return False
                         if last < len(tokens) and tokens[last].kind.startswith("JUMP"):
                             return False
@@ -1070,22 +1044,26 @@ class Python3Parser(PythonParser):
                 pass
             return False
         elif rule in (
-                ("ifelsestmt",
-                 (
-                     "testexpr",
-                     "c_stmts_opt",
-                     "jump_forward_else",
-                     "else_suite",
-                     "_come_froms",
-                 )),
-                ("ifelsestmt",
-                 (
-                     "testexpr",
-                     "c_stmts_opt",
-                     "jf_cfs",
-                     "else_suite",
-                     "opt_come_from_except",
-                 )),
+            (
+                "ifelsestmt",
+                (
+                    "testexpr",
+                    "c_stmts_opt",
+                    "jump_forward_else",
+                    "else_suite",
+                    "_come_froms",
+                ),
+            ),
+            (
+                "ifelsestmt",
+                (
+                    "testexpr",
+                    "c_stmts_opt",
+                    "jf_cfs",
+                    "else_suite",
+                    "opt_come_from_except",
+                ),
+            ),
         ):
             # FIXME: put in a routine somewhere
 
@@ -1105,7 +1083,11 @@ class Python3Parser(PythonParser):
             # For mysterious reasons a COME_FROM in tokens[last+1] might be part of the grammar rule
             # even though it is not found in come_froms.
             # Work around this.
-            if last < len(tokens) and tokens[last] == "COME_FROM" and tokens[first].offset > tokens[last].attr:
+            if (
+                last < len(tokens)
+                and tokens[last] == "COME_FROM"
+                and tokens[first].offset > tokens[last].attr
+            ):
                 return True
 
             testexpr = ast[0]
@@ -1129,18 +1111,6 @@ class Python3Parser(PythonParser):
             return False
 
         return False
-
-
-class Python30Parser(Python3Parser):
-    def p_30(self, args):
-        """
-        jmp_true ::= JUMP_IF_TRUE_OR_POP POP_TOP
-        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD POP_TOP _come_froms
-        """
-
-
-class Python3ParserSingle(Python3Parser, PythonParserSingle):
-    pass
 
 
 def info(args):

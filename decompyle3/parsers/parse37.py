@@ -1089,7 +1089,6 @@ class Python37Parser(Python36Parser):
 
     def customize_grammar_rules(self, tokens, customize):
         super(Python37Parser, self).customize_grammar_rules(tokens, customize)
-        # self.remove_rules_37()
 
 
 class Python37ParserSingle(Python37Parser, PythonParserSingle):
@@ -1100,7 +1099,6 @@ if __name__ == "__main__":
     # Check grammar
     # FIXME: DRY this with other parseXX.py routines
     p = Python37Parser()
-    p.remove_rules_37()
     p.check_grammar()
     from decompyle3 import PYTHON_VERSION, IS_PYPY
 

@@ -13,7 +13,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-spark grammar differences over Python 3.5 for Python 3.6.
+Skeletal code for Python 3.5 which is going to go away in decompyle6
 """
 
 from decompyle3.parser import PythonParserSingle, nop_func
@@ -235,42 +235,41 @@ class Python36Parser(Python35Parser):
                          """,
                 nop_func,
             )
-            if self.version >= 3.6:
-                if "BUILD_MAP_UNPACK_WITH_CALL" in self.seen_ops:
-                    self.addRule(
-                        """
-                            expr        ::= call_ex_kw
-                            call_ex_kw  ::= expr expr
-                                            build_map_unpack_with_call CALL_FUNCTION_EX
-                            """,
-                        nop_func,
-                    )
-                if "BUILD_TUPLE_UNPACK_WITH_CALL" in self.seen_ops:
-                    self.addRule(
-                        """
-                            expr        ::= call_ex_kw3
-                            call_ex_kw3 ::= expr
-                                            build_tuple_unpack_with_call
-                                            %s
-                                            CALL_FUNCTION_EX
-                            """
-                        % "expr "
-                        * token.attr,
-                        nop_func,
-                    )
-                    pass
-
-                # FIXME: Is this right?
+            if "BUILD_MAP_UNPACK_WITH_CALL" in self.seen_ops:
                 self.addRule(
                     """
-                            expr        ::= call_ex_kw4
-                            call_ex_kw4 ::= expr
-                                            expr
-                                            expr
-                                            CALL_FUNCTION_EX
-                            """,
+                        expr        ::= call_ex_kw
+                        call_ex_kw  ::= expr expr
+                                        build_map_unpack_with_call CALL_FUNCTION_EX
+                        """,
                     nop_func,
                 )
+            if "BUILD_TUPLE_UNPACK_WITH_CALL" in self.seen_ops:
+                self.addRule(
+                    """
+                        expr        ::= call_ex_kw3
+                        call_ex_kw3 ::= expr
+                                        build_tuple_unpack_with_call
+                                        %s
+                                        CALL_FUNCTION_EX
+                        """
+                    % "expr "
+                    * token.attr,
+                    nop_func,
+                )
+                pass
+
+            # FIXME: Is this right?
+            self.addRule(
+                """
+                        expr        ::= call_ex_kw4
+                        call_ex_kw4 ::= expr
+                                        expr
+                                        expr
+                                        CALL_FUNCTION_EX
+                        """,
+                nop_func,
+            )
             pass
         else:
             super(Python36Parser, self).custom_classfunc_rule(
@@ -293,13 +292,3 @@ class Python36Parser(Python35Parser):
                 pass
             pass
         return False
-
-
-class Python36ParserSingle(Python36Parser, PythonParserSingle):
-    pass
-
-
-if __name__ == "__main__":
-    # Check grammar
-    p = Python36Parser()
-    p.check_grammar()

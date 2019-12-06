@@ -1,6 +1,6 @@
 #  Copyright (c) 2016-2017, 2019 Rocky Bernstein
 """
-spark grammar differences over Python 3 for Python 3.5.
+Skeletal code for Python 3.6 which is going to go away in decompyle6
 """
 from decompyle3.parser import PythonParserSingle, nop_func
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
@@ -107,12 +107,6 @@ class Python35Parser(Python3Parser):
             )
 
         if opname.startswith("CALL_FUNCTION_VAR"):
-            # Python 3.5 changes the stack position of *args. KW args come
-            # after *args.
-
-            # Note: Python 3.6+ replaces CALL_FUNCTION_VAR and
-            # CALL_FUNCTION_VAR_KW with CALL_FUNCTION_EX
-
             token.kind = self.call_fn_name(token)
             if opname.endswith("KW"):
                 kw = "expr "
@@ -133,13 +127,3 @@ class Python35Parser(Python3Parser):
             super(Python35Parser, self).custom_classfunc_rule(
                 opname, token, customize, *args
             )
-
-
-class Python35ParserSingle(Python35Parser, PythonParserSingle):
-    pass
-
-
-if __name__ == "__main__":
-    # Check grammar
-    p = Python35Parser()
-    p.check_grammar()
