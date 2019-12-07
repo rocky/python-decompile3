@@ -1,6 +1,6 @@
 #  Copyright (c) 2016-2017, 2019 Rocky Bernstein
 """
-Remaining code for Python 3.5 which needs to be merged into Python 3.7
+Python 3.7 base code. We keep non-custom-generated grammar rules out of this file.
 """
 from decompyle3.scanners.tok import Token
 from decompyle3.parser import PythonParserSingle, nop_func
@@ -8,13 +8,84 @@ from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from decompyle3.parsers.parse3 import Python3Parser
 
 
-class Python35Parser(Python3Parser):
+class Python37BaseParser(Python3Parser):
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
-        super(Python35Parser, self).__init__(debug_parser)
+        super(Python37BaseParser, self).__init__(debug_parser)
         self.customized = {}
 
+    @staticmethod
+    def call_fn_name(token):
+        """Customize CALL_FUNCTION to add the number of positional arguments"""
+        if token.attr is not None:
+            return "%s_%i" % (token.kind, token.attr)
+        else:
+            return "%s_0" % (token.kind)
+
+    def add_make_function_rule(self, rule, opname, attr, customize):
+        """Python 3.3 added a an addtional LOAD_STR before MAKE_FUNCTION and
+        this has an effect on many rules.
+        """
+        new_rule = rule % "LOAD_STR "
+        self.add_unique_rule(new_rule, opname, attr, customize)
+
+    def custom_build_class_rule(self, opname, i, token, tokens, customize):
+        """
+        # Should the first rule be somehow folded into the 2nd one?
+        build_class ::= LOAD_BUILD_CLASS mkfunc
+                        LOAD_CLASSNAME {expr}^n-1 CALL_FUNCTION_n
+                        LOAD_CONST CALL_FUNCTION_n
+        build_class ::= LOAD_BUILD_CLASS mkfunc
+                        expr
+                        call
+                        CALL_FUNCTION_3
+         """
+        # FIXME: I bet this can be simplified
+        # look for next MAKE_FUNCTION
+        for i in range(i + 1, len(tokens)):
+            if tokens[i].kind.startswith("MAKE_FUNCTION"):
+                break
+            elif tokens[i].kind.startswith("MAKE_CLOSURE"):
+                break
+            pass
+        assert i < len(
+            tokens
+        ), "build_class needs to find MAKE_FUNCTION or MAKE_CLOSURE"
+        assert (
+            tokens[i + 1].kind == "LOAD_STR"
+        ), "build_class expecting CONST after MAKE_FUNCTION/MAKE_CLOSURE"
+        call_fn_tok = None
+        for i in range(i, len(tokens)):
+            if tokens[i].kind.startswith("CALL_FUNCTION"):
+                call_fn_tok = tokens[i]
+                break
+        if not call_fn_tok:
+            raise RuntimeError(
+                "build_class custom rule for %s needs to find CALL_FUNCTION" % opname
+            )
+
+        # customize build_class rule
+        # FIXME: What's the deal with the two rules? Different Python versions?
+        # Different situations? Note that the above rule is based on the CALL_FUNCTION
+        # token found, while this one doesn't.
+        # 3.6+ handling
+        call_function = call_fn_tok.kind
+        if call_function.startswith("CALL_FUNCTION_KW"):
+            self.addRule("classdef ::= build_class_kw store", nop_func)
+            rule = "build_class_kw ::= LOAD_BUILD_CLASS mkfunc %sLOAD_CONST %s" % (
+                "expr " * (call_fn_tok.attr - 1),
+                call_function,
+            )
+        else:
+            call_function = self.call_fn_name(call_fn_tok)
+            rule = "build_class ::= LOAD_BUILD_CLASS mkfunc %s%s" % (
+                "expr " * (call_fn_tok.attr - 1),
+                call_function,
+            )
+        self.addRule(rule, nop_func)
+        return
+
     def customize_grammar_rules(self, tokens, customize):
-        super(Python35Parser, self).customize_grammar_rules(tokens, customize)
+        super(Python37BaseParser, self).customize_grammar_rules(tokens, customize)
         for i, token in enumerate(tokens):
             opname = token.kind
 
@@ -175,9 +246,24 @@ class Python35Parser(Python3Parser):
                 self.addRule(rules_str, nop_func)
 
             pass
+
+        self.check_reduce["and"] = "AST"
+        self.check_reduce["aug_assign1"] = "AST"
+        self.check_reduce["aug_assign2"] = "AST"
+        self.check_reduce["while1stmt"] = "noAST"
+        self.check_reduce["while1elsestmt"] = "noAST"
+        self.check_reduce["_ifstmts_jump"] = "AST"
+        self.check_reduce["ifelsestmt"] = "AST"
+        self.check_reduce["iflaststmt"] = "AST"
+        self.check_reduce["ifstmt"] = "AST"
+        self.check_reduce["annotate_tuple"] = "noAST"
+
+        # FIXME: remove parser errors caused by the below
+        # self.check_reduce['while1elsestmt'] = 'noAST'
+
         return
 
-    def custom_classfunc_rule(self, opname, token, customize, *args):
+    def custom_classfunc_rule(self, opname, token, customize, next_token):
         """
         call ::= expr {expr}^n CALL_FUNCTION_n
         call ::= expr {expr}^n CALL_FUNCTION_VAR_n
@@ -228,9 +314,29 @@ class Python35Parser(Python3Parser):
             # zero or not in creating a template rule.
             self.add_unique_rule(rule, token.kind, args_pos, customize)
         else:
-            super(Python35Parser, self).custom_classfunc_rule(
-                opname, token, customize, *args
+            token.kind = self.call_fn_name(token)
+            uniq_param = args_kw + args_pos
+
+            # Note: 3.5+ have subclassed this method; so we don't handle
+            # 'CALL_FUNCTION_VAR' or 'CALL_FUNCTION_EX' here.
+            rule = (
+                "call ::= expr "
+                + ("pos_arg " * args_pos)
+                + ("kwarg " * args_kw)
+                + "expr " * nak
+                + token.kind
             )
+
+            self.add_unique_rule(rule, token.kind, uniq_param, customize)
+
+            if "LOAD_BUILD_CLASS" in self.seen_ops:
+                if next_token == "CALL_FUNCTION" and next_token.attr == 1 and args_pos > 1:
+                    rule = "classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc %s%s_%d" % (
+                        ("expr " * (args_pos - 1)),
+                        opname,
+                        args_pos,
+                    )
+                    self.add_unique_rule(rule, token.kind, uniq_param, customize)
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         lhs = rule[0]

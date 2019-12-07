@@ -13,16 +13,16 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-TODO: make this self-sufficient and not rely on 3.6
+Python 3.7 parsing.
 """
 
 from decompyle3.parser import PythonParserSingle, nop_func
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
-from decompyle3.parsers.parse35 import Python35Parser
+from decompyle3.parsers.parse37base import Python37BaseParser
 from decompyle3.scanners.tok import Token
 
 
-class Python37Parser(Python35Parser):
+class Python37Parser(Python37BaseParser):
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
         super(Python37Parser, self).__init__(debug_parser)
         self.customized = {}
