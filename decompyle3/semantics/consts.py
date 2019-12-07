@@ -331,8 +331,11 @@ TABLE_DIRECT = {
 #    'return':	        ( '%|return %c\n', 0),
     'return_if_stmt':	( 'return %c\n', 0),
 
-    'ifstmt':		    ( '%|if %c:\n%+%c%-', 0, 1 ),
-    'iflaststmt':		( '%|if %c:\n%+%c%-', 0, 1 ),
+    'ifstmt':		( '%|if %c:\n%+%c%-',
+                            (0, "testexpr"),
+                            (1, "_ifstmts_jump") ),
+
+    'iflaststmt':	( '%|if %c:\n%+%c%-', 0, 1 ),
     'iflaststmtl':		( '%|if %c:\n%+%c%-', 0, 1 ),
     'testtrue':         ( 'not %p',
                           (0, PRECEDENCE['unary_not']) ),

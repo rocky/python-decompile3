@@ -44,6 +44,7 @@ class Python38Parser(Python37Parser):
         stmt               ::= whilestmt38
         stmt               ::= whileTruestmt38
         stmt               ::= call
+        stmt               ::= ifstmtl
 
         break ::= POP_BLOCK BREAK_LOOP
         break ::= POP_BLOCK POP_TOP BREAK_LOOP
@@ -81,9 +82,19 @@ class Python38Parser(Python37Parser):
 
         return             ::= ret_expr ROT_TWO POP_TOP RETURN_VALUE
 
+        # 3.8 can push a looping JUMP_BACK into into a JUMP_ from a statement that jumps to it
+        lastl_stmt         ::= ifpoplaststmtl
+        ifpoplaststmtl     ::= testexpr POP_TOP c_stmts_opt JUMP_BACK
+        ifelsestmtl        ::= testexpr c_stmts_opt jb_cfs else_suitel JUMP_BACK come_froms
+
+        _ifstmts_jumpl     ::= c_stmts JUMP_BACK
+        _ifstmts_jumpl     ::= _ifstmts_jump
+        ifstmtl            ::= testexpr _ifstmts_jumpl
+
         for38              ::= expr get_iter store for_block JUMP_BACK
         for38              ::= expr get_for_iter store for_block JUMP_BACK
         for38              ::= expr get_for_iter store for_block JUMP_BACK POP_BLOCK
+        for38              ::= expr get_for_iter store for_block
 
         forelsestmt38      ::= expr get_for_iter store for_block POP_BLOCK else_suite
         forelselaststmt38  ::= expr get_for_iter store for_block POP_BLOCK else_suitec
@@ -94,6 +105,7 @@ class Python38Parser(Python37Parser):
         whilestmt38        ::= _come_froms testexpr l_stmts_opt JUMP_BACK come_froms
         whilestmt38        ::= _come_froms testexpr returns               POP_BLOCK
         whilestmt38        ::= _come_froms testexpr l_stmts     JUMP_BACK
+        whilestmt38        ::= _come_froms testexpr l_stmts     come_froms
 
         # while1elsestmt   ::=          l_stmts     JUMP_BACK
         whileTruestmt      ::= _come_froms l_stmts              JUMP_BACK POP_BLOCK
@@ -227,6 +239,8 @@ class Python38Parser(Python37Parser):
         self.remove_rules_38()
         self.check_reduce["ifstmt"] = "tokens"
         self.check_reduce["whileTruestmt38"] = "tokens"
+        self.check_reduce["whilestmt38"] = "tokens"
+        self.check_reduce["ifstmtl"] = "tokens"
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         invalid = super(Python38Parser, self).reduce_is_invalid(
@@ -234,7 +248,8 @@ class Python38Parser(Python37Parser):
         )
         if invalid:
             return invalid
-        if rule[0] == "ifstmt":
+        lhs = rule[0]
+        if lhs == "ifstmt":
             # Make sure jumps don't extend beyond the end of the if statement.
             l = last
             if l == len(tokens):
@@ -251,10 +266,20 @@ class Python38Parser(Python37Parser):
                     pass
                 pass
             pass
-        elif rule[0] == "whileTruestmt38":
-            t = tokens[last - 1]
-            if t.kind == "JUMP_BACK":
-                return t.attr != tokens[first].offset
+        elif lhs == "ifstmtl":
+            if last == len(tokens):
+                last -= 1
+            if (tokens[last].attr and isinstance(tokens[last].attr, int)):
+                return tokens[first].offset < tokens[last].attr
+            pass
+        elif lhs in ("whileTruestmt38", "whilestmt38"):
+            jb_index = last - 1
+            while jb_index > 0 and tokens[jb_index].kind.startswith("COME_FROM"):
+                jb_index -= 1
+            t = tokens[jb_index]
+            if t.kind != "JUMP_BACK":
+                return True
+            return t.attr != tokens[first].off2int()
             pass
 
         return False
