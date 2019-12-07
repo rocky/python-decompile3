@@ -391,6 +391,21 @@ class Python37BaseParser(PythonParser):
                         ],
                         customize,
                     )
+
+            elif opname.startswith('BUILD_STRING'):
+                v = token.attr
+                rules_str = """
+                    expr                 ::= joined_str
+                    joined_str           ::= %sBUILD_STRING_%d
+                """ % ("expr " * v, v)
+                self.add_unique_doc_rules(rules_str, customize)
+                if 'FORMAT_VALUE_ATTR' in self.seen_ops:
+                    rules_str = """
+                      formatted_value_attr ::= expr expr FORMAT_VALUE_ATTR expr BUILD_STRING
+                      expr                 ::= formatted_value_attr
+                    """
+                    self.add_unique_doc_rules(rules_str, customize)
+
             elif opname in frozenset(
                 (
                     "CALL_FUNCTION",
