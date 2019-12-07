@@ -237,6 +237,7 @@ class Python37Parser(Python37BaseParser):
 
         # Zero or more COME_FROMs - loops can have this
         _come_froms ::= COME_FROM*
+        _come_froms ::= _come_froms COME_FROM_LOOP
 
         # One or more COME_FROMs - joins of tryelse's have this
         come_froms ::= COME_FROM+
@@ -1009,7 +1010,9 @@ class Python37Parser(Python37BaseParser):
         """
         setup_loop        ::= SETUP_LOOP _come_froms
         for               ::= setup_loop expr get_for_iter store for_block POP_BLOCK
+        for               ::= setup_loop expr get_for_iter store for_block POP_BLOCK
                               COME_FROM_LOOP
+
 
         forelsestmt       ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suite
                               COME_FROM_LOOP
