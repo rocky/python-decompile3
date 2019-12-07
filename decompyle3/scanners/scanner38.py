@@ -43,18 +43,26 @@ class Scanner38(Scanner37):
         tokens, customize = super(Scanner38, self).ingest(
             co, classname, code_objects, show_asm
         )
-        for token in tokens:
+        for i, token in enumerate(tokens):
             opname = token.kind
             if opname in ("JUMP_FORWARD", "JUMP_ABSOLUTE"):
                 # Turn JUMPs into BREAK_LOOP
                 jump_target = token.attr
+
                 if opname == "JUMP_ABSOLUTE" and token.offset >= jump_target:
                     # Not a forward jump, so continue
-                    # FIXME: add "continue" detection
+                    # FIXME: Do we need "continue" detection?
                     continue
-                jump_back_index = self.offset2tok_index[jump_target] - 1
-                while tokens[jump_back_index].kind.startswith("COME_FROM_"):
-                    jump_back_index -= 1
+                if i + 1 < len(tokens) and tokens[i + 1] == "JUMP_BACK":
+                    # Sometimes the jump back is *after* the break...
+                    jump_back_index = i + 1
+                else:
+                    # and sometimes it is *before* where we jumped to.
+                    jump_back_index = self.offset2tok_index[jump_target] - 1
+                    while tokens[jump_back_index].kind.startswith("COME_FROM_"):
+                        jump_back_index -= 1
+                        pass
+                    pass
                 jump_back_token = tokens[jump_back_index]
                 if (
                     jump_back_token == "JUMP_BACK"

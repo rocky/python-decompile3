@@ -47,6 +47,7 @@ class Python38Parser(Python37Parser):
 
         break ::= POP_BLOCK BREAK_LOOP
         break ::= POP_BLOCK POP_TOP BREAK_LOOP
+        break ::= POP_TOP BREAK_LOOP
         break ::= POP_EXCEPT BREAK_LOOP
 
         # FIXME: this should be restricted to being inside a try block
