@@ -1,473 +1,20 @@
-#  Copyright (c) 2015-2019 Rocky Bernstein
-#  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
-#  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
-#  Copyright (c) 1999 John Aycock
-#
-#  This program is free software: you can redistribute it and/or modify
-#  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation, either version 3 of the License, or
-#  (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#  Copyright (c) 2016-2017, 2019 Rocky Bernstein
 """
-A spark grammar for Python 3.x.
-
-However instead of terminal symbols being the usual ASCII text,
-e.g. 5, myvariable, "for", etc.  they are CPython Bytecode tokens,
-e.g. "LOAD_CONST 5", "STORE NAME myvariable", "SETUP_LOOP", etc.
-
-If we succeed in creating a parse tree, then we have a Python program
-that a later phase can turn into a sequence of ASCII text.
+Python 3.7 base code. We keep non-custom-generated grammar rules out of this file.
 """
-
 from decompyle3.scanners.tok import Token
 from decompyle3.parser import PythonParser, PythonParserSingle, nop_func
 from decompyle3.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
 
-class Python3Parser(PythonParser):
+class Python37BaseParser(PythonParser):
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
         self.added_rules = set()
-        super(Python3Parser, self).__init__(SyntaxTree, "stmts", debug=debug_parser)
+        super(Python37BaseParser, self).__init__(
+            SyntaxTree, "stmts", debug=debug_parser
+        )
         self.new_rules = set()
-
-    def p_expr(self, args):
-        """
-        expr ::= _mklambda
-        expr ::= LOAD_CODE
-        expr ::= LOAD_CONST
-        expr ::= LOAD_DEREF
-        expr ::= LOAD_FAST
-        expr ::= LOAD_GLOBAL
-        expr ::= LOAD_NAME
-        expr ::= LOAD_STR
-        expr ::= binary_expr
-        expr ::= list
-        expr ::= compare
-        expr ::= dict
-        expr ::= and
-        expr ::= or
-        expr ::= unary_expr
-        expr ::= call
-        expr ::= unary_not
-        expr ::= subscript
-        expr ::= subscript2
-        expr ::= yield
-
-        binary_expr ::= expr expr binary_op
-        binary_op   ::= BINARY_ADD
-        binary_op   ::= BINARY_MULTIPLY
-        binary_op   ::= BINARY_AND
-        binary_op   ::= BINARY_OR
-        binary_op   ::= BINARY_XOR
-        binary_op   ::= BINARY_SUBTRACT
-        binary_op   ::= BINARY_TRUE_DIVIDE
-        binary_op   ::= BINARY_FLOOR_DIVIDE
-        binary_op   ::= BINARY_MODULO
-        binary_op   ::= BINARY_LSHIFT
-        binary_op   ::= BINARY_RSHIFT
-        binary_op   ::= BINARY_POWER
-
-        unary_expr  ::= expr unary_op
-        unary_op    ::= UNARY_POSITIVE
-        unary_op    ::= UNARY_NEGATIVE
-        unary_op    ::= UNARY_INVERT
-
-        unary_not ::= expr UNARY_NOT
-
-        subscript ::= expr expr BINARY_SUBSCR
-
-        attribute ::= expr LOAD_ATTR
-        get_iter  ::= expr GET_ITER
-
-        yield ::= expr YIELD_VALUE
-
-        _mklambda ::= mklambda
-
-        expr ::= conditional
-
-        ret_expr ::= expr
-        ret_expr ::= ret_and
-        ret_expr ::= ret_or
-
-        ret_expr_or_cond ::= ret_expr
-        ret_expr_or_cond ::= ret_cond
-
-        stmt ::= return_lambda
-
-        return_lambda ::= ret_expr RETURN_VALUE_LAMBDA LAMBDA_MARKER
-        return_lambda ::= ret_expr RETURN_VALUE_LAMBDA
-
-        compare        ::= compare_chained
-        compare        ::= compare_single
-        compare_single ::= expr expr COMPARE_OP
-
-        # A compare_chained is two comparisions like x <= y <= z
-        compare_chained  ::= expr compare_chained1 ROT_TWO POP_TOP _come_froms
-        compare_chained2 ::= expr COMPARE_OP JUMP_FORWARD
-
-        # Non-null kvlist items are broken out in the indiviual grammars
-        kvlist ::=
-
-        # Positional arguments in make_function
-        pos_arg ::= expr
-        """
-
-    def p_comprehension3(self, args):
-        """
-        # Python3 scanner adds LOAD_LISTCOMP. Python3 does list comprehension like
-        # other comprehensions (set, dictionary).
-
-        # Our "continue" heuristic -  in two successive JUMP_BACKS, the first
-        # one may be a continue - sometimes classifies a JUMP_BACK
-        # as a CONTINUE. The two are kind of the same in a comprehension.
-
-        comp_for ::= expr get_for_iter store comp_iter CONTINUE
-        comp_for ::= expr get_for_iter store comp_iter JUMP_BACK
-
-        for_iter ::= _come_froms FOR_ITER
-
-        list_comp ::= BUILD_LIST_0 list_iter
-        lc_body   ::= expr LIST_APPEND
-        list_for ::= expr for_iter store list_iter jb_or_c
-
-        # This is seen in PyPy, but possibly it appears on other Python 3?
-        list_if     ::= expr jmp_false list_iter COME_FROM
-        list_if_not ::= expr jmp_true list_iter COME_FROM
-
-        jb_or_c ::= JUMP_BACK
-        jb_or_c ::= CONTINUE
-
-        stmt ::= set_comp_func
-
-        set_comp_func ::= BUILD_SET_0 LOAD_FAST for_iter store comp_iter
-                          JUMP_BACK RETURN_VALUE RETURN_LAST
-
-        set_comp_func ::= BUILD_SET_0 LOAD_FAST for_iter store comp_iter
-                          COME_FROM JUMP_BACK RETURN_VALUE RETURN_LAST
-
-        comp_body ::= dict_comp_body
-        comp_body ::= set_comp_body
-        dict_comp_body ::= expr expr MAP_ADD
-        set_comp_body ::= expr SET_ADD
-
-        # See also common Python p_list_comprehension
-        """
-
-    def p_dict_comp3(self, args):
-        """"
-        expr ::= dict_comp
-        stmt ::= dict_comp_func
-        dict_comp_func ::= BUILD_MAP_0 LOAD_FAST for_iter store
-                           comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
-
-        comp_iter     ::= comp_if
-        comp_iter     ::= comp_if_not
-        comp_if_not   ::= expr jmp_true comp_iter
-        comp_iter     ::= comp_body
-        """
-
-    def p_grammar(self, args):
-        """
-        sstmt ::= stmt
-        sstmt ::= ifelsestmtr
-        sstmt ::= return RETURN_LAST
-
-        return_if_stmts ::= return_if_stmt come_from_opt
-        return_if_stmts ::= _stmts return_if_stmt _come_froms
-        return_if_stmt  ::= ret_expr RETURN_END_IF
-        returns         ::= _stmts return_if_stmt
-
-        stmt      ::= break
-        break     ::= BREAK_LOOP
-
-        stmt      ::= continue
-        continue  ::= CONTINUE
-        continues ::= _stmts lastl_stmt continue
-        continues ::= lastl_stmt continue
-        continues ::= continue
-
-
-        kwarg      ::= LOAD_STR expr
-        kwargs     ::= kwarg+
-
-        classdef ::= build_class store
-
-        # FIXME: we need to add these because don't detect this properly
-        # in custom rules. Specifically if one of the exprs is CALL_FUNCTION
-        # then we'll mistake that for the final CALL_FUNCTION.
-        # We can fix by triggering on the CALL_FUNCTION op
-        # Python3 introduced LOAD_BUILD_CLASS
-        # Other definitions are in a custom rule
-        build_class ::= LOAD_BUILD_CLASS mkfunc expr call CALL_FUNCTION_3
-        build_class ::= LOAD_BUILD_CLASS mkfunc expr call expr CALL_FUNCTION_4
-
-        stmt ::= classdefdeco
-        classdefdeco ::= classdefdeco1 store
-
-        expr    ::= LOAD_ASSERT
-        assert  ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 COME_FROM
-        stmt    ::= assert2
-        assert2 ::= assert_expr jmp_true LOAD_ASSERT expr
-                    CALL_FUNCTION_1 RAISE_VARARGS_1 COME_FROM
-
-        assert_expr ::= expr
-        assert_expr ::= assert_expr_or
-        assert_expr ::= assert_expr_and
-        assert_expr_or ::= assert_expr jmp_true expr
-        assert_expr_and ::= assert_expr jmp_false expr
-
-        ifstmt ::= testexpr _ifstmts_jump
-
-        testexpr ::= testfalse
-        testexpr ::= testtrue
-        testfalse ::= expr jmp_false
-        testtrue ::= expr jmp_true
-
-        _ifstmts_jump ::= return_if_stmts
-        _ifstmts_jump ::= c_stmts_opt COME_FROM
-
-        iflaststmt ::= testexpr c_stmts_opt
-        iflaststmt ::= testexpr c_stmts_opt JUMP_ABSOLUTE
-
-        iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK
-        iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK COME_FROM_LOOP
-        iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK POP_BLOCK
-
-        # These are used to keep parse tree indices the same
-        jump_forward_else  ::= JUMP_FORWARD ELSE
-        jump_forward_else  ::= JUMP_FORWARD COME_FROM
-        jump_absolute_else ::= JUMP_ABSOLUTE ELSE
-        jump_absolute_else ::= JUMP_ABSOLUTE _come_froms
-        jump_absolute_else ::= come_froms _jump COME_FROM
-
-        # Note: in if/else kinds of statements, we err on the side
-        # of missing "else" clauses. Therefore we include grammar
-        # rules with and without ELSE.
-
-        ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD
-                       else_suite opt_come_from_except
-        ifelsestmt ::= testexpr c_stmts_opt jump_forward_else
-                       else_suite _come_froms
-
-        # This handles the case where a "JUMP_ABSOLUTE" is part
-        # of an inner if in c_stmts_opt
-        ifelsestmt ::= testexpr c_stmts_opt come_froms
-                       else_suite come_froms
-
-        # ifelsestmt ::= testexpr c_stmts_opt jump_forward_else
-        #                pass  _come_froms
-
-        ifelsestmtc ::= testexpr c_stmts_opt JUMP_ABSOLUTE else_suitec
-        ifelsestmtc ::= testexpr c_stmts_opt jump_absolute_else else_suitec
-
-        ifelsestmtr ::= testexpr return_if_stmts returns
-
-        ifelsestmtl ::= testexpr c_stmts_opt cf_jump_back else_suitel
-
-        cf_jump_back ::= COME_FROM JUMP_BACK
-
-        # FIXME: this feels like a hack. Is it just 1 or two
-        # COME_FROMs?  the parsed tree for this and even with just the
-        # one COME_FROM for Python 2.7 seems to associate the
-        # COME_FROM targets from the wrong places
-
-        # this is nested inside a try_except
-        tryfinallystmt ::= SETUP_FINALLY suite_stmts_opt
-                           POP_BLOCK LOAD_CONST
-                           COME_FROM_FINALLY suite_stmts_opt END_FINALLY
-
-        except_handler ::= jmp_abs COME_FROM except_stmts
-                           _come_froms END_FINALLY
-        except_handler ::= jmp_abs COME_FROM_EXCEPT except_stmts
-                           _come_froms END_FINALLY
-
-        # FIXME: remove this
-        except_handler ::= JUMP_FORWARD COME_FROM except_stmts
-                           come_froms END_FINALLY come_from_opt
-
-        except_stmts ::= except_stmts except_stmt
-        except_stmts ::= except_stmt
-
-        except_stmt ::= except_cond1 except_suite come_from_opt
-        except_stmt ::= except_cond2 except_suite come_from_opt
-        except_stmt ::= except_cond2 except_suite_finalize
-        except_stmt ::= except
-
-        ## FIXME: what's except_pop_except?
-        except_stmt ::= except_pop_except
-
-        # Python3 introduced POP_EXCEPT
-        except_suite ::= c_stmts_opt POP_EXCEPT jump_except
-        jump_except ::= JUMP_ABSOLUTE
-        jump_except ::= JUMP_BACK
-        jump_except ::= JUMP_FORWARD
-        jump_except ::= CONTINUE
-
-        # This is used in Python 3 in
-        # "except ... as e" to remove 'e' after the c_stmts_opt finishes
-        except_suite_finalize ::= SETUP_FINALLY c_stmts_opt except_var_finalize
-                                  END_FINALLY _jump
-
-        except_var_finalize ::= POP_BLOCK POP_EXCEPT LOAD_CONST COME_FROM_FINALLY
-                                LOAD_CONST store del_stmt
-
-        except_suite ::= returns
-
-        except_cond1 ::= DUP_TOP expr COMPARE_OP
-                         jmp_false POP_TOP POP_TOP POP_TOP
-
-        except_cond2 ::= DUP_TOP expr COMPARE_OP
-                         jmp_false POP_TOP store POP_TOP come_from_opt
-
-        except  ::=  POP_TOP POP_TOP POP_TOP c_stmts_opt POP_EXCEPT _jump
-        except  ::=  POP_TOP POP_TOP POP_TOP returns
-
-        jmp_abs ::= JUMP_ABSOLUTE
-        jmp_abs ::= JUMP_BACK
-
-        """
-
-    def p_misc3(self, args):
-        """
-        except_handler ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts
-                           come_froms END_FINALLY
-
-        for_block ::= l_stmts_opt COME_FROM_LOOP JUMP_BACK
-        for_block ::= l_stmts
-        for_block ::= l_stmts JUMP_BACK
-        iflaststmtl ::= testexpr c_stmts_opt
-        """
-
-    def p_come_from3(self, args):
-        """
-        opt_come_from_except ::= COME_FROM_EXCEPT
-        opt_come_from_except ::= _come_froms
-        opt_come_from_except ::= come_from_except_clauses
-
-        come_from_except_clauses ::= COME_FROM_EXCEPT_CLAUSE+
-        """
-
-    def p_jump3(self, args):
-        """
-        jmp_false ::= POP_JUMP_IF_FALSE
-        jmp_true  ::= POP_JUMP_IF_TRUE
-
-        # FIXME: Common with 2.7
-        ret_and  ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
-        ret_or   ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
-        ret_cond ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
-
-        or   ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
-        or   ::= expr JUMP_IF_TRUE expr COME_FROM
-        and  ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
-        and  ::= expr JUMP_IF_FALSE expr COME_FROM
-
-        ## FIXME: Is the below needed or is it covered above??
-        and ::= expr jmp_false expr COME_FROM
-        or  ::= expr jmp_true  expr COME_FROM
-
-        # compare_chained1 is used exclusively in chained_compare
-        compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
-                             compare_chained1 COME_FROM
-        compare_chained1 ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
-                             compare_chained2 COME_FROM
-        """
-
-    def p_stmt3(self, args):
-        """
-        stmt               ::= if_expr_lambda
-        stmt               ::= conditional_not_lambda
-        if_expr_lambda     ::= expr jmp_false expr return_if_lambda
-                               return_stmt_lambda LAMBDA_MARKER
-        conditional_not_lambda
-                           ::= expr jmp_true expr return_if_lambda
-                               return_stmt_lambda LAMBDA_MARKER
-
-        return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA
-        return_if_lambda   ::= RETURN_END_IF_LAMBDA
-
-        stmt ::= return_closure
-        return_closure ::= LOAD_CLOSURE RETURN_VALUE RETURN_LAST
-
-        stmt ::= whileTruestmt
-        ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_froms
-        """
-
-    def p_loop_stmt3(self, args):
-        """
-        setup_loop        ::= SETUP_LOOP _come_froms
-        for               ::= setup_loop expr get_for_iter store for_block POP_BLOCK
-                              COME_FROM_LOOP
-
-        forelsestmt       ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suite
-                              COME_FROM_LOOP
-
-        forelselaststmt   ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suitec
-                              COME_FROM_LOOP
-
-        forelselaststmtl  ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suitel
-                              COME_FROM_LOOP
-
-        whilestmt         ::= setup_loop testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
-                              COME_FROM_LOOP
-
-        whilestmt         ::= setup_loop testexpr l_stmts_opt JUMP_BACK POP_BLOCK
-                              COME_FROM_LOOP
-
-        whilestmt         ::= setup_loop testexpr returns          POP_BLOCK
-                              COME_FROM_LOOP
-
-        while1elsestmt    ::= setup_loop          l_stmts     JUMP_BACK
-                              else_suitel
-
-        whileelsestmt     ::= setup_loop testexpr l_stmts_opt JUMP_BACK POP_BLOCK
-                              else_suitel COME_FROM_LOOP
-
-        whileTruestmt     ::= setup_loop l_stmts_opt          JUMP_BACK POP_BLOCK
-                              COME_FROM_LOOP
-
-        # FIXME: Python 3.? starts adding branch optimization? Put this starting there.
-
-        while1stmt        ::= setup_loop l_stmts COME_FROM_LOOP
-        while1stmt        ::= setup_loop l_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
-
-        while1elsestmt    ::= setup_loop l_stmts JUMP_BACK
-                              else_suite COME_FROM_LOOP
-
-        # FIXME: investigate - can code really produce a NOP?
-        for               ::= setup_loop expr get_for_iter store for_block POP_BLOCK NOP
-                              COME_FROM_LOOP
-        """
-
-    def p_generator_exp3(self, args):
-        """
-        load_genexpr ::= LOAD_GENEXPR
-        load_genexpr ::= BUILD_TUPLE_1 LOAD_GENEXPR LOAD_STR
-        """
-
-    def p_expr3(self, args):
-        """
-        expr           ::= conditionalnot
-        conditionalnot ::= expr jmp_true  expr jump_forward_else expr COME_FROM
-
-        # a JUMP_FORWARD to another JUMP_FORWARD can get turned into
-        # a JUMP_ABSOLUTE with no COME_FROM
-        conditional    ::= expr jmp_false expr jump_absolute_else expr
-
-        # if_expr_true are for conditions which always evaluate true
-        # There is dead or non-optional remnants of the condition code though,
-        # and we use that to match on to reconstruct the source more accurately
-        expr           ::= if_expr_true
-        if_expr_true   ::= expr JUMP_FORWARD expr COME_FROM
-        """
 
     @staticmethod
     def call_fn_name(token):
@@ -476,6 +23,13 @@ class Python3Parser(PythonParser):
             return "%s_%i" % (token.kind, token.attr)
         else:
             return "%s_0" % (token.kind)
+
+    def add_make_function_rule(self, rule, opname, attr, customize):
+        """Python 3.3 added a an addtional LOAD_STR before MAKE_FUNCTION and
+        this has an effect on many rules.
+        """
+        new_rule = rule % "LOAD_STR "
+        self.add_unique_rule(new_rule, opname, attr, customize)
 
     def custom_build_class_rule(self, opname, i, token, tokens, customize):
         """
@@ -533,77 +87,10 @@ class Python3Parser(PythonParser):
         self.addRule(rule, nop_func)
         return
 
-    def custom_classfunc_rule(self, opname, token, customize, next_token):
-        """
-        call ::= expr {expr}^n CALL_FUNCTION_n
-        call ::= expr {expr}^n CALL_FUNCTION_VAR_n
-        call ::= expr {expr}^n CALL_FUNCTION_VAR_KW_n
-        call ::= expr {expr}^n CALL_FUNCTION_KW_n
-
-        classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc {expr}^n-1 CALL_FUNCTION_n
-        """
-        args_pos, args_kw = self.get_pos_kw(token)
-
-        # Additional exprs for * and ** args:
-        #  0 if neither
-        #  1 for CALL_FUNCTION_VAR or CALL_FUNCTION_KW
-        #  2 for * and ** args (CALL_FUNCTION_VAR_KW).
-        # Yes, this computation based on instruction name is a little bit hoaky.
-        nak = (len(opname) - len("CALL_FUNCTION")) // 3
-
-        token.kind = self.call_fn_name(token)
-        uniq_param = args_kw + args_pos
-
-        # Note: 3.5+ have subclassed this method; so we don't handle
-        # 'CALL_FUNCTION_VAR' or 'CALL_FUNCTION_EX' here.
-        rule = (
-            "call ::= expr "
-            + ("pos_arg " * args_pos)
-            + ("kwarg " * args_kw)
-            + "expr " * nak
-            + token.kind
-        )
-
-        self.add_unique_rule(rule, token.kind, uniq_param, customize)
-
-        if "LOAD_BUILD_CLASS" in self.seen_ops:
-            if next_token == "CALL_FUNCTION" and next_token.attr == 1 and args_pos > 1:
-                rule = "classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc %s%s_%d" % (
-                    ("expr " * (args_pos - 1)),
-                    opname,
-                    args_pos,
-                )
-                self.add_unique_rule(rule, token.kind, uniq_param, customize)
-
-    def add_make_function_rule(self, rule, opname, attr, customize):
-        """Python 3.3 added a an addtional LOAD_STR before MAKE_FUNCTION and
-        this has an effect on many rules.
-        """
-        new_rule = rule % "LOAD_STR "
-        self.add_unique_rule(new_rule, opname, attr, customize)
+    # FIXME FIXME FIXME: The below is an utter mess. Come up with a better
+    # organization for this. For example, arrange organize by opcode base?
 
     def customize_grammar_rules(self, tokens, customize):
-        """The base grammar we start out for a Python version even with the
-        subclassing is, well, is pretty base.  And we want it that way: lean and
-        mean so that parsing will go faster.
-
-        Here, we add additional grammar rules based on specific instructions
-        that are in the instruction/token stream. In classes that
-        inherit from from here and other versions, grammar rules may
-        also be removed.
-
-        For example if we see a pretty rare DELETE_DEREF instruction we'll
-        add the grammar for that.
-
-        More importantly, here we add grammar rules for instructions
-        that may access a variable number of stack items. CALL_FUNCTION,
-        BUILD_LIST and so on are like this.
-
-        Without custom rules, there can be an super-exponential number of
-        derivations. See the deparsing paper for an elaboration of
-        this.
-
-        """
 
         is_pypy = False
 
@@ -612,10 +99,12 @@ class Python3Parser(PythonParser):
         # but we'll do a finer check after the rough breakout.
         customize_instruction_basenames = frozenset(
             (
+                "BEFORE",
                 "BUILD",
                 "CALL",
                 "CONTINUE",
                 "DELETE",
+                "FORMAT",
                 "GET",
                 "JUMP",
                 "LOAD",
@@ -692,19 +181,85 @@ class Python3Parser(PythonParser):
                 continue
 
             opname_base = opname[: opname.rfind("_")]
+
             # The order of opname listed is roughly sorted below
-            if opname_base == "BUILD_CONST_KEY_MAP":
-                # This is in 3.6+
+
+            if opname == "LOAD_ASSERT" and "PyPy" in customize:
+                rules_str = """
+                stmt ::= JUMP_IF_NOT_DEBUG stmts COME_FROM
+                """
+                self.add_unique_doc_rules(rules_str, customize)
+
+            elif opname == "BEFORE_ASYNC_WITH":
+                rules_str = """
+                   stmt            ::= async_with_stmt
+                   stmt            ::= async_with_as_stmt
+                """
+
+                if self.version < 3.8:
+                    rules_str += """
+                       async_with_stmt    ::= expr
+                                              BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
+                                              SETUP_ASYNC_WITH POP_TOP suite_stmts_opt
+                                              POP_BLOCK LOAD_CONST COME_FROM_ASYNC_WITH
+                                              WITH_CLEANUP_START
+                                              GET_AWAITABLE LOAD_CONST YIELD_FROM
+                                              WITH_CLEANUP_FINISH END_FINALLY
+                       async_with_as_stmt ::= expr
+                                              BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
+                                              SETUP_ASYNC_WITH store suite_stmts_opt
+                                              POP_BLOCK LOAD_CONST COME_FROM_ASYNC_WITH
+                                              WITH_CLEANUP_START
+                                              GET_AWAITABLE LOAD_CONST YIELD_FROM
+                                              WITH_CLEANUP_FINISH END_FINALLY
+                    """
+                else:
+                    rules_str += """
+                       async_with_stmt    ::= expr
+                                              BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
+                                              SETUP_ASYNC_WITH POP_TOP suite_stmts
+                                              POP_TOP POP_BLOCK BEGIN_FINALLY COME_FROM_ASYNC_WITH
+                                              WITH_CLEANUP_START
+                                              GET_AWAITABLE LOAD_CONST YIELD_FROM
+                                              WITH_CLEANUP_FINISH END_FINALLY
+                       async_with_as_stmt ::= expr
+                                              BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM
+                                              SETUP_ASYNC_WITH store suite_stmts
+                                              POP_TOP POP_BLOCK BEGIN_FINALLY COME_FROM_ASYNC_WITH
+                                              WITH_CLEANUP_START
+                                              GET_AWAITABLE LOAD_CONST YIELD_FROM
+                                              WITH_CLEANUP_FINISH END_FINALLY
+                    """
+                self.addRule(rules_str, nop_func)
+
+            elif opname_base == "BUILD_CONST_KEY_MAP":
                 kvlist_n = "expr " * (token.attr)
                 rule = "dict ::= %sLOAD_CONST %s" % (kvlist_n, opname)
                 self.addRule(rule, nop_func)
+
             elif opname.startswith("BUILD_LIST_UNPACK"):
                 v = token.attr
                 rule = "build_list_unpack ::= %s%s" % ("expr " * v, opname)
                 self.addRule(rule, nop_func)
                 rule = "expr ::= build_list_unpack"
                 self.addRule(rule, nop_func)
+
             elif opname_base in ("BUILD_MAP", "BUILD_MAP_UNPACK"):
+
+                if opname == "BUILD_MAP_UNPACK":
+                    self.addRule(
+                        """
+                        expr       ::= unmap_dict
+                        unmap_dict ::= dict_comp BUILD_MAP_UNPACK
+                        """,
+                        nop_func,
+                    )
+                    pass
+                elif opname.startswith("BUILD_MAP_UNPACK_WITH_CALL"):
+                    v = token.attr
+                    rule = "build_map_unpack_with_call ::= %s%s" % ("expr " * v, opname)
+                    self.addRule(rule, nop_func)
+
                 kvlist_n = "kvlist_%s" % token.attr
                 if opname == "BUILD_MAP_n":
                     # PyPy sometimes has no count. Sigh.
@@ -748,12 +303,22 @@ class Python3Parser(PythonParser):
                         self.add_unique_rule(rule, opname, token.attr, customize)
                         rule = "dict ::=  %s" % kvlist_n
                 self.add_unique_rule(rule, opname, token.attr, customize)
+
             elif opname.startswith("BUILD_MAP_UNPACK_WITH_CALL"):
                 v = token.attr
                 rule = "build_map_unpack_with_call ::= %s%s" % ("expr " * v, opname)
                 self.addRule(rule, nop_func)
+
             elif opname.startswith("BUILD_TUPLE_UNPACK_WITH_CALL"):
                 v = token.attr
+                rule = (
+                    "build_tuple_unpack_with_call ::= "
+                    + "expr1024 " * int(v // 1024)
+                    + "expr32 " * int((v // 32) % 32)
+                    + "expr " * (v % 32)
+                    + opname
+                )
+                self.addRule(rule, nop_func)
                 rule = "starred ::= %s %s" % ("expr " * v, opname)
                 self.addRule(rule, nop_func)
 
@@ -842,10 +407,6 @@ class Python3Parser(PythonParser):
                                       GET_ITER CALL_FUNCTION_1
                     classdefdeco1 ::= expr classdefdeco2 CALL_FUNCTION_1
                     """
-                    if self.version < 3.5:
-                        rule += """
-                        classdefdeco1 ::= expr classdefdeco1 CALL_FUNCTION_1
-                        """
                     self.addRule(rule, nop_func)
 
                 self.custom_classfunc_rule(opname, token, customize, tokens[i + 1])
@@ -866,6 +427,7 @@ class Python3Parser(PythonParser):
                     + opname
                 )
                 self.add_unique_rule(rule, opname, token.attr, customize)
+
             elif opname == "CONTINUE":
                 self.addRule("continue ::= CONTINUE", nop_func)
                 custom_ops_processed.add(opname)
@@ -893,6 +455,21 @@ class Python3Parser(PythonParser):
                     nop_func,
                 )
                 custom_ops_processed.add(opname)
+
+            elif opname == "FORMAT_VALUE":
+                rules_str = """
+                    expr              ::= formatted_value1
+                    formatted_value1  ::= expr FORMAT_VALUE
+                """
+                self.add_unique_doc_rules(rules_str, customize)
+
+            elif opname == "FORMAT_VALUE_ATTR":
+                rules_str = """
+                expr              ::= formatted_value2
+                formatted_value2  ::= expr expr FORMAT_VALUE_ATTR
+                """
+                self.add_unique_doc_rules(rules_str, customize)
+
             elif opname == "GET_ITER":
                 self.addRule(
                     """
@@ -990,10 +567,7 @@ class Python3Parser(PythonParser):
                 args_pos, args_kw, annotate_args = token.attr
 
                 # FIXME: Fold test  into add_make_function_rule
-                if self.version < 3.3:
-                    j = 1
-                else:
-                    j = 2
+                j = 2
                 if is_pypy or (i >= j and tokens[i - j] == "LOAD_LAMBDA"):
                     rule_pat = "mklambda ::= %sload_closure LOAD_LAMBDA %%s%s" % (
                         "pos_arg " * args_pos,
@@ -1065,89 +639,77 @@ class Python3Parser(PythonParser):
 
                 pass
             elif opname_base.startswith("MAKE_FUNCTION"):
-                # DRY with MAKE_CLOSURE
-                if self.version >= 3.6:
-                    # The semantics of MAKE_FUNCTION in 3.6 are totally different from
-                    # before.
-                    args_pos, args_kw, annotate_args, closure = token.attr
-                    stack_count = args_pos + args_kw + annotate_args
-                    if closure:
-                        if args_pos:
-                            rule = "mklambda ::= %s%s%s%s" % (
-                                "expr " * stack_count,
-                                "load_closure " * closure,
-                                "BUILD_TUPLE_1 LOAD_LAMBDA LOAD_STR ",
-                                opname,
-                            )
-                        else:
-                            rule = "mklambda ::= %s%s%s" % (
-                                "load_closure " * closure,
-                                "LOAD_LAMBDA LOAD_STR ",
-                                opname,
-                            )
-                        self.add_unique_rule(rule, opname, token.attr, customize)
-
-                    else:
-                        rule = "mklambda ::= %sLOAD_LAMBDA LOAD_STR %s" % (
-                            ("expr " * stack_count),
+                args_pos, args_kw, annotate_args, closure = token.attr
+                stack_count = args_pos + args_kw + annotate_args
+                if closure:
+                    if args_pos:
+                        rule = "mklambda ::= %s%s%s%s" % (
+                            "expr " * stack_count,
+                            "load_closure " * closure,
+                            "BUILD_TUPLE_1 LOAD_LAMBDA LOAD_STR ",
                             opname,
                         )
-                        self.add_unique_rule(rule, opname, token.attr, customize)
+                    else:
+                        rule = "mklambda ::= %s%s%s" % (
+                            "load_closure " * closure,
+                            "LOAD_LAMBDA LOAD_STR ",
+                            opname,
+                        )
+                    self.add_unique_rule(rule, opname, token.attr, customize)
 
-                    rule = "mkfunc ::= %s%s%s%s" % (
-                        "expr " * stack_count,
-                        "load_closure " * closure,
-                        "LOAD_CODE LOAD_STR ",
+                else:
+                    rule = "mklambda ::= %sLOAD_LAMBDA LOAD_STR %s" % (
+                        ("expr " * stack_count),
                         opname,
                     )
                     self.add_unique_rule(rule, opname, token.attr, customize)
 
-                    if has_get_iter_call_function1:
-                        rule_pat = (
-                            "generator_exp ::= %sload_genexpr %%s%s expr "
-                            "GET_ITER CALL_FUNCTION_1" % ("pos_arg " * args_pos, opname)
-                        )
-                        self.add_make_function_rule(
-                            rule_pat, opname, token.attr, customize
-                        )
-                        rule_pat = (
-                            "generator_exp ::= %sload_closure load_genexpr %%s%s expr "
-                            "GET_ITER CALL_FUNCTION_1" % ("pos_arg " * args_pos, opname)
-                        )
-                        self.add_make_function_rule(
-                            rule_pat, opname, token.attr, customize
-                        )
-                        if is_pypy or (i >= 2 and tokens[i - 2] == "LOAD_LISTCOMP"):
-                            if self.version >= 3.6:
-                                # 3.6+ sometimes bundles all of the
-                                # 'exprs' in the rule above into a
-                                # tuple.
-                                rule_pat = (
-                                    "listcomp ::= load_closure LOAD_LISTCOMP %%s%s "
-                                    "expr GET_ITER CALL_FUNCTION_1" % (opname,)
-                                )
-                                self.add_make_function_rule(
-                                    rule_pat, opname, token.attr, customize
-                                )
-                            rule_pat = (
-                                "listcomp ::= %sLOAD_LISTCOMP %%s%s expr "
-                                "GET_ITER CALL_FUNCTION_1"
-                                % ("expr " * args_pos, opname)
-                            )
-                            self.add_make_function_rule(
-                                rule_pat, opname, token.attr, customize
-                            )
+                rule = "mkfunc ::= %s%s%s%s" % (
+                    "expr " * stack_count,
+                    "load_closure " * closure,
+                    "LOAD_CODE LOAD_STR ",
+                    opname,
+                )
+                self.add_unique_rule(rule, opname, token.attr, customize)
 
-                    if is_pypy or (i >= 2 and tokens[i - 2] == "LOAD_LAMBDA"):
-                        rule_pat = "mklambda ::= %s%sLOAD_LAMBDA %%s%s" % (
-                            ("pos_arg " * args_pos),
-                            ("kwarg " * args_kw),
-                            opname,
+                if has_get_iter_call_function1:
+                    rule_pat = (
+                        "generator_exp ::= %sload_genexpr %%s%s expr "
+                        "GET_ITER CALL_FUNCTION_1" % ("pos_arg " * args_pos, opname)
+                    )
+                    self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+                    rule_pat = (
+                        "generator_exp ::= %sload_closure load_genexpr %%s%s expr "
+                        "GET_ITER CALL_FUNCTION_1" % ("pos_arg " * args_pos, opname)
+                    )
+                    self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+                    if is_pypy or (i >= 2 and tokens[i - 2] == "LOAD_LISTCOMP"):
+                        # 3.6+ sometimes bundles all of the
+                        # 'exprs' in the rule above into a
+                        # tuple.
+                        rule_pat = (
+                            "listcomp ::= load_closure LOAD_LISTCOMP %%s%s "
+                            "expr GET_ITER CALL_FUNCTION_1" % (opname,)
                         )
                         self.add_make_function_rule(
                             rule_pat, opname, token.attr, customize
                         )
-                    continue
+                        rule_pat = (
+                            "listcomp ::= %sLOAD_LISTCOMP %%s%s expr "
+                            "GET_ITER CALL_FUNCTION_1" % ("expr " * args_pos, opname)
+                        )
+                        self.add_make_function_rule(
+                            rule_pat, opname, token.attr, customize
+                        )
+
+                if is_pypy or (i >= 2 and tokens[i - 2] == "LOAD_LAMBDA"):
+                    rule_pat = "mklambda ::= %s%sLOAD_LAMBDA %%s%s" % (
+                        ("pos_arg " * args_pos),
+                        ("kwarg " * args_kw),
+                        opname,
+                    )
+                    self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+                continue
 
                 args_pos, args_kw, annotate_args, closure = token.attr
 
@@ -1198,6 +760,23 @@ class Python3Parser(PythonParser):
                 )
                 self.add_unique_rule(rule, opname, token.attr, customize)
 
+            elif opname == "MAKE_FUNCTION_8":
+                if "LOAD_DICTCOMP" in self.seen_ops:
+                    # Is there something general going on here?
+                    rule = """
+                       dict_comp ::= load_closure LOAD_DICTCOMP LOAD_STR
+                                     MAKE_FUNCTION_8 expr
+                                     GET_ITER CALL_FUNCTION_1
+                       """
+                    self.addRule(rule, nop_func)
+                elif "LOAD_SETCOMP" in self.seen_ops:
+                    rule = """
+                       set_comp ::= load_closure LOAD_SETCOMP LOAD_STR
+                                    MAKE_FUNCTION_8 expr
+                                    GET_ITER CALL_FUNCTION_1
+                       """
+                    self.addRule(rule, nop_func)
+
             elif opname == "RETURN_VALUE_LAMBDA":
                 self.addRule(
                     """
@@ -1233,6 +812,7 @@ class Python3Parser(PythonParser):
                     nop_func,
                 )
                 custom_ops_processed.add(opname)
+
             elif opname == "SETUP_EXCEPT":
                 self.addRule(
                     """
@@ -1256,20 +836,76 @@ class Python3Parser(PythonParser):
                     nop_func,
                 )
                 custom_ops_processed.add(opname)
+
+            elif opname == "SETUP_WITH":
+                rules_str = """
+                  stmt       ::= withstmt
+                  stmt       ::= withasstmt
+
+                  withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt COME_FROM_WITH
+                                 WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+                  withasstmt ::= expr SETUP_WITH store suite_stmts_opt COME_FROM_WITH
+                                 WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+
+                  withstmt   ::= expr
+                                 SETUP_WITH POP_TOP suite_stmts_opt
+                                 POP_BLOCK LOAD_CONST COME_FROM_WITH
+                                 WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+                  withasstmt ::= expr
+                                 SETUP_WITH store suite_stmts_opt
+                                 POP_BLOCK LOAD_CONST COME_FROM_WITH
+                                 WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+
+                  withstmt   ::= expr
+                                 SETUP_WITH POP_TOP suite_stmts_opt
+                                 POP_BLOCK LOAD_CONST COME_FROM_WITH
+                                 WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+                  withasstmt ::= expr
+                                 SETUP_WITH store suite_stmts_opt
+                                 POP_BLOCK LOAD_CONST COME_FROM_WITH
+                                 WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+                """
+                if self.version < 3.8:
+                    rules_str += """
+                    withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
+                                   LOAD_CONST
+                                   WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+                    """
+                else:
+                    rules_str += """
+                      withstmt   ::= expr
+                                     SETUP_WITH POP_TOP suite_stmts_opt
+                                     POP_BLOCK LOAD_CONST COME_FROM_WITH
+                                     WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+
+                      withasstmt ::= expr
+                                     SETUP_WITH store suite_stmts_opt
+                                     POP_BLOCK LOAD_CONST COME_FROM_WITH
+
+                       withstmt  ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
+                                     BEGIN_FINALLY COME_FROM_WITH
+                                     WITH_CLEANUP_START WITH_CLEANUP_FINISH
+                                     END_FINALLY
+                    """
+                self.addRule(rules_str, nop_func)
+
             elif opname_base in ("UNPACK_EX",):
                 before_count, after_count = token.attr
                 rule = (
                     "unpack ::= " + opname + " store" * (before_count + after_count + 1)
                 )
                 self.addRule(rule, nop_func)
+
             elif opname_base in ("UNPACK_TUPLE", "UNPACK_SEQUENCE"):
                 rule = "unpack ::= " + opname + " store" * token.attr
                 self.addRule(rule, nop_func)
+
             elif opname_base == "UNPACK_LIST":
                 rule = "unpack_list ::= " + opname + " store" * token.attr
                 self.addRule(rule, nop_func)
                 custom_ops_processed.add(opname)
                 pass
+
             pass
 
         self.check_reduce["and"] = "AST"
@@ -1282,13 +918,90 @@ class Python3Parser(PythonParser):
         self.check_reduce["iflaststmt"] = "AST"
         self.check_reduce["ifstmt"] = "AST"
         self.check_reduce["annotate_tuple"] = "noAST"
-        if self.version < 3.6:
-            # 3.6+ can remove a JUMP_FORWARD which messes up our testing here
-            self.check_reduce["try_except"] = "AST"
 
         # FIXME: remove parser errors caused by the below
         # self.check_reduce['while1elsestmt'] = 'noAST'
+
         return
+
+    def custom_classfunc_rule(self, opname, token, customize, next_token):
+        """
+        call ::= expr {expr}^n CALL_FUNCTION_n
+        call ::= expr {expr}^n CALL_FUNCTION_VAR_n
+        call ::= expr {expr}^n CALL_FUNCTION_VAR_KW_n
+        call ::= expr {expr}^n CALL_FUNCTION_KW_n
+
+        classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc {expr}^n-1 CALL_FUNCTION_n
+        """
+        args_pos, args_kw = self.get_pos_kw(token)
+
+        # Additional exprs for * and ** args:
+        #  0 if neither
+        #  1 for CALL_FUNCTION_VAR or CALL_FUNCTION_KW
+        #  2 for * and ** args (CALL_FUNCTION_VAR_KW).
+        # Yes, this computation based on instruction name is a little bit hoaky.
+        nak = (len(opname) - len("CALL_FUNCTION")) // 3
+        uniq_param = args_kw + args_pos
+
+        if frozenset(("GET_AWAITABLE", "YIELD_FROM")).issubset(self.seen_ops):
+            rule = (
+                "async_call ::= expr "
+                + ("pos_arg " * args_pos)
+                + ("kwarg " * args_kw)
+                + "expr " * nak
+                + token.kind
+                + " GET_AWAITABLE LOAD_CONST YIELD_FROM"
+            )
+            self.add_unique_rule(rule, token.kind, uniq_param, customize)
+            self.add_unique_rule(
+                "expr ::= async_call", token.kind, uniq_param, customize
+            )
+
+        if opname.startswith("CALL_FUNCTION_VAR"):
+            token.kind = self.call_fn_name(token)
+            if opname.endswith("KW"):
+                kw = "expr "
+            else:
+                kw = ""
+            rule = (
+                "call ::= expr expr "
+                + ("pos_arg " * args_pos)
+                + ("kwarg " * args_kw)
+                + kw
+                + token.kind
+            )
+
+            # Note: semantic actions make use of the fact of wheter  "args_pos"
+            # zero or not in creating a template rule.
+            self.add_unique_rule(rule, token.kind, args_pos, customize)
+        else:
+            token.kind = self.call_fn_name(token)
+            uniq_param = args_kw + args_pos
+
+            # Note: 3.5+ have subclassed this method; so we don't handle
+            # 'CALL_FUNCTION_VAR' or 'CALL_FUNCTION_EX' here.
+            rule = (
+                "call ::= expr "
+                + ("pos_arg " * args_pos)
+                + ("kwarg " * args_kw)
+                + "expr " * nak
+                + token.kind
+            )
+
+            self.add_unique_rule(rule, token.kind, uniq_param, customize)
+
+            if "LOAD_BUILD_CLASS" in self.seen_ops:
+                if (
+                    next_token == "CALL_FUNCTION"
+                    and next_token.attr == 1
+                    and args_pos > 1
+                ):
+                    rule = "classdefdeco2 ::= LOAD_BUILD_CLASS mkfunc %s%s_%d" % (
+                        ("expr " * (args_pos - 1)),
+                        opname,
+                        args_pos,
+                    )
+                    self.add_unique_rule(rule, token.kind, uniq_param, customize)
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         lhs = rule[0]
@@ -1346,23 +1059,6 @@ class Python3Parser(PythonParser):
             # 3.8+ Doesn't have SETUP_LOOP
             return self.version < 3.8 and tokens[first].attr > tokens[last].off2int()
 
-        elif rule == (
-            "try_except",
-            (
-                "SETUP_EXCEPT",
-                "suite_stmts_opt",
-                "POP_BLOCK",
-                "except_handler",
-                "opt_come_from_except",
-            ),
-        ):
-            come_from_except = ast[-1]
-            if come_from_except[0] == "COME_FROM":
-                # There should be at last two COME_FROMs, one from an
-                # exception handler and one from the try. Otherwise
-                # we have a try/else.
-                return True
-            pass
         elif lhs == "while1stmt":
 
             # If there is a fall through to the COME_FROM_LOOP, then this is
@@ -1412,9 +1108,12 @@ class Python3Parser(PythonParser):
             # POP_TOP, and pseudo COME_FROM, ELSE instructions
             #
             pop_jump_index = first - 1
-            while pop_jump_index > 0 and tokens[pop_jump_index] in ("ELSE", "POP_TOP",
-                                                                    "JUMP_FORWARD",
-                                                                    "COME_FROM"):
+            while pop_jump_index > 0 and tokens[pop_jump_index] in (
+                "ELSE",
+                "POP_TOP",
+                "JUMP_FORWARD",
+                "COME_FROM",
+            ):
                 pop_jump_index -= 1
             come_froms = ast[-1]
 
@@ -1428,7 +1127,10 @@ class Python3Parser(PythonParser):
                 return False
 
             if isinstance(come_froms, Token):
-                return come_froms.attr is not None and tokens[pop_jump_index].offset > come_froms.attr
+                return (
+                    come_froms.attr is not None
+                    and tokens[pop_jump_index].offset > come_froms.attr
+                )
 
             elif len(come_froms) == 0:
                 return False
@@ -1456,7 +1158,7 @@ class Python3Parser(PythonParser):
                         #      if c2:  # Jumps around the *outer* "else"
                         #       ...
                         #   else:
-                        if jmp_target == tokens[last-1].attr:
+                        if jmp_target == tokens[last - 1].attr:
                             return False
                         if last < len(tokens) and tokens[last].kind.startswith("JUMP"):
                             return False
@@ -1483,8 +1185,8 @@ class Python3Parser(PythonParser):
                     # If the instruction before "first" is a "POP_JUMP_IF_FALSE" which goes
                     # to the same target as jmp_target, then this not nested "if .. if .."
                     # but rather "if ... and ..."
-                    if first > 0 and tokens[first-1] == "POP_JUMP_IF_FALSE":
-                        return tokens[first-1].attr == jmp_target
+                    if first > 0 and tokens[first - 1] == "POP_JUMP_IF_FALSE":
+                        return tokens[first - 1].attr == jmp_target
 
                     if jmp_target > tokens[last].off2int():
                         # One more weird case to look out for
@@ -1492,7 +1194,7 @@ class Python3Parser(PythonParser):
                         #      if c2:  # Jumps around the *outer* "else"
                         #       ...
                         #   else:
-                        if jmp_target == tokens[last-1].attr:
+                        if jmp_target == tokens[last - 1].attr:
                             return False
                         if last < len(tokens) and tokens[last].kind.startswith("JUMP"):
                             return False
@@ -1501,22 +1203,26 @@ class Python3Parser(PythonParser):
                 pass
             return False
         elif rule in (
-                ("ifelsestmt",
-                 (
-                     "testexpr",
-                     "c_stmts_opt",
-                     "jump_forward_else",
-                     "else_suite",
-                     "_come_froms",
-                 )),
-                ("ifelsestmt",
-                 (
-                     "testexpr",
-                     "c_stmts_opt",
-                     "jf_cfs",
-                     "else_suite",
-                     "opt_come_from_except",
-                 )),
+            (
+                "ifelsestmt",
+                (
+                    "testexpr",
+                    "c_stmts_opt",
+                    "jump_forward_else",
+                    "else_suite",
+                    "_come_froms",
+                ),
+            ),
+            (
+                "ifelsestmt",
+                (
+                    "testexpr",
+                    "c_stmts_opt",
+                    "jf_cfs",
+                    "else_suite",
+                    "opt_come_from_except",
+                ),
+            ),
         ):
             # FIXME: put in a routine somewhere
 
@@ -1536,7 +1242,11 @@ class Python3Parser(PythonParser):
             # For mysterious reasons a COME_FROM in tokens[last+1] might be part of the grammar rule
             # even though it is not found in come_froms.
             # Work around this.
-            if last < len(tokens) and tokens[last] == "COME_FROM" and tokens[first].offset > tokens[last].attr:
+            if (
+                last < len(tokens)
+                and tokens[last] == "COME_FROM"
+                and tokens[first].offset > tokens[last].attr
+            ):
                 return True
 
             testexpr = ast[0]
@@ -1560,42 +1270,3 @@ class Python3Parser(PythonParser):
             return False
 
         return False
-
-
-class Python30Parser(Python3Parser):
-    def p_30(self, args):
-        """
-        jmp_true ::= JUMP_IF_TRUE_OR_POP POP_TOP
-        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD POP_TOP _come_froms
-        """
-
-
-class Python3ParserSingle(Python3Parser, PythonParserSingle):
-    pass
-
-
-def info(args):
-    # Check grammar
-    p = Python3Parser()
-    if len(args) > 0:
-        arg = args[0]
-        if arg == "3.7":
-            from decompyle3.parser.parse37 import Python37Parser
-
-            p = Python37Parser()
-        elif arg == "3.8":
-            from decompyle3.parser.parse38 import Python38Parser
-
-            p = Python38Parser()
-        else:
-            raise RuntimeError("Only 3.7 and 3.8 supported")
-    p.check_grammar()
-    if len(sys.argv) > 1 and sys.argv[1] == "dump":
-        print("-" * 50)
-        p.dump_grammar()
-
-
-if __name__ == "__main__":
-    import sys
-
-    info(sys.argv)
