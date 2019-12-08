@@ -15,11 +15,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-Python 3 Generic bytecode scanner/deparser
-
-This overlaps various Python3's dis module, but it can be run from
-Python versions other than the version running this code. Notably,
-run from Python version 2.
+Python 37 bytecode scanner/deparser base.
 
 Also we *modify* the instruction sequence to assist deparsing code.
 For example:
@@ -49,9 +45,9 @@ import sys
 globals().update(op3.opmap)
 
 
-class Scanner3(Scanner):
+class Scanner37Base(Scanner):
     def __init__(self, version: str, show_asm=None, is_pypy=False):
-        super(Scanner3, self).__init__(version, show_asm, is_pypy)
+        super(Scanner37Base, self).__init__(version, show_asm, is_pypy)
 
         # Create opcode classification sets
         # Note: super initilization above initializes self.opc
@@ -127,37 +123,25 @@ class Scanner3(Scanner):
             ]
         )
 
-        if self.version > 3.0:
-            self.jump_if_pop = frozenset(
-                [self.opc.JUMP_IF_FALSE_OR_POP, self.opc.JUMP_IF_TRUE_OR_POP]
-            )
+        self.jump_if_pop = frozenset(
+            [self.opc.JUMP_IF_FALSE_OR_POP, self.opc.JUMP_IF_TRUE_OR_POP]
+        )
 
-            self.pop_jump_if_pop = frozenset(
-                [
-                    self.opc.JUMP_IF_FALSE_OR_POP,
-                    self.opc.JUMP_IF_TRUE_OR_POP,
-                    self.opc.POP_JUMP_IF_TRUE,
-                    self.opc.POP_JUMP_IF_FALSE,
-                ]
-            )
-            # Not really a set, but still clasification-like
-            self.statement_opcode_sequences = [
-                (self.opc.POP_JUMP_IF_FALSE, self.opc.JUMP_FORWARD),
-                (self.opc.POP_JUMP_IF_FALSE, self.opc.JUMP_ABSOLUTE),
-                (self.opc.POP_JUMP_IF_TRUE, self.opc.JUMP_FORWARD),
-                (self.opc.POP_JUMP_IF_TRUE, self.opc.JUMP_ABSOLUTE),
+        self.pop_jump_if_pop = frozenset(
+            [
+                self.opc.JUMP_IF_FALSE_OR_POP,
+                self.opc.JUMP_IF_TRUE_OR_POP,
+                self.opc.POP_JUMP_IF_TRUE,
+                self.opc.POP_JUMP_IF_FALSE,
             ]
-
-        else:
-            self.jump_if_pop = frozenset([])
-            self.pop_jump_if_pop = frozenset([])
-            # Not really a set, but still clasification-like
-            self.statement_opcode_sequences = [
-                (self.opc.JUMP_FORWARD,),
-                (self.opc.JUMP_ABSOLUTE,),
-                (self.opc.JUMP_FORWARD,),
-                (self.opc.JUMP_ABSOLUTE,),
-            ]
+        )
+        # Not really a set, but still clasification-like
+        self.statement_opcode_sequences = [
+            (self.opc.POP_JUMP_IF_FALSE, self.opc.JUMP_FORWARD),
+            (self.opc.POP_JUMP_IF_FALSE, self.opc.JUMP_ABSOLUTE),
+            (self.opc.POP_JUMP_IF_TRUE, self.opc.JUMP_FORWARD),
+            (self.opc.POP_JUMP_IF_TRUE, self.opc.JUMP_ABSOLUTE),
+        ]
 
         # FIXME: remove this and use instead info from xdis.
         # Opcodes that take a variable number of arguments
@@ -254,11 +238,7 @@ class Scanner3(Scanner):
             # If we have a JUMP_FORWARD after the
             # RAISE_VARARGS then we have a "raise" statement
             # else we have an "assert" statement.
-            if self.version == 3.0:
-                # There is a an implied JUMP_IF_TRUE that we are not testing for (yet?) here
-                assert_can_follow = inst.opname == "POP_TOP" and i + 1 < n
-            else:
-                assert_can_follow = inst.opname == "POP_JUMP_IF_TRUE" and i + 1 < n
+            assert_can_follow = inst.opname == "POP_JUMP_IF_TRUE" and i + 1 < n
             if assert_can_follow:
                 next_inst = self.insts[i + 1]
                 if (
@@ -379,16 +359,14 @@ class Scanner3(Scanner):
                     pattr = const
                     pass
             elif opname in ("MAKE_FUNCTION", "MAKE_CLOSURE"):
-                if self.version >= 3.6:
-                    # 3.6+ doesn't have MAKE_CLOSURE, so opname == 'MAKE_FUNCTION'
-                    flags = argval
-                    opname = "MAKE_FUNCTION_%d" % (flags)
-                    attr = []
-                    for flag in self.MAKE_FUNCTION_FLAGS:
-                        bit = flags & 1
-                        attr.append(bit)
-                        flags >>= 1
-                    attr = attr[:4]  # remove last value: attr[5] == False
+                flags = argval
+                opname = "MAKE_FUNCTION_%d" % (flags)
+                attr = []
+                for flag in self.MAKE_FUNCTION_FLAGS:
+                    bit = flags & 1
+                    attr.append(bit)
+                    flags >>= 1
+                attr = attr[:4]  # remove last value: attr[5] == False
                 j = tokens_append(
                     j,
                     Token(
@@ -545,7 +523,7 @@ class Scanner3(Scanner):
             if inst.has_arg:
                 label = self.fixed_jumps.get(offset)
                 oparg = inst.arg
-                if self.version >= 3.6 and self.code[offset] == self.opc.EXTENDED_ARG:
+                if self.code[offset] == self.opc.EXTENDED_ARG:
                     j = xdis.next_offset(op, self.opc, offset)
                     next_offset = xdis.next_offset(op, self.opc, j)
                 else:
@@ -823,7 +801,7 @@ class Scanner3(Scanner):
                 # In some cases the pretarget can be a jump to the next instruction
                 # and these aren't and/or's either. We limit to 3.5+ since we experienced there
                 # but it might be earlier versions, or might be a general principle.
-                if self.version < 3.5 or pretarget.argval != target:
+                if pretarget.argval != target:
                     # FIXME: this is not accurate The commented out below
                     # is what it should be. However grammar rules right now
                     # assume the incorrect offsets.
@@ -1121,7 +1099,7 @@ if __name__ == "__main__":
         co = inspect.currentframe().f_code
         from decompyle3 import PYTHON_VERSION
 
-        tokens, customize = Scanner3(PYTHON_VERSION).ingest(co)
+        tokens, customize = Scanner37Base(PYTHON_VERSION).ingest(co)
         for t in tokens:
             print(t)
     else:

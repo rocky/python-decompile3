@@ -23,7 +23,7 @@ scanner routine for Python 3.
 """
 
 from decompyle3.scanners.scanner37 import Scanner37
-from decompyle3.scanners.scanner3 import Scanner3
+from decompyle3.scanners.scanner37base import Scanner37Base
 
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_38 as opc
@@ -34,7 +34,7 @@ JUMP_OPs = opc.JUMP_OPS
 
 class Scanner38(Scanner37):
     def __init__(self, show_asm=None):
-        Scanner3.__init__(self, 3.8, show_asm)
+        Scanner37Base.__init__(self, 3.8, show_asm)
         return
 
     pass

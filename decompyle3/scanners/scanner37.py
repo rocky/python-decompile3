@@ -22,7 +22,7 @@ This sets up opcodes Python's 3.7 and calls a generalized
 scanner routine for Python 3.
 """
 
-from decompyle3.scanners.scanner3 import Scanner3
+from decompyle3.scanners.scanner37base import Scanner37Base
 
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_37 as opc
@@ -31,20 +31,19 @@ from xdis.opcodes import opcode_37 as opc
 JUMP_OPs = opc.JUMP_OPS
 
 
-class Scanner37(Scanner3):
+class Scanner37(Scanner37Base):
     def __init__(self, show_asm=None):
-        Scanner3.__init__(self, 3.7, show_asm)
+        Scanner37Base.__init__(self, 3.7, show_asm)
         return
 
     pass
 
     def ingest(self, co, classname=None, code_objects={}, show_asm=None) -> tuple:
-        tokens, customize = Scanner3.ingest(self, co, classname, code_objects, show_asm)
-        not_pypy36 = not (self.version == 3.6 and self.is_pypy)
+        tokens, customize = Scanner37Base.ingest(self, co, classname, code_objects, show_asm)
         for t in tokens:
             # The lowest bit of flags indicates whether the
             # var-keyword argument is placed at the top of the stack
-            if not_pypy36 and t.op == self.opc.CALL_FUNCTION_EX and t.attr & 1:
+            if t.op == self.opc.CALL_FUNCTION_EX and t.attr & 1:
                 t.kind = "CALL_FUNCTION_EX_KW"
                 pass
             elif t.op == self.opc.BUILD_STRING:
@@ -55,9 +54,9 @@ class Scanner37(Scanner3):
                 if t.attr & 0x4:
                     t.kind = "FORMAT_VALUE_ATTR"
                     pass
-            elif not_pypy36 and t.op == self.opc.BUILD_MAP_UNPACK_WITH_CALL:
+            elif t.op == self.opc.BUILD_MAP_UNPACK_WITH_CALL:
                 t.kind = "BUILD_MAP_UNPACK_WITH_CALL_%d" % t.attr
-            elif not_pypy36 and t.op == self.opc.BUILD_TUPLE_UNPACK_WITH_CALL:
+            elif t.op == self.opc.BUILD_TUPLE_UNPACK_WITH_CALL:
                 t.kind = "BUILD_TUPLE_UNPACK_WITH_CALL_%d" % t.attr
             pass
         return tokens, customize
