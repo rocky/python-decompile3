@@ -392,14 +392,17 @@ class Python37BaseParser(PythonParser):
                         customize,
                     )
 
-            elif opname.startswith('BUILD_STRING'):
+            elif opname.startswith("BUILD_STRING"):
                 v = token.attr
                 rules_str = """
                     expr                 ::= joined_str
                     joined_str           ::= %sBUILD_STRING_%d
-                """ % ("expr " * v, v)
+                """ % (
+                    "expr " * v,
+                    v,
+                )
                 self.add_unique_doc_rules(rules_str, customize)
-                if 'FORMAT_VALUE_ATTR' in self.seen_ops:
+                if "FORMAT_VALUE_ATTR" in self.seen_ops:
                     rules_str = """
                       formatted_value_attr ::= expr expr FORMAT_VALUE_ATTR expr BUILD_STRING
                       expr                 ::= formatted_value_attr
@@ -1021,13 +1024,14 @@ class Python37BaseParser(PythonParser):
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         lhs = rule[0]
+        n = len(tokens)
 
         if lhs == "and" and ast:
             # FIXME: put in a routine somewhere
             # Compare with parse30.py of uncompyle6
             jmp = ast[1]
             if jmp.kind.startswith("jmp_"):
-                if last == len(tokens):
+                if last == n:
                     return True
                 jmp_target = jmp[0].attr
                 jmp_offset = jmp[0].offset
@@ -1054,7 +1058,6 @@ class Python37BaseParser(PythonParser):
             return not isinstance(tokens[first].attr, tuple)
         elif lhs == "while1elsestmt":
 
-            n = len(tokens)
             if last == n:
                 # Adjust for fuzziness in parsing
                 last -= 1
@@ -1082,7 +1085,7 @@ class Python37BaseParser(PythonParser):
             # JUMP_BACK or the instruction before should not be the target of a
             # jump. (Well that last clause i not quite right; that target could be
             # from dead code. Ugh. We need a more uniform control flow analysis.)
-            if last == len(tokens) or tokens[last - 1] == "COME_FROM_LOOP":
+            if last == n or tokens[last - 1] == "COME_FROM_LOOP":
                 cfl = last - 1
             else:
                 cfl = last
@@ -1097,13 +1100,10 @@ class Python37BaseParser(PythonParser):
 
             # Check that the SETUP_LOOP jumps to the offset after the
             # COME_FROM_LOOP
-            if 0 <= last < len(tokens) and tokens[last] in (
-                "COME_FROM_LOOP",
-                "JUMP_BACK",
-            ):
+            if 0 <= last < n and tokens[last] in ("COME_FROM_LOOP", "JUMP_BACK"):
                 # jump_back should be right before COME_FROM_LOOP?
                 last += 1
-            if last == len(tokens):
+            if last == n:
                 last -= 1
             offset = tokens[last].off2int()
             assert tokens[first] == "SETUP_LOOP"
@@ -1157,11 +1157,14 @@ class Python37BaseParser(PythonParser):
             # FIXME: put in a routine somewhere
             testexpr = ast[0]
 
-            # Compare with parse30.py of uncompyle6
+            if (last + 1) < n and tokens[last + 1] == "COME_FROM_LOOP":
+                # iflastsmtl jumped outside of loop. No good.
+                return True
+
             if testexpr[0] in ("testtrue", "testfalse"):
                 test = testexpr[0]
                 if len(test) > 1 and test[1].kind.startswith("jmp_"):
-                    if last == len(tokens):
+                    if last == n:
                         last -= 1
                     jmp_target = test[1][0].attr
                     if tokens[first].off2int() <= jmp_target < tokens[last].off2int():
@@ -1176,7 +1179,7 @@ class Python37BaseParser(PythonParser):
                         #   else:
                         if jmp_target == tokens[last - 1].attr:
                             return False
-                        if last < len(tokens) and tokens[last].kind.startswith("JUMP"):
+                        if last < n and tokens[last].kind.startswith("JUMP"):
                             return False
                         return True
 
@@ -1187,15 +1190,21 @@ class Python37BaseParser(PythonParser):
             testexpr = ast[0]
 
             if testexpr[0] in ("testtrue", "testfalse"):
+
                 test = testexpr[0]
                 if len(test) > 1 and test[1].kind.startswith("jmp_"):
-                    if last == len(tokens):
+                    if last == n:
                         last -= 1
                     jmp_target = test[1][0].attr
                     if tokens[first].off2int() <= jmp_target < tokens[last].off2int():
                         return True
                     # jmp_target less than tokens[first] is okay - is to a loop
                     # jmp_target equal tokens[last] is also okay: normal non-optimized non-loop jump
+
+                    if (last + 1) < n and tokens[last - 1] != "JUMP_BACK" and tokens[last + 1] == "COME_FROM_LOOP":
+                        # iflastsmtl is not at the end of a loop, but jumped outside of loop. No good.
+                        # FIXME: check that tokens[last] == "POP_BLOCK"? Or allow for it not to appear?
+                        return True
 
                     # If the instruction before "first" is a "POP_JUMP_IF_FALSE" which goes
                     # to the same target as jmp_target, then this not nested "if .. if .."
@@ -1211,35 +1220,43 @@ class Python37BaseParser(PythonParser):
                         #   else:
                         if jmp_target == tokens[last - 1].attr:
                             return False
-                        if last < len(tokens) and tokens[last].kind.startswith("JUMP"):
+                        if last < n and tokens[last].kind.startswith("JUMP"):
                             return False
                         return True
 
                 pass
             return False
-        elif rule in (
-            (
-                "ifelsestmt",
+
+        # FIXME: put in a routine somewhere
+        elif lhs == "ifelsestmt":
+
+            if (last + 1) < n and tokens[last + 1] == "COME_FROM_LOOP":
+                # ifelsestmt jumped outside of loop. No good.
+                return True
+
+            if rule not in (
                 (
-                    "testexpr",
-                    "c_stmts_opt",
-                    "jump_forward_else",
-                    "else_suite",
-                    "_come_froms",
+                    "ifelsestmt",
+                    (
+                        "testexpr",
+                        "c_stmts_opt",
+                        "jump_forward_else",
+                        "else_suite",
+                        "_come_froms",
+                    ),
                 ),
-            ),
-            (
-                "ifelsestmt",
                 (
-                    "testexpr",
-                    "c_stmts_opt",
-                    "jf_cfs",
-                    "else_suite",
-                    "opt_come_from_except",
+                    "ifelsestmt",
+                    (
+                        "testexpr",
+                        "c_stmts_opt",
+                        "jf_cfs",
+                        "else_suite",
+                        "opt_come_from_except",
+                    ),
                 ),
-            ),
-        ):
-            # FIXME: put in a routine somewhere
+            ):
+                return False
 
             # Make sure all of the "come froms" offset at the
             # end of the "if" come from somewhere inside the "if".
@@ -1258,7 +1275,7 @@ class Python37BaseParser(PythonParser):
             # even though it is not found in come_froms.
             # Work around this.
             if (
-                last < len(tokens)
+                last < n
                 and tokens[last] == "COME_FROM"
                 and tokens[first].offset > tokens[last].attr
             ):
@@ -1272,7 +1289,7 @@ class Python37BaseParser(PythonParser):
             if testexpr[0] in ("testtrue", "testfalse"):
                 test = testexpr[0]
                 if len(test) > 1 and test[1].kind.startswith("jmp_"):
-                    if last == len(tokens):
+                    if last == n:
                         last -= 1
                     jmp = test[1]
                     jmp_target = jmp[0].attr
