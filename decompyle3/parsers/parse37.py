@@ -13,7 +13,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-Python 3.7 parsing.
+Python 3.7 grammar for the spark Earley-algorithm parser.
 """
 
 from decompyle3.parser import PythonParserSingle, nop_func
@@ -176,7 +176,6 @@ class Python37Parser(Python37BaseParser):
 
         subscript ::= expr expr BINARY_SUBSCR
 
-        attribute ::= expr LOAD_ATTR
         get_iter  ::= expr GET_ITER
 
         yield ::= expr YIELD_VALUE
@@ -344,11 +343,9 @@ class Python37Parser(Python37BaseParser):
     def p_set_comp(self, args):
         """
         comp_iter ::= comp_for
-        comp_iter ::= comp_body
         comp_body ::= gen_comp_body
         gen_comp_body ::= expr YIELD_VALUE POP_TOP
 
-        comp_iter ::= comp_if
         comp_if  ::= expr jmp_false comp_iter
         """
 
@@ -377,7 +374,6 @@ class Python37Parser(Python37BaseParser):
 
     def p_32on(self, args):
         """
-        expr        ::= conditional
         conditional ::= expr jmp_false expr jump_forward_else expr COME_FROM
 
         # compare_chained2 is used in a "chained_compare": x <= y <= z
@@ -390,10 +386,6 @@ class Python37Parser(Python37BaseParser):
 
         # Python 3.5+ has jump optimization to remove the redundant
         # jump_excepts. But in 3.3 we need them added
-
-        try_except     ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                           except_handler
-                           jump_excepts come_from_except_clauses
 
         except_handler ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts
                            END_FINALLY
@@ -434,11 +426,6 @@ class Python37Parser(Python37BaseParser):
 
     def p_34on(self, args):
         """
-        expr ::= LOAD_ASSERT
-
-        # passtmt is needed for semantic actions to add "pass"
-        suite_stmts_opt ::= pass
-
         whilestmt     ::= setup_loop testexpr returns come_froms POP_BLOCK COME_FROM_LOOP
 
         # Seems to be needed starting 3.4.4 or so
@@ -463,13 +450,6 @@ class Python37Parser(Python37BaseParser):
     def p_35on(self, args):
         """
 
-        # The number of canned instructions in new statements is mind boggling.
-        # I'm sure by the time Python 4 comes around these will be turned
-        # into special opcodes
-
-        while1stmt     ::= setup_loop l_stmts COME_FROM JUMP_BACK
-                           POP_BLOCK COME_FROM_LOOP
-        while1stmt     ::= setup_loop l_stmts POP_BLOCK COME_FROM_LOOP
         while1elsestmt ::= setup_loop l_stmts JUMP_BACK
                            POP_BLOCK else_suite COME_FROM_LOOP
 
@@ -691,8 +671,6 @@ class Python37Parser(Python37BaseParser):
         compare_chained1c_37      ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
                                       compare_chained2a_37 POP_TOP
 
-        compare_chained1_false_37 ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
-                                      compare_chained2c_37 POP_TOP JUMP_FORWARD COME_FROM
         compare_chained1_false_37 ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
                                       compare_chained2c_37 POP_TOP JUMP_FORWARD COME_FROM
         compare_chained1_false_37 ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE

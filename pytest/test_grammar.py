@@ -20,7 +20,8 @@ def test_grammar():
     (lhs, rhs, tokens, right_recursive, dup_rhs) = p.check_sets()
 
     # We have custom rules that create the below
-    expect_lhs = set(["pos_arg", "attribute"])
+    expect_lhs = set(["pos_arg"])
+
     if PYTHON_VERSION < 3.8:
         expect_lhs.add("get_iter")
 
@@ -69,6 +70,20 @@ def test_grammar():
     for k in reduced_dup_rhs:
         print(k, reduced_dup_rhs[k])
     # assert not reduced_dup_rhs, reduced_dup_rhs
+
+    s = get_scanner(PYTHON_VERSION, IS_PYPY)
+    ignore_set = set(
+        """
+            JUMP_BACK CONTINUE
+            COME_FROM COME_FROM_EXCEPT
+            COME_FROM_EXCEPT_CLAUSE
+            COME_FROM_LOOP COME_FROM_WITH
+            COME_FROM_FINALLY ELSE
+            LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_STR LOAD_CODE
+            LAMBDA_MARKER
+            RETURN_END_IF RETURN_END_IF_LAMBDA RETURN_VALUE_LAMBDA RETURN_LAST
+            """.split()
+    )
 
 
 def test_dup_rule():

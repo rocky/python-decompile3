@@ -127,6 +127,8 @@ class Token:
                     return "%s%s%s %s" % (prefix, offset_opname, argstr, pattr)
                 elif self.op in self.opc.hasvargs:
                     return "%s%s%s" % (prefix, offset_opname, argstr)
+                elif name == 'LOAD_ASSERT':
+                    return "%s%s        %s" % (prefix, offset_opname, pattr)
                 elif self.op in self.opc.NAME_OPS:
                     return "%s%s%s %s" % (prefix, offset_opname, argstr, self.attr)
                 elif name == "EXTENDED_ARG":
