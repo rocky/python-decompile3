@@ -839,12 +839,12 @@ class Python37Parser(Python37BaseParser):
         _ifstmts_jump ::= return_if_stmts
         _ifstmts_jump ::= c_stmts_opt COME_FROM
 
-        iflaststmt ::= testexpr c_stmts_opt
-        iflaststmt ::= testexpr c_stmts_opt JUMP_ABSOLUTE
+        iflaststmt  ::= testexpr c_stmts
+        iflaststmt  ::= testexpr c_stmts JUMP_ABSOLUTE
 
-        iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK
-        iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK COME_FROM_LOOP
-        iflaststmtl ::= testexpr c_stmts_opt JUMP_BACK POP_BLOCK
+        iflaststmtl ::= testexpr c_stmts JUMP_BACK
+        iflaststmtl ::= testexpr c_stmts JUMP_BACK COME_FROM_LOOP
+        iflaststmtl ::= testexpr c_stmts JUMP_BACK POP_BLOCK
 
         # These are used to keep parse tree indices the same
         jump_forward_else  ::= JUMP_FORWARD ELSE
@@ -948,7 +948,7 @@ class Python37Parser(Python37BaseParser):
         for_block ::= l_stmts_opt COME_FROM_LOOP JUMP_BACK
         for_block ::= l_stmts
         for_block ::= l_stmts JUMP_BACK
-        iflaststmtl ::= testexpr c_stmts_opt
+        iflaststmtl ::= testexpr c_stmts
         """
 
     def p_come_from3(self, args):

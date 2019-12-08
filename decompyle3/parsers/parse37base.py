@@ -931,6 +931,7 @@ class Python37BaseParser(PythonParser):
         self.check_reduce["_ifstmts_jump"] = "AST"
         self.check_reduce["ifelsestmt"] = "AST"
         self.check_reduce["iflaststmt"] = "AST"
+        self.check_reduce["iflaststmtl"] = "AST"
         self.check_reduce["ifstmt"] = "AST"
         self.check_reduce["annotate_tuple"] = "noAST"
 
@@ -1181,11 +1182,10 @@ class Python37BaseParser(PythonParser):
 
                 pass
             return False
-        elif lhs == "iflaststmt" and ast:
+        elif lhs in ("iflaststmt", "iflaststmtl") and ast:
             # FIXME: put in a routine somewhere
             testexpr = ast[0]
 
-            # Compare with parse30.py of uncompyle6
             if testexpr[0] in ("testtrue", "testfalse"):
                 test = testexpr[0]
                 if len(test) > 1 and test[1].kind.startswith("jmp_"):
