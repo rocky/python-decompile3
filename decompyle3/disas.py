@@ -48,7 +48,7 @@ def disco(version: str, co, out=None, is_pypy=False) -> None:
     real_out = out or sys.stdout
     print(f"# Python {version}", file=real_out)
     if co.co_filename:
-        print("# Embedded file name: {co.co_filename}", file=real_out)
+        print(f"# Embedded file name: {co.co_filename}", file=real_out)
 
     scanner = get_scanner(version, is_pypy=is_pypy)
 

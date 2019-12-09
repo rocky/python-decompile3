@@ -152,7 +152,6 @@ See Also
 .. _HISTORY: https://github.com/rocky/python-decompile3/blob/master/HISTORY.md
 .. _debuggers: https://pypi.python.org/pypi/trepan3k
 .. _remake: https://bashdb.sf.net/remake
-.. _pycdc: https://github.com/zrax/pycdc
 .. _unpyc37: https://github.com/andrew-tavera/unpyc37/
 .. _this: https://github.com/rocky/python-decompile3/wiki/Deparsing-technology-and-its-use-in-exact-location-reporting
 .. |buildstatus| image:: https://travis-ci.org/rocky/python-decompile3.svg

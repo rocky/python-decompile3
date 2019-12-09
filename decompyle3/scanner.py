@@ -34,7 +34,7 @@ from xdis.util import code2num
 
 # The byte code versions we support.
 # Note: these all have to be floats
-PYTHON_VERSIONS = frozenset((3.7, 3.8))
+PYTHON_VERSIONS = frozenset((3.7, 3.8, 3.9))
 
 CANONIC2VERSION = dict((canonic_python_version[str(v)], v) for v in PYTHON_VERSIONS)
 
