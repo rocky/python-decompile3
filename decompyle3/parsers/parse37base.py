@@ -1094,7 +1094,7 @@ class Python37BaseParser(PythonParser):
             for i in range(cfl - 1, first, -1):
                 if tokens[i] != "POP_BLOCK":
                     break
-            if tokens[i].kind not in ("JUMP_BACK", "RETURN_VALUE"):
+            if tokens[i].kind not in ("JUMP_BACK", "RETURN_VALUE", "RAISE_VARARGS_1"):
                 if not tokens[i].kind.startswith("COME_FROM"):
                     return True
 
@@ -1107,9 +1107,8 @@ class Python37BaseParser(PythonParser):
                 last -= 1
             offset = tokens[last].off2int()
             assert tokens[first] == "SETUP_LOOP"
-            if offset != tokens[first].attr:
-                return True
-            return False
+            # SETUP_LOOP location must jump either to the last token or the token after the last one
+            return tokens[first].attr not in (offset, offset+2)
         elif lhs == "_ifstmts_jump" and len(rule[1]) > 1 and ast:
             come_froms = ast[-1]
             # Make sure all of the "come froms" offset at the

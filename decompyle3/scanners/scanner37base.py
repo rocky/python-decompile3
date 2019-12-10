@@ -46,8 +46,9 @@ globals().update(op3.opmap)
 
 
 class Scanner37Base(Scanner):
-    def __init__(self, version: str, show_asm=None, is_pypy=False):
+    def __init__(self, version: str, show_asm=None, is_pypy=False, debug=False):
         super(Scanner37Base, self).__init__(version, show_asm, is_pypy)
+        self.debug = debug
 
         # Create opcode classification sets
         # Note: super initilization above initializes self.opc

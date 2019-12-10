@@ -33,8 +33,9 @@ JUMP_OPs = opc.JUMP_OPS
 
 
 class Scanner38(Scanner37):
-    def __init__(self, show_asm=None):
-        Scanner37Base.__init__(self, 3.8, show_asm)
+    def __init__(self, show_asm=None, debug=False):
+        Scanner37Base.__init__(self, 3.8, show_asm, debug)
+        self.debug = debug
         return
 
     pass
@@ -43,28 +44,75 @@ class Scanner38(Scanner37):
         tokens, customize = super(Scanner38, self).ingest(
             co, classname, code_objects, show_asm
         )
+
+        # Hacky way to detect loop ranges.
+        # The key in jump_back_targets is the start of the loop.
+        # The value is where the loop ends. In current Python,
+        # JUMP_BACKS are always to loops. And blocks are ordered so that the
+        # JUMP_BACK with the highest offset will be where the range ends.
+        jump_back_targets = {}
+        for token in tokens:
+            if token.kind == "JUMP_BACK":
+                jump_back_targets[token.attr] = token.offset
+                pass
+            pass
+
+        if self.debug and jump_back_targets:
+            print(jump_back_targets)
+        loop_ends = []
+        next_end = tokens[len(tokens)-1].off2int() + 10
         for i, token in enumerate(tokens):
             opname = token.kind
-            if opname in ("JUMP_FORWARD", "JUMP_ABSOLUTE"):
-                # Turn JUMPs into BREAK_LOOP
+            offset = token.offset
+            if offset == next_end:
+                loop_ends.pop()
+                if self.debug:
+                    print(f"{'  ' * len(loop_ends)}remove loop offset {offset}")
+                    pass
+                next_end = loop_ends[-1] if len(loop_ends) else tokens[len(tokens)-1].off2int() + 10
+
+            if offset in jump_back_targets:
+                next_end = jump_back_targets[offset]
+                if self.debug:
+                    print(f"{'  ' * len(loop_ends)}adding loop offset {offset} ending at {next_end}")
+                loop_ends.append(next_end)
+
+            # Turn JUMP opcodes into "BREAK_LOOP" opcodes.
+            # FIXME: this should be replaced by proper control flow.
+            if opname in ("JUMP_FORWARD", "JUMP_ABSOLUTE") and len(loop_ends):
                 jump_target = token.attr
 
-                if opname == "JUMP_ABSOLUTE" and token.offset >= jump_target:
-                    # Not a forward jump, so continue
+                if opname == "JUMP_ABSOLUTE" and jump_target <= next_end:
+                    # Not a forward-enough jump to break out of the next loop, so continue.
                     # FIXME: Do we need "continue" detection?
                     continue
+
+                # We also want to avoid confusing BREAK_LOOPS with parts of the
+                # grammar rules for loops. (Perhaps we should change the grammar.)
+                # Try to find an adjacent JUMP_BACK which is part of the normal loop end.
+
                 if i + 1 < len(tokens) and tokens[i + 1] == "JUMP_BACK":
-                    # Sometimes the jump back is *after* the break...
+                    # Sometimes the jump back is after the "break" instruction..
                     jump_back_index = i + 1
                 else:
-                    # and sometimes it is *before* where we jumped to.
+                    # and sometimes, because of jump-to-jump optimization, it is before the
+                    # jump target instruction.
                     jump_back_index = self.offset2tok_index[jump_target] - 1
                     while tokens[jump_back_index].kind.startswith("COME_FROM_"):
                         jump_back_index -= 1
                         pass
                     pass
                 jump_back_token = tokens[jump_back_index]
-                if (
+
+                # Is this a forward jump not next to a JUMP_BACK ? ...
+                break_loop = (
+                    token.linestart
+                    and jump_back_token != "JUMP_BACK"
+                )
+
+                # or if there is looping jump back, then that loop
+                # should start before where the "break" instruction sits.
+                if break_loop or (
                     jump_back_token == "JUMP_BACK"
                     and jump_back_token.attr < token.offset
                 ):

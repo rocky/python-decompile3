@@ -1022,11 +1022,12 @@ class Python37Parser(Python37BaseParser):
                               else_suitel COME_FROM_LOOP
 
         whileTruestmt     ::= setup_loop l_stmts_opt          JUMP_BACK POP_BLOCK
-                              COME_FROM_LOOP
+                              _come_froms
 
         # FIXME: Python 3.? starts adding branch optimization? Put this starting there.
 
         while1stmt        ::= setup_loop l_stmts COME_FROM_LOOP
+        while1stmt        ::= setup_loop l_stmts COME_FROM_LOOP JUMP_BACK POP_BLOCK COME_FROM_LOOP
         while1stmt        ::= setup_loop l_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
 
         while1elsestmt    ::= setup_loop l_stmts JUMP_BACK

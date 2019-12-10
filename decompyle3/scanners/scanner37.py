@@ -32,8 +32,9 @@ JUMP_OPs = opc.JUMP_OPS
 
 
 class Scanner37(Scanner37Base):
-    def __init__(self, show_asm=None):
+    def __init__(self, show_asm=None, debug=False):
         Scanner37Base.__init__(self, 3.7, show_asm)
+        self.debug = debug
         return
 
     pass
