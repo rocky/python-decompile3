@@ -2089,15 +2089,6 @@ class SourceWalker(GenericASTTraversal, object):
             del ast[0]
 
         first_stmt = ast[0][0]
-        if 3.0 <= self.version <= 3.3:
-            try:
-                if first_stmt[0] == "store_locals":
-                    if self.hide_internal:
-                        del ast[0]
-                        first_stmt = ast[0][0]
-            except:
-                pass
-
         try:
             if first_stmt == NAME_MODULE:
                 if self.hide_internal:
