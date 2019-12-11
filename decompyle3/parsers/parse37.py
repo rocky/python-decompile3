@@ -955,7 +955,6 @@ class Python37Parser(Python37BaseParser):
 
         or   ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
         or   ::= expr JUMP_IF_TRUE expr COME_FROM
-        or   ::= expr POP_JUMP_IF_TRUE and
 
         and  ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
         and  ::= expr JUMP_IF_FALSE expr COME_FROM
