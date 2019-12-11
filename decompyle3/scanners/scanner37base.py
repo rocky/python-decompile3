@@ -29,6 +29,8 @@ For example:
 Finally we save token information.
 """
 
+from typing import List
+
 from xdis.code import iscode
 from xdis.bytecode import instruction_size, _get_const_info
 
@@ -497,7 +499,7 @@ class Scanner37Base(Scanner):
         self.structs = [{"type": "root", "start": 0, "end": n - 1}]
 
         # All loop entry points
-        self.loops = []
+        self.loops: List[int] = []
 
         # Map fixed jumps to their real destination
         self.fixed_jumps = {}
@@ -921,7 +923,7 @@ if __name__ == "__main__":
     if PYTHON_VERSION >= 3.7:
         import inspect
 
-        co = inspect.currentframe().f_code
+        co = inspect.currentframe().f_code  # type: ignore
         from decompyle3 import PYTHON_VERSION
 
         tokens, customize = Scanner37Base(PYTHON_VERSION).ingest(co)

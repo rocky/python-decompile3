@@ -62,7 +62,7 @@ class Token:
         else:
             self.op = op
 
-    def __eq__(self, o):
+    def __eq__(self, o) -> bool:
         """ '==' on kind and "pattr" attributes.
             It is okay if offsets and linestarts are different"""
         if isinstance(o, Token):
@@ -73,11 +73,11 @@ class Token:
             # ?? do we need this?
             return self.kind == o
 
-    def __ne__(self, o):
+    def __ne__(self, o) -> bool:
         """ '!=', but it's okay if offsets and linestarts are different"""
         return not self.__eq__(o)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self.kind)
 
     # def __str__(self):
@@ -154,7 +154,7 @@ class Token:
     def __getitem__(self, i):
         raise IndexError
 
-    def off2int(self):
+    def off2int(self) -> int:
         if isinstance(self.offset, int):
             return self.offset
         else:

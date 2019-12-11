@@ -45,7 +45,7 @@ if __name__ == "__main__":
     if PYTHON_VERSION == 3.9:
         import inspect
 
-        co = inspect.currentframe().f_code
+        co = inspect.currentframe().f_code  # type: ignore
         tokens, customize = Scanner39().ingest(co)
         for t in tokens:
             print(t.format())

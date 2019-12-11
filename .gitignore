@@ -2,6 +2,7 @@
 *.pyo
 *_dis
 *~
+.mypy_cache
 /.cache
 /.eggs
 /.hypothesis

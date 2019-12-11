@@ -22,6 +22,8 @@ This sets up opcodes Python's 3.8 and calls a generalized
 scanner routine for Python 3.
 """
 
+from typing import Dict, List, Tuple
+
 from decompyle3.scanners.scanner37 import Scanner37
 from decompyle3.scanners.scanner37base import Scanner37Base
 
@@ -40,7 +42,7 @@ class Scanner38(Scanner37):
 
     pass
 
-    def ingest(self, co, classname=None, code_objects={}, show_asm=None) -> None:
+    def ingest(self, co, classname=None, code_objects={}, show_asm=None) -> Tuple[list, dict]:
         tokens, customize = super(Scanner38, self).ingest(
             co, classname, code_objects, show_asm
         )
@@ -50,7 +52,7 @@ class Scanner38(Scanner37):
         # The value is where the loop ends. In current Python,
         # JUMP_BACKS are always to loops. And blocks are ordered so that the
         # JUMP_BACK with the highest offset will be where the range ends.
-        jump_back_targets = {}
+        jump_back_targets: Dict[int, int] = {}
         for token in tokens:
             if token.kind == "JUMP_BACK":
                 jump_back_targets[token.attr] = token.offset
@@ -59,7 +61,7 @@ class Scanner38(Scanner37):
 
         if self.debug and jump_back_targets:
             print(jump_back_targets)
-        loop_ends = []
+        loop_ends: List[int] = []
         next_end = tokens[len(tokens)-1].off2int() + 10
         for i, token in enumerate(tokens):
             opname = token.kind
@@ -128,7 +130,7 @@ if __name__ == "__main__":
     if PYTHON_VERSION == 3.8:
         import inspect
 
-        co = inspect.currentframe().f_code
+        co = inspect.currentframe().f_code  # type: ignore
         tokens, customize = Scanner38().ingest(co)
         for t in tokens:
             print(t.format())
