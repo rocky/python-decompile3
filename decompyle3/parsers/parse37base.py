@@ -1029,7 +1029,6 @@ class Python37BaseParser(PythonParser):
 
         if lhs == "and" and ast:
             # FIXME: put in a routine somewhere
-            # Compare with parse30.py of uncompyle6
             jmp = ast[1]
             if jmp.kind.startswith("jmp_"):
                 if last == n:
@@ -1044,7 +1043,11 @@ class Python37BaseParser(PythonParser):
                     return jmp_target != jmp2_target
                 elif rule == ("and", ("expr", "jmp_false", "expr")):
                     if tokens[last] == "POP_JUMP_IF_FALSE":
+                        # Ok if jump it doesn't jump to last instruction
                         return jmp_target != tokens[last].attr
+                    elif tokens[last] == "JUMP_IF_TRUE_OR_POP":
+                        # Ok if jump it does jump right after last instruction
+                        return jmp_target + 2 != tokens[last].attr
                 elif rule == ("and", ("expr", "jmp_false", "expr", "COME_FROM")):
                     return ast[-1].attr != jmp_offset
                 # elif rule == ("and", ("expr", "jmp_false", "expr", "COME_FROM")):
