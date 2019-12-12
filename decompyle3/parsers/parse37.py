@@ -146,6 +146,7 @@ class Python37Parser(Python37BaseParser):
         expr ::= dict
         expr ::= generator_exp
         expr ::= list
+        expr ::= not_or
         expr ::= or
         expr ::= subscript
         expr ::= subscript2
@@ -957,12 +958,16 @@ class Python37Parser(Python37BaseParser):
         ret_cond ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
 
         jitop_come_from ::= JUMP_IF_TRUE_OR_POP COME_FROM
-        or   ::= and jitop_come_from expr COME_FROM
-        or   ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
-        or   ::= expr JUMP_IF_TRUE expr COME_FROM
+        or        ::= and jitop_come_from expr COME_FROM
+        or        ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
+        or        ::= expr JUMP_IF_TRUE expr COME_FROM
 
+        testfalse_not_or ::= expr jmp_false expr jmp_false COME_FROM
+        testfalse ::= testfalse_not_or
         testfalse ::= or jmp_false COME_FROM
         or        ::= expr jmp_true expr
+
+
 
         and  ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
         and  ::= expr JUMP_IF_FALSE expr COME_FROM
