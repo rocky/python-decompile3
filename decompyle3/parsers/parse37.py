@@ -146,7 +146,6 @@ class Python37Parser(Python37BaseParser):
         expr ::= dict
         expr ::= generator_exp
         expr ::= list
-        expr ::= not_or
         expr ::= or
         expr ::= subscript
         expr ::= subscript2
