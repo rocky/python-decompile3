@@ -961,12 +961,14 @@ class Python37Parser(Python37BaseParser):
         or        ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
         or        ::= expr JUMP_IF_TRUE expr COME_FROM
 
-        testfalse_not_or ::= expr jmp_false expr jmp_false COME_FROM
+        testfalse_not_or   ::= expr jmp_false expr jmp_false COME_FROM
+        testfalse_not_and ::= and jmp_true come_froms
+
+        testfalse_not_and ::= expr jmp_false expr jmp_true  COME_FROM
         testfalse ::= testfalse_not_or
+        testfalse ::= testfalse_not_and
         testfalse ::= or jmp_false COME_FROM
         or        ::= expr jmp_true expr
-
-
 
         and  ::= expr JUMP_IF_FALSE_OR_POP expr COME_FROM
         and  ::= expr JUMP_IF_FALSE expr COME_FROM
