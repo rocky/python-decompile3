@@ -1068,8 +1068,13 @@ class Python37BaseParser(PythonParser):
             # FIXME: This is a cheap test. Should we do something with an AST like we
             # do with "and"?
             # "or"s with constants like this will have "COME_FROM" at the end
-            return tokens[last] in ("LOAD_ASSERT", "LOAD_STR", "LOAD_CODE", "LOAD_CONST",
-                                    "RAISE_VARARGS_1")
+            return tokens[last] in (
+                "LOAD_ASSERT",
+                "LOAD_STR",
+                "LOAD_CODE",
+                "LOAD_CONST",
+                "RAISE_VARARGS_1",
+            )
         elif lhs == "while1elsestmt":
 
             if last == n:
@@ -1122,7 +1127,7 @@ class Python37BaseParser(PythonParser):
             offset = tokens[last].off2int()
             assert tokens[first] == "SETUP_LOOP"
             # SETUP_LOOP location must jump either to the last token or the token after the last one
-            return tokens[first].attr not in (offset, offset+2)
+            return tokens[first].attr not in (offset, offset + 2)
         elif lhs == "_ifstmts_jump" and len(rule[1]) > 1 and ast:
             come_froms = ast[-1]
             # Make sure all of the "come froms" offset at the
@@ -1174,7 +1179,7 @@ class Python37BaseParser(PythonParser):
                 if last == n:
                     last -= 1
                     pass
-                if (tokens[last].attr and isinstance(tokens[last].attr, int)):
+                if tokens[last].attr and isinstance(tokens[last].attr, int):
                     return tokens[first].offset < tokens[last].attr
                 pass
 
@@ -1189,7 +1194,14 @@ class Python37BaseParser(PythonParser):
             for i in range(first, l):
                 t = tokens[i]
                 if t.kind == "POP_JUMP_IF_FALSE":
-                    if t.attr > last_offset:
+                    pjif_target = t.attr
+                    if pjif_target > last_offset:
+                        # In come cases, where we have long bytecode, a
+                        # "POP_JUMP_IF_FALSE" offset might be too
+                        # large for the instruction; so instead it
+                        # jumps to a JUMP_FORWARD. Allow that here.
+                        if tokens[l] == "JUMP_FORWARD":
+                            return tokens[l].attr != pjif_target
                         return True
                     pass
                 pass
@@ -1208,7 +1220,11 @@ class Python37BaseParser(PythonParser):
                         if last == n:
                             last -= 1
                         jmp_target = test[1][0].attr
-                        if tokens[first].off2int() <= jmp_target < tokens[last].off2int():
+                        if (
+                            tokens[first].off2int()
+                            <= jmp_target
+                            < tokens[last].off2int()
+                        ):
                             return True
                         # jmp_target less than tokens[first] is okay - is to a loop
                         # jmp_target equal tokens[last] is also okay: normal non-optimized non-loop jump
@@ -1243,7 +1259,11 @@ class Python37BaseParser(PythonParser):
                     # jmp_target less than tokens[first] is okay - is to a loop
                     # jmp_target equal tokens[last] is also okay: normal non-optimized non-loop jump
 
-                    if (last + 1) < n and tokens[last - 1] != "JUMP_BACK" and tokens[last + 1] == "COME_FROM_LOOP":
+                    if (
+                        (last + 1) < n
+                        and tokens[last - 1] != "JUMP_BACK"
+                        and tokens[last + 1] == "COME_FROM_LOOP"
+                    ):
                         # iflastsmtl is not at the end of a loop, but jumped outside of loop. No good.
                         # FIXME: check that tokens[last] == "POP_BLOCK"? Or allow for it not to appear?
                         return True
