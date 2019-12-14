@@ -115,7 +115,11 @@ class TreeTransform(GenericASTTraversal, object):
         if stmts in ("c_stmts",) and len(stmts) == 1:
             stmt = stmts[0]
             raise_stmt = stmt[0]
-            if raise_stmt == "raise_stmt1" and len(testexpr[0]) == 2:
+            if (
+                raise_stmt == "raise_stmt1"
+                and len(testexpr[0]) == 2
+                and raise_stmt.first_child().pattr == "AssertionError"
+            ):
                 assert_expr = testexpr[0][0]
                 assert_expr.kind = "assert_expr"
                 jump_cond = testexpr[0][1]
@@ -261,9 +265,7 @@ class TreeTransform(GenericASTTraversal, object):
                         )
                         node[3] = elifelse_stmt
                     else:
-                        elif_stmt = SyntaxTree(
-                            "elifstmt", [n[0], n[else_suite_index]]
-                        )
+                        elif_stmt = SyntaxTree("elifstmt", [n[0], n[else_suite_index]])
                         node[3] = elif_stmt
 
                     node.transformed_by = "n_ifelsestmt"
@@ -278,11 +280,11 @@ class TreeTransform(GenericASTTraversal, object):
 
     def n_list_for(self, list_for_node):
         expr = list_for_node[0]
-        if (expr == "expr" and expr[0] == "get_iter"):
+        if expr == "expr" and expr[0] == "get_iter":
             # Remove extraneous get_iter() inside the "for" of a comprehension
             assert expr[0][0] == "expr"
             list_for_node[0] = expr[0][0]
-            list_for_node.transformed_by="n_list_for",
+            list_for_node.transformed_by = ("n_list_for",)
         return list_for_node
 
     def traverse(self, node, is_lambda=False):
