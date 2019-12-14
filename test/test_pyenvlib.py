@@ -5,7 +5,7 @@ test_pyenvlib -- decompile and verify Python libraries
 
 Usage-Examples:
 
-  test_pyenvlib.py --3.7.3 --verify	# decompile and verify python lib 3.7.3
+  test_pyenvlib.py --3.7.3 --syntax-verify	# decompile and verify python lib 3.7.3
   test_pyenvlib.py --3.7.3 --max 10	# decompile first 10 of 3.7.3
 
 Adding own test-trees:
@@ -14,7 +14,7 @@ Step 1) Edit this file and add a new entry to 'test_options', eg.
           test_options['mylib'] = ('/usr/lib/mylib', PYOC, 'mylib')
 Step 2: Run the test:
 	  test_pyenvlib --mylib	  # decompile 'mylib'
-	  test_pyenvlib --mylib --verify # decompile verify 'mylib'
+	  test_pyenvlib --mylib --syntax-verify # decompile verify 'mylib'
 """
 
 from __future__ import print_function
@@ -147,7 +147,6 @@ if __name__ == "__main__":
         "",
         [
             "start-with=",
-            "verify",
             "verify-run",
             "syntax-verify",
             "max=",
@@ -159,9 +158,7 @@ if __name__ == "__main__":
     vers = ""
 
     for opt, val in opts:
-        if opt == "--verify":
-            do_verify = "strong"
-        elif opt == "--syntax-verify":
+        if opt == "--syntax-verify":
             do_verify = "weak"
         elif opt == "--verify-run":
             do_verify = "verify-run"

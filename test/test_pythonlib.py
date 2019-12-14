@@ -7,13 +7,13 @@ test_pythonlib.py -- compile, decompile, and verify Python libraries
 Usage-Examples:
 
   # decompile, and verify the first 100 python 3.7 byte-compiled files
-  test_pythonlib.py --3.7 --verify
+  test_pythonlib.py --3.7 --syntax-verify
 
   # Same as above longer decompile up to 2100
-  test_pythonlib.py --3.7 --verify --max=2100
+  test_pythonlib.py --3.7 --syntax-verify --max=2100
 
   # Same as above but compile the base set first
-  test_pythonlib.py --3.7 --verify --max=2100 --compile
+  test_pythonlib.py --3.7 --syntax-verify --max=2100 --compile
 
 Adding own test-trees:
 
@@ -21,7 +21,7 @@ Step 1) Edit this file and add a new entry to 'test_options', eg.
   test_options['mylib'] = ('/usr/lib/mylib', PYOC, 'mylib')
 Step 2: Run the test:
   test_pythonlib.py --mylib	  # decompile 'mylib'
-  test_pythonlib.py --mylib --verify # decompile verify 'mylib'
+  test_pythonlib.py --mylib --syntaix-verify # decompile verify 'mylib'
 """
 
 import getopt, os, py_compile, sys, shutil, tempfile, time
@@ -75,7 +75,7 @@ def help():
     print("""Usage-Examples:
 
   # compile, decompyle and verify short tests for Python 3.7:
-  test_pythonlib.py --bytecode-3.7 --verify --compile
+  test_pythonlib.py --bytecode-3.7 --syntax-verify --compile
 
   # decompile all of Python's installed lib files
   test_pythonlib.py --3.7
@@ -165,7 +165,7 @@ if __name__ == '__main__':
     test_options_keys = list(test_options.keys())
     test_options_keys.sort()
     opts, args = getopt.getopt(sys.argv[1:], '',
-                               ['start-with=', 'verify', 'verify-run',
+                               ['start-with=', 'verify-run',
                                 'syntax-verify', 'all',
                                 'compile', 'coverage',
                                 'no-rm'] \
@@ -181,9 +181,7 @@ if __name__ == '__main__':
         }
 
     for opt, val in opts:
-        if opt == '--verify':
-            test_opts['do_verify'] = 'strong'
-        elif opt == '--syntax-verify':
+        if opt == '--syntax-verify':
             test_opts['do_verify'] = 'weak'
         elif opt == '--verify-run':
             test_opts['do_verify'] = 'verify-run'

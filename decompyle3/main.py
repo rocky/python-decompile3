@@ -14,7 +14,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import datetime, py_compile, os, subprocess, sys, tempfile
 
-from decompyle3 import verify, IS_PYPY, PYTHON_VERSION
+from decompyle3 import IS_PYPY, PYTHON_VERSION
 from xdis.code import iscode
 from xdis.magics import sysinfo2float
 from decompyle3.disas import check_object_path
@@ -273,21 +273,6 @@ def main(
             outstream = sys.stdout
             if do_linemaps:
                 linemap_stream = sys.stdout
-            if do_verify:
-                prefix = os.path.basename(filename) + "-"
-                if prefix.endswith(".py"):
-                    prefix = prefix[: -len(".py")]
-
-                # Unbuffer output if possible
-                buffering = -1 if sys.stdout.isatty() else 0
-                t = tempfile.NamedTemporaryFile(
-                    mode="w+b", buffering=buffering, suffix=".py", prefix=prefix
-                )
-                current_outfile = t.name
-                sys.stdout = os.fdopen(sys.stdout.fileno(), "w", buffering)
-                tee = subprocess.Popen(["tee", current_outfile], stdin=subprocess.PIPE)
-                os.dup2(tee.stdin.fileno(), sys.stdout.fileno())
-                os.dup2(tee.stdin.fileno(), sys.stderr.fileno())
         else:
             if filename.endswith(".pyc"):
                 current_outfile = os.path.join(out_base, filename[0:-1])
@@ -369,42 +354,7 @@ def main(
         else:  # uncompile successful
             if current_outfile:
                 outstream.close()
-
-                if do_verify:
-                    try:
-                        msg = verify.compare_code_with_srcfile(
-                            infile, current_outfile, do_verify
-                        )
-                        if not current_outfile:
-                            if not msg:
-                                print("\n# okay decompiling %s" % infile)
-                                okay_files += 1
-                            else:
-                                verify_failed_files += 1
-                                print("\n# %s\n\t%s", infile, msg)
-                                pass
-                        else:
-                            okay_files += 1
-                            pass
-                    except verify.VerifyCmpError as e:
-                        print(e)
-                        verify_failed_files += 1
-                        os.rename(current_outfile, current_outfile + "_unverified")
-                        sys.stderr.write("### Error Verifying %s\n" % filename)
-                        sys.stderr.write(str(e) + "\n")
-                        if not outfile:
-                            if raise_on_error:
-                                raise
-                            pass
-                        pass
-                    pass
-                else:
-                    okay_files += 1
-                pass
-            elif do_verify:
-                sys.stderr.write(
-                    "\n### uncompile successful, but no file to compare against\n"
-                )
+                okay_files += 1
                 pass
             else:
                 okay_files += 1
@@ -483,6 +433,4 @@ def status_msg(
         okay_files,
         failed_files,
     )
-    if do_verify:
-        mess += ", %i %sverification failed" % (verify_failed_files, verification_type)
     return mess
