@@ -36,7 +36,6 @@ Options:
   -p <integer>  use <integer> number of processes
   -r            recurse directories looking for .pyc and .pyo files
   --fragments   use fragments deparser
-  --verify      compare generated source with input byte-code
   --verify-run  compile generated source, run it and check exit code
   --syntax-verify compile generated source
   --linemaps    generated line number correspondencies between byte-code
@@ -46,16 +45,15 @@ Options:
   --help        show this message
 
 Debugging Options:
-  --asm     | -a        include byte-code       (disables --verify)
+  --asm     | -a        include byte-code
   --grammar | -g        show matching grammar
   --tree={before|after}
   -t {before|after}     include syntax before (or after) tree transformation
-                        (disables --verify)
   --tree++ | -T         add template rules to --tree=before when possible
 
 Extensions of generated files:
-  '.pyc_dis' '.pyo_dis'   successfully decompiled (and verified if --verify)
-    + '_unverified'       successfully decompile but --verify failed
+  '.pyc_dis' '.pyo_dis'   successfully decompiled
+    + '_unverified'       successfully decompile but verification failed
     + '_failed'           decompile failed (contact author for enhancement)
 """ % (
     (program,) * 5
@@ -63,7 +61,6 @@ Extensions of generated files:
 
 program = "decompyle3"
 
-from decompyle3 import verify
 from decompyle3.main import main, status_msg
 from decompyle3.version import VERSION
 
@@ -114,8 +111,6 @@ def main_bin():
         elif opt in ("-V", "--version"):
             print("%s %s" % (program, VERSION))
             sys.exit(0)
-        elif opt == "--verify":
-            options["do_verify"] = "strong"
         elif opt == "--syntax-verify":
             options["do_verify"] = "weak"
         elif opt == "--fragments":
@@ -209,8 +204,6 @@ def main_bin():
                 pass
         except (KeyboardInterrupt):
             pass
-        except verify.VerifyCmpError:
-            raise
     else:
         from multiprocessing import Process, Queue
 
