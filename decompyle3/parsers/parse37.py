@@ -976,6 +976,9 @@ class Python37Parser(Python37BaseParser):
         and  ::= expr JUMP_IF_FALSE expr COME_FROM
         and  ::= expr jmp_false expr
 
+        pjit_come_from ::= POP_JUMP_IF_TRUE COME_FROM
+        or  ::= expr pjit_come_from expr
+
         ## FIXME: Is the below needed or is it covered above??
         and ::= expr jmp_false expr COME_FROM
         or  ::= expr jmp_true  expr COME_FROM

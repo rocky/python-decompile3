@@ -1068,6 +1068,7 @@ class Python37BaseParser(PythonParser):
             # FIXME: This is a cheap test. Should we do something with an AST like we
             # do with "and"?
             # "or"s with constants like this will have "COME_FROM" at the end
+            return False
             return tokens[last] in (
                 "LOAD_ASSERT",
                 "LOAD_STR",
@@ -1316,6 +1317,36 @@ class Python37BaseParser(PythonParser):
                     (
                         "testexpr",
                         "c_stmts_opt",
+                        "jump_forward_else",
+                        "else_suite",
+                        '\\e__come_froms'
+                    ),
+                ),
+                (
+                    "ifelsestmt",
+                    (
+                        "testexpr",
+                        "c_stmts_opt",
+                        "jf_cfs",
+                        "else_suite",
+                        '\\e_opt_come_from_except',
+                    ),
+                ),
+                (
+                    "ifelsestmt",
+                    (
+                        "testexpr",
+                        "c_stmts_opt",
+                        "come_froms",
+                        "else_suite",
+                        'come_froms',
+                    ),
+                ),
+                (
+                    "ifelsestmt",
+                    (
+                        "testexpr",
+                        "c_stmts_opt",
                         "jf_cfs",
                         "else_suite",
                         "opt_come_from_except",
@@ -1333,7 +1364,8 @@ class Python37BaseParser(PythonParser):
             if come_froms == "opt_come_from_except" and len(come_froms) > 0:
                 come_froms = come_froms[0]
             if not isinstance(come_froms, Token):
-                return tokens[first].offset > come_froms[-1].attr
+                if len(come_froms):
+                    return tokens[first].offset > come_froms[-1].attr
             elif tokens[first].offset > come_froms.attr:
                 return True
 
@@ -1351,16 +1383,34 @@ class Python37BaseParser(PythonParser):
 
             # Check that the condition portion of the "if"
             # jumps to the "else" part.
-            # Compare with parse30.py of uncompyle6
             if testexpr[0] in ("testtrue", "testfalse"):
                 test = testexpr[0]
+
+                else_suite = ast[3]
+                assert else_suite == "else_suite"
+
                 if len(test) > 1 and test[1].kind.startswith("jmp_"):
                     if last == n:
                         last -= 1
                     jmp = test[1]
                     jmp_target = jmp[0].attr
+
+                    # FIXME: the jump inside "else" check below should be added.
+                    #
+                    # add this until we can find out what's wrong with
+                    # not being able to parse:
+                    #     if a and b or c:
+                    #         x = 1
+                    #     else:
+                    #         x = 2
+
+                    # FIXME: add this
+                    # if jmp_target < else_suite.first_child().off2int():
+                    #     return True
+
                     if tokens[first].off2int() > jmp_target:
                         return True
+
                     return (jmp_target > tokens[last].off2int()) and tokens[
                         last
                     ] != "JUMP_FORWARD"
