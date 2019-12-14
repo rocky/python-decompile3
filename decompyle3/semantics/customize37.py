@@ -136,6 +136,11 @@ def customize_for_version37(self, version):
                 (0, "expr", 27),
                 (5, "expr", 27),
             ),
+
+            'ifstmtl': ( '%|if %c:\n%+%c%-',
+                         (0, "testexpr"),
+                         (1, "_ifstmts_jumpl") ),
+
             'testfalse_not_or': ( "not %c or %c",
                               (0, "expr"),
                               (2, "expr")  ),

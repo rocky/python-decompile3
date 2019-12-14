@@ -989,6 +989,8 @@ class Python37Parser(Python37BaseParser):
         """
         stmt               ::= if_expr_lambda
         stmt               ::= conditional_not_lambda
+        stmt               ::= ifstmtl
+
         if_expr_lambda     ::= expr jmp_false expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
         conditional_not_lambda
@@ -1003,6 +1005,10 @@ class Python37Parser(Python37BaseParser):
 
         stmt ::= whileTruestmt
         ifelsestmt ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_froms
+
+        _ifstmts_jumpl     ::= c_stmts JUMP_BACK
+        _ifstmts_jumpl     ::= _ifstmts_jump
+        ifstmtl            ::= testexpr _ifstmts_jumpl
         """
 
     def p_loop_stmt3(self, args):

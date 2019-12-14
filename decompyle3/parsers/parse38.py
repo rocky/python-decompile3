@@ -46,7 +46,6 @@ class Python38Parser(Python37Parser):
         stmt               ::= whilestmt38
         stmt               ::= whileTruestmt38
         stmt               ::= call
-        stmt               ::= ifstmtl
 
         break ::= POP_BLOCK BREAK_LOOP
         break ::= POP_BLOCK POP_TOP BREAK_LOOP
@@ -88,10 +87,6 @@ class Python38Parser(Python37Parser):
         lastl_stmt         ::= ifpoplaststmtl
         ifpoplaststmtl     ::= testexpr POP_TOP c_stmts_opt JUMP_BACK
         ifelsestmtl        ::= testexpr c_stmts_opt jb_cfs else_suitel JUMP_BACK come_froms
-
-        _ifstmts_jumpl     ::= c_stmts JUMP_BACK
-        _ifstmts_jumpl     ::= _ifstmts_jump
-        ifstmtl            ::= testexpr _ifstmts_jumpl
 
         for38              ::= expr get_iter store for_block JUMP_BACK
         for38              ::= expr get_for_iter store for_block JUMP_BACK

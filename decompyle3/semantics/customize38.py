@@ -84,10 +84,6 @@ def customize_for_version38(self, version):
                             (0, "testexpr"),
                             (2, "c_stmts" ) ),
 
-        'ifstmtl':	  ( '%|if %c:\n%+%c%-',
-                            (0, "testexpr"),
-                            (1, "_ifstmts_jumpl") ),
-
         'whilestmt38': ( '%|while %c:\n%+%c%-\n\n',
                          (1, 'testexpr'),
                          2 ), # "l_stmts" or "pass"
