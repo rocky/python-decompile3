@@ -1476,7 +1476,7 @@ class SourceWalker(GenericASTTraversal, object):
                     pass
             pass
         else:
-            if node[0] == "LOAD_CONST":
+            if node[0] == "LOAD_STR":
                 return
             value = self.traverse(node[0])
             self.write("(")
