@@ -503,6 +503,17 @@ class Python37BaseParser(PythonParser):
                     expr                ::= generator_exp_async
                     generator_exp_async ::= load_genexpr LOAD_STR MAKE_FUNCTION_0 expr
                                             GET_AITER CALL_FUNCTION_1
+
+                    stmt                ::= genexpr_func_async
+
+                    func_async_prefix   ::= SETUP_EXCEPT GET_ANEXT LOAD_CONST YIELD_FROM
+                    func_async_middle   ::= POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT
+                                            DUP_TOP LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
+                                            END_FINALLY COME_FROM
+                    genexpr_func_async  ::= LOAD_FAST func_async_prefix
+                                            store func_async_middle comp_iter
+                                            JUMP_BACK COME_FROM
+                                            POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
                     """,
                     nop_func,
                 )

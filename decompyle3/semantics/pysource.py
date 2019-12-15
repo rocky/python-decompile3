@@ -1011,8 +1011,13 @@ class SourceWalker(GenericASTTraversal, object):
         assert n == "comp_body", n
 
         self.preorder(n[0])
+        if node == "generator_exp_async":
+            self.write(" async")
+            iter_var_index = iter_index - 2
+        else:
+            iter_var_index = iter_index - 1
         self.write(" for ")
-        self.preorder(ast[iter_index - 1])
+        self.preorder(ast[iter_var_index])
         self.write(" in ")
         if node[2] == "expr":
             iter_expr = node[2]
