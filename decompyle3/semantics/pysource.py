@@ -971,7 +971,7 @@ class SourceWalker(GenericASTTraversal, object):
         # FIXME: clean this up
         if node == "dict_comp":
             cn = node[1]
-        elif node == "generator_exp":
+        elif node in ("generator_exp", "generator_exp_async"):
             if node[0] == "load_genexpr":
                 load_genexpr = node[0]
             elif node[1] == "load_genexpr":
@@ -1029,6 +1029,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.comprehension_walk(node, iter_index=4, code_index=code_index)
         self.write(")")
         self.prune()
+    n_generator_exp_async = n_generator_exp
 
     def n_set_comp(self, node):
         self.write("{")

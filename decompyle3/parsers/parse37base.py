@@ -497,6 +497,16 @@ class Python37BaseParser(PythonParser):
                     nop_func,
                 )
                 custom_ops_processed.add(opname)
+            elif opname == "GET_AITER":
+                self.addRule(
+                    """
+                    expr                ::= generator_exp_async
+                    generator_exp_async ::= load_genexpr LOAD_STR MAKE_FUNCTION_0 expr
+                                            GET_AITER CALL_FUNCTION_1
+                    """,
+                    nop_func,
+                )
+                custom_ops_processed.add(opname)
             elif opname == "JUMP_IF_NOT_DEBUG":
                 v = token.attr
                 self.addRule(
