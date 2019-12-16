@@ -1091,6 +1091,8 @@ class SourceWalker(GenericASTTraversal, object):
                     pass
                 pass
             pass
+        elif ast == "listcomp_async":
+            store = ast[3]
         else:
             assert n == "list_iter", n
 
@@ -1141,6 +1143,12 @@ class SourceWalker(GenericASTTraversal, object):
         # for the dummy argument.
 
         self.preorder(n[0])
+        if node == "listcomp_async":
+            self.write(" async")
+            in_node_index = 3
+        else:
+            in_node_index = -3
+
         self.write(" for ")
 
         if comp_store:
@@ -1149,7 +1157,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.preorder(store)
 
         self.write(" in ")
-        self.preorder(node[-3])
+        self.preorder(node[in_node_index])
 
         # Here is where we handle nested list iterations.
         if ast == "list_comp":
@@ -1288,9 +1296,14 @@ class SourceWalker(GenericASTTraversal, object):
         if node[0].kind == "load_closure":
             self.listcomprehension_walk2(node)
         else:
-            self.comprehension_walk_newer(node, 1, 0)
+            if node == "listcomp_async":
+                list_iter_index = 5
+            else:
+                list_iter_index = 1
+            self.comprehension_walk_newer(node, list_iter_index, 0)
         self.write("]")
         self.prune()
+    n_listcomp_async = n_listcomp
 
     def setcomprehension_walk3(self, node, collection_index):
         """Set comprehensions the way they are done in Python3.
