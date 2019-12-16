@@ -136,15 +136,9 @@ def customize_for_version37(self, version):
                 (0, "expr", 27),
                 (5, "expr", 27),
             ),
-
-            'ifstmtl': ( '%|if %c:\n%+%c%-',
-                         (0, "testexpr"),
-                         (1, "_ifstmts_jumpl") ),
-
-            'testfalse_not_or': ( "not %c or %c",
-                              (0, "expr"),
-                              (2, "expr")  ),
-            'testfalse_not_and': ( "not (%c)", 0 ),
+            "ifstmtl": ("%|if %c:\n%+%c%-", (0, "testexpr"), (1, "_ifstmts_jumpl")),
+            "testfalse_not_or": ("not %c or %c", (0, "expr"), (2, "expr")),
+            "testfalse_not_and": ("not (%c)", 0),
             "try_except36": ("%|try:\n%+%c%-%c\n\n", 1, -2),
             "tryfinally36": ("%|try:\n%+%c%-%|finally:\n%+%c%-\n\n", (1, "returns"), 3),
             "unmap_dict": ("{**%C}", (0, -1, ", **")),
@@ -206,11 +200,13 @@ def customize_for_version37(self, version):
             if value.startswith("("):
                 assert value.endswith(")")
                 use_star = False
-                value = value[1:-1].rstrip(" ") # Remove starting '(' and trailing ')' and additional spaces
+                value = value[1:-1].rstrip(
+                    " "
+                )  # Remove starting '(' and trailing ')' and additional spaces
                 if value == "":
                     pass
                 else:
-                    if value.endswith(","): # if args has only one item
+                    if value.endswith(","):  # if args has only one item
                         value = value[:-1]
             if line_number != self.line_number:
                 sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
@@ -230,6 +226,7 @@ def customize_for_version37(self, version):
         self.prec = p
         self.prune()
         return
+
     self.n_build_list_unpack = n_build_list_unpack
 
     def gen_function_parens_adjust(mapping_key, node):
@@ -473,7 +470,14 @@ def customize_for_version37(self, version):
         pass
 
         is_code = hasattr(code_node, "attr") and iscode(code_node.attr)
-        if is_code and (code_node.attr.co_flags & COMPILER_FLAG_BIT["COROUTINE"]):
+        if is_code and (
+            code_node.attr.co_flags
+            & (
+                COMPILER_FLAG_BIT["COROUTINE"]
+                | COMPILER_FLAG_BIT["ITERABLE_COROUTINE"]
+                | COMPILER_FLAG_BIT["ASYNC_GENERATOR"]
+            )
+        ):
             self.template_engine(("\n\n%|async def %c\n", -2), node)
         else:
             self.template_engine(("\n\n%|def %c\n", -2), node)
@@ -894,16 +898,22 @@ def customize_for_version37(self, version):
     # Fixing in the parsing by inspection is harder than doing it here.
     def n_testtrue(node):
         compare_chained37 = node[0]
-        if compare_chained37 == "compare_chained37" and compare_chained37[1] == "compare_chained1b_37":
+        if (
+            compare_chained37 == "compare_chained37"
+            and compare_chained37[1] == "compare_chained1b_37"
+        ):
             compare_chained1b_37 = compare_chained37[1]
-            if len(compare_chained1b_37) > 2 and compare_chained1b_37[-2] == "JUMP_FORWARD":
+            if (
+                len(compare_chained1b_37) > 2
+                and compare_chained1b_37[-2] == "JUMP_FORWARD"
+            ):
                 node.kind = "testfalse"
                 pass
             pass
         self.default(node)
         return
-    self.n_testtrue = n_testtrue
 
+    self.n_testtrue = n_testtrue
 
     # def kwargs_only_36(node):
     #     keys = node[-1].attr
