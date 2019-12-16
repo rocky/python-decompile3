@@ -54,7 +54,7 @@ def customize_for_version37(self, version):
     TABLE_DIRECT.update(
         {
             "async_for_stmt": (
-                "%|async for %c in %c:\n%+%c%-%-\n\n",
+                "%|async for %c in %c:\n%+%c%-\n\n",
                 (7, "store"),
                 (1, "expr"),
                 (17, "for_block"),

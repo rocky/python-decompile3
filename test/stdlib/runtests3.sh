@@ -32,7 +32,8 @@ typeset -A SKIP_TESTS
 case $PYVERSION in
     3.7)
 	SKIP_TESTS=(
-	    [test_ast.py]=1  # Control flow wrt "if elif"
+	    [test_argparse.py]=1  #
+	    [test_ast.py]=1  #
 	    [test_decorators.py]=1  # Control flow wrt "if elif"
 	)
 	if (( batch )) ; then
