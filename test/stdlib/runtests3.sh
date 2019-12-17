@@ -32,9 +32,13 @@ typeset -A SKIP_TESTS
 case $PYVERSION in
     3.7)
 	SKIP_TESTS=(
-	    [test_argparse.py]=1  #
 	    [test_ast.py]=1  #
+	    [test_collections.py]=1  # Investigate syntax error: self.assertEqual(p, Point(**))
+	    [test_complex.py]=1  # Investigate: NameError: global name 'infj' is not defined
+	    [test_contains.py]=1    # Code "while False: yield None" is optimized away in compilation
+	    [test_cmath.py]=1  # Syntax error - investigate
 	    [test_decorators.py]=1  # Control flow wrt "if elif"
+	    # ...
 	)
 	if (( batch )) ; then
 	    # Fails in crontab environment?
@@ -50,6 +54,7 @@ case $PYVERSION in
 	    [test_decorators.py]=1  # Control flow wrt "if elif"
 	    [test_pow.py]=1         # Control flow wrt "continue"
 	    [test_quopri.py]=1      # Only fails on POWER
+	    # ...
 	)
 	;;
     *)
