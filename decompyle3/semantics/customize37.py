@@ -248,6 +248,8 @@ def customize_for_version37(self, version):
         return
 
     def n_call(node):
+        p = self.prec
+        self.prec = 100
         mapping = self._get_mapping(node)
         table = mapping[0]
         key = node
@@ -284,7 +286,7 @@ def customize_for_version37(self, version):
             kwargs = (argc >> 8) & 0xFF
             # FIXME: handle annotation args
             if nargs > 0:
-                template = ("%c(%C, ", 0, (1, nargs + 1, ", "))
+                template = ("%c(%P, ", 0, (1, nargs + 1, ", ", 100))
             else:
                 template = ("%c(", 0)
             self.template_engine(template, node)
@@ -297,17 +299,20 @@ def customize_for_version37(self, version):
                 self.template_engine(template, args_node)
             else:
                 if len(node) - nargs > 3:
-                    template = ("*%c, %C)", nargs + 1, (nargs + kwargs + 1, -1, ", "))
+                    template = ("*%c, %P)", nargs + 1, (nargs + kwargs + 1, -1, ", ", 100))
                 else:
                     template = ("*%c)", nargs + 1)
                 self.template_engine(template, node)
+            self.prec = p
             self.prune()
         elif key.kind.startswith("CALL_FUNCTION_1"):
             self.template_engine(("%c(%c)", (0, "expr"), 1), node)
+            self.prec = p
             self.prune()
         else:
             gen_function_parens_adjust(key, node)
 
+        self.prec = p
         self.default(node)
 
     self.n_call = n_call

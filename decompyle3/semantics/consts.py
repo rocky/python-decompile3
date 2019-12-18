@@ -56,8 +56,6 @@ PRECEDENCE = {
     'ret_and':                24,
     'unary_not':              22, # Boolean NOT
 
-    'call':                   18,  # x(arguments...); call includes its own ()
-
     "binop":                  16,
 
     'BINARY_AND':             14, # Bitwise AND
@@ -84,6 +82,7 @@ PRECEDENCE = {
     'attribute':              2,  # x.attribute
     'buildslice2':            2,  # x[index]
     'buildslice3':            2,  # x[index:index]
+    'call':                   2,  # x(arguments...);
     'delete_subscript':       2,
     'slice0':                 2,
     'slice1':                 2,
