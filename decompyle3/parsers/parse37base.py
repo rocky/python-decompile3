@@ -1102,7 +1102,6 @@ class Python37BaseParser(PythonParser):
             # FIXME: This is a cheap test. Should we do something with an AST like we
             # do with "and"?
             # "or"s with constants like this will have "COME_FROM" at the end
-            return False
             return tokens[last] in (
                 "LOAD_ASSERT",
                 "LOAD_STR",
