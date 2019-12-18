@@ -479,7 +479,6 @@ def customize_for_version37(self, version):
             )
         )
 
-
     def n_function_def(node):
         if is_async_fn(node):
             self.template_engine(("\n\n%|async def %c\n", -2), node)

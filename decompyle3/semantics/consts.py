@@ -309,12 +309,12 @@ TABLE_DIRECT = {
     # function_def_async
     'function_def':         ( '\n\n%|def %c\n', -2), # -2 to handle closures
 
-    'function_def_deco':    ( '\n\n%c', 0),
-    'mkfuncdeco':  	    ( '%|@%c\n%c', 0, 1),
+    'function_def_deco':    ( '\n\n%c', (0, "mkfuncdeco") ),
+    'mkfuncdeco':  	    ( '%|@%c\n%c', (0, "expr"), 1 ),
 
     # A custom rule in n_function def distinguishes whether to call this or
     # function_def_async
-    'mkfuncdeco0':  	    ( '%|def %c\n', 0),
+    'mkfuncdeco0':  	    ( '%|def %c\n', (0, "mkfunc") ),
 
     'classdefdeco':  	    ( '\n\n%c', 0),
     'classdefdeco1':  	    ( '%|@%c\n%c', 0, 1),
