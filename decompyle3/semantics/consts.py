@@ -63,8 +63,6 @@ PRECEDENCE = {
     'ret_and':                24,
     'unary_not':              22, # Boolean NOT
 
-    "binop":                  16,
-
     'BINARY_AND':             14, # Bitwise AND
     'BINARY_OR':              18, # Bitwise OR
     'BINARY_XOR':             16, # Bitwise XOR
