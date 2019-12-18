@@ -72,9 +72,9 @@ def customize_for_version37(self, version):
                 (16, "for_block"),
             ),
             "and_not": ("%c and not %c", (0, "expr"), (2, "expr")),
-            "async_with_stmt": ("%|async with %c:\n%+%|%c%-", (0, "expr"), 7),
+            "async_with_stmt": ("%|async with %c:\n%+%c%-", (0, "expr"), 7),
             "async_with_as_stmt": (
-                "%|async with %c as %c:\n%+%|%c%-",
+                "%|async with %c as %c:\n%+%c%-",
                 (0, "expr"),
                 (6, "store"),
                 7,
@@ -460,7 +460,7 @@ def customize_for_version37(self, version):
 
     self.n_call_kw36 = n_call_kw36
 
-    def n_function_def(node):
+    def is_async_fn(node):
         code_node = node[0][0]
         for n in node[0]:
             if hasattr(n, "attr") and iscode(n.attr):
@@ -470,20 +470,33 @@ def customize_for_version37(self, version):
         pass
 
         is_code = hasattr(code_node, "attr") and iscode(code_node.attr)
-        if is_code and (
+        return is_code and (
             code_node.attr.co_flags
             & (
                 COMPILER_FLAG_BIT["COROUTINE"]
                 | COMPILER_FLAG_BIT["ITERABLE_COROUTINE"]
                 | COMPILER_FLAG_BIT["ASYNC_GENERATOR"]
             )
-        ):
+        )
+
+
+    def n_function_def(node):
+        if is_async_fn(node):
             self.template_engine(("\n\n%|async def %c\n", -2), node)
         else:
-            self.template_engine(("\n\n%|def %c\n", -2), node)
+            self.default(node)
         self.prune()
 
     self.n_function_def = n_function_def
+
+    def n_mkfuncdeco0(node):
+        if is_async_fn(node):
+            self.template_engine(("%|async def %c\n", 0), node)
+        else:
+            self.default(node)
+        self.prune()
+
+    self.n_mkfuncdeco0 = n_mkfuncdeco0
 
     def unmapexpr(node):
         last_n = node[0][-1]
