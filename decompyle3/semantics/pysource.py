@@ -612,8 +612,6 @@ class SourceWalker(GenericASTTraversal, object):
     def n_LOAD_CONST(self, node):
         attr = node.attr
         data = node.pattr
-        if data == (0j, (-0-0j)):
-            from trepan.api import debug; debug()
         datatype = type(data)
         if isinstance(data, float) and str(data) in frozenset(
             ["nan", "-nan", "inf", "-inf"]
