@@ -551,6 +551,9 @@ class SourceWalker(GenericASTTraversal, object):
         if n == "LOAD_CONST" and repr(n.pattr)[0] == "-":
             self.prec = 6
 
+        # print(n.kind, p, "<", self.prec)
+        # print(self.f.getvalue())
+
         if p < self.prec:
             self.write("(")
             self.preorder(node[0])
@@ -577,7 +580,6 @@ class SourceWalker(GenericASTTraversal, object):
         # Try to avoid a trailing parentheses by lowering the priority a little
         self.prec -= 1
         self.preorder(node[1])
-        self.prec += 1
         self.prune()
 
     def n_str(self, node):
@@ -1733,6 +1735,8 @@ class SourceWalker(GenericASTTraversal, object):
         beginning of this module for the how we interpret format
         specifications such as %c, %C, and so on.
         """
+
+        # print("kind, prec:", startnode.kind, self.prec)
 
         # print("-----")
         # print(startnode)
