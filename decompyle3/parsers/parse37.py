@@ -91,8 +91,6 @@ class Python37Parser(Python37BaseParser):
         else_suitec ::= c_stmts
         else_suitec ::= returns
 
-        stmt ::= assert
-
         stmt ::= classdef
         stmt ::= call_stmt
 
@@ -652,7 +650,8 @@ class Python37Parser(Python37BaseParser):
         # sort this out better.
         except_suite ::= c_stmts_opt POP_EXCEPT jump_except ELSE
 
-        # FIXME: generalize and specialize
+        # FIXME: the below is to work around test_grammar expecting a "call" to be
+        # on the LHS because it is also somewhere on in a rule.
         call        ::= expr CALL_METHOD_0
 
         testtrue         ::= compare_chained37
@@ -804,16 +803,6 @@ class Python37Parser(Python37BaseParser):
         classdefdeco ::= classdefdeco1 store
 
         expr    ::= LOAD_ASSERT
-        assert  ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 COME_FROM
-        stmt    ::= assert2
-        assert2 ::= assert_expr jmp_true LOAD_ASSERT expr
-                    CALL_FUNCTION_1 RAISE_VARARGS_1 COME_FROM
-
-        assert_expr ::= expr
-        assert_expr ::= assert_expr_or
-        assert_expr ::= assert_expr_and
-        assert_expr_or ::= assert_expr jmp_true expr
-        assert_expr_and ::= assert_expr jmp_false expr
 
         ifstmt ::= testexpr _ifstmts_jump
 
@@ -974,7 +963,6 @@ class Python37Parser(Python37BaseParser):
         and  ::= expr JUMP_IF_FALSE_OR_POP expr come_from_opt
         and  ::= expr jifop_come_from expr
         and  ::= expr JUMP_IF_FALSE expr COME_FROM
-        and  ::= expr jmp_false expr
 
         pjit_come_from ::= POP_JUMP_IF_TRUE COME_FROM
         or  ::= expr pjit_come_from expr

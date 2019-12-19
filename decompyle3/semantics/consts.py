@@ -329,8 +329,6 @@ TABLE_DIRECT = {
     'kwargs':    	    ( '%D', (0, maxint, ', ') ),
     'kwargs1':    	    ( '%D', (0, maxint, ', ') ),
 
-    'assert_expr_or':   ( '%c or %c', 0, 2 ),
-    'assert_expr_and':  ( '%c and %c', 0, 2 ),
     'print_items_nl_stmt': ( '%|print %c%c\n', 0, 2 ),
     'print_item':       ( ', %c', 0),
     'print_nl':	        ( '%|print\n', ),
