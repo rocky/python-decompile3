@@ -755,6 +755,7 @@ def customize_for_version37(self, version):
         if (
             call_function_ex.attr & 1
             and (not isinstance(kwargs, Token) and kwargs != "attribute")
+            and kwargs != "call_kw36"
             and not kwargs[0].kind.startswith("kvlist")
         ):
             self.call36_dict(kwargs)
