@@ -37,16 +37,19 @@ case $PYVERSION in
 	    [test_bdb.py]=1  #
 	    [test_buffer.py]=1  #
 	    [test_builtin.py]=1  #
-	    [test_cmdline.py]=1  # Interactive?
+	    [test_cmd_line.py]=1  # Interactive?
+	    [test_cmd_line_script.py]=1
+	    [test_cmath.py]=1  # import failure - investigate
 	    [test_codecs-3.7.py]=1
 	    [test_compare.py]=1
 	    [test_compile.py]=1
+	    [test_configparser.py]=1
 	    [test_contains.py]=1    # Code "while False: yield None" is optimized away in compilation
 	    [test_contextlib_async.py]=1 # Investigate
 	    [test_context.py]=1
 	    [test_coroutines.py]=1 # Parse error
+	    [test_crypt.py]=1
 	    [test_curses.py]=1 # Parse error
-	    [test_cmath.py]=1  # Syntax error - investigate
 	    [test_decorators.py]=1  # Control flow wrt "if elif"
 	    [test_dis.py]=1   # We change line numbers - duh!
 	    # ...
