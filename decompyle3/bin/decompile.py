@@ -9,15 +9,15 @@ import sys, os, getopt, time
 
 program = "decompyle3"
 
-__doc__ = """
+__doc__ = f"""
 Usage:
-  %s [OPTIONS]... [ FILE | DIR]...
-  %s [--help | -h | --V | --version]
+  {program} [OPTIONS]... [ FILE | DIR]...
+  {program} [--help | -h | --V | --version]
 
 Examples:
-  %s      foo.pyc bar.pyc       # decompile foo.pyc, bar.pyc to stdout
-  %s -o . foo.pyc bar.pyc       # decompile to ./foo.pyc_dis and ./bar.pyc_dis
-  %s -o /tmp /usr/lib/python1.5 # decompile whole library
+  {program}      foo.pyc bar.pyc       # decompile foo.pyc, bar.pyc to stdout
+  {program} -o . foo.pyc bar.pyc       # decompile to ./foo.pyc_dis and ./bar.pyc_dis
+  {program} -o /tmp /usr/lib/python1.5 # decompile whole library
 
 Options:
   -o <path>     output decompiled files to this path:
@@ -55,9 +55,7 @@ Extensions of generated files:
   '.pyc_dis' '.pyo_dis'   successfully decompiled
     + '_unverified'       successfully decompile but verification failed
     + '_failed'           decompile failed (contact author for enhancement)
-""" % (
-    (program,) * 5
-)
+"""
 
 program = "decompyle3"
 
@@ -71,13 +69,7 @@ def usage():
 
 
 def main_bin():
-    if not (
-        sys.version_info[0:2]
-        in (
-            (3, 7),
-            (3, 8),
-        )
-    ):
+    if not (sys.version_info[0:2] in ((3, 7), (3, 8))):
         print("Error: %s requires Python 3.7-3.8" % program, file=sys.stderr)
         sys.exit(-1)
 

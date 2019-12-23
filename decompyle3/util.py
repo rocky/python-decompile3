@@ -2,13 +2,17 @@
 # Until such time it is fixed, we'll do a better.
 # More could be done here though.
 
+from typing import Any
+
 from math import copysign
 
-def is_negative_zero(n: float):
+
+def is_negative_zero(n: float) -> bool:
     """Returns true if n is -0.0"""
     return n == 0.0 and copysign(1, n) == -1
 
-def better_repr(v) -> str:
+
+def better_repr(v: Any) -> Any:
     """Work around Python's unorthogonal and unhelpful repr() for primitive float
     and complex."""
     if isinstance(v, float):
@@ -30,8 +34,13 @@ def better_repr(v) -> str:
         # The below is however round-tripable, and Python's repr() isn't.
         return "complex(%s, %s)" % (real, imag)
     elif isinstance(v, tuple):
+        if len(v) == 1:
+            return "(%s,)" % better_repr(v[0])
         return "(%s)" % ", ".join(better_repr(i) for i in v)
     elif isinstance(v, list):
+        l = better_repr(v)
+        if len(v) == 1:
+            return "[%s,]" % better_repr(v[0])
         return "[%s]" % ", ".join(better_repr(i) for i in v)
     # TODO: elif deal with sets and dicts
     else:

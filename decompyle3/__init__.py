@@ -34,10 +34,10 @@ __docformat__ = "restructuredtext"
 # doesn't support version_major, and has a bug in
 # floating point so we can't divide 26 by 10 and get
 # 2.6
-PYTHON_VERSION = sys.version_info[0] + (sys.version_info[1] / 10.0)
-PYTHON_VERSION_STR = "%s.%s" % (sys.version_info[0], sys.version_info[1])
+PYTHON_VERSION: float = sys.version_info[0] + (sys.version_info[1] / 10.0)
+PYTHON_VERSION_STR: str = "%s.%s" % (sys.version_info[0], sys.version_info[1])
 
-IS_PYPY = "__pypy__" in sys.builtin_module_names
+IS_PYPY: bool = "__pypy__" in sys.builtin_module_names
 
 if hasattr(sys, "setrecursionlimit"):
     # pyston doesn't have setrecursionlimit
