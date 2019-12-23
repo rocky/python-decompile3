@@ -12,6 +12,8 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+from typing import Any
 import datetime, py_compile, os, subprocess, sys, tempfile
 
 from decompyle3 import IS_PYPY, PYTHON_VERSION
@@ -31,7 +33,7 @@ from decompyle3.semantics.linemap import deparse_code_with_map
 from xdis.load import load_module
 
 
-def _get_outstream(outfile):
+def _get_outstream(outfile: str) -> Any:
     dir = os.path.dirname(outfile)
     failed_file = outfile + "_failed"
     if os.path.exists(failed_file):
@@ -58,7 +60,7 @@ def decompile(
     magic_int=None,
     mapstream=None,
     do_fragments=False,
-)->None:
+) -> None:
     """
     ingests and deparses a given code block 'co'
 
@@ -141,7 +143,7 @@ def decompile(
         raise pysource.SourceWalkerError(str(e))
 
 
-def compile_file(source_path):
+def compile_file(source_path: str) -> str:
     if source_path.endswith(".py"):
         basename = source_path[:-3]
     else:
@@ -166,7 +168,7 @@ def decompile_file(
     source_encoding=None,
     mapstream=None,
     do_fragments=False,
-):
+) -> Any:
     """
     decompile Python byte-code file (.pyc). Return objects to
     all of the deparsed objects found in `filename`.
@@ -222,8 +224,8 @@ def decompile_file(
 
 # FIXME: combine into an options parameter
 def main(
-    in_base,
-    out_base,
+    in_base: str,
+    out_base: str,
     compiled_files: list,
     source_files: list,
     outfile=None,
@@ -235,7 +237,7 @@ def main(
     raise_on_error=False,
     do_linemaps=False,
     do_fragments=False,
-):
+) -> None:
     """
     in_base	base directory for input files
     out_base	base directory for output files (ignored when
@@ -318,7 +320,7 @@ def main(
             tot_files += 1
         except (ValueError, SyntaxError, ParserError, pysource.SourceWalkerError) as e:
             sys.stdout.write("\n")
-            sys.stderr.write("\n# file %s\n# %s\n" % (infile, e))
+            sys.stderr.write(f"\n# file {infile}\n# {e}\n")
             failed_files += 1
             tot_files += 1
         except KeyboardInterrupt:
@@ -326,7 +328,7 @@ def main(
                 outstream.close()
                 os.remove(outfile)
             sys.stdout.write("\n")
-            sys.stderr.write("\nLast file: %s   " % (infile))
+            sys.stderr.write(f"\nLast file: {infile}   ")
             raise
         except RuntimeError as e:
             sys.stdout.write(f"\n{str(e)}\n")
@@ -423,14 +425,10 @@ def status_msg(
         if failed_files:
             return "\n# decompile failed"
         elif verify_failed_files:
-            return "\n# decompile %sverification failed" % verification_type
+            return f"\n# decompile {verification_type}verification failed"
         else:
             return "\n# Successfully decompiled file"
             pass
         pass
-    mess = "decompiled %i files: %i okay, %i failed" % (
-        tot_files,
-        okay_files,
-        failed_files,
-    )
+    mess = f"decompiled {tot_files} files: {okay_files} okay, {failed_files} failed"
     return mess

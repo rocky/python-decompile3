@@ -18,7 +18,7 @@
 #
 """
 scanner/ingestion module. From here we call various version-specific
-scanners, e.g. for Python 3.7 or 3.7.
+scanners, e.g. for Python 3.7 or 3.8.
 """
 
 from array import array

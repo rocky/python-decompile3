@@ -47,8 +47,8 @@ Options:
 Debugging Options:
   --asm     | -a        include byte-code
   --grammar | -g        show matching grammar
-  --tree={before|after}
-  -t {before|after}     include syntax before (or after) tree transformation
+  --tree={{before|after}}
+  -t {{before|after}}     include syntax before (or after) tree transformation
   --tree++ | -T         add template rules to --tree=before when possible
 
 Extensions of generated files:
