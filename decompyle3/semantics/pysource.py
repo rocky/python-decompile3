@@ -470,7 +470,7 @@ class SourceWalker(GenericASTTraversal, object):
         else:
             # We can't comment out like above because there may be a trailing ')'
             # that needs to be written
-            assert len(node) == 3 and node[2] == "LAMBDA_MARKER"
+            assert len(node) == 3 and node[2] in ("RETURN_VALUE_LAMBDA", "LAMBDA_MARKER")
             self.preorder(node[0])
             self.prune()
 
@@ -1880,11 +1880,11 @@ class SourceWalker(GenericASTTraversal, object):
 
             if k.startswith("CALL_METHOD"):
                 # This happens in PyPy and Python 3.7+
-                TABLE_R[k] = ("%c(%P)", 0, (1, -1, ", ", 100))
+                TABLE_R[k] = ("%c(%P)", (0, "expr"), (1, -1, ", ", 100))
             elif self.version >= 3.6 and k.startswith("CALL_FUNCTION_KW"):
-                TABLE_R[k] = ("%c(%P)", 0, (1, -1, ", ", 100))
+                TABLE_R[k] = ("%c(%P)", (0, "expr"), (1, -1, ", ", 100))
             elif op == "CALL_FUNCTION":
-                TABLE_R[k] = ("%c(%P)", 0, (1, -1, ", ", 100))
+                TABLE_R[k] = ("%c(%P)", (0, "expr"), (1, -1, ", ", 100))
             elif op in (
                 "CALL_FUNCTION_VAR",
                 "CALL_FUNCTION_VAR_KW",
@@ -2114,6 +2114,7 @@ class SourceWalker(GenericASTTraversal, object):
                 p_insts = self.p.insts
                 self.p.insts = self.scanner.insts
                 ast = python_parser.parse(self.p, tokens, customize)
+                self.customize(customize)
                 self.p.insts = p_insts
             except (python_parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens)

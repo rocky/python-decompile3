@@ -215,9 +215,10 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
     paramnames = list(scanner_code.co_varnames[:argc])
     kwargs = list(scanner_code.co_varnames[argc : argc + kwonlyargcount])
 
-    # defaults are for last n parameters, thus reverse
-    paramnames.reverse()
-    defparams.reverse()
+    # defaults are for last n parameters when not in a lambda, thus reverse
+    if not is_lambda:
+        paramnames.reverse()
+        defparams.reverse()
 
     try:
         ast = self.build_ast(
@@ -264,6 +265,7 @@ def make_function3(self, node, is_lambda, nested=1, code_node=None):
             params.append("*%s: %s" % (star_arg, annotate_dict[star_arg]))
         else:
             params.append("*%s" % star_arg)
+
         argc += 1
 
     # dump parameter list (with default values)
