@@ -31,35 +31,15 @@ from itertools import zip_longest
 
 from decompyle3.show import maybe_show_tree_param_default
 
-def make_function3(self, node, is_lambda, nested=1, code_node=None):
+def make_function36(self, node, is_lambda, nested=1, code_node=None):
     """Dump function definition, doc string, and function body in
-      Python version 3.0 and above
+      Python version 3.6 and above.
     """
-
-    # For Python 3.3, the evaluation stack in MAKE_FUNCTION is:
-
-    # * default argument objects in positional order
-    # * pairs of name and default argument, with the name just below
-    #   the object on the stack, for keyword-only parameters
-    # * parameter annotation objects
-    # * a tuple listing the parameter names for the annotations
-    #   (only if there are ony annotation objects)
-    # * the code associated with the function (at TOS1)
-    # * the qualified name of the function (at TOS)
-
-    # For Python 3.0 .. 3.2 the evaluation stack is:
-    # The function object is defined to have argc default parameters,
-    # which are found below TOS.
-    # * first come positional args in the order they are given in the source,
-    # * next come the keyword args in the order they given in the source,
-    # * finally is the code associated with the function (at TOS)
-    #
-    # Note: There is no qualified name at TOS
-
     # MAKE_CLOSURE adds an additional closure slot
 
-    # In Python 3.6 stack entries change again. I understand
-    # 3.7 changes some of those changes. Yes, it is hard to follow
+    # In Python 3.6 and above stack change again. I understand
+    # 3.7 changes some of those changes, although I don't
+    # see it in this code yet. Yes, it is hard to follow
     # and I am sure I haven't been able to keep up.
 
     # Thank you, Python.

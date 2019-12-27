@@ -136,7 +136,7 @@ from decompyle3.parsers.treenode import SyntaxTree
 from spark_parser import GenericASTTraversal, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from decompyle3.scanner import Code, get_scanner
 import decompyle3.parser as python_parser
-from decompyle3.semantics.make_function import make_function3
+from decompyle3.semantics.make_function36 import make_function36
 from decompyle3.semantics.parser_error import ParserError
 from decompyle3.semantics.check_ast import checker
 from decompyle3.semantics.customize import customize_for_version
@@ -825,7 +825,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         self.indent_more()
 
-        make_function3(self, node, is_lambda=False, code_node=code_node)
+        make_function36(self, node, is_lambda=False, code_node=code_node)
 
         if len(self.param_stack) > 1:
             self.write("\n\n")
@@ -904,7 +904,7 @@ class SourceWalker(GenericASTTraversal, object):
 
 
     def n_mklambda(self, node):
-        make_function3(self, node, is_lambda=True, code_node=node[-2])
+        make_function36(self, node, is_lambda=True, code_node=node[-2])
         self.prune()  # stop recursing
 
     def n_list_comp(self, node):

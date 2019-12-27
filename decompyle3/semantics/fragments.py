@@ -615,7 +615,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         self.indent_more()
         start = len(self.f.getvalue())
-        self.make_function(node, is_lambda=False, code_node=code_node)
+        self.make_function36(node, is_lambda=False, code_node=code_node)
 
         self.set_pos_info(node, start, len(self.f.getvalue()))
 
