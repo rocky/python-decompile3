@@ -17,6 +17,7 @@ from decompyle3.show import maybe_show_tree
 from copy import copy
 from spark_parser import GenericASTTraversal, GenericASTTraversalPruningException
 
+from decompyle3.semantics.helper import find_code_node
 from decompyle3.parsers.treenode import SyntaxTree
 from decompyle3.scanners.tok import Token
 from decompyle3.semantics.consts import RETURN_NONE
@@ -71,8 +72,7 @@ class TreeTransform(GenericASTTraversal, object):
         than the code field is seen and used.
         """
 
-        code_node = node[-3]
-        code = code_node.attr
+        code = find_code_node(node, -3).attr
 
         if (
             node[-1].pattr != "closure"
