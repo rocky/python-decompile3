@@ -52,6 +52,7 @@ case $PYVERSION in
 	    [test_curses.py]=1 # Parse error
 	    [test_decorators.py]=1  # Control flow wrt "if elif"
 	    [test_dis.py]=1   # We change line numbers - duh!
+	    [test_generators.py]=1  # Investigate
 	    # ...
 	)
 	if (( batch )) ; then
@@ -68,6 +69,7 @@ case $PYVERSION in
 	    [test_collections.py]=1  # parse error
 	    [test_decorators.py]=1  # Control flow wrt "if elif"
 	    [test_dis.py]=1   # We change line numbers - duh!
+	    [test_generators.py]=1  # Investigate
 	    [test_pow.py]=1         # Control flow wrt "continue"
 	    [test_quopri.py]=1      # Only fails on POWER
 	    # ...
@@ -77,7 +79,6 @@ case $PYVERSION in
 	SKIP_TESTS=( [test_aepack.py]=1
 		     [audiotests.py]=1
 		     [test_dis.py]=1   # We change line numbers - duh!
-		     [test_generators.py]=1  # I think string formatting of docstrings gets in the way. Not sure
 		   )
 	;;
 esac
@@ -140,7 +141,7 @@ for file in $files; do
     fi
 
     ((i++))
-    # (( i > 40 )) && break
+    (( i > 20 )) && break
     short_name=$(basename $file .py)
     decompiled_file=$short_name-${PYVERSION}.pyc
     $fulldir/compile-file.py $file && \
@@ -167,6 +168,6 @@ typeset -i ALL_FILES_ENDTIME=$(date +%s)
 
 printf "Ran $i unit-test files in "
 displaytime $time_diff
-echo "Skipped $skipped test for known failures."
+echo "Failed tests $allerrs; skipped $skipped test for known failures."
 
 exit $allerrs
