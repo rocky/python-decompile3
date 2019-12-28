@@ -121,7 +121,7 @@ def flatten_list(node):
     return flat_elems
 
 
-def strip_quotes(s: str):
+def strip_quotes(s: str) -> str:
     if s.startswith("'''") and s.endswith("'''"):
         s = s[3:-3]
     elif s.startswith('"""') and s.endswith('"""'):

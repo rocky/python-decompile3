@@ -795,22 +795,6 @@ class SourceWalker(GenericASTTraversal, object):
             self.write(iname, " as ", sname)
         self.prune()  # stop recursing
 
-    def n_import_from(self, node):
-        relative_path_index = 0
-        if node[relative_path_index].pattr > 0:
-            node[2].pattr = ("." * node[relative_path_index].pattr) + node[2].pattr
-        if self.version > 2.7:
-            if isinstance(node[1].pattr, tuple):
-                imports = node[1].pattr
-                for pattr in imports:
-                    node[1].pattr = pattr
-                    self.default(node)
-                return
-            pass
-        self.default(node)
-
-    n_import_from_star = n_import_from
-
     def n_mkfunc(self, node):
 
         # MAKE_FUNCTION ..
