@@ -829,6 +829,7 @@ class Python37Parser(Python37BaseParser):
         iflaststmtl ::= testexpr c_stmts JUMP_BACK POP_BLOCK
 
         # These are used to keep parse tree indices the same
+        jump_forward_else  ::= JUMP_FORWARD
         jump_forward_else  ::= JUMP_FORWARD ELSE
         jump_forward_else  ::= JUMP_FORWARD COME_FROM
         jump_absolute_else ::= JUMP_ABSOLUTE ELSE
@@ -1031,11 +1032,19 @@ class Python37Parser(Python37BaseParser):
         whilestmt         ::= setup_loop testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
                               COME_FROM_LOOP
 
+
         whilestmt         ::= setup_loop testexpr l_stmts_opt JUMP_BACK POP_BLOCK
                               COME_FROM_LOOP
 
         whilestmt         ::= setup_loop testexpr returns          POP_BLOCK
                               COME_FROM_LOOP
+
+        # We can be missing a COME_FROM_LOOP if the "while" statement is nested inside an if/else
+        # so after the POP_BLOCK we have a JUMP_FORWARD which forms the "else" portion of the "if"
+        # This is undoubtedly some sort of JUMP optimization going on.
+
+        whilestmt         ::= setup_loop testexpr l_stmts_opt JUMP_BACK come_froms
+                              POP_BLOCK
 
         while1elsestmt    ::= setup_loop          l_stmts     JUMP_BACK
                               else_suitel
