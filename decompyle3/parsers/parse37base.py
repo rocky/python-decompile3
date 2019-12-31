@@ -588,7 +588,7 @@ class Python37BaseParser(PythonParser):
                         """
                         stmt       ::= SETUP_ANNOTATIONS
                         stmt       ::= ann_assign
-                        ann_assign ::= LOAD_NAME LOAD_ANNOTATION LOAD_STR STORE_SUBSCR
+                        ann_assign ::= expr LOAD_ANNOTATION LOAD_STR STORE_SUBSCR
                         """,
                         nop_func,
                     )
