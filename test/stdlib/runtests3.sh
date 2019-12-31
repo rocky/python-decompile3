@@ -39,7 +39,6 @@ case $PYVERSION in
 	    [test_builtin.py]=1  #
 	    [test_cmd_line.py]=1  # Interactive?
 	    [test_cmd_line_script.py]=1
-	    [test_cmath.py]=1  # import failure - investigate
 	    [test_codecs-3.7.py]=1
 	    [test_compare.py]=1
 	    [test_compile.py]=1

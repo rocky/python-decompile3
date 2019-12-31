@@ -581,6 +581,18 @@ class Python37BaseParser(PythonParser):
             elif opname == "LOAD_LISTCOMP":
                 self.add_unique_rule("expr ::= listcomp", opname, token.attr, customize)
                 custom_ops_processed.add(opname)
+            elif opname == "LOAD_NAME":
+                if token.attr == "__annotations__" and "SETUP_ANNOTATIONS" in self.seen_ops:
+                    token.kind = "LOAD_ANNOTATION"
+                    self.addRule(
+                        """
+                        stmt       ::= SETUP_ANNOTATIONS
+                        stmt       ::= ann_assign
+                        ann_assign ::= LOAD_NAME LOAD_ANNOTATION LOAD_STR STORE_SUBSCR
+                        """,
+                        nop_func,
+                    )
+                    pass
             elif opname == "LOAD_SETCOMP":
                 # Should this be generalized and put under MAKE_FUNCTION?
                 if has_get_iter_call_function1:

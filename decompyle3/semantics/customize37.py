@@ -53,6 +53,12 @@ def customize_for_version37(self, version):
 
     TABLE_DIRECT.update(
         {
+            "ann_assign": (
+                "%|%[2]{attr}: %c\n", 0,
+            ),
+            "ann_assign_init": (
+                "%|%[2]{attr}: %c = %c\n", 0, 1,
+            ),
             "async_for_stmt": (
                 "%|async for %c in %c:\n%+%c%-\n\n",
                 (7, "store"),
