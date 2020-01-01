@@ -1835,6 +1835,7 @@ class SourceWalker(GenericASTTraversal, object):
                 try:
                     self.write(eval(expr, d, d))
                 except:
+                    from trepan.api import debug; debug()
                     raise
             m = escape.search(fmt, i)
         self.write(fmt[i:])
