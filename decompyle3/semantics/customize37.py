@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 by Rocky Bernstein
+#  Copyright (c) 2019-2020 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@ from decompyle3.semantics.consts import (
     TABLE_DIRECT,
     TABLE_R,
     INDENT_PER_LEVEL,
-    maxint,
 )
 from decompyle3.semantics.helper import flatten_list, escape_string, strip_quotes
 
@@ -148,6 +147,9 @@ def customize_for_version37(self, version):
             ),
             "ifstmtl": ("%|if %c:\n%+%c%-", (0, "testexpr"), (1, "_ifstmts_jumpl")),
             'import_as37':     ( '%|import %c as %c\n', 2, -2),
+            'import_from37':   ( '%|from %[2]{pattr} import %c\n',
+                                 (3, 'importlist') ),
+
             "importattr37": ("%c", (0, "IMPORT_NAME_ATTR")),
             'list_if37':  ( " if %p%c", (0, 27), 1 ),
             "testfalse_not_or": ("not %c or %c", (0, "expr"), (2, "expr")),
