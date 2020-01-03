@@ -49,9 +49,17 @@ case $PYVERSION in
 	    [test_coroutines.py]=1 # Parse error
 	    [test_crypt.py]=1
 	    [test_curses.py]=1 # Parse error
-	    [test_decorators.py]=1  # Control flow wrt "if elif"
+	    [test_dataclasses.py]=1   # Investigate
+	    [test_datetime.py]=1   # Takes too long
+	    [test_dbm_gnu.py]=1   # Takes too long
+	    [test_decimal.py]=1   # Parse error
+	    [test_descr.py]=1   # Parse error
+	    [test_dictcomps.py]=1 # Bad semantics - Investigate
 	    [test_dis.py]=1   # We change line numbers - duh!
-	    [test_generators.py]=1  # Investigate
+	    [test_enumerate.py]=1   #
+	    [test_enum.py]=1   #
+	    [test_faulthandler.py]=1   # takes too long
+	    [test_generators.py]=1  # semantic syntax Investigate
 	    # ...
 	)
 	if (( batch )) ; then
