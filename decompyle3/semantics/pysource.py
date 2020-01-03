@@ -1035,7 +1035,7 @@ class SourceWalker(GenericASTTraversal, object):
 
     n_dict_comp = n_set_comp
 
-    def comprehension_walk_newer(self, node, iter_index, code_index=-5):
+    def comprehension_walk_newer(self, node, iter_index: int, code_index=-5):
         """Non-closure-based comprehensions the way they are done in Python3
         and some Python 2.7. Note: there are also other set comprehensions.
         """
@@ -1097,6 +1097,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         # Iterate to find the innermost store
         # We'll come back to the list iteration below.
+
         while n in ("list_iter", "comp_iter"):
             # iterate one nesting deeper
             n = n[0]
@@ -1105,13 +1106,18 @@ class SourceWalker(GenericASTTraversal, object):
                 if n[2] == "store" and not store:
                     store = n[2]
                 n = n[3]
-            elif n in ("list_if", "list_if_not", "comp_if", "comp_if_not"):
-                have_not = n in ("list_if_not", "comp_if_not")
-                if_node = n[0]
-                if n[1] == "store":
-                    store = n[1]
-                n = n[2]
-                pass
+            elif n in ("list_if", "list_if_not",
+                       "list_if37", "list_if37_not",
+                       "comp_if", "comp_if_not"):
+                have_not = n in ("list_if_not", "comp_if_not", "list_if37_not")
+                if n in ("list_if37", "list_if37_not"):
+                    n = n[1]
+                else:
+                    if_node = n[0]
+                    if n[1] == "store":
+                        store = n[1]
+                    n = n[2]
+                    pass
             pass
 
         # Python 2.7+ starts including set_comp_body
@@ -1180,7 +1186,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prune()
     n_listcomp_async = n_listcomp
 
-    def setcomprehension_walk3(self, node, collection_index):
+    def setcomprehension_walk3(self, node, collection_index: int):
         """Set comprehensions the way they are done in Python3.
         They're more other comprehensions, e.g. set comprehensions
         See if we can combine code.

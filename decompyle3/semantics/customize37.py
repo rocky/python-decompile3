@@ -144,6 +144,7 @@ def customize_for_version37(self, version):
             ),
             "ifstmtl": ("%|if %c:\n%+%c%-", (0, "testexpr"), (1, "_ifstmts_jumpl")),
             'list_if37':  ( " if %p%c", (0, 27), 1 ),
+            'list_if37_not':  ( " if not %p%c", (0, 27), 1 ),
             "testfalse_not_or": ("not %c or %c", (0, "expr"), (2, "expr")),
             "testfalse_not_and": ("not (%c)", 0),
             "try_except36": ("%|try:\n%+%c%-%c\n\n", 1, -2),
