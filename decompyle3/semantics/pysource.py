@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2019 by Rocky Bernstein
+#  Copyright (c) 2015-2020 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -156,7 +156,9 @@ from decompyle3.semantics.consts import (
     LINE_LENGTH,
     RETURN_LOCALS,
     NONE,
+    RETURN_NONE,
     PASS,
+    ASSIGN_DOC_STRING,
     NAME_MODULE,
     TAB,
     INDENT_PER_LEVEL,
@@ -794,6 +796,7 @@ class SourceWalker(GenericASTTraversal, object):
         else:
             self.write(iname, " as ", sname)
         self.prune()  # stop recursing
+    n_alias37 = n_alias
 
     def n_mkfunc(self, node):
 

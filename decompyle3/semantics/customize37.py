@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 by Rocky Bernstein
+#  Copyright (c) 2019-2020 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ from decompyle3.semantics.consts import (
     TABLE_DIRECT,
     TABLE_R,
     INDENT_PER_LEVEL,
+    maxint,
 )
 from decompyle3.semantics.helper import flatten_list, escape_string, strip_quotes
 
@@ -53,12 +54,9 @@ def customize_for_version37(self, version):
 
     TABLE_DIRECT.update(
         {
-            "ann_assign": (
-                "%|%[2]{attr}: %c\n", 0,
-            ),
-            "ann_assign_init": (
-                "%|%[2]{attr}: %c = %c\n", 0, 1,
-            ),
+            "and_not": ("%c and not %c", (0, "expr"), (2, "expr")),
+            "ann_assign": ("%|%[2]{attr}: %c\n", 0,),
+            "ann_assign_init": ("%|%[2]{attr}: %c = %c\n", 0, 1,),
             "async_for_stmt": (
                 "%|async for %c in %c:\n%+%c%-\n\n",
                 (7, "store"),
@@ -77,7 +75,6 @@ def customize_for_version37(self, version):
                 (1, "expr"),
                 (16, "for_block"),
             ),
-            "and_not": ("%c and not %c", (0, "expr"), (2, "expr")),
             "async_with_stmt": ("%|async with %c:\n%+%c%-", (0, "expr"), 7),
             "async_with_as_stmt": (
                 "%|async with %c as %c:\n%+%c%-",
@@ -93,6 +90,11 @@ def customize_for_version37(self, version):
                 (25, "else_suite"),
             ),
             "attribute37": ("%c.%[1]{pattr}", 0),
+            "attributes37": (
+                "%[0]{pattr} import %c",
+                (0, "IMPORT_NAME_ATTR"),
+                (1, "IMPORT_FROM"),
+            ),
             "await_expr": ("await %c", 0),
             "await_stmt": ("%|%c\n", 0),
             "call_ex": ("%c(%p)", (0, "expr"), (1, 100)),
@@ -143,8 +145,12 @@ def customize_for_version37(self, version):
                 (5, "expr", 27),
             ),
             "ifstmtl": ("%|if %c:\n%+%c%-", (0, "testexpr"), (1, "_ifstmts_jumpl")),
-            'list_if37':  ( " if %p%c", (0, 27), 1 ),
-            'list_if37_not':  ( " if not %p%c", (0, 27), 1 ),
+            "import_as37": ("%|import %c as %c\n", 2, -2),
+            "import_from37": ("%|from %[2]{pattr} import %c\n", (3, "importlist37")),
+            "importattr37": ("%c", (0, "IMPORT_NAME_ATTR")),
+            "importlist37": ("%C", (0, maxint, ", ")),
+            "list_if37": (" if %p%c", (0, 27), 1),
+            "list_if37_not": (" if not %p%c", (0, 27), 1),
             "testfalse_not_or": ("not %c or %c", (0, "expr"), (2, "expr")),
             "testfalse_not_and": ("not (%c)", 0),
             "try_except36": ("%|try:\n%+%c%-%c\n\n", 1, -2),
@@ -307,7 +313,11 @@ def customize_for_version37(self, version):
                 self.template_engine(template, args_node)
             else:
                 if len(node) - nargs > 3:
-                    template = ("*%c, %P)", nargs + 1, (nargs + kwargs + 1, -1, ", ", 100))
+                    template = (
+                        "*%c, %P)",
+                        nargs + 1,
+                        (nargs + kwargs + 1, -1, ", ", 100),
+                    )
                 else:
                     template = ("*%c)", nargs + 1)
                 self.template_engine(template, node)
