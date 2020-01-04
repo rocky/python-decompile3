@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2019 Rocky Bernstein <rocky@gnu.org>
+# Copyright (C) 2018-2020 Rocky Bernstein <rocky@gnu.org>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -60,7 +60,7 @@ def decompile(
     magic_int=None,
     mapstream=None,
     do_fragments=False,
-) -> None:
+) -> Any:
     """
     ingests and deparses a given code block 'co'
 

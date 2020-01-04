@@ -56,6 +56,10 @@ sdist:
 	$(PYTHON) ./setup.py sdist
 
 
+#: Static type checking
+type-check:
+	mypy decompyle3
+
 #: Style check. Set env var LINT to pyflakes, flake, or flake8
 lint: flake8
 

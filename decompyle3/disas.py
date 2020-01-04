@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2016, 2818-2019 by Rocky Bernstein
+#  Copyright (c) 2015-2016, 2818-2020 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -29,6 +29,7 @@ Second, we need structured instruction information for the
 want to run on earlier Python versions.
 """
 
+from typing import Any, Callable
 import sys
 from collections import deque
 
@@ -56,7 +57,7 @@ def disco(version: str, co, out=None, is_pypy=False) -> None:
     disco_loop(scanner.ingest, queue, real_out)
 
 
-def disco_loop(disasm, queue: list, real_out):
+def disco_loop(disasm, queue, real_out):
     while len(queue) > 0:
         co = queue.popleft()
         if co.co_name != "<module>":

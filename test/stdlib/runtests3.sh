@@ -32,11 +32,26 @@ typeset -A SKIP_TESTS
 case $PYVERSION in
     3.7)
 	SKIP_TESTS=(
+	    [test_aifc.py]=1  #
+	    [test_asynchat.py]=1  #
+	    [test_asyncore.py]=1  #
+	    [test_array.py]=1  #
 	    [test_ast.py]=1  #
 	    [test_atexit.py]=1  #
+	    [test_audiop.py]=1  #
+	    [test_base64.py]=1  #
+	    [test_baseexception.py]=1  #
 	    [test_bdb.py]=1  #
+	    [test_bigmem.py]=1  #
+	    [test_binascii.py]=1  #
+	    [test_binhex.py]=1  #
+	    [test_bool.py]=1  #
 	    [test_buffer.py]=1  #
-	    [test_builtin.py]=1  #
+	    [test_bufio.py]=1  #
+	    [test_bufio.py]=1  #
+	    [test_bytes.py]=1  #
+	    [test_bz2.py]=1  #
+	    [test_calendar.py]=1
 	    [test_cmd_line.py]=1  # Interactive?
 	    [test_cmd_line_script.py]=1
 	    [test_codecs-3.7.py]=1

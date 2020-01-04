@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2019 by Rocky Bernstein
+#  Copyright (c) 2015-2020 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
@@ -29,7 +29,7 @@ For example:
 Finally we save token information.
 """
 
-from typing import List
+from typing import Any, Dict, List
 
 from xdis.code import iscode
 from xdis.bytecode import instruction_size, _get_const_info
@@ -48,7 +48,7 @@ globals().update(op3.opmap)
 
 
 class Scanner37Base(Scanner):
-    def __init__(self, version: str, show_asm=None, is_pypy=False, debug=False):
+    def __init__(self, version: float, show_asm=None, is_pypy=False, debug=False):
         super(Scanner37Base, self).__init__(version, show_asm, is_pypy)
         self.debug = debug
 
@@ -651,7 +651,9 @@ class Scanner37Base(Scanner):
         # Finish filling the list for last statement
         slist += [codelen] * (codelen - len(slist))
 
-    def detect_control_flow(self, offset: int, targets: list, inst_index: int):
+    def detect_control_flow(
+        self, offset: int, targets: Dict[Any, Any], inst_index: int
+    ):
         """
         Detect type of block structures and their boundaries to fix optimized jumps
         in python2.3+

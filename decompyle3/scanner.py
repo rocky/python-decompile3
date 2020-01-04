@@ -61,7 +61,7 @@ class Code(object):
 
 
 class Scanner(object):
-    def __init__(self, version: str, show_asm=None, is_pypy=False):
+    def __init__(self, version: float, show_asm=None, is_pypy=False):
         self.version = version
         self.show_asm = show_asm
         self.is_pypy = is_pypy
