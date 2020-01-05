@@ -32,29 +32,14 @@ typeset -A SKIP_TESTS
 case $PYVERSION in
     3.7)
 	SKIP_TESTS=(
-	    [test_aifc.py]=1  #
-	    [test_asynchat.py]=1  #
-	    [test_asyncore.py]=1  #
-	    [test_array.py]=1  #
 	    [test_ast.py]=1  #
 	    [test_atexit.py]=1  #
-	    [test_audiop.py]=1  #
-	    [test_base64.py]=1  #
 	    [test_baseexception.py]=1  #
 	    [test_bdb.py]=1  #
-	    [test_bigmem.py]=1  #
-	    [test_binascii.py]=1  #
-	    [test_binhex.py]=1  #
-	    [test_bool.py]=1  #
-	    [test_buffer.py]=1  #
-	    [test_bufio.py]=1  #
-	    [test_bufio.py]=1  #
-	    [test_bytes.py]=1  #
-	    [test_bz2.py]=1  #
-	    [test_calendar.py]=1
+	    [test_buffer.py]=1  # parse error
 	    [test_cmd_line.py]=1  # Interactive?
 	    [test_cmd_line_script.py]=1
-	    [test_codecs-3.7.py]=1
+	    [test_collections.py]=1
 	    [test_compare.py]=1
 	    [test_compile.py]=1
 	    [test_configparser.py]=1
@@ -62,9 +47,9 @@ case $PYVERSION in
 	    [test_contextlib_async.py]=1 # Investigate
 	    [test_context.py]=1
 	    [test_coroutines.py]=1 # Parse error
-	    [test_crypt.py]=1
+	    [test_crypt.py]=1 # Parse error
 	    [test_curses.py]=1 # Parse error
-	    [test_dataclasses.py]=1   # Investigate
+	    [test_dataclasses.py]=1   # parse error
 	    [test_datetime.py]=1   # Takes too long
 	    [test_dbm_gnu.py]=1   # Takes too long
 	    [test_decimal.py]=1   # Parse error
