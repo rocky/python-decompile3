@@ -145,8 +145,10 @@ def customize_for_version37(self, version):
                 (5, "expr", 27),
             ),
             "ifstmtl": ("%|if %c:\n%+%c%-", (0, "testexpr"), (1, "_ifstmts_jumpl")),
-            "import_as37": ("%|import %c as %c\n", 2, -2),
-            "import_from37": ("%|from %[2]{pattr} import %c\n", (3, "importlist37")),
+            'import_as37':     ( '%|import %c as %c\n', 2, -2),
+            'import_from37':   ( '%|from %[2]{pattr} import %c\n',
+                                 (3, 'importlist37') ),
+
             "importattr37": ("%c", (0, "IMPORT_NAME_ATTR")),
             "importlist37": ("%C", (0, maxint, ", ")),
             "list_if37": (" if %p%c", (0, 27), 1),
@@ -444,6 +446,20 @@ def customize_for_version37(self, version):
         return
 
     self.call36_dict = call36_dict
+
+    def n_importlist37(node):
+        if len(node) == 1:
+            self.default(node)
+            return
+        n = len(node) - 1
+        for i in range(n, -1, -1):
+            if node[i] != "ROT_TWO":
+                break
+        self.template_engine(("%C", (0, i + 1, ', ')), node)
+        self.prune()
+        return
+
+    self.n_importlist37 = n_importlist37
 
     def n_call_kw36(node):
         self.template_engine(("%p(", (0, 100)), node)
