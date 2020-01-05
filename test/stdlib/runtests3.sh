@@ -59,7 +59,7 @@ case $PYVERSION in
 	    [test_enumerate.py]=1   #
 	    [test_enum.py]=1   #
 	    [test_faulthandler.py]=1   # takes too long
-	    [test_generators.py]=1  # semantic syntax Investigate
+	    [test_generators.py]=1  # improper decompile of assert i < n and (n-i) % 3 == 0
 	    # ...
 	)
 	if (( batch )) ; then

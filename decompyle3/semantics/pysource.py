@@ -1668,6 +1668,10 @@ class SourceWalker(GenericASTTraversal, object):
                     self.write(", ")
             self.prune()
             return
+        if node[0] == "UNPACK_SEQUENCE_0":
+            self.write("[]")
+            self.prune()
+            return
         for n in node[1:]:
             if n[0].kind == "unpack":
                 n[0].kind = "unpack_w_parens"
