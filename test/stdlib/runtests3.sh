@@ -32,7 +32,7 @@ typeset -A SKIP_TESTS
 case $PYVERSION in
     3.7)
 	SKIP_TESTS=(
-	    [test_ast.py]=1  #
+	    [test_ast.py]=1  # test assertion error
 	    [test_atexit.py]=1  #
 	    [test_baseexception.py]=1  #
 	    [test_bdb.py]=1  #
@@ -43,7 +43,6 @@ case $PYVERSION in
 	    [test_compare.py]=1
 	    [test_compile.py]=1
 	    [test_configparser.py]=1
-	    [test_contains.py]=1    # Code "while False: yield None" is optimized away in compilation
 	    [test_contextlib_async.py]=1 # Investigate
 	    [test_context.py]=1
 	    [test_coroutines.py]=1 # Parse error
@@ -72,7 +71,6 @@ case $PYVERSION in
 
     3.8)
 	SKIP_TESTS=(
-	    [test_contains.py]=1    # Code "while False: yield None" is optimized away in compilation
 	    [test_collections.py]=1  # parse error
 	    [test_decorators.py]=1  # Control flow wrt "if elif"
 	    [test_dis.py]=1   # We change line numbers - duh!

@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 by Rocky Bernstein
+#  Copyright (c) 2019-2020 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
 All the crazy things we have to do to handle Python functions
 """
 from xdis.code import iscode, code_has_star_arg, code_has_star_star_arg
+from xdis.util import CO_GENERATOR
 from decompyle3.scanner import Code
 from decompyle3.parsers.treenode import SyntaxTree
 from decompyle3.semantics.parser_error import ParserError
@@ -195,10 +196,8 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
     paramnames = list(scanner_code.co_varnames[:argc])
     kwargs = list(scanner_code.co_varnames[argc : argc + kwonlyargcount])
 
-    # defaults are for last n parameters when not in a lambda, thus reverse
-    if not is_lambda:
-        paramnames.reverse()
-        defparams.reverse()
+    paramnames.reverse()
+    defparams.reverse()
 
     try:
         ast = self.build_ast(
@@ -369,7 +368,6 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
         # docstring exists, dump it
         self.println(self.traverse(node[-2]))
 
-    scanner_code._tokens = None  # save memory
     assert ast == "stmts"
 
     all_globals = find_all_globals(ast, set())
@@ -390,5 +388,20 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
         ast, code.co_name, scanner_code._customize, is_lambda=is_lambda, returnNone=rn
     )
 
-    scanner_code._tokens = None
+    # In obscure cases, a function may be a generator but the "yield"
+    # was optimized away. Here, we need to put in unreachable code to
+    # add in "yield" just so that the compiler will mark
+    # the GENERATOR bit of the function. See for example
+    # Python 3.x's test_generator.py test program.
+    if code.co_flags & CO_GENERATOR:
+        need_bogus_yield = True
+        for token in scanner_code._tokens:
+            if token == "YIELD_VALUE":
+                need_bogus_yield = False
+                break
+            pass
+        if need_bogus_yield:
+            self.template_engine(("%|if False:\n%+%|yield None%-",), node)
+
+    scanner_code._tokens = None # save memory
     scanner_code._customize = None  # save memory

@@ -805,9 +805,11 @@ class SourceWalker(GenericASTTraversal, object):
         if not iscode(code_node.attr):
             # docstring exists
             code_node = node[-4]
-        assert iscode(code_node.attr)
 
-        func_name = code_node.attr.co_name
+        code = code_node.attr
+        assert iscode(code)
+
+        func_name = code.co_name
         self.write(func_name)
 
         self.indent_more()
