@@ -13,10 +13,10 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-All the crazy things we have to do to handle Python functions
+All the crazy things we have to do to handle Python functions.
 """
 from xdis.code import iscode, code_has_star_arg, code_has_star_star_arg
-from xdis.util import CO_GENERATOR
+from xdis.util import CO_GENERATOR, CO_ASYNC_GENERATOR
 from decompyle3.scanner import Code
 from decompyle3.parsers.treenode import SyntaxTree
 from decompyle3.semantics.parser_error import ParserError
@@ -392,8 +392,8 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
     # was optimized away. Here, we need to put in unreachable code to
     # add in "yield" just so that the compiler will mark
     # the GENERATOR bit of the function. See for example
-    # Python 3.x's test_generator.py test program.
-    if code.co_flags & CO_GENERATOR:
+    # Python 3.x's test_connection.py and test_contexlib_async test programs.
+    if code.co_flags & (CO_GENERATOR | CO_ASYNC_GENERATOR):
         need_bogus_yield = True
         for token in scanner_code._tokens:
             if token == "YIELD_VALUE":
