@@ -13,7 +13,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any
+from typing import Any, Tuple
 import datetime, py_compile, os, subprocess, sys, tempfile
 
 from decompyle3 import IS_PYPY, PYTHON_VERSION
@@ -196,8 +196,8 @@ def decompile_file(
                     code_objects=code_objects,
                     is_pypy=is_pypy,
                     magic_int=magic_int,
+                    mapstream=mapstream,
                 ),
-                mapstream=mapstream,
             )
     else:
         deparsed = [
@@ -237,7 +237,7 @@ def main(
     raise_on_error=False,
     do_linemaps=False,
     do_fragments=False,
-) -> None:
+) -> Tuple[int, int, int, int]:
     """
     in_base	base directory for input files
     out_base	base directory for output files (ignored when

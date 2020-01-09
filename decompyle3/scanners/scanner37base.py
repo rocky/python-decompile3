@@ -664,9 +664,9 @@ class Scanner37Base(Scanner):
         op = inst.opcode
 
         # Detect parent structure
-        parent = self.structs[0]
-        start = parent["start"]
-        end = parent["end"]
+        parent: Dict[str, int] = self.structs[0]
+        start: int = parent["start"]
+        end: int = parent["end"]
 
         # Pick inner-most parent for our offset
         for struct in self.structs:
@@ -912,7 +912,6 @@ if __name__ == "__main__":
             print(t)
     else:
         print(
-            "Need to be Python 3.7 or greater to demo; I am version {PYTHON_VERSION}."
-            % PYTHON_VERSION
+            f"Need to be Python 3.7 or greater to demo; I am version {PYTHON_VERSION}."
         )
     pass

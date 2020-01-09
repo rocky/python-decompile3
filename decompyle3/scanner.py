@@ -1,4 +1,4 @@
-#  Copyright (c) 2016, 2018-2019 by Rocky Bernstein
+#  Copyright (c) 2016, 2018-2020 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -21,6 +21,7 @@ scanner/ingestion module. From here we call various version-specific
 scanners, e.g. for Python 3.7 or 3.8.
 """
 
+from typing import Optional
 from array import array
 from collections import namedtuple
 import sys
@@ -179,7 +180,7 @@ class Scanner(object):
             assert self.code[offset] == self.opc.EXTENDED_ARG
         return self.insts[self.offset2inst_index[offset]]
 
-    def get_target(self, offset, extended_arg=0):
+    def get_target(self, offset: int, extended_arg: int = 0) -> int:
         """
         Get next instruction offset for op located at given <offset>.
         NOTE: extended_arg is no longer used
@@ -242,7 +243,9 @@ class Scanner(object):
                         result_offset = offset
         return result_offset
 
-    def last_instr(self, start: int, end: int, instr, target=None, exact=True):
+    def last_instr(
+        self, start: int, end: int, instr, target=None, exact=True
+    ) -> Optional[int]:
         """
         Find the last <instr> in the block from start to end.
         <instr> is any python bytecode instruction or a list of opcodes
@@ -338,7 +341,9 @@ class Scanner(object):
     # FIXME: this is broken on 3.6+. Replace remaining (2.x-based) calls
     # with inst_matches
 
-    def all_instr(self, start: int, end: int, instr, target=None, include_beyond_target=False):
+    def all_instr(
+        self, start: int, end: int, instr, target=None, include_beyond_target=False
+    ):
         """
         Find all `instr` in the block from start to end.
         `instr` is any Python opcode or a list of opcodes
@@ -463,14 +468,13 @@ class Scanner(object):
     def resetTokenClass(self):
         return self.setTokenClass(Token)
 
-    def restrict_to_parent(self, target, parent):
+    def restrict_to_parent(self, target: int, parent) -> int:
         """Restrict target to parent structure boundaries."""
         if not (parent["start"] < target < parent["end"]):
             target = parent["end"]
         return target
 
-    def setTokenClass(self, tokenClass):
-        # assert isinstance(tokenClass, types.ClassType)
+    def setTokenClass(self, tokenClass) -> Token:
         self.Token = tokenClass
         return self.Token
 
