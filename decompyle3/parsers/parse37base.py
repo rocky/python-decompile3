@@ -7,6 +7,8 @@ from decompyle3.parser import PythonParser, PythonParserSingle, nop_func
 from decompyle3.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
+from decompyle3.parsers.reducecheck import ifelsestmt, iflaststmt, and_check
+
 
 class Python37BaseParser(PythonParser):
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
@@ -1077,37 +1079,7 @@ class Python37BaseParser(PythonParser):
         n = len(tokens)
 
         if lhs == "and" and ast:
-            # FIXME: put in a routine somewhere
-            jmp = ast[1]
-            if jmp.kind.startswith("jmp_"):
-                if last == n:
-                    return True
-                jmp_target = jmp[0].attr
-                jmp_offset = jmp[0].offset
-
-                if tokens[first].off2int() <= jmp_target < tokens[last].off2int():
-                    return True
-                if rule == ("and", ("expr", "jmp_false", "expr", "jmp_false")):
-                    jmp2_target = ast[3][0].attr
-                    return jmp_target != jmp2_target
-                elif rule == ("and", ("expr", "jmp_false", "expr")):
-                    if tokens[last] == "POP_JUMP_IF_FALSE":
-                        # Ok if jump_target doesn't jump to last instruction
-                        return jmp_target != tokens[last].attr
-                    elif tokens[last] in ("POP_JUMP_IF_TRUE", "JUMP_IF_TRUE_OR_POP"):
-                        # Ok if jump_target jumps to a COME_FROM after
-                        # the last instruction or jumps right after last instruction
-                        if last + 1 < n and tokens[last + 1] == "COME_FROM":
-                            return jmp_target != tokens[last + 1].off2int()
-                        return jmp_target + 2 != tokens[last].attr
-                elif rule == ("and", ("expr", "jmp_false", "expr", "COME_FROM")):
-                    return ast[-1].attr != jmp_offset
-                # elif rule == ("and", ("expr", "jmp_false", "expr", "COME_FROM")):
-                #     return jmp_offset != tokens[first+3].attr
-
-                return jmp_target != tokens[last].off2int()
-            return False
-
+            return and_check(self, lhs, n, rule, ast, tokens, first, last)
         elif lhs in ("aug_assign1", "aug_assign2") and ast[0][0] == "and":
             return True
         elif lhs == "annotate_tuple":
@@ -1296,50 +1268,7 @@ class Python37BaseParser(PythonParser):
                 pass
             return False
         elif lhs in ("iflaststmt", "iflaststmtl") and ast:
-            # FIXME: put in a routine somewhere
-            testexpr = ast[0]
-
-            if testexpr[0] in ("testtrue", "testfalse"):
-
-                test = testexpr[0]
-                if len(test) > 1 and test[1].kind.startswith("jmp_"):
-                    if last == n:
-                        last -= 1
-                    jmp_target = test[1][0].attr
-                    if tokens[first].off2int() <= jmp_target < tokens[last].off2int():
-                        return True
-                    # jmp_target less than tokens[first] is okay - is to a loop
-                    # jmp_target equal tokens[last] is also okay: normal non-optimized non-loop jump
-
-                    if (
-                        (last + 1) < n
-                        and tokens[last - 1] != "JUMP_BACK"
-                        and tokens[last + 1] == "COME_FROM_LOOP"
-                    ):
-                        # iflastsmtl is not at the end of a loop, but jumped outside of loop. No good.
-                        # FIXME: check that tokens[last] == "POP_BLOCK"? Or allow for it not to appear?
-                        return True
-
-                    # If the instruction before "first" is a "POP_JUMP_IF_FALSE" which goes
-                    # to the same target as jmp_target, then this not nested "if .. if .."
-                    # but rather "if ... and ..."
-                    if first > 0 and tokens[first - 1] == "POP_JUMP_IF_FALSE":
-                        return tokens[first - 1].attr == jmp_target
-
-                    if jmp_target > tokens[last].off2int():
-                        # One more weird case to look out for
-                        #   if c1:
-                        #      if c2:  # Jumps around the *outer* "else"
-                        #       ...
-                        #   else:
-                        if jmp_target == tokens[last - 1].attr:
-                            return False
-                        if last < n and tokens[last].kind.startswith("JUMP"):
-                            return False
-                        return True
-
-                pass
-            return False
+            return iflaststmt(self, lhs, n, rule, ast, tokens, first, last)
 
         # FIXME: put in a routine somewhere
         elif lhs == "ifelsestmt":
