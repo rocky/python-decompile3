@@ -987,6 +987,7 @@ class Python37BaseParser(PythonParser):
             pass
 
         self.check_reduce["and"] = "AST"
+        self.check_reduce["annotate_tuple"] = "noAST"
         self.check_reduce["aug_assign1"] = "AST"
         self.check_reduce["aug_assign2"] = "AST"
         self.check_reduce["while1stmt"] = "noAST"
@@ -997,7 +998,6 @@ class Python37BaseParser(PythonParser):
         self.check_reduce["iflaststmtl"] = "AST"
         self.check_reduce["ifstmt"] = "AST"
         self.check_reduce["ifstmtl"] = "AST"
-        self.check_reduce["annotate_tuple"] = "noAST"
         self.check_reduce["import_from37"] = "AST"
         self.check_reduce["or"] = "tokens"
         return
@@ -1091,6 +1091,14 @@ class Python37BaseParser(PythonParser):
             return True
         elif lhs == "annotate_tuple":
             return not isinstance(tokens[first].attr, tuple)
+        elif lhs == "_ifstmts_jump" and len(rule[1]) > 1 and ast:
+            return ifstmts_jump(self, lhs, n, rule, ast, tokens, first, last)
+        elif lhs in ("iflaststmt", "iflaststmtl") and ast:
+            return iflaststmt(self, lhs, n, rule, ast, tokens, first, last)
+        elif lhs == "ifelsestmt":
+            return ifelsestmt(self, lhs, n, rule, ast, tokens, first, last)
+        elif lhs in ("ifstmt", "ifstmtl"):
+            return ifstmt(self, lhs, n, rule, ast, tokens, first, last)
         elif lhs == "import_from37":
             importlist37 = ast[3]
             alias37 = importlist37[0]
@@ -1099,8 +1107,6 @@ class Python37BaseParser(PythonParser):
                 assert store == "store"
                 return alias37[0].attr != store[0].attr
             return False
-        elif lhs == "_ifstmts_jump" and len(rule[1]) > 1 and ast:
-            return ifstmts_jump(self, lhs, n, rule, ast, tokens, first, last)
         elif lhs == "or":
             # FIXME: This is a cheap test. Should we do something with an AST like we
             # do with "and"?
@@ -1116,11 +1122,5 @@ class Python37BaseParser(PythonParser):
             return while1elsestmt(self, lhs, n, rule, ast, tokens, first, last)
         elif lhs == "while1stmt":
             return while1stmt(self, lhs, n, rule, ast, tokens, first, last)
-        elif lhs in ("ifstmt", "ifstmtl"):
-            return ifstmt(self, lhs, n, rule, ast, tokens, first, last)
-        elif lhs in ("iflaststmt", "iflaststmtl") and ast:
-            return iflaststmt(self, lhs, n, rule, ast, tokens, first, last)
-        elif lhs == "ifelsestmt":
-            return ifelsestmt(self, lhs, n, rule, ast, tokens, first, last)
 
         return False
