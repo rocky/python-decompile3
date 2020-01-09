@@ -1,4 +1,9 @@
-def and_check(self, lhs, n, rule, ast, tokens, first, last):
+#  Copyright (c) 2020 Rocky Bernstein
+
+
+def and_check(
+    self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
+) -> bool:
     jmp = ast[1]
     if jmp.kind.startswith("jmp_"):
         if last == n:

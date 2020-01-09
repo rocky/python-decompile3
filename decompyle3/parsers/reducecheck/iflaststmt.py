@@ -1,4 +1,9 @@
-def iflaststmt(self, lhs, n, rule, ast, tokens, first, last):
+#  Copyright (c) 2020 Rocky Bernstein
+
+
+def iflaststmt(
+    self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
+) -> bool:
     testexpr = ast[0]
 
     if testexpr[0] in ("testtrue", "testfalse"):
