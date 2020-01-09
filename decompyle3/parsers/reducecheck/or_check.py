@@ -15,4 +15,9 @@ def or_check(
                 jmp_false = tokens[last+1]
             return not (jmp_true_target == jmp_false.off2int() or
                         jmp_true_target < tokens[first].off2int())
+        return tokens[last] in (
+            "LOAD_ASSERT",
+            "RAISE_VARARGS_1",
+            )
+
     return False
