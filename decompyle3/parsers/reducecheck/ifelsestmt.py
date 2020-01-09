@@ -6,6 +6,7 @@ from decompyle3.scanners.tok import Token
 def ifelsestmt(
     self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
 ) -> bool:
+
     if (last + 1) < n and tokens[last + 1] == "COME_FROM_LOOP":
         # ifelsestmt jumped outside of loop. No good.
         return True
