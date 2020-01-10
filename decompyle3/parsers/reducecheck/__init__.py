@@ -4,5 +4,6 @@ from decompyle3.parsers.reducecheck.iflaststmt import *
 from decompyle3.parsers.reducecheck.ifstmt import *
 from decompyle3.parsers.reducecheck.ifstmts_jump import *
 from decompyle3.parsers.reducecheck.or_check import *
+from decompyle3.parsers.reducecheck.testtrue import *
 from decompyle3.parsers.reducecheck.while1elsestmt import *
 from decompyle3.parsers.reducecheck.while1stmt import *
