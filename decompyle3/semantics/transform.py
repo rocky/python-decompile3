@@ -121,7 +121,7 @@ class TreeTransform(GenericASTTraversal, object):
                 and raise_stmt.first_child().pattr == "AssertionError"
             ):
                 assert_expr = testexpr[0][0]
-                assert_expr.kind = "expr"
+                assert_expr.kind = "assert_expr"
                 jump_cond = testexpr[0][1]
                 expr = raise_stmt[0]
                 RAISE_VARARGS_1 = raise_stmt[1]
