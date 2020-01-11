@@ -5,14 +5,15 @@
 
 # RUNNABLE!
 import os.path as osp
-from sys import path
+from sys import platform
 from os import sep, name
 import collections.abc
-import collections.deque as deque
 
-assert osp.basename("a")
-assert path
+assert osp.basename("a") == "a"
+
+assert isinstance(platform, str)
 assert sep
 assert name
 assert collections.abc
-assert deque
+import os.path as path
+assert path
