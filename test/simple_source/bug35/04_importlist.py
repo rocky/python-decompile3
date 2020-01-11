@@ -8,9 +8,11 @@ import os.path as osp
 from sys import path
 from os import sep, name
 import collections.abc
+import collections.deque as deque
 
 assert osp.basename("a")
 assert path
 assert sep
 assert name
 assert collections.abc
+assert deque
