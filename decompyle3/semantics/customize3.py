@@ -42,6 +42,7 @@ def customize_for_version3(self, version):
             "importmultiple": ("%|import %c%c\n", 2, 3),
             "import_cont": (", %c", 2),
             "raise_stmt2": ("%|raise %c from %c\n", 0, 1),
+            "tf_tryelsestmtl3": ( '%c%-%c%|else:\n%+%c', 1, 3, 5 ),
             "store_locals": ("%|# inspect.currentframe().f_locals = __locals__\n",),
             "withstmt": ("%|with %c:\n%+%c%-", 0, 3),
             "withasstmt": ("%|with %c as %c:\n%+%c%-", 0, 2, 3),
@@ -49,6 +50,26 @@ def customize_for_version3(self, version):
     )
 
     assert version >= 3.7
+
+    # In 2.5+ and 3.0+ "except" handlers and the "finally" can appear in one
+    # "try" statement. So the below has the effect of combining the
+    # "tryfinally" with statement with the "try_except" statement.
+    # FIXME: something doesn't smell right, since the semantics
+    # are different. See test_fileio.py for an example that shows this.
+    def tryfinallystmt(node):
+        suite_stmts = node[1][0]
+        if len(suite_stmts) == 1 and suite_stmts[0] == 'stmt':
+            stmt = suite_stmts[0]
+            try_something = stmt[0]
+            if try_something == "try_except":
+                try_something.kind = "tf_try_except"
+            if try_something.kind.startswith("tryelsestmt"):
+                if try_something == "tryelsestmtl3":
+                    try_something.kind = 'tf_tryelsestmtl3'
+                else:
+                    try_something.kind = 'tf_tryelsestmt'
+        self.default(node)
+    self.n_tryfinallystmt = tryfinallystmt
 
     def listcomp_closure3(node):
         """List comprehensions in Python 3 when handled as a closure.
