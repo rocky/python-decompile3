@@ -1,6 +1,6 @@
 #  Copyright (c) 2020 Rocky Bernstein
 
-from uncompyle6.parsers.treenode import SyntaxTree
+from decompyle3.parsers.treenode import SyntaxTree
 
 def tryelsestmtl3(self, lhs, n, rule, ast, tokens, first, last):
     # Check the end of the except handler that there isn't a jump from
