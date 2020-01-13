@@ -896,11 +896,16 @@ def customize_for_version37(self, version):
     def n_formatted_value1(node):
         expr = node[0]
         assert expr == "expr"
-        self.in_format_string = True
-        value = self.traverse(expr, indent="")
-        self.in_format_string = False
         conversion = f_conversion(node)
-        f_str = "f%s" % escape_string("{%s%s}" % (value, conversion))
+        if (self.in_format_string):
+            value = self.traverse(expr, indent="")
+            f_str = escape_string("{%s%s}" % (value, conversion))
+        else:
+            self.in_format_string = True
+            value = self.traverse(expr, indent="")
+            self.in_format_string = False
+            f_str = escape_string("f{%s%s}" % (value, conversion))
+
         self.write(f_str)
         self.prune()
 
@@ -914,7 +919,6 @@ def customize_for_version37(self, version):
         assert expr == "expr"
         self.in_format_string = True
         value = self.traverse(expr, indent="")
-        self.in_format_string = False
         format_value_attr = node[-1]
         assert format_value_attr == "FORMAT_VALUE_ATTR"
         attr = format_value_attr.attr
@@ -929,6 +933,7 @@ def customize_for_version37(self, version):
         else:
             conversion = FSTRING_CONVERSION_MAP.get(attr, "")
 
+        self.in_format_string = False
         f_str = "f%s" % escape_string("{%s%s}" % (value, conversion))
         self.write(f_str)
 
@@ -947,8 +952,8 @@ def customize_for_version37(self, version):
             value = self.traverse(expr, indent="")
             if expr[0].kind.startswith("formatted_value"):
                 # remove leading 'f'
-                assert value.startswith("f")
-                value = value[1:]
+                if value.startswith("f"):
+                    value = value[1:]
                 pass
             else:
                 # {{ and }} in Python source-code format strings mean
