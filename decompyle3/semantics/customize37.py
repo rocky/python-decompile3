@@ -898,6 +898,10 @@ def customize_for_version37(self, version):
         assert expr == "expr"
         value = self.traverse(expr, indent="")
         conversion = f_conversion(node)
+        if value.startswith("lambda "):
+            # We need parens around the lambda so as to keep the
+            # to confuse format() with the colon inside the lambda
+            value = "(%s)" % value
         f_str = "f%s" % escape_string("{%s%s}" % (value, conversion))
         self.write(f_str)
         self.prune()
@@ -921,6 +925,10 @@ def customize_for_version37(self, version):
         else:
             conversion = FSTRING_CONVERSION_MAP.get(attr, "")
 
+        if value.startswith("lambda "):
+            # We need parens around the lambda so as to keep the
+            # to confuse format() with the colon inside the lambda
+            value = "(%s)" % value
         f_str = "f%s" % escape_string("{%s%s}" % (value, conversion))
         self.write(f_str)
 
