@@ -896,12 +896,10 @@ def customize_for_version37(self, version):
     def n_formatted_value1(node):
         expr = node[0]
         assert expr == "expr"
+        self.in_format_string = True
         value = self.traverse(expr, indent="")
+        self.in_format_string = False
         conversion = f_conversion(node)
-        if value.startswith("lambda "):
-            # We need parens around the lambda so as to keep the
-            # to confuse format() with the colon inside the lambda
-            value = "(%s)" % value
         f_str = "f%s" % escape_string("{%s%s}" % (value, conversion))
         self.write(f_str)
         self.prune()
@@ -914,21 +912,23 @@ def customize_for_version37(self, version):
 
         expr = node[0]
         assert expr == "expr"
+        self.in_format_string = True
         value = self.traverse(expr, indent="")
+        self.in_format_string = False
         format_value_attr = node[-1]
         assert format_value_attr == "FORMAT_VALUE_ATTR"
         attr = format_value_attr.attr
-        if attr == 4:
+        if attr & 4:
             assert node[1] == "expr"
             fmt = strip_quotes(self.traverse(node[1], indent=""))
-            conversion = ":%s" % fmt
+            attr_flags = attr & 3
+            if attr_flags:
+                conversion = "%s:%s" % (FSTRING_CONVERSION_MAP.get(attr_flags, ""), fmt)
+            else:
+                conversion = ":%s" % fmt
         else:
             conversion = FSTRING_CONVERSION_MAP.get(attr, "")
 
-        if value.startswith("lambda "):
-            # We need parens around the lambda so as to keep the
-            # to confuse format() with the colon inside the lambda
-            value = "(%s)" % value
         f_str = "f%s" % escape_string("{%s%s}" % (value, conversion))
         self.write(f_str)
 
