@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 by Rocky Bernstein
+#  Copyright (c) 2019-2020 by Rocky Bernstein
 
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -26,6 +26,14 @@ from decompyle3.semantics.consts import RETURN_NONE
 def is_docstring(node):
     try:
         return node[0][0].kind == "assign" and node[0][0][1][0].pattr == "__doc__"
+    except:
+        return False
+
+def is_not_docstring(call_stmt_node):
+    try:
+        return (call_stmt_node == "call_stmt" and
+                call_stmt_node[0][0] == "LOAD_STR" and
+                call_stmt_node[1] == "POP_TOP")
     except:
         return False
 
@@ -342,9 +350,22 @@ class TreeTransform(GenericASTTraversal, object):
         self.maybe_show_tree(ast)
         self.ast = copy(ast)
         self.ast = self.traverse(self.ast, is_lambda=False)
+        n = len(self.ast)
 
         try:
-            for i in range(len(self.ast)):
+            # Disambiguate a string (expression) which appears as a "call_stmt" at
+            # the beginning of a function versus a docstring. Seems pretty academic,
+            # but this is Python.
+            call_stmt = ast[0][0][0]
+            if is_not_docstring(call_stmt):
+                call_stmt.kind = "string_at_beginning"
+                call_stmt.transformed_by = "transform"
+                pass
+        except:
+            pass
+        try:
+
+            for i in range(n):
                 if is_docstring(self.ast[i]):
                     docstring_ast = SyntaxTree(
                         "docstring",
