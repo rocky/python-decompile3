@@ -15,6 +15,7 @@
 """Isolate Python 3.7 version-specific semantic actions here.
 """
 
+import re
 from spark_parser.ast import GenericASTTraversalPruningException
 from xdis.code import iscode
 from xdis.util import COMPILER_FLAG_BIT
@@ -275,7 +276,8 @@ def customize_for_version37(self, version):
         for i in mapping[1:]:
             key = key[i]
             pass
-        if key.kind.startswith("CALL_FUNCTION_VAR_KW"):
+        opname = key.kind
+        if opname.startswith("CALL_FUNCTION_VAR_KW"):
             # Python 3.5 changes the stack position of
             # *args: kwargs come after *args whereas
             # in earlier Pythons, *args is at the end
@@ -294,7 +296,7 @@ def customize_for_version37(self, version):
                 node[kwarg_pos], node[args_pos] = node[args_pos], node[kwarg_pos]
                 args_pos = kwarg_pos
                 kwarg_pos += 1
-        elif key.kind.startswith("CALL_FUNCTION_VAR"):
+        elif opname.startswith("CALL_FUNCTION_VAR"):
             # CALL_FUNCTION_VAR's top element of the stack contains
             # the variable argument list, then comes
             # annotation args, then keyword args.
@@ -328,7 +330,7 @@ def customize_for_version37(self, version):
                 self.template_engine(template, node)
             self.prec = p
             self.prune()
-        elif key.kind.startswith("CALL_FUNCTION_1"):
+        elif opname.startswith("CALL_FUNCTION_1") and not re.match("\d", opname[-1]):
             self.template_engine(("%c(%c)", (0, "expr"), 1), node)
             self.prec = p
             self.prune()
