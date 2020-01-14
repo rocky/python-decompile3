@@ -897,15 +897,23 @@ def customize_for_version37(self, version):
         expr = node[0]
         assert expr == "expr"
         conversion = f_conversion(node)
-        if (self.in_format_string):
+        if (self.in_format_string and self.in_format_string != "formatted_value1"):
             value = self.traverse(expr, indent="")
-            f_str = escape_string("{%s%s}" % (value, conversion))
+            if value[0] == "{":
+                # If we have a set or dictionary comprehension, then we need to add a space
+                # so as not to confuse the format string with {{.
+                fmt = "{ %s%s }"
+            else:
+                fmt = "{%s%s}"
+            es = escape_string( fmt % (value, conversion))
+            f_str = "%s" % es
         else:
             old_in_format_string = self.in_format_string
-            self.in_format_string = True
+            self.in_format_string = "formatted_value1"
             value = self.traverse(expr, indent="")
             self.in_format_string = old_in_format_string
-            f_str = escape_string("f{%s%s}" % (value, conversion))
+            es = escape_string("{%s%s}" % (value, conversion))
+            f_str = "f%s" % es
 
         self.write(f_str)
         self.prune()
@@ -919,7 +927,7 @@ def customize_for_version37(self, version):
         expr = node[0]
         assert expr == "expr"
         old_in_format_string = self.in_format_string
-        self.in_format_string = True
+        self.in_format_string = "formatted_value2"
         value = self.traverse(expr, indent="")
         format_value_attr = node[-1]
         assert format_value_attr == "FORMAT_VALUE_ATTR"
@@ -949,7 +957,7 @@ def customize_for_version37(self, version):
         self.prec = 100
 
         old_in_format_string = self.in_format_string
-        self.in_format_string = True
+        self.in_format_string = "joined_str"
         result = ""
         for expr in node[:-1]:
             assert expr == "expr"
@@ -962,7 +970,7 @@ def customize_for_version37(self, version):
             else:
                 # {{ and }} in Python source-code format strings mean
                 # { and } respectively. But only when *not* part of a
-                # formatted value. However in the LOAD_CONST
+                # formatted value. However in the LOAD_STR
                 # bytecode, the escaping of the braces has been
                 # removed. So we need to put back the braces escaping in
                 # reconstructing the source.
