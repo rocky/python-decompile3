@@ -19,7 +19,11 @@ def or_check(
         if load_global == "LOAD_GLOBAL" and load_global.attr == "AssertionError":
             return True
 
+        first_offset = tokens[first].off2int()
         jmp_true_target = ast[1][0].attr
+        if jmp_true_target < first_offset:
+            return False
+
         jmp_false = tokens[last]
         # If the jmp is backwards
         if jmp_false == "POP_JUMP_IF_FALSE":
