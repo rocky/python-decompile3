@@ -132,9 +132,7 @@ def customize_for_version37(self, version):
                 (0, 19),
                 (6, 19),
             ),
-            'conditional37': ( '%p if %c else %c',
-                               (1, 'expr', 27), 0, 3 ),
-
+            "conditional37": ("%p if %c else %c", (1, "expr", 27), 0, 3),
             "except_return": ("%|except:\n%+%c%-", 3),
             "if_exp_37a": (
                 "%p if %p else %p",
@@ -149,10 +147,8 @@ def customize_for_version37(self, version):
                 (5, "expr", 27),
             ),
             "ifstmtl": ("%|if %c:\n%+%c%-", (0, "testexpr"), (1, "_ifstmts_jumpl")),
-            'import_as37':     ( '%|import %c as %c\n', 2, -2),
-            'import_from37':   ( '%|from %[2]{pattr} import %c\n',
-                                 (3, 'importlist37') ),
-
+            "import_as37": ("%|import %c as %c\n", 2, -2),
+            "import_from37": ("%|from %[2]{pattr} import %c\n", (3, "importlist37")),
             "importattr37": ("%c", (0, "IMPORT_NAME_ATTR")),
             "importlist37": ("%C", (0, maxint, ", ")),
             "list_if37": (" if %p%c", (0, 27), 1),
@@ -330,7 +326,11 @@ def customize_for_version37(self, version):
                 self.template_engine(template, node)
             self.prec = p
             self.prune()
-        elif opname.startswith("CALL_FUNCTION_1") and not re.match("\d", opname[-1]):
+        elif (
+            opname.startswith("CALL_FUNCTION_1")
+            and opname == "CALL_FUNCTION_1"
+            or not re.match("\d", opname[-1])
+        ):
             self.template_engine(("%c(%c)", (0, "expr"), 1), node)
             self.prec = p
             self.prune()
@@ -460,7 +460,7 @@ def customize_for_version37(self, version):
         for i in range(n, -1, -1):
             if node[i] != "ROT_TWO":
                 break
-        self.template_engine(("%C", (0, i + 1, ', ')), node)
+        self.template_engine(("%C", (0, i + 1, ", ")), node)
         self.prune()
         return
 
@@ -899,7 +899,7 @@ def customize_for_version37(self, version):
         expr = node[0]
         assert expr == "expr"
         conversion = f_conversion(node)
-        if (self.in_format_string and self.in_format_string != "formatted_value1"):
+        if self.in_format_string and self.in_format_string != "formatted_value1":
             value = self.traverse(expr, indent="")
             if value[0] == "{":
                 # If we have a set or dictionary comprehension, then we need to add a space
@@ -907,7 +907,7 @@ def customize_for_version37(self, version):
                 fmt = "{ %s%s }"
             else:
                 fmt = "{%s%s}"
-            es = escape_string( fmt % (value, conversion))
+            es = escape_string(fmt % (value, conversion))
             f_str = "%s" % es
         else:
             old_in_format_string = self.in_format_string
