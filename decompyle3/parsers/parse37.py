@@ -950,7 +950,8 @@ class Python37Parser(Python37BaseParser):
         """
 
     def p_stmt3(self, args):
-        """stmt               ::= if_expr_lambda
+        """
+        stmt               ::= if_expr_lambda
         stmt               ::= conditional_not_lambda
         stmt               ::= ifstmtl
 
