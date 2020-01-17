@@ -1667,32 +1667,6 @@ class SourceWalker(GenericASTTraversal, object):
 
     n_set = n_tuple = n_build_set = n_list
 
-    def n_unpack(self, node):
-        if node[0].kind.startswith("UNPACK_EX"):
-            # Python 3+
-            before_count, after_count = node[0].attr
-            for i in range(before_count + 1):
-                self.preorder(node[i])
-                if i != 0:
-                    self.write(", ")
-            self.write("*")
-            for i in range(1, after_count + 2):
-                self.preorder(node[before_count + i])
-                if i != after_count + 1:
-                    self.write(", ")
-            self.prune()
-            return
-        if node[0] == "UNPACK_SEQUENCE_0":
-            self.write("[]")
-            self.prune()
-            return
-        for n in node[1:]:
-            if n[0].kind == "unpack":
-                n[0].kind = "unpack_w_parens"
-        self.default(node)
-
-    n_unpack_w_parens = n_unpack
-
     def n_attribute(self, node):
         if node[0] == "LOAD_CONST" or node[0] == "expr" and node[0][0] == "LOAD_CONST":
             # FIXME: I didn't record which constants parenthesis is
@@ -1730,6 +1704,43 @@ class SourceWalker(GenericASTTraversal, object):
         unpack_node = -3 if node[-1] == "come_from_opt" else -2
         if node[unpack_node][0] == "unpack":
             node[unpack_node][0].kind = "unpack_w_parens"
+        self.default(node)
+
+    def n_unpack(self, node):
+        if node[0].kind.startswith("UNPACK_EX"):
+            # Python 3+
+            before_count, after_count = node[0].attr
+            for i in range(before_count + 1):
+                self.preorder(node[i])
+                if i != 0:
+                    self.write(", ")
+            self.write("*")
+            for i in range(1, after_count + 2):
+                self.preorder(node[before_count + i])
+                if i != after_count + 1:
+                    self.write(", ")
+            self.prune()
+            return
+        if node[0] == "UNPACK_SEQUENCE_0":
+            self.write("[]")
+            self.prune()
+            return
+        for n in node[1:]:
+            if n[0].kind == "unpack":
+                n[0].kind = "unpack_w_parens"
+        self.default(node)
+
+    n_unpack_w_parens = n_unpack
+
+    def n_store(self, node):
+        expr = node[0]
+        if expr == "expr" and expr[0] == "LOAD_CONST" and node[1] == "STORE_ATTR":
+            # FIXME: I didn't record which constants parenthesis is
+            # necessary. However, I suspect that we could further
+            # refine this by looking at operator precedence and
+            # eval'ing the constant value (pattr) and comparing with
+            # the type of the constant.
+            node.kind = "store_w_parens"
         self.default(node)
 
     def template_engine(self, entry, startnode):
