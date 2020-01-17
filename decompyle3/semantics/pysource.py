@@ -1706,6 +1706,17 @@ class SourceWalker(GenericASTTraversal, object):
             node[unpack_node][0].kind = "unpack_w_parens"
         self.default(node)
 
+    def n_store(self, node):
+        expr = node[0]
+        if expr == "expr" and expr[0] == "LOAD_CONST" and node[1] == "STORE_ATTR":
+            # FIXME: I didn't record which constants parenthesis is
+            # necessary. However, I suspect that we could further
+            # refine this by looking at operator precedence and
+            # eval'ing the constant value (pattr) and comparing with
+            # the type of the constant.
+            node.kind = "store_w_parens"
+        self.default(node)
+
     def n_unpack(self, node):
         if node[0].kind.startswith("UNPACK_EX"):
             # Python 3+
@@ -1731,17 +1742,6 @@ class SourceWalker(GenericASTTraversal, object):
         self.default(node)
 
     n_unpack_w_parens = n_unpack
-
-    def n_store(self, node):
-        expr = node[0]
-        if expr == "expr" and expr[0] == "LOAD_CONST" and node[1] == "STORE_ATTR":
-            # FIXME: I didn't record which constants parenthesis is
-            # necessary. However, I suspect that we could further
-            # refine this by looking at operator precedence and
-            # eval'ing the constant value (pattr) and comparing with
-            # the type of the constant.
-            node.kind = "store_w_parens"
-        self.default(node)
 
     def template_engine(self, entry, startnode):
         """The format template interpetation engine.  See the comment at the
