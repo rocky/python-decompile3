@@ -172,7 +172,17 @@ def customize_for_version37(self, version):
         }
     )
 
-    def async_call(node):
+    def n_assert_invert(node):
+        testtrue = node[0]
+        assert testtrue == "testtrue"
+        testtrue.kind = "assert"
+        self.default(testtrue)
+
+    self.n_assert_invert = n_assert_invert
+
+
+
+    def n_async_call(node):
         self.f.write("async ")
         node.kind == "call"
         p = self.prec
@@ -182,7 +192,7 @@ def customize_for_version37(self, version):
         node.kind == "async_call"
         self.prune()
 
-    self.n_async_call = async_call
+    self.n_async_call = n_async_call
 
     def n_build_list_unpack(node):
         """

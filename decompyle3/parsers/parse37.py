@@ -59,6 +59,10 @@ class Python37Parser(Python37BaseParser):
         lastc_stmt ::= forelselaststmt
         lastc_stmt ::= ifelsestmtc
 
+        # Statements in a loop
+        lstmt              ::= stmt
+        l_stmts            ::= lstmt+
+
         c_stmts_opt ::= c_stmts
         c_stmts_opt ::= pass
 
@@ -764,7 +768,12 @@ class Python37Parser(Python37BaseParser):
         stmt    ::= assert2
         assert2 ::= expr jmp_true LOAD_GLOBAL expr CALL_FUNCTION_1 RAISE_VARARGS_1
 
+        # "assert_invert" tests on the negative of the condition given
+        stmt          ::= assert_invert
+        assert_invert ::= testtrue LOAD_GLOBAL RAISE_VARARGS_1
+
         expr    ::= LOAD_ASSERT
+        expr    ::= assert_expr_or
 
         ifstmt ::= testexpr _ifstmts_jump
 

@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 Rocky Bernstein
+#  Copyright (c) 2019-2020 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -50,16 +50,17 @@ class PythonParser(GenericASTBuilder):
         #   stmts -> stmts stmt -> stmts stmt stmt ...
         # collect as stmts -> stmt stmt ...
         nt_list = [
-            "stmts",
-            "except_stmts",
+            "_come_froms",
             "_stmts",
             "attributes",
+            "come_froms",
+            "except_stmts",
             "exprlist",
+            "importlist",
             "kvlist",
             "kwargs",
-            "come_froms",
-            "_come_froms",
-            "importlist",
+            "l_stmts",
+            "stmts",
             # Python < 3
             "print_items",
             # PyPy:
@@ -68,7 +69,7 @@ class PythonParser(GenericASTBuilder):
             # Python 3.6+
             "come_from_loops",
             # Python 3.7+
-            'importlist37',
+            "importlist37",
         ]
         self.collect = frozenset(nt_list)
 
@@ -262,6 +263,7 @@ class PythonParser(GenericASTBuilder):
             return "expr"
         # print >> sys.stderr, 'resolve', str(list)
         return GenericASTBuilder.resolve(self, list)
+
 
 def parse(p, tokens, customize):
     p.customize_grammar_rules(tokens, customize)
