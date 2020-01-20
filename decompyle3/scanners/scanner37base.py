@@ -305,6 +305,7 @@ class Scanner37Base(Scanner):
                             offset="%s_%s" % (inst.offset, jump_idx),
                             has_arg=True,
                             opc=self.opc,
+                            has_extended_arg=False,
                         ),
                     )
                     jump_idx += 1
@@ -321,6 +322,7 @@ class Scanner37Base(Scanner):
                         offset="%s" % (inst.offset),
                         has_arg=True,
                         opc=self.opc,
+                        has_extended_arg=inst.has_extended_arg,
                     ),
                 )
 
@@ -385,6 +387,7 @@ class Scanner37Base(Scanner):
                         op=op,
                         has_arg=inst.has_arg,
                         opc=self.opc,
+                        has_extended_arg=inst.has_extended_arg,
                     ),
                 )
                 continue
@@ -478,6 +481,7 @@ class Scanner37Base(Scanner):
                     op=op,
                     has_arg=inst.has_arg,
                     opc=self.opc,
+                    has_extended_arg=inst.has_extended_arg,
                 ),
             )
             pass
