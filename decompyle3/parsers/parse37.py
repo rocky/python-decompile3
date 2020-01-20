@@ -773,7 +773,9 @@ class Python37Parser(Python37BaseParser):
         assert_invert ::= testtrue LOAD_GLOBAL RAISE_VARARGS_1
 
         expr    ::= LOAD_ASSERT
-        expr    ::= assert_expr_or
+
+        # FIXME: add this:
+        # expr    ::= assert_expr_or
 
         ifstmt ::= testexpr _ifstmts_jump
 
