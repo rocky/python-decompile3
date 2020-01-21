@@ -517,6 +517,11 @@ class Python37Parser(Python37BaseParser):
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_FORWARD else_suitec
         ifelsestmtl ::= testexpr c_stmts_opt jb_else else_suitel
 
+        # We want to keep the positions of the "then" and
+        # "else" statements in "ifelstmtl" similar to others of this ilk.
+        testexpr_cf ::= testexpr come_froms
+        ifelsestmtl ::= testexpr_cf c_stmts_opt jb_else else_suitel
+
         # 3.5 Has jump optimization which can route the end of an
         # "if/then" back to to a loop just before an else.
         jump_absolute_else ::= jb_else
