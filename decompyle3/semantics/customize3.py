@@ -189,53 +189,36 @@ def customize_for_version3(self, version):
         # * subclass_code - the code for the subclass body
         subclass_info = None
         if node == "classdefdeco2":
-            if self.version >= 3.6:
+            if isinstance(node[1][1].attr, str):
                 class_name = node[1][1].attr
-            elif self.version <= 3.3:
-                class_name = node[2][0].attr
             else:
                 class_name = node[1][2].attr
             build_class = node
         else:
             build_class = node[0]
-            if self.version >= 3.6:
-                if build_class == "build_class_kw":
-                    mkfunc = build_class[1]
-                    assert mkfunc == "mkfunc"
-                    subclass_info = build_class
-                    if hasattr(mkfunc[0], "attr") and iscode(mkfunc[0].attr):
-                        subclass_code = mkfunc[0].attr
-                    else:
-                        assert mkfunc[0] == "load_closure"
-                        subclass_code = mkfunc[1].attr
-                        assert iscode(subclass_code)
-                if build_class[1][0] == "load_closure":
-                    code_node = build_class[1][1]
+            if build_class == "build_class_kw":
+                mkfunc = build_class[1]
+                assert mkfunc == "mkfunc"
+                subclass_info = build_class
+                if hasattr(mkfunc[0], "attr") and iscode(mkfunc[0].attr):
+                    subclass_code = mkfunc[0].attr
                 else:
-                    code_node = build_class[1][0]
-                class_name = code_node.attr.co_name
+                    assert mkfunc[0] == "load_closure"
+                    subclass_code = mkfunc[1].attr
+                    assert iscode(subclass_code)
+            if build_class[1][0] == "load_closure":
+                code_node = build_class[1][1]
             else:
-                class_name = node[1][0].attr
-                build_class = node[0]
+                code_node = build_class[1][0]
+            class_name = code_node.attr.co_name
 
         assert "mkfunc" == build_class[1]
         mkfunc = build_class[1]
         if mkfunc[0] in ("kwargs", "no_kwargs"):
-            if 3.0 <= self.version <= 3.2:
-                for n in mkfunc:
-                    if hasattr(n, "attr") and iscode(n.attr):
-                        subclass_code = n.attr
-                        break
-                    elif n == "expr":
-                        subclass_code = n[0].attr
-                    pass
-                pass
-            else:
-                for n in mkfunc:
-                    if hasattr(n, "attr") and iscode(n.attr):
-                        subclass_code = n.attr
-                        break
-                    pass
+            for n in mkfunc:
+                if hasattr(n, "attr") and iscode(n.attr):
+                    subclass_code = n.attr
+                    break
                 pass
             if node == "classdefdeco2":
                 subclass_info = node
