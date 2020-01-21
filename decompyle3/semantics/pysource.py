@@ -1252,7 +1252,7 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_classdef(self, node):
 
-        self.n_classdef3(node)
+        self.n_classdef36(node)
 
         # class definition ('class X(A,B,C):')
         cclass = self.currentclass

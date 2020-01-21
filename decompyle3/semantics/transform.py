@@ -160,7 +160,6 @@ class TreeTransform(GenericASTTraversal, object):
                     else:
                         if jump_cond == "jmp_false":
                             # FIXME: We don't handle this kind of thing yet.
-                            assert len(testexpr[0]) == 1
                             return node
                         kind = "assert2not"
 

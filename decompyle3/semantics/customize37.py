@@ -155,7 +155,7 @@ def customize_for_version37(self, version):
             "list_if37_not": (" if not %p%c", (0, 27), 1),
             "testfalse_not_or": ("not %c or %c", (0, "expr"), (2, "expr")),
             "testfalse_not_and": ("not (%c)", 0),
-            "testfalsel":  ("not %c", (0, "expr")),
+            "testfalsel": ("not %c", (0, "expr")),
             "try_except36": ("%|try:\n%+%c%-%c\n\n", 1, -2),
             "tryfinally36": ("%|try:\n%+%c%-%|finally:\n%+%c%-\n\n", (1, "returns"), 3),
             "unmap_dict": ("{**%C}", (0, -1, ", **")),
@@ -180,8 +180,6 @@ def customize_for_version37(self, version):
 
     self.n_assert_invert = n_assert_invert
 
-
-
     def n_async_call(node):
         self.f.write("async ")
         node.kind == "call"
@@ -193,6 +191,20 @@ def customize_for_version37(self, version):
         self.prune()
 
     self.n_async_call = n_async_call
+
+    def n_attribute37(node):
+        expr = node[0]
+        assert expr == "expr"
+        if expr[0] == "LOAD_CONST":
+            # FIXME: I didn't record which constants parenthesis is
+            # necessary. However, I suspect that we could further
+            # refine this by looking at operator precedence and
+            # eval'ing the constant value (pattr) and comparing with
+            # the type of the constant.
+            node.kind = "attribute_w_parens"
+        self.default(node)
+
+    self.n_attribute37 = n_attribute37
 
     def n_build_list_unpack(node):
         """
@@ -273,20 +285,6 @@ def customize_for_version37(self, version):
                 node.kind = "call_generator"
             pass
         return
-
-    def n_attribute37(node):
-        expr = node[0]
-        assert expr == "expr"
-        if expr[0] == "LOAD_CONST":
-            # FIXME: I didn't record which constants parenthesis is
-            # necessary. However, I suspect that we could further
-            # refine this by looking at operator precedence and
-            # eval'ing the constant value (pattr) and comparing with
-            # the type of the constant.
-            node.kind = "attribute_w_parens"
-        self.default(node)
-
-    self.n_attribute37 = n_attribute37
 
     def n_call(node):
         p = self.prec
@@ -476,6 +474,112 @@ def customize_for_version37(self, version):
         return
 
     self.call36_dict = call36_dict
+
+    def n_classdef36(node):
+        # class definition ('class X(A,B,C):')
+        cclass = self.currentclass
+
+        # Pick out various needed bits of information
+        # * class_name - the name of the class
+        # * subclass_info - the parameters to the class  e.g.
+        #      class Foo(bar, baz)
+        #               ----------
+        # * subclass_code - the code for the subclass body
+        subclass_info = None
+        if node == "classdefdeco2":
+            if isinstance(node[1][1].attr, str):
+                class_name = node[1][1].attr
+            else:
+                class_name = node[1][2].attr
+            build_class = node
+        else:
+            build_class = node[0]
+            if build_class == "build_class_kw":
+                mkfunc = build_class[1]
+                assert mkfunc == "mkfunc"
+                subclass_info = build_class
+                if hasattr(mkfunc[0], "attr") and iscode(mkfunc[0].attr):
+                    subclass_code = mkfunc[0].attr
+                else:
+                    assert mkfunc[0] == "load_closure"
+                    subclass_code = mkfunc[1].attr
+                    assert iscode(subclass_code)
+            if build_class[1][0] == "load_closure":
+                code_node = build_class[1][1]
+            else:
+                code_node = build_class[1][0]
+            class_name = code_node.attr.co_name
+
+        assert "mkfunc" == build_class[1]
+        mkfunc = build_class[1]
+        if mkfunc[0] in ("kwargs", "no_kwargs"):
+            for n in mkfunc:
+                if hasattr(n, "attr") and iscode(n.attr):
+                    subclass_code = n.attr
+                    break
+                pass
+            if node == "classdefdeco2":
+                subclass_info = node
+            else:
+                subclass_info = node[0]
+        elif build_class[1][0] == "load_closure":
+            # Python 3 with closures not functions
+            load_closure = build_class[1]
+            if hasattr(load_closure[-3], "attr"):
+                # Python 3.3 classes with closures work like this.
+                # Note have to test before 3.2 case because
+                # index -2 also has an attr.
+                subclass_code = load_closure[-3].attr
+            elif hasattr(load_closure[-2], "attr"):
+                # Python 3.2 works like this
+                subclass_code = load_closure[-2].attr
+            else:
+                raise "Internal Error n_classdef: cannot find class body"
+            if hasattr(build_class[3], "__len__"):
+                if not subclass_info:
+                    subclass_info = build_class[3]
+            elif hasattr(build_class[2], "__len__"):
+                subclass_info = build_class[2]
+            else:
+                raise "Internal Error n_classdef: cannot superclass name"
+        elif node == "classdefdeco2":
+            subclass_info = node
+            subclass_code = build_class[1][0].attr
+        elif not subclass_info:
+            if mkfunc[0] in ("no_kwargs", "kwargs"):
+                subclass_code = mkfunc[1].attr
+            else:
+                subclass_code = mkfunc[0].attr
+            if node == "classdefdeco2":
+                subclass_info = node
+            else:
+                subclass_info = node[0]
+
+        if node == "classdefdeco2":
+            self.write("\n")
+        else:
+            self.write("\n\n")
+
+        self.currentclass = str(class_name)
+        self.write(self.indent, "class ", self.currentclass)
+
+        self.print_super_classes3(subclass_info)
+        self.println(":")
+
+        # class body
+        self.indent_more()
+        self.build_class(subclass_code)
+        self.indent_less()
+
+        self.currentclass = cclass
+        if len(self.param_stack) > 1:
+            self.write("\n\n")
+        else:
+            self.write("\n\n\n")
+
+        self.prune()
+
+    self.n_classdef36 = n_classdef36
 
     def n_importlist37(node):
         if len(node) == 1:

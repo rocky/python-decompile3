@@ -1,4 +1,4 @@
-#  Copyright (c) 2018-2019 by Rocky Bernstein
+#  Copyright (c) 2018-2020 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -176,112 +176,6 @@ def customize_for_version3(self, version):
             pass
         self.prec = p
     self.listcomp_closure3 = listcomp_closure3
-
-    def n_classdef3(node):
-        # class definition ('class X(A,B,C):')
-        cclass = self.currentclass
-
-        # Pick out various needed bits of information
-        # * class_name - the name of the class
-        # * subclass_info - the parameters to the class  e.g.
-        #      class Foo(bar, baz)
-        #               ----------
-        # * subclass_code - the code for the subclass body
-        subclass_info = None
-        if node == "classdefdeco2":
-            if isinstance(node[1][1].attr, str):
-                class_name = node[1][1].attr
-            else:
-                class_name = node[1][2].attr
-            build_class = node
-        else:
-            build_class = node[0]
-            if build_class == "build_class_kw":
-                mkfunc = build_class[1]
-                assert mkfunc == "mkfunc"
-                subclass_info = build_class
-                if hasattr(mkfunc[0], "attr") and iscode(mkfunc[0].attr):
-                    subclass_code = mkfunc[0].attr
-                else:
-                    assert mkfunc[0] == "load_closure"
-                    subclass_code = mkfunc[1].attr
-                    assert iscode(subclass_code)
-            if build_class[1][0] == "load_closure":
-                code_node = build_class[1][1]
-            else:
-                code_node = build_class[1][0]
-            class_name = code_node.attr.co_name
-
-        assert "mkfunc" == build_class[1]
-        mkfunc = build_class[1]
-        if mkfunc[0] in ("kwargs", "no_kwargs"):
-            for n in mkfunc:
-                if hasattr(n, "attr") and iscode(n.attr):
-                    subclass_code = n.attr
-                    break
-                pass
-            if node == "classdefdeco2":
-                subclass_info = node
-            else:
-                subclass_info = node[0]
-        elif build_class[1][0] == "load_closure":
-            # Python 3 with closures not functions
-            load_closure = build_class[1]
-            if hasattr(load_closure[-3], "attr"):
-                # Python 3.3 classes with closures work like this.
-                # Note have to test before 3.2 case because
-                # index -2 also has an attr.
-                subclass_code = load_closure[-3].attr
-            elif hasattr(load_closure[-2], "attr"):
-                # Python 3.2 works like this
-                subclass_code = load_closure[-2].attr
-            else:
-                raise "Internal Error n_classdef: cannot find class body"
-            if hasattr(build_class[3], "__len__"):
-                if not subclass_info:
-                    subclass_info = build_class[3]
-            elif hasattr(build_class[2], "__len__"):
-                subclass_info = build_class[2]
-            else:
-                raise "Internal Error n_classdef: cannot superclass name"
-        elif node == "classdefdeco2":
-            subclass_info = node
-            subclass_code = build_class[1][0].attr
-        elif not subclass_info:
-            if mkfunc[0] in ("no_kwargs", "kwargs"):
-                subclass_code = mkfunc[1].attr
-            else:
-                subclass_code = mkfunc[0].attr
-            if node == "classdefdeco2":
-                subclass_info = node
-            else:
-                subclass_info = node[0]
-
-        if node == "classdefdeco2":
-            self.write("\n")
-        else:
-            self.write("\n\n")
-
-        self.currentclass = str(class_name)
-        self.write(self.indent, "class ", self.currentclass)
-
-        self.print_super_classes3(subclass_info)
-        self.println(":")
-
-        # class body
-        self.indent_more()
-        self.build_class(subclass_code)
-        self.indent_less()
-
-        self.currentclass = cclass
-        if len(self.param_stack) > 1:
-            self.write("\n\n")
-        else:
-            self.write("\n\n\n")
-
-        self.prune()
-
-    self.n_classdef3 = n_classdef3
 
     TABLE_DIRECT.update(
         {
