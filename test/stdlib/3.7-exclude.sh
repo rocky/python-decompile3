@@ -50,7 +50,6 @@ SKIP_TESTS=(
     [test_io.py]=1 # test takes too long to run: 37 seconds
     [test_imaplib.py]=1
     [test_inspect.py]=1 # test failures
-    [test_keywordonlyarg.py]=1 # Investigate: parameter handling
     [test_kqueue.py]=1 # it fails on its own
     [test_lib2to3.py]=1 # it fails on its own
     [test_long.py]=1 # FIX: if boundaries wrong in Rat __init__

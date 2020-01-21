@@ -900,7 +900,7 @@ def customize_for_version37(self, version):
         kwargs = node[2]
         if kwargs == "expr":
             kwargs = kwargs[0]
-        if kwargs == "dict":
+        if kwargs == 'expr' and kwargs[0] != "dict":
             self.call36_dict(kwargs)
         else:
             self.write("**")
