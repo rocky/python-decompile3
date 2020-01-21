@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2019 by Rocky Bernstein
+#  Copyright (c) 2016-2020 by Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
 #
@@ -40,12 +40,19 @@ class Token:
         op=None,
         has_arg=None,
         opc=None,
+
+        # extended arg indicates that this token was preceded
+        # by EXTENDED_ARG. Note that the offset passed
+        # is the EXTENDED_ARG's offset even though
+        # the instruction associated with opname sits
+        # at next offset
+        has_extended_arg=False,
     ):
         self.kind = sys.intern(opname)
         self.has_arg = has_arg
         self.attr = attr
         self.pattr = pattr
-        self.offset = offset
+        self.offset = f"{offset}_{offset+2}" if has_extended_arg else offset
         self.linestart = linestart
         if has_arg is False:
             self.attr = None
@@ -95,7 +102,7 @@ class Token:
             if self.linestart
             else (" " * (6 + len(line_prefix)))
         )
-        offset_opname = "%6s  %-17s" % (self.offset, self.kind)
+        offset_opname = "%8s  %-17s" % (self.offset, self.kind)
 
         if not self.has_arg:
             return "%s%s" % (prefix, offset_opname)
@@ -127,7 +134,7 @@ class Token:
                     return "%s%s%s %s" % (prefix, offset_opname, argstr, pattr)
                 elif self.op in self.opc.hasvargs:
                     return "%s%s%s" % (prefix, offset_opname, argstr)
-                elif name == 'LOAD_ASSERT':
+                elif name == "LOAD_ASSERT":
                     return "%s%s        %s" % (prefix, offset_opname, pattr)
                 elif self.op in self.opc.NAME_OPS:
                     return "%s%s%s %s" % (prefix, offset_opname, argstr, self.attr)
@@ -154,12 +161,21 @@ class Token:
     def __getitem__(self, i):
         raise IndexError
 
-    def off2int(self) -> int:
+    def off2int(self, prefer_last=True) -> int:
         if isinstance(self.offset, int):
             return self.offset
         else:
             assert isinstance(self.offset, str)
-            return(int(self.offset.split("_")[0]))
+            offset_1, offset_2 = list(map(int, self.offset.split("_")))
+            if offset_1 + 2 == offset_2:
+                # This is an instruction with an extended arg.
+                # For things that compare against offsets, we generally want the
+                # later offset.
+                return offset_2 if prefer_last else offset_1
+            else:
+                # Probably a "COME_FROM"-type offset, where the second number
+                # is just a count, and not really an offset.
+                return offset_1
 
 
 NoneToken = Token("LOAD_CONST", offset=-1, attr=None, pattr=None)

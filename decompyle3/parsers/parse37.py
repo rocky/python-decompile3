@@ -430,10 +430,11 @@ class Python37Parser(Python37BaseParser):
 
         subscript2 ::= expr expr DUP_TOP_TWO BINARY_SUBSCR
 
-        # Python 3.2+ has more loop optimization that removes
-        # JUMP_FORWARD in some cases, and hence we also don't
-        # see COME_FROM
-        _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_froms
+        # FIXME: The below rule was in uncompyle6.
+        # In decompyle6 though "_ifstmts_jump" is part of an "ifstmt"
+        # where as the below rule is appropriate for an "ifelsesmt"
+        # Investigate and reconcile
+        # _ifstmts_jump ::= c_stmts_opt JUMP_FORWARD _come_froms
 
         kv3       ::= expr expr STORE_MAP
         """
@@ -515,6 +516,11 @@ class Python37Parser(Python37BaseParser):
         jb_else     ::= JUMP_BACK COME_FROM
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_FORWARD else_suitec
         ifelsestmtl ::= testexpr c_stmts_opt jb_else else_suitel
+
+        # We want to keep the positions of the "then" and
+        # "else" statements in "ifelstmtl" similar to others of this ilk.
+        testexpr_cf ::= testexpr come_froms
+        ifelsestmtl ::= testexpr_cf c_stmts_opt jb_else else_suitel
 
         # 3.5 Has jump optimization which can route the end of an
         # "if/then" back to to a loop just before an else.
