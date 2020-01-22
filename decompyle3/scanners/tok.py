@@ -166,7 +166,12 @@ class Token:
             return self.offset
         else:
             assert isinstance(self.offset, str)
-            offset_1, offset_2 = list(map(int, self.offset.split("_")))
+            offsets = list(map(int, self.offset.split("_")))
+            if len(offsets) == 1:
+                return offsets[0]
+            else:
+                assert len(offsets) == 2
+                offset_1, offset_2 = offsets
             if offset_1 + 2 == offset_2:
                 # This is an instruction with an extended arg.
                 # For things that compare against offsets, we generally want the
