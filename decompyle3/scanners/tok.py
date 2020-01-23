@@ -17,6 +17,26 @@
 
 import re, sys
 
+def off2int(offset, prefer_last=True) -> int:
+    if isinstance(offset, int):
+        return offset
+    else:
+        assert isinstance(offset, str)
+        offsets = list(map(int, offset.split("_")))
+        if len(offsets) == 1:
+            return offsets[0]
+        else:
+            assert len(offsets) == 2
+            offset_1, offset_2 = offsets
+        if offset_1 + 2 == offset_2:
+            # This is an instruction with an extended arg.
+            # For things that compare against offsets, we generally want the
+            # later offset.
+            return offset_2 if prefer_last else offset_1
+        else:
+            # Probably a "COME_FROM"-type offset, where the second number
+            # is just a count, and not really an offset.
+            return offset_1
 
 class Token:
     """
@@ -162,25 +182,7 @@ class Token:
         raise IndexError
 
     def off2int(self, prefer_last=True) -> int:
-        if isinstance(self.offset, int):
-            return self.offset
-        else:
-            assert isinstance(self.offset, str)
-            offsets = list(map(int, self.offset.split("_")))
-            if len(offsets) == 1:
-                return offsets[0]
-            else:
-                assert len(offsets) == 2
-                offset_1, offset_2 = offsets
-            if offset_1 + 2 == offset_2:
-                # This is an instruction with an extended arg.
-                # For things that compare against offsets, we generally want the
-                # later offset.
-                return offset_2 if prefer_last else offset_1
-            else:
-                # Probably a "COME_FROM"-type offset, where the second number
-                # is just a count, and not really an offset.
-                return offset_1
+        return off2int(self.offset)
 
 
 NoneToken = Token("LOAD_CONST", offset=-1, attr=None, pattr=None)

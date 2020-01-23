@@ -124,19 +124,20 @@ class TreeTransform(GenericASTTraversal, object):
         if stmts in ("c_stmts",) and len(stmts) == 1:
             stmt = stmts[0]
             raise_stmt = stmt[0]
+            testtrue_or_false = testexpr[0]
             if (
                 raise_stmt == "raise_stmt1"
-                and 1 <= len(testexpr[0]) <= 2
+                and 1 <= len(testtrue_or_false) <= 2
                 and raise_stmt.first_child().pattr == "AssertionError"
             ):
-                if testexpr[0] == "testtrue":
+                if  testtrue_or_false == "testtrue":
                     # Skip over the testtrue because because it would
                     # produce a "not" and we don't want that here.
-                    assert_expr = testexpr[0][0]
+                    assert_expr = testtrue_or_false[0]
                     jump_cond = NoneToken
                 else:
-                    assert_expr = testexpr[0][0]
-                    jump_cond = testexpr[0][1]
+                    assert_expr = testtrue_or_false[0]
+                    jump_cond = testtrue_or_false[1]
                     assert_expr.kind = "assert_expr"
                 expr = raise_stmt[0]
                 RAISE_VARARGS_1 = raise_stmt[1]
@@ -163,15 +164,6 @@ class TreeTransform(GenericASTTraversal, object):
                             return node
                         kind = "assert2not"
 
-                    LOAD_ASSERT = call[0].first_child()
-                    if LOAD_ASSERT != "LOAD_ASSERT":
-                        return node
-                    expr = call[1][0]
-                    node = SyntaxTree(
-                        kind,
-                        [assert_expr, jump_cond, LOAD_ASSERT, expr, RAISE_VARARGS_1],
-                        transformed_by="n_ifstmt",
-                    )
                     LOAD_ASSERT = call[0].first_child()
                     if LOAD_ASSERT != "LOAD_ASSERT":
                         return node

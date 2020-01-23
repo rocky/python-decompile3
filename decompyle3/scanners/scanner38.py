@@ -24,6 +24,7 @@ scanner routine for Python 3.
 
 from typing import Dict, List, Tuple
 
+from decompyle3.scanners.tok import off2int
 from decompyle3.scanners.scanner37 import Scanner37
 from decompyle3.scanners.scanner37base import Scanner37Base
 
@@ -74,7 +75,7 @@ class Scanner38(Scanner37):
                 next_end = loop_ends[-1] if len(loop_ends) else tokens[len(tokens)-1].off2int() + 10
 
             if offset in jump_back_targets:
-                next_end = jump_back_targets[offset]
+                next_end = off2int(jump_back_targets[offset], prefer_last=False)
                 if self.debug:
                     print(f"{'  ' * len(loop_ends)}adding loop offset {offset} ending at {next_end}")
                 loop_ends.append(next_end)
@@ -116,7 +117,7 @@ class Scanner38(Scanner37):
                 # should start before where the "break" instruction sits.
                 if break_loop or (
                     jump_back_token == "JUMP_BACK"
-                    and jump_back_token.attr < token.offset
+                    and jump_back_token.attr < token.off2int()
                 ):
                     token.kind = "BREAK_LOOP"
                 pass
