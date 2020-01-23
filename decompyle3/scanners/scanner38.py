@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 by Rocky Bernstein
+#  Copyright (c) 2019-2020 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -13,13 +13,13 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-Python 3.8 bytecode decompiler scanner
+Python 3.8 bytecode decompiler scanner.
 
 Does some additional massaging of xdis-disassembled instructions to
 make things easier for decompilation.
 
 This sets up opcodes Python's 3.8 and calls a generalized
-scanner routine for Python 3.
+scanner routine for Python 3.7 and up.
 """
 
 from typing import Dict, List, Tuple
