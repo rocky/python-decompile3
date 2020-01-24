@@ -86,39 +86,40 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
     else:
         pos_args, kw_args, annotate_argc, closure = args_attr
 
-        i = -4
-        kw_pairs = 0
-        if closure:
-            # FIXME: fill in
-            # annotate = node[i]
-            i -= 1
-
-        if annotate_argc:
-            # Turn into subroutine and DRY with other use
-            annotate_node = node[i]
-            if annotate_node == "expr":
-                annotate_node = annotate_node[0]
-                annotate_name_node = annotate_node[-1]
-                if annotate_node == "dict" and annotate_name_node.kind.startswith(
-                    "BUILD_CONST_KEY_MAP"
-                ):
-                    types = [
-                        self.traverse(n, indent="") for n in annotate_node[:-2]
-                    ]
-                    names = annotate_node[-2].attr
-                    l = len(types)
-                    assert l == len(names)
-                    for i in range(l):
-                        annotate_dict[names[i]] = types[i]
-                    pass
+    i = -4
+    kw_pairs = 0
+    if annotate_argc:
+        # Turn into subroutine and DRY with other use
+        annotate_node = node[i]
+        if annotate_node == "expr":
+            annotate_node = annotate_node[0]
+            annotate_name_node = annotate_node[-1]
+            if annotate_node == "dict" and annotate_name_node.kind.startswith(
+                "BUILD_CONST_KEY_MAP"
+            ):
+                types = [
+                    self.traverse(n, indent="") for n in annotate_node[:-2]
+                ]
+                names = annotate_node[-2].attr
+                l = len(types)
+                assert l == len(names)
+                for i in range(l):
+                    annotate_dict[names[i]] = types[i]
                 pass
-            i -= 1
-        if kw_args:
-            kw_node = node[i]
-            if kw_node == "expr":
-                kw_node = kw_node[0]
-            if kw_node == "dict":
-                kw_pairs = kw_node[-1].attr
+            pass
+        i -= 1
+
+    if closure:
+        # FIXME: fill in
+        # annotate = node[i]
+        i -= 1
+
+    if kw_args:
+        kw_node = node[pos_args]
+        if kw_node == "expr":
+            kw_node = kw_node[0]
+        if kw_node == "dict":
+            kw_pairs = kw_node[-1].attr
 
     defparams = []
     # FIXME: DRY with code below
