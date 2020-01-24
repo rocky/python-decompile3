@@ -17,7 +17,8 @@
 
 import re, sys
 
-def off2int(offset, prefer_last=True) -> int:
+
+def off2int(offset: int, prefer_last=True) -> int:
     if isinstance(offset, int):
         return offset
     else:
@@ -37,6 +38,7 @@ def off2int(offset, prefer_last=True) -> int:
             # Probably a "COME_FROM"-type offset, where the second number
             # is just a count, and not really an offset.
             return offset_1
+
 
 class Token:
     """
@@ -60,7 +62,6 @@ class Token:
         op=None,
         has_arg=None,
         opc=None,
-
         # extended arg indicates that this token was preceded
         # by EXTENDED_ARG. Note that the offset passed
         # is the EXTENDED_ARG's offset even though
@@ -178,11 +179,11 @@ class Token:
     def __hash__(self):
         return hash(self.kind)
 
-    def __getitem__(self, i):
+    def __getitem__(self, i: int):
         raise IndexError
 
     def off2int(self, prefer_last=True) -> int:
-        return off2int(self.offset)
+        return off2int(self.offset, prefer_last)
 
 
 NoneToken = Token("LOAD_CONST", offset=-1, attr=None, pattr=None)
