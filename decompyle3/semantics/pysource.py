@@ -166,7 +166,6 @@ from decompyle3.semantics.consts import (
     MAP_DIRECT,
     MAP,
     PRECEDENCE,
-    ASSIGN_TUPLE_PARAM,
     escape,
     minint,
 )
@@ -992,7 +991,10 @@ class SourceWalker(GenericASTTraversal, object):
         code = Code(cn.attr, self.scanner, self.currentclass)
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
-        ast = ast[0][0][0]
+
+        # Remove single reductions as in ("stmts", "sstmt"):
+        while len(ast) == 1:
+            ast = ast[0]
 
         n = ast[iter_index]
         assert n == "comp_iter", n
@@ -1214,7 +1216,11 @@ class SourceWalker(GenericASTTraversal, object):
         code = Code(node[1].attr, self.scanner, self.currentclass)
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
-        ast = ast[0][0][0]
+
+        # Remove single reductions as in ("stmts", "sstmt"):
+        while len(ast) == 1:
+            ast = ast[0]
+
         store = ast[3]
         collection = node[collection_index]
 

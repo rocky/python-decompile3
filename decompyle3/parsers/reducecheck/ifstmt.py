@@ -22,11 +22,12 @@ def ifstmt(
         last_offset = tokens[l].offset
     for i in range(first, l):
         t = tokens[i]
-        if t.kind == "POP_JUMP_IF_FALSE":
+        # instead of POP_JUMP_IF, should we use op attributes?
+        if t.kind in ("POP_JUMP_IF_FALSE", "POP_JUMP_IF_TRUE"):
             pjif_target = t.attr
             if pjif_target > last_offset:
                 # In come cases, where we have long bytecode, a
-                # "POP_JUMP_IF_FALSE" offset might be too
+                # "POP_JUMP_IF_TRUE/FALSE" offset might be too
                 # large for the instruction; so instead it
                 # jumps to a JUMP_FORWARD. Allow that here.
                 if tokens[l] == "JUMP_FORWARD":
