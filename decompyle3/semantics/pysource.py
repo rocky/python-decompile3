@@ -1972,38 +1972,6 @@ class SourceWalker(GenericASTTraversal, object):
             pass
         return
 
-    def get_tuple_parameter(self, ast, name):
-        """
-        If the name of the formal parameter starts with dot,
-        it's a tuple parameter, like this:
-        #          def MyFunc(xx, (a,b,c), yy):
-        #                  print a, b*2, c*42
-        In byte-code, the whole tuple is assigned to parameter '.1' and
-        then the tuple gets unpacked to 'a', 'b' and 'c'.
-
-        Since identifiers starting with a dot are illegal in Python,
-        we can search for the byte-code equivalent to '(a,b,c) = .1'
-        """
-
-        assert ast == "stmts"
-        for i in range(len(ast)):
-            # search for an assign-statement
-            assert ast[i][0] == "stmt"
-            node = ast[i][0][0]
-            if node == "assign" and node[0] == ASSIGN_TUPLE_PARAM(name):
-                # okay, this assigns '.n' to something
-                del ast[i]
-                # walk lhs; this
-                # returns a tuple of identifiers as used
-                # within the function definition
-                assert node[1] == "store"
-                # if lhs is not a UNPACK_TUPLE (or equiv.),
-                # add parenteses to make this a tuple
-                # if node[1][0] not in ('unpack', 'unpack_list'):
-                return "(" + self.traverse(node[1]) + ")"
-            # return self.traverse(node[1])
-        raise Exception("Can't find tuple parameter " + name)
-
     def build_class(self, code):
         """Dump class definition, doc string and class body."""
 
