@@ -31,13 +31,16 @@ SKIP_TESTS=(
     [test_dis.py]=1   # We change line numbers - duh!
     [test_docxmlrpc.py]=1
     [test_enum.py]=1   # probably bad control flow
+
     [test_faulthandler.py]=1   # takes too long
     [test_fcntl.py]=1
     [test_fileinput.py]=1 # Test assertion failures
     [test_format.py]=1 # Probably not handling bytestrings properly
     [test_frame.py]=1 # test assertion errors
     [test_ftplib.py]=1 # parse error
+    [test_fstring.py]=1 # need to disambiguate leading fstrings from docstrings
     [test_functools.py]=1 # parse error
+
     [test_gdb.py]=1 # it fails on its own
     [test_generators.py]=1  # Investigate improper lamdba with bogus "False" added
     [test_glob.py]=1  # TypeError: join() argument must be str or bytes, not 'tuple'
@@ -124,4 +127,11 @@ SKIP_TESTS=(
     [test_zipfile.py]=1 # it fails on its own
     [test_zipfile64.py]=1 # Too long to run
 )
-# 271 unit-test files in about 14 minutes
+# 278 unit-test files in about 15 minutes
+
+if (( batch )) ; then
+    SKIP_TESTS[test_distutils.py]=1
+    SKIP_TESTS[test_fileio.py]=1
+    SKIP_TESTS[test_gc.py]=1
+    SKIP_TESTS[test_zipimport_support.py]=1
+fi
