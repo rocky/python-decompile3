@@ -134,7 +134,7 @@ TABLE_DIRECT_FRAGMENT = {
         4,
         -2,
     ),
-    "forelselaststmtl": (
+    "forelselaststmtc": (
         "%|for%b %c%x in %c:\n%+%c%-%|else:\n%+%c%-\n\n",
         0,
         (3, "store"),

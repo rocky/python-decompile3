@@ -4,7 +4,7 @@
 def ifstmt(
     self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
 ) -> bool:
-    if lhs == "ifstmtl":
+    if lhs == "ifstmtc":
         if last == n:
             last -= 1
             pass
@@ -33,8 +33,8 @@ def ifstmt(
                 if tokens[l] == "JUMP_FORWARD":
                     return tokens[l].attr != pjif_target
                 return True
-            elif lhs == "ifstmtl" and tokens[first].off2int() > pjif_target:
-                # A conditional JUMP to the loop is expected for "ifstmtl"
+            elif lhs == "ifstmtc" and tokens[first].off2int() > pjif_target:
+                # A conditional JUMP to the loop is expected for "ifstmtc"
                 return False
             pass
         pass

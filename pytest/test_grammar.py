@@ -42,10 +42,10 @@ def test_grammar():
     )
     unused_rhs.add("dict_comp")
     unused_rhs.add("classdefdeco1")
-    unused_rhs.add("tryelsestmtl")
+    unused_rhs.add("tryelsestmtc")
     unused_rhs.add("dict")
 
-    expect_right_recursive.add((("l_stmts", ("lastl_stmt", "come_froms", "l_stmts"))))
+    expect_right_recursive.add((("c_stmts", ("lastc_stmt", "come_froms", "c_stmts"))))
     pass
 
     assert expect_lhs == set(lhs)

@@ -15,7 +15,7 @@ from decompyle3.parsers.reducecheck import (
     ifstmts_jump,
     or_check,
     testtrue,
-    tryelsestmtl3,
+    tryelsestmtc3,
     while1stmt,
     while1elsestmt,
 )
@@ -906,12 +906,12 @@ class Python37BaseParser(PythonParser):
                     tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                                        except_handler else_suite come_froms
 
-                    tryelsestmtl   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                                       except_handler else_suitel come_from_except_clauses
+                    tryelsestmtc   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                                       except_handler else_suitec come_from_except_clauses
 
-                    stmt             ::= tryelsestmtl3
-                    tryelsestmtl3    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                                         except_handler COME_FROM else_suitel
+                    stmt             ::= tryelsestmtc3
+                    tryelsestmtc3    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                                         except_handler COME_FROM else_suitec
                                          opt_come_from_except
                     """,
                     nop_func,
@@ -994,15 +994,14 @@ class Python37BaseParser(PythonParser):
             "and": and_check,
             "ifelsestmt": ifelsestmt,
             "iflaststmt": iflaststmt,
-            "iflaststmtl": iflaststmt,
+            "iflaststmtc": iflaststmt,
             "ifstmt": ifstmt,
-            "ifstmtl": ifstmt,
             "or": or_check,
             "testtrue": testtrue,
-            "testfalsel": testtrue,
+            "testfalsec": testtrue,
             "while1elsestmt": while1elsestmt,
             "while1stmt": while1stmt,
-            "try_elsestmtl38": tryelsestmtl3,
+            "try_elsestmtc38": tryelsestmtc3,
         }
 
         self.check_reduce["and"] = "AST"
@@ -1012,15 +1011,17 @@ class Python37BaseParser(PythonParser):
         self.check_reduce["while1stmt"] = "noAST"
         self.check_reduce["while1elsestmt"] = "noAST"
         self.check_reduce["_ifstmts_jump"] = "AST"
+        self.check_reduce["_ifstmts_jumpc"] = "AST"
         self.check_reduce["ifelsestmt"] = "AST"
+        self.check_reduce["ifelsestmtc"] = "AST"
         self.check_reduce["iflaststmt"] = "AST"
-        self.check_reduce["iflaststmtl"] = "AST"
+        self.check_reduce["iflaststmtc"] = "AST"
         self.check_reduce["ifstmt"] = "AST"
-        self.check_reduce["ifstmtl"] = "AST"
+        self.check_reduce["ifstmtc"] = "AST"
         self.check_reduce["import_from37"] = "AST"
         self.check_reduce["or"] = "AST"
         self.check_reduce["testtrue"] = "tokens"
-        self.check_reduce["testfalsel"] = "tokens"
+        self.check_reduce["testfalsec"] = "tokens"
         return
 
     def custom_classfunc_rule(self, opname, token, customize, next_token):

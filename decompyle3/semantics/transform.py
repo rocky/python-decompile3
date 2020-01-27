@@ -112,12 +112,12 @@ class TreeTransform(GenericASTTraversal, object):
         if testexpr != "testexpr":
             return node
 
-        if node.kind in ("ifstmt", "ifstmtl"):
+        if node.kind in ("ifstmt", "ifstmtc"):
             ifstmts_jump = node[1]
 
-            if ifstmts_jump == "_ifstmts_jumpl" and ifstmts_jump[0] == "_ifstmts_jump":
+            if ifstmts_jump == "_ifstmts_jumpc" and ifstmts_jump[0] == "_ifstmts_jump":
                 ifstmts_jump = ifstmts_jump[0]
-            elif ifstmts_jump not in ("_ifstmts_jump", "ifstmts_jumpl"):
+            elif ifstmts_jump not in ("_ifstmts_jump", "ifstmts_jumpc"):
                 return node
             stmts = ifstmts_jump[0]
         else:
@@ -214,7 +214,7 @@ class TreeTransform(GenericASTTraversal, object):
             pass
         return node
 
-    n_ifstmtl = n_iflaststmtl = n_ifstmt
+    n_ifstmtc = n_iflaststmtc = n_ifstmt
 
     # preprocess is used for handling chains of
     # if elif elif
@@ -245,18 +245,17 @@ class TreeTransform(GenericASTTraversal, object):
 
         if len(n) == 1 == len(n[0]) and n[0] == "stmt":
             n = n[0][0]
-        elif n[0].kind in ("lastc_stmt", "lastl_stmt"):
+        elif n[0].kind in ("lastc_stmt",):
             n = n[0]
             if n[0].kind in (
                 "ifstmt",
                 "iflaststmt",
-                "iflaststmtl",
-                "ifelsestmtl",
+                "iflaststmtc",
                 "ifelsestmtc",
-                "ifpoplaststmtl",
+                "ifpoplaststmtc",
             ):
                 n = n[0]
-                if n.kind == "ifpoplaststmtl":
+                if n.kind == "ifpoplaststmtc":
                     old_stmts = n[2]
                     else_suite_index = 2
                 pass
@@ -269,25 +268,25 @@ class TreeTransform(GenericASTTraversal, object):
             and n[1].kind == "stmt"
         ):
             else_suite_stmts = n[0]
-            if else_suite_stmts[0].kind not in ("ifstmt", "iflaststmt", "ifelsestmtl",):
+            if else_suite_stmts[0].kind not in ("ifstmt", "iflaststmt", "ifelsestmtc",):
                 return node
             old_stmts = n
             n = else_suite_stmts[0]
         else:
             return node
 
-        if n.kind in ("ifstmt", "iflaststmt", "iflaststmtl", "ifpoplaststmtl"):
+        if n.kind in ("ifstmt", "iflaststmt", "iflaststmtc", "ifpoplaststmtc"):
             node.kind = "ifelifstmt"
             n.kind = "elifstmt"
         elif n.kind in ("ifelsestmtr",):
             node.kind = "ifelifstmt"
             n.kind = "elifelsestmtr"
-        elif n.kind in ("ifelsestmt", "ifelsestmtc", "ifelsestmtl"):
+        elif n.kind in ("ifelsestmt", "ifelsestmtc", "ifelsestmtc"):
             node.kind = "ifelifstmt"
             self.n_ifelsestmt(n, preprocess=True)
             if n == "ifelifstmt":
                 n.kind = "elifelifstmt"
-            elif n.kind in ("ifelsestmt", "ifelsestmtc", "ifelsestmtl"):
+            elif n.kind in ("ifelsestmt", "ifelsestmtc"):
                 n.kind = "elifelsestmt"
         if not preprocess:
             if old_stmts:
@@ -311,7 +310,7 @@ class TreeTransform(GenericASTTraversal, object):
                 pass
             return node
 
-    n_ifelsestmtc = n_ifelsestmtl = n_ifelsestmt
+    n_ifelsestmtc = n_ifelsestmt
 
     def n_import_from37(self, node):
         importlist37 = node[3]

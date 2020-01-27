@@ -16,7 +16,7 @@ def ifelsestmt(
             "ifelsestmt",
             (
                 "testexpr",
-                "c_stmts_opt",
+                "stmts_opt",
                 "jump_forward_else",
                 "else_suite",
                 "_come_froms",
@@ -26,7 +26,7 @@ def ifelsestmt(
             "ifelsestmt",
             (
                 "testexpr",
-                "c_stmts_opt",
+                "stmts_opt",
                 "jump_forward_else",
                 "else_suite",
                 "\\e__come_froms",
@@ -36,7 +36,7 @@ def ifelsestmt(
             "ifelsestmt",
             (
                 "testexpr",
-                "c_stmts_opt",
+                "stmts_opt",
                 "jf_cfs",
                 "else_suite",
                 "\\e_opt_come_from_except",
@@ -44,13 +44,13 @@ def ifelsestmt(
         ),
         (
             "ifelsestmt",
-            ("testexpr", "c_stmts", "come_froms", "else_suite", "come_froms",),
+            ("testexpr", "stmts", "come_froms", "else_suite", "come_froms",),
         ),
         (
             "ifelsestmt",
             (
                 "testexpr",
-                "c_stmts_opt",
+                "stmts_opt",
                 "jf_cfs",
                 "else_suite",
                 "opt_come_from_except",

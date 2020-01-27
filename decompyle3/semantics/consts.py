@@ -365,13 +365,12 @@ TABLE_DIRECT = {
                             (1, "_ifstmts_jump") ),
 
     "iflaststmt":	( '%|if %c:\n%+%c%-', 0, 1 ),
-    "iflaststmtl":	( '%|if %c:\n%+%c%-', 0, 1 ),
+    "iflaststmtc":	( '%|if %c:\n%+%c%-', 0, 1 ),
     "testtrue":         ( 'not %p',
                           (0, PRECEDENCE['unary_not']) ),
 
     'ifelsestmt':	( '%|if %c:\n%+%c%-%|else:\n%+%c%-', 0, 1, 3 ),
     'ifelsestmtc':	( '%|if %c:\n%+%c%-%|else:\n%+%c%-', 0, 1, 3 ),
-    'ifelsestmtl':	( '%|if %c:\n%+%c%-%|else:\n%+%c%-', 0, 1, 3 ),
 
     #  These are created only via transformation
     'ifelifstmt':	( '%|if %c:\n%+%c%-%c',
@@ -406,7 +405,7 @@ TABLE_DIRECT = {
                           (3, 'store'),
                           (1, 'expr'),
                           (4, 'for_block'), -2 ),
-    'forelselaststmtl':	(
+    'forelselaststmtc':	(
         '%|for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n',
                           (3, 'store'),
                           (1, 'expr'),
