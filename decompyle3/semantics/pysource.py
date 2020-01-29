@@ -1971,53 +1971,34 @@ class SourceWalker(GenericASTTraversal, object):
         code._tokens = None  # save memory
         assert ast == "stmts"
 
-
         if ast[0] == "docstring":
             self.println(self.traverse(ast[0]))
             del ast[0]
 
-        first_stmt = ast[0][0]
+        first_stmt = ast[0]
         try:
             if first_stmt == NAME_MODULE:
                 if self.hide_internal:
                     del ast[0]
-                    first_stmt = ast[0][0]
+                    first_stmt = ast[0]
             pass
         except:
             pass
 
         have_qualname = False
-        if self.version < 3.0:
-            # Should we ditch this in favor of the "else" case?
-            qualname = ".".join(self.classes)
-            QUAL_NAME = SyntaxTree(
-                "stmt",
-                [
-                    SyntaxTree(
-                        "assign",
-                        [
-                            SyntaxTree("expr", [Token("LOAD_CONST", pattr=qualname)]),
-                            SyntaxTree(
-                                "store", [Token("STORE_NAME", pattr="__qualname__")]
-                            ),
-                        ],
-                    )
-                ],
-            )
-            have_qualname = ast[0][0] == QUAL_NAME
-        else:
-            # Python 3.4+ has constants like 'cmp_to_key.<locals>.K'
-            # which are not simple classes like the < 3 case.
-            try:
-                if (
-                    first_stmt[0] == "assign"
-                    and first_stmt[0][0][0] == "LOAD_STR"
-                    and first_stmt[0][1] == "store"
-                    and first_stmt[0][1][0] == Token("STORE_NAME", pattr="__qualname__")
-                ):
-                    have_qualname = True
-            except:
-                pass
+        # Python 3.4+ has constants like 'cmp_to_key.<locals>.K'
+        # which are not simple classes like the < 3 case.
+
+        try:
+            if (
+                first_stmt == "assign"
+                and first_stmt[0][0] == "LOAD_STR"
+                and first_stmt[1] == "store"
+                and first_stmt[1][0] == Token("STORE_NAME", pattr="__qualname__")
+            ):
+                have_qualname = True
+        except:
+            pass
 
         if have_qualname:
             if self.hide_internal:
