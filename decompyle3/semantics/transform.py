@@ -104,7 +104,7 @@ class TreeTransform(GenericASTTraversal, object):
         return node
 
     def n_ifstmt(self, node):
-        """Here we check if we can turn an `ifstmt` or 'iflaststmtl` into
+        """Here we check if we can turn an `ifstmt` or 'iflaststmtc` into
            some kind of `assert` statement"""
 
         testexpr = node[0]
@@ -115,13 +115,13 @@ class TreeTransform(GenericASTTraversal, object):
         if node.kind in ("ifstmt", "ifstmtc"):
             ifstmts_jump = node[1]
 
-            if ifstmts_jump == "_ifstmts_jumpc" and ifstmts_jump[0] == "_ifstmts_jump":
+            if ifstmts_jump == "ifstmts_jumpc" and ifstmts_jump[0] == "ifstmts_jump":
                 ifstmts_jump = ifstmts_jump[0]
-            elif ifstmts_jump not in ("_ifstmts_jump", "ifstmts_jumpc"):
+            elif ifstmts_jump not in ("ifstmts_jump", "ifstmts_jumpc"):
                 return node
             stmts = ifstmts_jump[0]
         else:
-            # iflaststmtl works this way
+            # iflaststmtc works this way
             stmts = node[1]
 
         if stmts in ("c_stmts",) and len(stmts) == 1:

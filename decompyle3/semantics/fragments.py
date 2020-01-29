@@ -974,15 +974,6 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.write("]")
         self.prune()
 
-    def n__ifstmts_jump_exit(self, node):
-        if len(node) > 1:
-            if (
-                node[0] == "c_stmts_opt"
-                and node[0][0] == "pass"
-                and node[1].kind.startswith("JUMP_FORWARD")
-            ):
-                self.set_pos_info(node[1], node[0][0].start, node[0][0].finish)
-
     def setcomprehension_walk3(self, node, collection_index):
         """Set comprehensions the way they are done in Python3.
         They're more other comprehensions, e.g. set comprehensions
