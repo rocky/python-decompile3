@@ -119,15 +119,22 @@ def ifelsestmt(
             #     from trepan.api import debug; debug()
             if jump_else_end in ("jf_cfs", "jump_forward_else") and jump_else_end[0] == "JUMP_FORWARD":
                 # else end jumps before the end of the the "if .. else end"?
-                if jump_else_end[0].attr < last_offset:
+                jump_else_end_offset = jump_else_end[0].attr
+                if jump_else_end_offset < last_offset:
                     return True
 
                 # If we have a COME_FROM that follows, it must be
-                # from the jump_else_end, otherwsie this is no good.
+                # from the jump_else_end, otherwise this is no good.
                 #
                 if tokens[last-1] == "COME_FROM":
-                    return tokens[last-1].attr != jump_else_end[0].offset
-                return True
+                    if tokens[last-1].attr == jump_else_end[0].offset and tokens[last] == "COME_FROM":
+                        return False
+
+                # When the final instruction is a COME_FROM we need
+                # to adjust last. Note it was adjusted in this specfic
+                # case in the caller.
+                if n - 1  == last and tokens[last] == "COME_FROM":
+                    return tokens[last].attr != jump_else_end[0].offset
 
             if tokens[first].off2int() > jmp_target:
                 return True

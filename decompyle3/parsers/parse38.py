@@ -149,19 +149,38 @@ class Python38Parser(Python37Parser):
         tryfinallystmt     ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
                                BEGIN_FINALLY COME_FROM_FINALLY suite_stmts_opt
                                END_FINALLY
+
+
+        lc_setup_finally   ::= LOAD_CONST SETUP_FINALLY
+        call_finally_pt    ::= CALL_FINALLY POP_TOP
+        cf_cf_finally      ::= come_from_opt COME_FROM_FINALLY
+        pop_finally_pt     ::= POP_FINALLY POP_TOP
+
+
+        tryfinally38rstmt  ::= lc_setup_finally POP_BLOCK call_finally_pt
+                               returns
+                               cf_cf_finally pop_finally_pt
+                               suite_stmts
+                               END_FINALLY POP_TOP
         tryfinally38rstmt  ::= SETUP_FINALLY POP_BLOCK CALL_FINALLY
                                returns
-                               COME_FROM_FINALLY END_FINALLY suite_stmts
+                               cf_cf_finally END_FINALLY
+                               suite_stmts
         tryfinally38rstmt  ::= SETUP_FINALLY POP_BLOCK CALL_FINALLY
                                returns
-                               COME_FROM_FINALLY POP_FINALLY returns
+                               cf_cf_finally POP_FINALLY
+                               suite_stmts
                                END_FINALLY
+        tryfinally38rstmt  ::= SETUP_FINALLY POP_BLOCK CALL_FINALLY
+                               returns
+                               COME_FROM_FINALLY POP_FINALLY
+                               suite_stmts
+                               END_FINALLY
+
         tryfinally38stmt   ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
                                BEGIN_FINALLY COME_FROM_FINALLY
                                POP_FINALLY suite_stmts_opt END_FINALLY
-        tryfinally38stmt   ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
-                               BEGIN_FINALLY COME_FROM_FINALLY
-                               POP_FINALLY suite_stmts_opt END_FINALLY
+
         tryfinally38astmt  ::= LOAD_CONST SETUP_FINALLY suite_stmts_opt POP_BLOCK
                                BEGIN_FINALLY COME_FROM_FINALLY
                                POP_FINALLY POP_TOP suite_stmts_opt END_FINALLY POP_TOP
