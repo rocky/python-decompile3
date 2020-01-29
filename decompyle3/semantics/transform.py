@@ -23,14 +23,14 @@ from decompyle3.scanners.tok import NoneToken, Token
 from decompyle3.semantics.consts import RETURN_NONE
 
 
-def is_docstring(node):
+def is_docstring(node) -> bool:
     try:
         return node[0].kind == "assign" and node[0][1][0].pattr == "__doc__"
     except:
         return False
 
 
-def is_not_docstring(call_stmt_node):
+def is_not_docstring(call_stmt_node) -> bool:
     try:
         return (
             call_stmt_node == "call_stmt"

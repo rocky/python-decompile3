@@ -467,20 +467,6 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
     n_LOAD_STR = n_LOAD_CONST
 
-    def n_exec_stmt(self, node):
-        """
-        exec_stmt ::= expr exprlist DUP_TOP EXEC_STMT
-        exec_stmt ::= expr exprlist EXEC_STMT
-        """
-        start = len(self.f.getvalue()) + len(self.indent)
-        try:
-            super(FragmentsWalker, self).n_exec_stmt(node)
-        except GenericASTTraversalPruningException:
-            pass
-        self.set_pos_info(node, start, len(self.f.getvalue()))
-        self.set_pos_info(node[-1], start, len(self.f.getvalue()))
-        self.prune()  # stop recursing
-
     def n_ifelsestmtr(self, node):
         if node[2] == "COME_FROM":
             return_stmts_node = node[3]

@@ -553,7 +553,7 @@ class Scanner37Base(Scanner):
         self.loops: List[int] = []
 
         # Map fixed jumps to their real destination
-        self.fixed_jumps = {}
+        self.fixed_jumps: Dict[int, int] = {}
         self.except_targets = {}
         self.ignore_if = set()
         self.build_statement_indices()

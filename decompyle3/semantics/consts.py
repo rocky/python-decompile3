@@ -153,8 +153,6 @@ TABLE_R = {
     'DELETE_ATTR':	( '%|del %c.%[-1]{pattr}\n', 0 ),
 }
 
-TABLE_R0 = {}
-
 TABLE_DIRECT = {
     'BINARY_ADD':               ( '+' ,),
     'BINARY_SUBTRACT':          ( '-' ,),
@@ -441,7 +439,6 @@ TABLE_DIRECT = {
 
 
 MAP_DIRECT = (TABLE_DIRECT, )
-MAP_R0 = (TABLE_R0, -1, 0)
 MAP_R = (TABLE_R, -1)
 
 MAP = {
@@ -449,7 +446,6 @@ MAP = {
     'call':	        MAP_R,
     'del_stmt':		MAP_R,
     'store':	        MAP_R,
-    'exprlist':		MAP_R0,
 }
 
 ASSIGN_TUPLE_PARAM = lambda param_name: \

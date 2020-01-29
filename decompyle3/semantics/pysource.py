@@ -677,26 +677,6 @@ class SourceWalker(GenericASTTraversal, object):
 
     n_store_subscript = n_subscript = n_delete_subscript
 
-    # Note: this node is only in Python 2.x
-    # FIXME: figure out how to get this into customization
-    # put so that we can get access via super from
-    # the fragments routine.
-    def n_exec_stmt(self, node):
-        """
-        exec_stmt ::= expr exprlist DUP_TOP EXEC_STMT
-        exec_stmt ::= expr exprlist EXEC_STMT
-        """
-        self.write(self.indent, "exec ")
-        self.preorder(node[0])
-        if not node[1][0].isNone():
-            sep = " in "
-            for subnode in node[1]:
-                self.write(sep)
-                sep = ", "
-                self.preorder(subnode)
-        self.println()
-        self.prune()  # stop recursing
-
     def n_ifelsestmtr(self, node):
         if node[2] == "COME_FROM":
             return_stmts_node = node[3]
