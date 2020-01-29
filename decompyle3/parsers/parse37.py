@@ -663,7 +663,7 @@ class Python37Parser(Python37BaseParser):
         expr                       ::= conditional37
         conditional37              ::= expr expr jf_cfs expr COME_FROM
         jf_cfs                     ::= JUMP_FORWARD _come_froms
-        ifelsestmt                 ::= testexpr c_stmts_opt jf_cfs else_suite opt_come_from_except
+        ifelsestmt                 ::= testexpr stmts_opt jf_cfs else_suite opt_come_from_except
 
         jmp_false37                ::= POP_JUMP_IF_FALSE COME_FROM
         list_if                    ::= expr jmp_false37 list_iter
@@ -815,7 +815,7 @@ class Python37Parser(Python37BaseParser):
         # FIXME: add this:
         # expr    ::= assert_expr_or
 
-        ifstmt     ::= testexpr ifstmts_jump
+        ifstmt     ::= testexpr ifstmts_jump _come_froms
 
         testexpr ::= testfalse
         testexpr ::= testtrue
@@ -848,17 +848,18 @@ class Python37Parser(Python37BaseParser):
         ifelsestmt ::= testexpr stmts_opt jump_forward_else
                        else_suite _come_froms
 
-        # This handles the case where a "JUMP_ABSOLUTE" is part
-        # of an inner if in c_stmts_opt
-        ifelsestmt ::= testexpr c_stmts come_froms
-                       else_suite come_froms
-
         # ifelsestmt ::= testexpr c_stmts_opt jump_forward_else
         #                pass  _come_froms
 
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_FORWARD else_suitec
         ifelsestmtc ::= testexpr c_stmts_opt jump_forward_else else_suitec
         ifelsestmtc ::= testexpr c_stmts_opt cf_jump_back else_suitec
+
+        # This handles the case where a "JUMP_ABSOLUTE" is part
+        # of an inner if in c_stmts_opt
+        ifelsestmtc ::= testexpr c_stmts come_froms
+                        else_suite come_froms
+
 
         ifelsestmtr ::= testexpr return_if_stmts returns
 
@@ -1111,8 +1112,8 @@ class Python37Parser(Python37BaseParser):
         # RETURN_VALUE is meant. Specifcally this can happen in
         # ifelsestmt -> ...else_suite _. suite_stmts... (last) stmt
         return ::= ret_expr RETURN_END_IF
-        return ::= ret_expr RETURN_VALUE COME_FROM
-        return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA COME_FROM
+        return ::= ret_expr RETURN_VALUE
+        return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA
 
         # A COME_FROM is dropped off because of JUMP-to-JUMP optimization
         and  ::= expr jmp_false expr

@@ -84,7 +84,7 @@ class PythonParser(GenericASTBuilder):
         # singleton reduction that we can simplify. It also happens to be optional
         # in its other derivation
         self.optional_nt |= frozenset(
-            ("come_froms", "suite_stmts", "c_stmts_opt", "stmt")
+            ("come_froms", "suite_stmts", "c_stmts_opt", "stmt", "sstmt")
         )
 
         # Reduce singleton reductions in these nonterminals:

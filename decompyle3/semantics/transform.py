@@ -237,13 +237,14 @@ class TreeTransform(GenericASTTraversal, object):
 
         where appropriate.
         """
+
         else_suite = node[3]
 
         n = else_suite[0]
         old_stmts = None
         else_suite_index = 1
 
-        if len(n) == 1 == len(n[0]) and n[0] == "stmt":
+        if len(n) == 1 == len(n[0]) and n[0] in ("stmt", "stmts"):
             n = n[0][0]
         elif n[0].kind in ("lastc_stmt",):
             n = n[0]
@@ -275,6 +276,8 @@ class TreeTransform(GenericASTTraversal, object):
         else:
             return node
 
+        if n.kind == "last_stmt":
+            n = n[0]
         if n.kind in ("ifstmt", "iflaststmt", "iflaststmtc", "ifpoplaststmtc"):
             node.kind = "ifelifstmt"
             n.kind = "elifstmt"
@@ -349,10 +352,10 @@ class TreeTransform(GenericASTTraversal, object):
 
     def n_stmts(self, node):
         if node.first_child() == "SETUP_ANNOTATIONS":
-            prev = node[0][0]
+            prev = node[0]
             new_stmts = [node[0]]
             for i, sstmt in enumerate(node[1:]):
-                ann_assign = sstmt[0][0]
+                ann_assign = sstmt[0]
                 if (
                     sstmt[0] == "stmt"
                     and ann_assign == "ann_assign"

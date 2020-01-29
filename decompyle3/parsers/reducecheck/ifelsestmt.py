@@ -56,6 +56,15 @@ def ifelsestmt(
                 "opt_come_from_except",
             ),
         ),
+        (
+            "ifelsestmt",
+            (
+                "testexpr",
+                "stmts_opt",
+                "jump_forward_else",
+                "else_suite", "\\e__come_froms",
+            ),
+        )
     ):
         return False
 
@@ -71,16 +80,6 @@ def ifelsestmt(
         if len(come_froms):
             return tokens[first].offset > come_froms[-1].attr
     elif tokens[first].offset > come_froms.attr:
-        return True
-
-    # For mysterious reasons a COME_FROM in tokens[last+1] might be part of the grammar rule
-    # even though it is not found in come_froms.
-    # Work around this.
-    if (
-        last < n
-        and tokens[last] == "COME_FROM"
-        and tokens[first].offset > tokens[last].attr
-    ):
         return True
 
     testexpr = ast[0]
@@ -112,11 +111,27 @@ def ifelsestmt(
             # if jmp_target < else_suite.first_child().off2int():
             #     return True
 
+            # FIXME: the below logic for jf_cfs could probably be
+            # simplified.
+            jump_else_end = ast[2]
+            last_offset = tokens[last].off2int(prefer_last=False)
+            # if jump_else_end == "jump_forward_else" and (first, last) == (0, 13):
+            #     from trepan.api import debug; debug()
+            if jump_else_end in ("jf_cfs", "jump_forward_else") and jump_else_end[0] == "JUMP_FORWARD":
+                # else end jumps before the end of the the "if .. else end"?
+                if jump_else_end[0].attr < last_offset:
+                    return True
+
+                # If we have a COME_FROM that follows, it must be
+                # from the jump_else_end, otherwsie this is no good.
+                #
+                if tokens[last-1] == "COME_FROM":
+                    return tokens[last-1].attr != jump_else_end[0].offset
+                return True
+
             if tokens[first].off2int() > jmp_target:
                 return True
 
-            return (jmp_target > tokens[last].off2int()) and tokens[
-                last
-            ] != "JUMP_FORWARD"
+            return (jmp_target > last_offset) and tokens[last] != "JUMP_FORWARD"
 
     return False
