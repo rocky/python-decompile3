@@ -996,6 +996,7 @@ class Python37BaseParser(PythonParser):
             "iflaststmt": iflaststmt,
             "iflaststmtc": iflaststmt,
             "ifstmt": ifstmt,
+            "ifstmtc": ifstmt,
             "or": or_check,
             "testtrue": testtrue,
             "testfalsec": testtrue,
