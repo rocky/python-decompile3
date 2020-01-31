@@ -1,8 +1,7 @@
 SKIP_TESTS=(
-    [test_float.py]=1 # FIXME: Can't handle identical() x == y and (x != 0.0 or copysign(1.0, x) == copysign(1.0, y)):
     [test_httplib.py]=1 # FIXME: works on uncompyle6
     [test_itertools.py]=1 # FIXME: works on uncompyle6
-    [test_posix.py]=1 # FIXME: works on uncompyle6
+    [test_posix.py]=1 # FIXME: parse error ... works on uncompyle6
     [test_tcl.py]=1 # FIXME: works on uncompyle6
     [test_tempfile.py]=1 # FIXME: works on uncompyle6
     [test_venv.py]=1 # FIXME: works on uncompyles

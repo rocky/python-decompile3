@@ -678,6 +678,11 @@ class Python37Parser(Python37BaseParser):
         ifstmts_jump              ::= stmts come_froms
         ifstmts_jump              ::= COME_FROM stmts come_froms
 
+        # A reduction check distinguishes between "and" and "and_not"
+        # based on whether the POP_IF_JUMP location matches the location of the
+        # jmp_false.
+        and                        ::= expr jmp_false expr POP_JUMP_IF_TRUE
+
         and_not                    ::= expr jmp_false expr POP_JUMP_IF_TRUE
         testfalse                  ::= and_not
 

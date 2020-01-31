@@ -16,6 +16,9 @@ def and_check(
         if rule == ("and", ("expr", "jmp_false", "expr", "jmp_false")):
             jmp2_target = ast[3][0].attr
             return jmp_target != jmp2_target
+        elif rule == ("and", ("expr", "jmp_false", "expr", "POP_JUMP_IF_TRUE")):
+            jmp2_target = ast[3].attr
+            return jmp_target == jmp2_target
         elif rule == ("and", ("expr", "jmp_false", "expr")):
             if tokens[last] == "POP_JUMP_IF_FALSE":
                 # Ok if jump_target doesn't jump to last instruction
