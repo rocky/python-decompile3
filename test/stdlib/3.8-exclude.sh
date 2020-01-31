@@ -160,8 +160,6 @@ SKIP_TESTS=(
     [test_winreg.py]=1 # it fails on its own
     [test_winsound.py]=1 # it fails on its own
 
-    [test_xml_dom_minicompat.py]=1 # parse error
-
     [test_zipfile.py]=1 # it fails on its own
     [test_zipfile64.py]=1 #
 )
