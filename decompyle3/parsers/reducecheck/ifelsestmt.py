@@ -62,9 +62,10 @@ def ifelsestmt(
                 "testexpr",
                 "stmts_opt",
                 "jump_forward_else",
-                "else_suite", "\\e__come_froms",
+                "else_suite",
+                "\\e__come_froms",
             ),
-        )
+        ),
     ):
         return False
 
@@ -117,24 +118,31 @@ def ifelsestmt(
             last_offset = tokens[last].off2int(prefer_last=False)
             # if jump_else_end == "jump_forward_else" and (first, last) == (0, 13):
             #     from trepan.api import debug; debug()
-            if jump_else_end in ("jf_cfs", "jump_forward_else") and jump_else_end[0] == "JUMP_FORWARD":
-                # else end jumps before the end of the the "if .. else end"?
-                jump_else_end_offset = jump_else_end[0].attr
-                if jump_else_end_offset < last_offset:
+            if (
+                jump_else_end in ("jf_cfs", "jump_forward_else")
+                and jump_else_end[0] == "JUMP_FORWARD"
+            ):
+                # If the "else" jump jumps before the end of the the "if .. else end", then this
+                # is not this kind of "ifelsestmt".
+                jump_else_forward = jump_else_end[0]
+                jump_else_forward_target = jump_else_forward.attr
+                if jump_else_forward_target < last_offset:
                     return True
 
-                # If we have a COME_FROM that follows, it must be
-                # from the jump_else_end, otherwise this is no good.
-                #
-                if tokens[last-1] == "COME_FROM":
-                    if tokens[last-1].attr == jump_else_end[0].offset and tokens[last] == "COME_FROM":
-                        return False
+                # If tokens[last] is a COME_FROM, it has to come from
+                # the jump_else forward.
 
-                # When the final instruction is a COME_FROM we need
-                # to adjust last. Note it was adjusted in this specfic
-                # case in the caller.
-                if n - 1  == last and tokens[last] == "COME_FROM":
-                    return tokens[last].attr != jump_else_end[0].offset
+                # Given that offset values can be funky strings, the
+                # most reliable is to check on COME_FROM attr field
+                # which will always be an integer instruction offset.
+                # Also the else jump-forward offset should be an int
+                # (not a string) since that comes from the original
+                # bytecode and wasn't an added instruction.
+                if (
+                    tokens[last] == "COME_FROM"
+                    and tokens[last].attr == jump_else_forward.offset
+                ):
+                    return False
 
             if tokens[first].off2int() > jmp_target:
                 return True

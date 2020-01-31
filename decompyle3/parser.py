@@ -59,13 +59,14 @@ class PythonParser(GenericASTBuilder):
             "importlist",
             "kvlist",
             "kwargs",
-            "c_stmts",
+
+            # FIXME:
+            # If we add c_stmts, we can miss adding a c_stmt,
+            # test_float.py test_set_format() is an example.
+            # Investigate
+            # "c_stmts",
+
             "stmts",
-            # Python < 3
-            "print_items",
-            # PyPy:
-            "imports_cont",
-            "kvlist_n",
             # Python 3.6+
             "come_from_loops",
             # Python 3.7+
