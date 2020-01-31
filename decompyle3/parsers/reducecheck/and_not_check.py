@@ -9,7 +9,6 @@ def and_not_check(
         if last == n:
             return True
         jmp_target = jmp[0].attr
-        jmp_offset = jmp[0].offset
 
         if tokens[first].off2int() <= jmp_target < tokens[last].off2int():
             return True
