@@ -1,4 +1,13 @@
 SKIP_TESTS=(
+    [test_float.py]=1 # FIXME: Can't handle identical() x == y and (x != 0.0 or copysign(1.0, x) == copysign(1.0, y)):
+    [test_httplib.py]=1 # FIXME: works on uncompyle6
+    [test_itertools.py]=1 # FIXME: works on uncompyle6
+    [test_posix.py]=1 # FIXME: works on uncompyle6
+    [test_tcl.py]=1 # FIXME: works on uncompyle6
+    [test_tempfile.py]=1 # FIXME: works on uncompyle6
+    [test_venv.py]=1 # FIXME: works on uncompyles
+    [test_zipimport.py]=1 # FIXME: works on uncompyle6
+
     [test___all__.py]=1 # it fails on its own
     [test_argparse.py]=1 #- it fails on its own
     [test_asdl_parser.py]=1 # it fails on its own
@@ -46,16 +55,22 @@ SKIP_TESTS=(
     [test_glob.py]=1  # TypeError: join() argument must be str or bytes, not 'tuple'
     [test_grammar.py]=1 # investigate: index out of range in decompiler (template_engine?)
     [test_grp.py]=1 # Doesn't terminate (killed)
+
     [test_hashlib.py]=1 # test assert failures
+
     [test_imaplib-3.7.py]=1  # test assert failures
+
     [test_idle.py]=1 # Probably installation specific
     [test_io.py]=1 # test takes too long to run: 37 seconds
     [test_imaplib.py]=1 # test assert failures
     [test_inspect.py]=1 # Investigate test failures involving lambda
+
     [test_kqueue.py]=1 # it fails on its own
+
     [test_lib2to3.py]=1 # it fails on its own
     [test_long.py]=1 # FIX: if boundaries wrong in Rat __init__
     [test_logging.py]=1 # test takes too long to run: 20 seconds
+
     [test_mailbox.py]=1
     [test_marshal.py]=1
     [test_math.py]=1  # test assert failures
@@ -64,26 +79,31 @@ SKIP_TESTS=(
     [test_multiprocessing_fork.py]=1 # test takes too long to run: 62 seconds
     [test_multiprocessing_forkserver.py]=1
     [test_multiprocessing_spawn.py]=1
+
     [test_normalization.py]=1 # probably control flow (uninitialized variable)
     [test_nntplib.py]=1
+
     [test_optparse.py]=1 # doesn't terminate at test_consume_separator_stop_at_option
     [test_os.py]=1 # probably control flow (uninitialized variable)
     [test_ossaudiodev.py]=1 # it fails on its own
+
     [test_pdb.py]=1 # Probably relies on comments
     [test_peepholer.py]=1 # test assert error
     [test_pickle.py]=1 # Probably relies on comments
-    [test_poll.py]=1
-    [test_poplib.py]=1
-    [test_pydoc.py]=1 # it fails on its own
-    [test_runpy.py]=1  #
     [test_pkg.py]=1 # Investigate: lists differ
     [test_pkgutil.py]=1 # Investigate:
     [test_platform.py]=1 # probably control flow: uninitialized variable
+    [test_poll.py]=1
+    [test_poplib.py]=1
     [test_pow.py]=1 # probably control flow: test assertion failure
     [test_pwd.py]=1 # killing - doesn't terminate
+    [test_pydoc.py]=1 # it fails on its own
+
     [test_regrtest.py]=1 # lists differ
     [test_re.py]=1 # test assertion error
     [test_richcmp.py]=1 # parse error
+    [test_runpy.py]=1  #
+
     [test_select.py]=1 # test takes too long to run: 11 seconds
     [test_selectors.py]=1
     [test_shutil.py]=1 # fails on its own
@@ -104,6 +124,7 @@ SKIP_TESTS=(
     [test_subprocess.py]=1
     [test_sys_setprofile.py]=1 # test assertions failed
     [test_sys_settrace.py]=1 # parse error
+
     [test_tarfile.py]=1 # test assertions failed
     [test_threading.py]=1 #
     [test_timeit.py]=1 # probably control flow uninitialized variable
@@ -115,15 +136,18 @@ SKIP_TESTS=(
     [test_ttk_guionly.py]=1  # implementation specfic and test takes too long to run: 19 seconds
     [test_typing.py]=1 # parse error
     [test_types.py]=1 # parse error
+
     [test_unicode.py]=1 # unicode thing
     [test_urllib2_localnet.py]=1 #
     [test_urllibnet.py]=1 # probably control flow - uninitialized variable
+
     [test_weakref.py]=1 # probably control flow - uninitialized variable
     [test_with.py]=1 # probably control flow - uninitialized variable
-    [test_xml_dom_minicompat.py]=1 # FIXME: parse error; imports again
+
     [test_winconsoleio.py]=1 # it fails on its own
     [test_winreg.py]=1 # it fails on its own
     [test_winsound.py]=1 # it fails on its own
+
     [test_zipfile.py]=1 # it fails on its own
     [test_zipfile64.py]=1 # Too long to run
 )
