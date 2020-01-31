@@ -4,13 +4,13 @@ SKIP_TESTS=(
     [test_posix.py]=1 # FIXME: parse error ... works on uncompyle6
     [test_tcl.py]=1 # FIXME: works on uncompyle6
     [test_tempfile.py]=1 # FIXME: works on uncompyle6
-    [test_venv.py]=1 # FIXME: works on uncompyles
+    [test_venv.py]=1 # AssertionError: at ifelifstmt[1], expected 'testexpr' node; got 'testexpr_cf'
+
     [test_zipimport.py]=1 # FIXME: works on uncompyle6
 
     [test___all__.py]=1 # it fails on its own
     [test_argparse.py]=1 #- it fails on its own
     [test_asdl_parser.py]=1 # it fails on its own
-    [test_ast.py]=1  # Depends on comments in code
     [test_atexit.py]=1  # The atexit test looks for specific comments in error lines
     [test_baseexception.py]=1  # UnboundLocalError: local variable 'exc' referenced before assignment
     [test_bdb.py]=1  #
@@ -24,7 +24,6 @@ SKIP_TESTS=(
     [test_compileall.py]=1 # fails on its own
     [test_compile.py]=1  # Code introspects on co_consts in a non-decompilable way
     [test_concurrent_futures.py]=1 # too long
-    [test_context.py]=1
     [test_coroutines.py]=1 # Investigate: Parse error - async/yield  stuff?
     [test_codecs.py]=1 # test assert failures; encoding/decoding stuff
     [test_ctypes.py]=1 # it fails on its own
@@ -36,12 +35,11 @@ SKIP_TESTS=(
     [test_decimal.py]=1   # test assertion failures
     [test_descr.py]=1   # test assertion failures
     [test_devpoll.py]=1 # it fails on its own
-    [test_dis.py]=1   # We change line numbers - duh!
+    [test_dis.py]=1   # Investigate async out of place. Then We change line numbers - duh!
     [test_docxmlrpc.py]=1
     [test_enum.py]=1   # probably bad control flow
 
     [test_faulthandler.py]=1   # takes too long
-    [test_fcntl.py]=1
     [test_fileinput.py]=1 # Test assertion failures
     [test_format.py]=1 # Probably not handling bytestrings properly
     [test_frame.py]=1 # test assertion errors
@@ -54,8 +52,6 @@ SKIP_TESTS=(
     [test_glob.py]=1  # TypeError: join() argument must be str or bytes, not 'tuple'
     [test_grammar.py]=1 # investigate: index out of range in decompiler (template_engine?)
     [test_grp.py]=1 # Doesn't terminate (killed)
-
-    [test_hashlib.py]=1 # test assert failures
 
     [test_imaplib-3.7.py]=1  # test assert failures
 
@@ -88,18 +84,15 @@ SKIP_TESTS=(
 
     [test_pdb.py]=1 # Probably relies on comments
     [test_peepholer.py]=1 # test assert error
-    [test_pickle.py]=1 # Probably relies on comments
     [test_pkg.py]=1 # Investigate: lists differ
     [test_pkgutil.py]=1 # Investigate:
     [test_platform.py]=1 # probably control flow: uninitialized variable
     [test_poll.py]=1
-    [test_poplib.py]=1
     [test_pow.py]=1 # probably control flow: test assertion failure
     [test_pwd.py]=1 # killing - doesn't terminate
     [test_pydoc.py]=1 # it fails on its own
 
     [test_regrtest.py]=1 # lists differ
-    [test_re.py]=1 # test assertion error
     [test_richcmp.py]=1 # parse error
     [test_runpy.py]=1  #
 
@@ -107,27 +100,21 @@ SKIP_TESTS=(
     [test_selectors.py]=1
     [test_shutil.py]=1 # fails on its own
     [test_signal.py]=1 #
-    [test_slice.py]=1 # test assert error in data; Investigate
     [test_smtplib.py]=1 #
     [test_socket.py]=1
-    [test_socketserver.py]=1
-    [test_sort.py]=1 # Probably control flow; unintialized varaible
-    [test_ssl.py]=1 # Probably control flow; unintialized varaible
+    [test_ssl.py]=1 # Takes too long to run more than 15 seconds. Probably control flow; unintialized varaible
     [test_startfile.py]=1 # it fails on its own
-    [test_statistics.py]=1 # Probably control flow; unintialized varaible
     [test_string_literals.py]=1 # Investigate boolean parsing
     [test_strptime.py]=1 # test assertions failed
     [test_strtod.py]=1 # test assertions failed
     [test_structmembers.py]=1 # test assertions failed
     [test_struct.py]=1 # test assertions failed
     [test_subprocess.py]=1
-    [test_sys_setprofile.py]=1 # test assertions failed
     [test_sys_settrace.py]=1 # parse error
     [test_sysconfig.py]=1 # if confused for ifelse in "test_triplet_in_ext_suffix"
 
     [test_tarfile.py]=1 # test assertions failed
     [test_threading.py]=1 #
-    [test_timeit.py]=1 # probably control flow uninitialized variable
     [test_tk.py]=1  # test takes too long to run: 13 seconds
     [test_tokenize.py]=1
     [test_trace.py]=1  # it fails on its own
@@ -138,7 +125,6 @@ SKIP_TESTS=(
     [test_types.py]=1 # parse error
 
     [test_unicode.py]=1 # unicode thing
-    [test_urllib2_localnet.py]=1 #
     [test_urllibnet.py]=1 # probably control flow - uninitialized variable
 
     [test_weakref.py]=1 # probably control flow - uninitialized variable
