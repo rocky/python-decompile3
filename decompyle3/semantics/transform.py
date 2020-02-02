@@ -25,7 +25,7 @@ from decompyle3.semantics.consts import RETURN_NONE
 
 def is_docstring(node) -> bool:
     try:
-        return node[0].kind == "assign" and node[0][1][0].pattr == "__doc__"
+        return node.kind == "assign" and node[1][0].pattr == "__doc__"
     except:
         return False
 
@@ -391,7 +391,7 @@ class TreeTransform(GenericASTTraversal, object):
             # Disambiguate a string (expression) which appears as a "call_stmt" at
             # the beginning of a function versus a docstring. Seems pretty academic,
             # but this is Python.
-            call_stmt = ast[0][0][0]
+            call_stmt = ast[0][0]
             if is_not_docstring(call_stmt):
                 call_stmt.kind = "string_at_beginning"
                 call_stmt.transformed_by = "transform"
@@ -409,7 +409,8 @@ class TreeTransform(GenericASTTraversal, object):
                                 "LOAD_STR",
                                 has_arg=True,
                                 offset=0,
-                                pattr=self.ast[i][0][0][0].attr,
+                                attr=self.ast[i][0][0].attr,
+                                pattr=self.ast[i][0][0].pattr,
                             )
                         ],
                         transformed_by="transform",
