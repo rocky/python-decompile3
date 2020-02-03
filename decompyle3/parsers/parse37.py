@@ -116,7 +116,9 @@ class Python37Parser(Python37BaseParser):
         stmt ::= call_stmt
 
         stmt ::= ifstmt
+        stmt ::= if_or_stmt
         stmt ::= ifelsestmt
+        stmt ::= if_or_elsestmt
 
         stmt ::= whilestmt
         stmt ::= while1stmt
@@ -664,7 +666,11 @@ class Python37Parser(Python37BaseParser):
         expr                       ::= conditional37
         conditional37              ::= expr expr jf_cfs expr COME_FROM
         jf_cfs                     ::= JUMP_FORWARD _come_froms
-        ifelsestmt                 ::= testexpr stmts_opt jf_cfs else_suite opt_come_from_except
+        ifelsestmt                 ::= testexpr
+                                       stmts_opt jf_cfs else_suite opt_come_from_except
+        if_or_elsestmt             ::= expr jmp_true
+                                       COME_FROM expr POP_JUMP_IF_FALSE COME_FROM
+                                       stmts jf_cfs else_suite opt_come_from_except
 
         jmp_false37                ::= POP_JUMP_IF_FALSE COME_FROM
         list_if                    ::= expr jmp_false37 list_iter
@@ -822,6 +828,7 @@ class Python37Parser(Python37BaseParser):
         # expr    ::= assert_expr_or
 
         ifstmt     ::= testexpr ifstmts_jump _come_froms
+        if_or_stmt ::= expr POP_JUMP_IF_TRUE expr POP_JUMP_IF_TRUE COME_FROM stmts COME_FROM
 
         testexpr ::= testfalse
         testexpr ::= testtrue
@@ -830,6 +837,7 @@ class Python37Parser(Python37BaseParser):
 
         ifstmts_jump ::= return_if_stmts
         ifstmts_jump ::= stmts_opt come_froms
+        ifstmts_jump ::= COME_FROM stmts COME_FROM
 
         iflaststmt  ::= testexpr stmts
         iflaststmt  ::= testexpr stmts JUMP_FORWARD
@@ -989,9 +997,6 @@ class Python37Parser(Python37BaseParser):
 
         and  ::= expr JUMP_IF_FALSE_OR_POP expr come_from_opt
         and  ::= expr jifop_come_from expr
-
-        pjit_come_from ::= POP_JUMP_IF_TRUE COME_FROM
-        or  ::= expr pjit_come_from expr
 
         ## Note that "jmp_false" is what we check on in the "and" reduce rule.
         and ::= expr jmp_false expr COME_FROM

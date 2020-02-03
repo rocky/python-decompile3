@@ -991,7 +991,7 @@ class Python37BaseParser(PythonParser):
             pass
 
         self.reduce_check_table = {
-            "_ifstmts_jump": ifstmts_jump,
+            "ifstmts_jump": ifstmts_jump,
             "and": and_check,
             "and_not": and_not_check,
             "ifelsestmt": ifelsestmt,
@@ -1014,8 +1014,8 @@ class Python37BaseParser(PythonParser):
         self.check_reduce["aug_assign2"] = "AST"
         self.check_reduce["while1stmt"] = "noAST"
         self.check_reduce["while1elsestmt"] = "noAST"
-        self.check_reduce["_ifstmts_jump"] = "AST"
-        self.check_reduce["_ifstmts_jumpc"] = "AST"
+        self.check_reduce["ifstmts_jump"] = "AST"
+        self.check_reduce["ifstmts_jumpc"] = "AST"
         self.check_reduce["ifelsestmt"] = "AST"
         self.check_reduce["ifelsestmtc"] = "AST"
         self.check_reduce["iflaststmt"] = "AST"
