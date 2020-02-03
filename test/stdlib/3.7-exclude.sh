@@ -4,8 +4,6 @@ SKIP_TESTS=(
     [test_posix.py]=1 # FIXME: parse error ... works on uncompyle6
     [test_tcl.py]=1 # FIXME: works on uncompyle6
     [test_tempfile.py]=1 # FIXME: works on uncompyle6
-    [test_venv.py]=1 # AssertionError: at ifelifstmt[1], expected 'testexpr' node; got 'testexpr_cf'
-
     [test_zipimport.py]=1 # FIXME: works on uncompyle6
 
     [test___all__.py]=1 # it fails on its own

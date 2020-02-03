@@ -370,8 +370,7 @@ TABLE_DIRECT = {
     'ifelsestmtc':	( '%|if %c:\n%+%c%-%|else:\n%+%c%-', 0, 1, 3 ),
 
     #  These are created only via transformation
-    'ifelifstmt':	( '%|if %c:\n%+%c%-%c',
-                          (0, "testexpr"), 1, 3 ),
+    'ifelifstmt':	( '%|if %c:\n%+%c%-%c', 0, 1, 3 ),
     'elifelifstmt':	( '%|elif %c:\n%+%c%-%c', 0, 1, 3 ),
     'elifstmt':		( '%|elif %c:\n%+%c%-', 0, 1 ),
     'elifelsestmt':	( '%|elif %c:\n%+%c%-%|else:\n%+%c%-', 0, 1, 3 ),
