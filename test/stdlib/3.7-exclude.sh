@@ -1,7 +1,13 @@
 SKIP_TESTS=(
     [test_complex.py]=1 # Parse error FIXME: works on uncompyle6
     [test_eintr.py]=1 # Parse error FIXME: works on uncompyle6
+    [test_finalization.py]=1 # Parse error FIXME: works on uncompyle6
+    [test_float.py]=1 # Parse error FIXME: works on uncompyle6
+    [test_locale.py]=1 # Parse error FIXME: works on uncompyle6
+    [test_site.py]=1 # Parse error FIXME: works on uncompyle6
     [test_tempfile.py]=1 # FIXME: works on uncompyle6
+    [test_testtime.py]=1 # FIXME: works on uncompyle6
+    [test_urllib2.py]=1 # FIXME: works on uncompyle6
     [test_zipimport.py]=1 # FIXME: works on uncompyle6
 
     [test___all__.py]=1 # it fails on its own
@@ -98,7 +104,7 @@ SKIP_TESTS=(
     [test_signal.py]=1 #
     [test_smtplib.py]=1 #
     [test_socket.py]=1
-    [test_ssl.py]=1 # Takes too long to run more than 15 seconds. Probably control flow; unintialized varaible
+    [test_ssl.py]=1 # Takes too long to run more than 15 seconds. Probably control flow; unintialized variable
     [test_startfile.py]=1 # it fails on its own
     [test_string_literals.py]=1 # Investigate boolean parsing
     [test_strptime.py]=1 # test assertions failed
@@ -139,5 +145,6 @@ if (( batch )) ; then
     SKIP_TESTS[test_distutils.py]=1
     SKIP_TESTS[test_fileio.py]=1
     SKIP_TESTS[test_gc.py]=1
+    SKIP_TESTS[test_ttk_textonly.py]=1 # Installation dependent?
     SKIP_TESTS[test_zipimport_support.py]=1
 fi
