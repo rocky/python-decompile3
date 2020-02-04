@@ -1,5 +1,4 @@
 SKIP_TESTS=(
-    [test_complex.py]=1 # Parse error FIXME: works on uncompyle6
     [test_eintr.py]=1 # Parse error FIXME: works on uncompyle6
     [test_finalization.py]=1 # Parse error FIXME: works on uncompyle6
     [test_float.py]=1 # Parse error FIXME: works on uncompyle6

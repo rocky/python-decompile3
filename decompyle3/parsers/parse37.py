@@ -117,6 +117,7 @@ class Python37Parser(Python37BaseParser):
 
         stmt ::= ifstmt
         stmt ::= if_or_stmt
+        stmt ::= if_and_stmt
         stmt ::= ifelsestmt
         stmt ::= if_or_elsestmt
 
@@ -827,8 +828,11 @@ class Python37Parser(Python37BaseParser):
         # FIXME: add this:
         # expr    ::= assert_expr_or
 
-        ifstmt     ::= testexpr ifstmts_jump _come_froms
-        if_or_stmt ::= expr POP_JUMP_IF_TRUE expr POP_JUMP_IF_TRUE COME_FROM stmts COME_FROM
+        ifstmt      ::= testexpr ifstmts_jump _come_froms
+        if_or_stmt  ::= expr POP_JUMP_IF_TRUE  expr POP_JUMP_IF_TRUE COME_FROM
+                        stmts COME_FROM
+        if_and_stmt ::= expr POP_JUMP_IF_FALSE expr POP_JUMP_IF_FALSE
+                        stmts
 
         testexpr ::= testfalse
         testexpr ::= testtrue
