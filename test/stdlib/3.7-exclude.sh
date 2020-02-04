@@ -2,10 +2,13 @@ SKIP_TESTS=(
     [test_eintr.py]=1 # Parse error FIXME: works on uncompyle6
     [test_finalization.py]=1 # Parse error FIXME: works on uncompyle6
     [test_float.py]=1 # Parse error FIXME: works on uncompyle6
+    [test_httplib.py]=1 # FIXME: works on uncompyle6
     [test_locale.py]=1 # Parse error FIXME: works on uncompyle6
+    [test_poplib.py]=1 # runs more than 15 seconds FIXME: works on uncompyle6
     [test_site.py]=1 # Parse error FIXME: works on uncompyle6
     [test_tempfile.py]=1 # FIXME: works on uncompyle6
     [test_testtime.py]=1 # FIXME: works on uncompyle6
+    [test_time.py]=1 # FIXME: works on uncompyle6
     [test_urllib2.py]=1 # FIXME: works on uncompyle6
     [test_zipimport.py]=1 # FIXME: works on uncompyle6
 

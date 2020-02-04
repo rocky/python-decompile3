@@ -76,3 +76,36 @@ assert __floordiv__(True, True) == 4
 assert __floordiv__(True, False) == 4
 assert __floordiv__(False, True) == 3
 assert __floordiv__(False, False) == 2
+
+# From 3.7 test_complex
+def assertFloatsAreIdentical(a, b):
+    if a or b:
+        if a and b:
+            return True
+    else:
+        return False
+
+assert assertFloatsAreIdentical(True, True) == True
+assert assertFloatsAreIdentical(True, False) == None
+assert assertFloatsAreIdentical(False, True) == None
+assert assertFloatsAreIdentical(False, False) == False
+
+# From 3.7.6 test_httplib.py
+def _make_body(lines, a, b):
+    x = 0
+    for idx in lines:
+        if idx and a:
+            x = 1
+        if b:
+            x += 2
+        else:
+            x += 3
+    return x
+
+_make_body([True], True, True) == 3
+_make_body([True], True, False) == 4
+_make_body([True], False, True) == 2
+_make_body([False], True, True) == 2
+_make_body([False], True, False) == 3
+_make_body([False], False, True) == 2
+_make_body([False], False, False) == 3
