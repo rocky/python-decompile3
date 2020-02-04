@@ -6,6 +6,9 @@ def iflaststmt(
 ) -> bool:
     testexpr = ast[0]
 
+    # FIXME: should this be done in the caller?
+    if tokens[last] == "RETURN_LAST":
+        last -= 1
 
     if testexpr[0] in ("testtrue", "testtruec", "testfalse", "testfalsec"):
 
