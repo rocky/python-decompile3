@@ -109,3 +109,18 @@ _make_body([False], True, True) == 2
 _make_body([False], True, False) == 3
 _make_body([False], False, True) == 2
 _make_body([False], False, False) == 3
+
+# From 3.7.6 test_eintr.py
+def test_all(a, b):
+    if a:
+        x = 2
+        if b:
+            x += 3
+    else:
+        x = 1
+    return x
+
+assert test_all(True, True) == 5
+assert test_all(True, False) == 2
+assert test_all(False, True) == 1
+assert test_all(False, False) == 1

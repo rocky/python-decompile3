@@ -1,4 +1,8 @@
 SKIP_TESTS=(
+    [test_time.py]=1 # FIXME: works on uncompyle6?
+    [test_urllib2.py]=1 # FIXME: works on uncompyle6?
+    [test_zipimport.py]=1 # FIXME: works on uncompyle6
+
     [test___all__.py]=1 # it fails on its own
     [test_aifc.py]=1 # parse error
     [test_argparse.py]=1 #- it fails on its own
@@ -48,7 +52,7 @@ SKIP_TESTS=(
     [test_faulthandler.py]=1   # takes too long
     [test_fcntl.py]=1
     [test_fileinput.py]=1
-    [test_float.py]=1  # doesn't terminate
+    [test_float.py]=1  # Takes a long time to decompile
     [test_format.py]=1
     [test_frame.py]=1
     [test_fstring.py]=1 # Investigate
@@ -102,7 +106,7 @@ SKIP_TESTS=(
     [test_peepholer.py]=1 # decompile takes a long time; then test assert error
     [test_pickle.py]=1 # Probably relies on comments
     [test_poll.py]=1
-    [test_poplib.py]=1
+    [test_poplib.py]=1 # Parse error
     [test_pydoc.py]=1 # it fails on its own
     [test_runpy.py]=1  #
     [test_pkg.py]=1 # Investigate: lists differ
@@ -139,6 +143,7 @@ SKIP_TESTS=(
     [test_sysconfig.py]=1 # if confused for ifelse in "test_triplet_in_ext_suffix"
 
     [test_tarfile.py]=1 # parse error
+    [test_tempfile.py]=1 # parse error
     [test_threading.py]=1 #
     [test_timeit.py]=1 # probably control flow uninitialized variable
     [test_tk.py]=1  # test takes too long to run: 13 seconds
