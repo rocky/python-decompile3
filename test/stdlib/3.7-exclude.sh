@@ -1,5 +1,4 @@
 SKIP_TESTS=(
-    [test_itertools.py]=1 # FIXME: works on uncompyle6
     [test_tempfile.py]=1 # FIXME: works on uncompyle6
     [test_zipimport.py]=1 # FIXME: works on uncompyle6
 

@@ -6,7 +6,8 @@ def iflaststmt(
 ) -> bool:
     testexpr = ast[0]
 
-    if testexpr[0] in ("testtrue", "testfalse"):
+
+    if testexpr[0] in ("testtrue", "testtruec", "testfalse", "testfalsec"):
 
         test = testexpr[0]
         if len(test) > 1 and test[1].kind.startswith("jmp_"):
