@@ -995,6 +995,7 @@ class Python37BaseParser(PythonParser):
             "and": and_check,
             "and_not": and_not_check,
             "ifelsestmt": ifelsestmt,
+            "ifelsestmtc": ifelsestmt,
             "iflaststmt": iflaststmt,
             "iflaststmtc": iflaststmt,
             "ifstmt": ifstmt,

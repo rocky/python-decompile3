@@ -41,8 +41,8 @@ def iflaststmt(
                 #   else:
                 if jmp_target == tokens[last - 1].attr:
                     return False
-                if last < n and tokens[last].kind.startswith("JUMP"):
-                    return False
+                # if last < n and tokens[last].kind.startswith("JUMP"):
+                #     return False
                 return True
 
         pass

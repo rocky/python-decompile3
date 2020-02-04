@@ -23,6 +23,15 @@ def ifelsestmt(
             ),
         ),
         (
+            "ifelsestmtc",
+            (
+                "testexpr",
+                "c_stmts_opt",
+                "jb_elsec",
+                "else_suitec"
+            ),
+        ),
+        (
             "ifelsestmt",
             (
                 "testexpr",
@@ -74,14 +83,15 @@ def ifelsestmt(
     # Since the come_froms are ordered so that lowest
     # offset COME_FROM is last, it is sufficient to test
     # just the last one.
-    come_froms = ast[-1]
-    if come_froms == "opt_come_from_except" and len(come_froms) > 0:
-        come_froms = come_froms[0]
-    if not isinstance(come_froms, Token):
-        if len(come_froms):
-            return tokens[first].offset > come_froms[-1].attr
-    elif tokens[first].offset > come_froms.attr:
-        return True
+    if len(ast) == 5:
+        come_froms = ast[-1]
+        if come_froms == "opt_come_from_except" and len(come_froms) > 0:
+            come_froms = come_froms[0]
+        if not isinstance(come_froms, Token):
+            if len(come_froms):
+                return tokens[first].offset > come_froms[-1].attr
+        elif tokens[first].offset > come_froms.attr:
+            return True
 
     testexpr = ast[0]
 
@@ -91,7 +101,15 @@ def ifelsestmt(
         test = testexpr[0]
 
         else_suite = ast[3]
-        assert else_suite == "else_suite"
+        assert else_suite in ("else_suite", "else_suitec")
+
+        if else_suite == "else_suitec" and ast[2] in ("jb_elsec", "jbcfs"):
+            stmts = ast[1]
+            jb_else = ast[2]
+            come_from = jb_else[-1]
+            assert come_from == "COME_FROM"
+            if come_from.attr > stmts.first_child().off2int():
+                return True
 
         if len(test) > 1 and test[1].kind.startswith("jmp_"):
             if last == n:
@@ -116,8 +134,6 @@ def ifelsestmt(
             # simplified.
             jump_else_end = ast[2]
             last_offset = tokens[last].off2int(prefer_last=False)
-            # if jump_else_end == "jump_forward_else" and (first, last) == (0, 13):
-            #     from trepan.api import debug; debug()
             if (
                 jump_else_end in ("jf_cfs", "jump_forward_else")
                 and jump_else_end[0] == "JUMP_FORWARD"
