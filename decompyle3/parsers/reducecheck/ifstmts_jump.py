@@ -21,7 +21,6 @@ def ifstmts_jump(
     ):
         pop_jump_index -= 1
 
-
     # FIXME: something is fishy when and EXTENDED ARG is needed before the
     # pop_jump_index instruction to get the argment. In this case, the
     # _ifsmtst_jump can jump to a spot beyond the come_froms.
@@ -31,20 +30,20 @@ def ifstmts_jump(
     if tokens[pop_jump_index].attr > 256:
         return False
 
+    pop_jump_offset = tokens[pop_jump_index].off2int(prefer_last=False)
     if isinstance(come_froms, Token):
         if (
-            tokens[pop_jump_index].attr < tokens[pop_jump_index].offset
-            and ast[0] != "pass"
+            tokens[pop_jump_index].attr < pop_jump_offset and ast[0] != "pass"
         ):
             # This is a jump backwards to a loop. All bets are off here when there the
             # unless statement is "pass" which has no instructions associated with it.
             return False
         return (
             come_froms.attr is not None
-            and tokens[pop_jump_index].offset > come_froms.attr
+            and pop_jump_offset > come_froms.attr
         )
 
     elif len(come_froms) == 0:
         return False
     else:
-        return tokens[pop_jump_index].offset > come_froms[-1].attr
+        return pop_jump_offset > come_froms[-1].attr
