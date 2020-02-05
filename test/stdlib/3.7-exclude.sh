@@ -2,6 +2,7 @@ SKIP_TESTS=(
     [test_tcl.py]=1 # FIXME: works on uncompyle6
     [test_tempfile.py]=1 # FIXME: works on uncompyle6
     [test_urllib2.py]=1 # FIXME: works on uncompyle6
+    [test_grammar.py]=1 # investigate: semantic rule missing probably
 
     [test___all__.py]=1 # it fails on its own
     [test_argparse.py]=1 #- it fails on its own
@@ -25,16 +26,16 @@ SKIP_TESTS=(
     [test_curses.py]=1 # probably byte string not handled properly
     [test_dataclasses.py]=1   # FIXME: control flow probably: AssertionError: unknown result 'exception'
     [test_datetime.py]=1   # Takes too long
-    [test_dbm_gnu.py]=1   # Takes too long
     [test_dbm_ndbm.py]=1 # it fails on its own
-    [test_decimal.py]=1   # test assertion failures
+    [test_decimal.py]=1   # parse error
     [test_descr.py]=1   # test assertion failures
     [test_devpoll.py]=1 # it fails on its own
     [test_dis.py]=1   # Investigate async out of place. Then We change line numbers - duh!
     [test_docxmlrpc.py]=1
+
     [test_enum.py]=1   # probably bad control flow
 
-    [test_faulthandler.py]=1   # takes too long
+    [test_faulthandler.py]=1   # test takes too long before decompiling
     [test_fileinput.py]=1 # Test assertion failures
     [test_format.py]=1 # Probably not handling bytestrings properly
     [test_frame.py]=1 # test assertion errors
@@ -45,12 +46,9 @@ SKIP_TESTS=(
     [test_gdb.py]=1 # it fails on its own
     [test_generators.py]=1  # Investigate improper lamdba with bogus "False" added
     [test_glob.py]=1  # TypeError: join() argument must be str or bytes, not 'tuple'
-    [test_grammar.py]=1 # investigate: index out of range in decompiler (template_engine?)
     [test_grp.py]=1 # Doesn't terminate (killed)
 
-    [test_imaplib-3.7.py]=1  # test assert failures
-
-    [test_idle.py]=1 # Probably installation specific
+    [test_imaplib.py]=1  # test run loops before decompiling? More than 15 seconds to run
     [test_io.py]=1 # test takes too long to run: 37 seconds
     [test_imaplib.py]=1 # test assert failures
     [test_inspect.py]=1 # Investigate test failures involving lambda
@@ -74,7 +72,6 @@ SKIP_TESTS=(
     [test_nntplib.py]=1
 
     [test_optparse.py]=1 # doesn't terminate at test_consume_separator_stop_at_option
-    [test_os.py]=1 # probably control flow (uninitialized variable)
     [test_ossaudiodev.py]=1 # it fails on its own
 
     [test_pdb.py]=1 # Probably relies on comments
@@ -83,7 +80,6 @@ SKIP_TESTS=(
     [test_pkgutil.py]=1 # Investigate:
     [test_platform.py]=1 # probably control flow: uninitialized variable
     [test_poll.py]=1
-    [test_pow.py]=1 # probably control flow: test assertion failure
     [test_pwd.py]=1 # killing - doesn't terminate
     [test_pydoc.py]=1 # it fails on its own
 
@@ -138,6 +134,8 @@ if (( batch )) ; then
     SKIP_TESTS[test_distutils.py]=1
     SKIP_TESTS[test_fileio.py]=1
     SKIP_TESTS[test_gc.py]=1
+    SKIP_TESTS[test_idle.py]=1 # Probably installation specific
     SKIP_TESTS[test_ttk_textonly.py]=1 # Installation dependent?
     SKIP_TESTS[test_zipimport_support.py]=1
+
 fi

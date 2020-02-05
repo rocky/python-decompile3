@@ -71,7 +71,6 @@ SKIP_TESTS=(
     [test_http_cookiejar.py]=1
 
     [test_imaplib-3.7.py]=1
-    [test_idle.py]=1 # Probably installation specific
     [test_io.py]=1 # test takes too long to run: 37 seconds
     [test_imaplib.py]=1
     [test_index.py]=1
@@ -112,7 +111,6 @@ SKIP_TESTS=(
     [test_pkg.py]=1 # Investigate: lists differ
     [test_pkgutil.py]=1 # Investigate:
     [test_platform.py]=1 # probably control flow: uninitialized variable
-    [test_pow.py]=1 # probably control flow: test assertion failure
     [test_pwd.py]=1 # killing - doesn't terminate
 
     [test_regrtest.py]=1 # lists differ
@@ -170,3 +168,9 @@ SKIP_TESTS=(
     [test_zipfile64.py]=1 #
 )
 # 268 Remaining unit-test files, Elapsed time about 11 minutes
+
+if (( batch )) ; then
+    SKIP_TESTS[test_idle.py]=1 # Probably installation specific
+    SKIP_TESTS[test_ttk_textonly.py]=1 # Installation dependent?
+
+fi
