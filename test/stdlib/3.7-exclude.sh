@@ -1,10 +1,7 @@
 SKIP_TESTS=(
-    [test_httplib.py]=1 # FIXME: works on uncompyle6
-    [test_locale.py]=1 # Parse error FIXME: works on uncompyle6
     [test_tcl.py]=1 # FIXME: works on uncompyle6
     [test_tempfile.py]=1 # FIXME: works on uncompyle6
     [test_urllib2.py]=1 # FIXME: works on uncompyle6
-    [test_zipimport.py]=1 # FIXME: works on uncompyle6
 
     [test___all__.py]=1 # it fails on its own
     [test_argparse.py]=1 #- it fails on its own
