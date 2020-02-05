@@ -84,7 +84,7 @@ SKIP_TESTS=(
     [test_long.py]=1 # investigate
     [test_logging.py]=1 # test takes too long to run: 20 seconds
 
-    [test_mailbox.py]=1
+    [test_mailbox.py]=1 # parse error
     [test_marshal.py]=1
     [test_math.py]=1
     [test_modulefinder.py]=1
@@ -110,7 +110,7 @@ SKIP_TESTS=(
     [test_runpy.py]=1  #
     [test_pkg.py]=1 # Investigate: lists differ
     [test_pkgutil.py]=1 # Investigate:
-    [test_platform.py]=1 # probably control flow: uninitialized variable
+    [test_platform.py]=1 # parse error
     [test_pwd.py]=1 # killing - doesn't terminate
 
     [test_regrtest.py]=1 # lists differ
@@ -130,7 +130,7 @@ SKIP_TESTS=(
     [test_startfile.py]=1 # it fails on its own
     [test_statistics.py]=1 # Probably control flow; unintialized varaible
     [test_stat.py]=1 # test assertions failed
-    [test_string_literals.py]=1 # Investigate boolean parsing
+    [test_string_literals.py]=1 # parse error
     [test_strptime.py]=1 # test assertions failed
     [test_strtod.py]=1 # test assertions failed
     [test_structmembers.py]=1 # test assertions failed
@@ -138,7 +138,7 @@ SKIP_TESTS=(
     [test_subprocess.py]=1
     [test_sys_setprofile.py]=1 # test assertions failed
     [test_sys_settrace.py]=1 # parse error
-    [test_sysconfig.py]=1 # if confused for ifelse in "test_triplet_in_ext_suffix"
+    [test_sysconfig.py]=1 # parse error
 
     [test_tarfile.py]=1 # parse error
     [test_tempfile.py]=1 # parse error

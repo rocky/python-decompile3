@@ -87,19 +87,19 @@ def ifelsestmt(
     ):
         return False
 
-    # Make sure all of the "come froms" offset at the
+    # Make sure all the offsets from the "come froms" at the
     # end of the "if" come from somewhere inside the "if".
     # Since the come_froms are ordered so that lowest
     # offset COME_FROM is last, it is sufficient to test
     # just the last one.
     if len(ast) == 5:
-        come_froms = ast[-1]
-        if come_froms == "opt_come_from_except" and len(come_froms) > 0:
-            come_froms = come_froms[0]
-        if not isinstance(come_froms, Token):
-            if len(come_froms):
-                return tokens[first].offset > come_froms[-1].attr
-        elif tokens[first].offset > come_froms.attr:
+        end_come_froms = ast[-1]
+        if end_come_froms == "opt_come_from_except" and len(end_come_froms) > 0:
+            end_come_froms = end_come_froms[0]
+        if not isinstance(end_come_froms, Token):
+            if len(end_come_froms) and tokens[first].offset > end_come_froms[-1].attr:
+                return True
+        elif tokens[first].offset > end_come_froms.attr:
             return True
 
     testexpr = ast[0]
@@ -107,7 +107,7 @@ def ifelsestmt(
     # Check that the condition portion of the "if"
     # jumps to the "else" part.
     if testexpr[0] in ("testtrue", "testfalse"):
-        test = testexpr[0]
+        if_condition = testexpr[0]
 
         else_suite = ast[3]
         assert else_suite in ("else_suite", "else_suitec")
@@ -120,11 +120,11 @@ def ifelsestmt(
             if come_from.attr > stmts.first_child().off2int():
                 return True
 
-        if len(test) > 1 and test[1].kind.startswith("jmp_"):
+        if len(if_condition) > 1 and if_condition[1].kind.startswith("jmp_"):
             if last == n:
                 last -= 1
 
-            jmp = test[1]
+            jmp = if_condition[1]
             jmp_target = jmp[0].attr
 
             # Below we check that jmp_target is jumping to a feasible
@@ -137,6 +137,10 @@ def ifelsestmt(
             # simplified.
             jump_else_end = ast[2]
             last_offset = tokens[last].off2int(prefer_last=False)
+            if jmp_target == last_offset:
+                # jmp_target should be jumping to the end of the if/then/else
+                # but is it jumping to the beginning of the "else"
+                return True
             if (
                 jump_else_end in ("jf_cfs", "jump_forward_else")
                 and jump_else_end[0] == "JUMP_FORWARD"
@@ -147,26 +151,13 @@ def ifelsestmt(
                 jump_else_forward_target = jump_else_forward.attr
                 if jump_else_forward_target < last_offset:
                     return True
-
-                # If tokens[last] is a COME_FROM, it has to come from
-                # the jump_else forward.
-
-                # Since offset values can be funky strings, the
-                # most reliable is to check on COME_FROM attr field
-                # which will always be an integer instruction offset.
-                # Also the else jump-forward offset should be an int
-                # (not a string) since that comes from the original
-                # bytecode and wasn't an added instruction.
-                if (
-                    tokens[last] == "COME_FROM"
-                    and tokens[last].attr == jump_else_forward.off2int(prefer_last=True)
-                ):
-                    return False
+                pass
             if (
                 jump_else_end in ("jb_elsec", "jf_cfs", "jb_cfs") and
                 jump_else_end[-1] == "COME_FROM"
             ):
-                return jump_else_end[-1].off2int() != jmp_target
+                if jump_else_end[-1].off2int() != jmp_target:
+                    return True
 
             if tokens[first].off2int() > jmp_target:
                 return True

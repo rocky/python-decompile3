@@ -111,6 +111,8 @@ _make_body([False], False, True) == 2
 _make_body([False], False, False) == 3
 
 # From 3.7.6 test_eintr.py
+# Bug was getting if/else range correct, and not
+# confusing the "else" with the inner "if".
 def test_all(a, b):
     if a:
         x = 2
@@ -124,3 +126,26 @@ assert test_all(True, True) == 5
 assert test_all(True, False) == 2
 assert test_all(False, True) == 1
 assert test_all(False, False) == 1
+
+# From 3.7 test_tcl.py
+# Bug was getting if/else range correct, and not
+# confusing the "else" with the outer "if".
+x=0
+def get_tk_patchlevel(a, b):
+    global x
+    if a:
+        if b:
+            x += 1
+        else:
+            x += 2
+
+def testit(a, b):
+    global x
+    x=0
+    get_tk_patchlevel(a, b)
+    return x
+
+assert testit(True, True) == 1
+assert testit(True, False) == 2
+assert testit(False, True) == 0
+assert testit(False, False) == 0
