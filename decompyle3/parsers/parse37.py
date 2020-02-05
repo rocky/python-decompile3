@@ -832,7 +832,7 @@ class Python37Parser(Python37BaseParser):
         if_or_stmt  ::= expr POP_JUMP_IF_TRUE  expr POP_JUMP_IF_TRUE COME_FROM
                         stmts COME_FROM
         if_and_stmt ::= expr POP_JUMP_IF_FALSE expr POP_JUMP_IF_FALSE
-                        stmts
+                        stmts _come_froms
 
         testexpr ::= testfalse
         testexpr ::= testtrue
@@ -1059,10 +1059,10 @@ class Python37Parser(Python37BaseParser):
     def p_loop_stmt3(self, args):
         """
         setup_loop        ::= SETUP_LOOP _come_froms
-        for               ::= setup_loop expr get_for_iter store for_block POP_BLOCK
-        for               ::= setup_loop expr get_for_iter store for_block POP_BLOCK
-                              COME_FROM_LOOP
-
+        for               ::= setup_loop expr get_for_iter store for_block
+                              POP_BLOCK
+        for               ::= setup_loop expr get_for_iter store for_block
+                              POP_BLOCK COME_FROM_LOOP
 
         forelsestmt       ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suite
                               COME_FROM_LOOP

@@ -10,6 +10,7 @@ from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from decompyle3.parsers.reducecheck import (
     and_check,
     and_not_check,
+    if_and_stmt,
     ifelsestmt,
     iflaststmt,
     ifstmt,
@@ -994,6 +995,7 @@ class Python37BaseParser(PythonParser):
             "ifstmts_jump": ifstmts_jump,
             "and": and_check,
             "and_not": and_not_check,
+            "if_and_stmt": if_and_stmt,
             "ifelsestmt": ifelsestmt,
             "ifelsestmtc": ifelsestmt,
             "iflaststmt": iflaststmt,
@@ -1022,6 +1024,7 @@ class Python37BaseParser(PythonParser):
         self.check_reduce["iflaststmt"] = "AST"
         self.check_reduce["iflaststmtc"] = "AST"
         self.check_reduce["ifstmt"] = "AST"
+        self.check_reduce["if_and_stmt"] = "AST"
         self.check_reduce["ifstmtc"] = "AST"
         self.check_reduce["import_from37"] = "AST"
         self.check_reduce["or"] = "AST"

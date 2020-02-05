@@ -32,6 +32,15 @@ def ifelsestmt(
             ),
         ),
         (
+            "ifelsestmtc",
+            (
+                "testexpr",
+                "c_stmts_opt",
+                "jb_cfs",
+                "else_suitec"
+            ),
+        ),
+        (
             "ifelsestmt",
             (
                 "testexpr",
@@ -114,21 +123,15 @@ def ifelsestmt(
         if len(test) > 1 and test[1].kind.startswith("jmp_"):
             if last == n:
                 last -= 1
+
             jmp = test[1]
             jmp_target = jmp[0].attr
 
-            # FIXME: the jump inside "else" check below should be added.
-            #
-            # add this until we can find out what's wrong with
-            # not being able to parse:
-            #     if a and b or c:
-            #         x = 1
-            #     else:
-            #         x = 2
-
-            # FIXME: add this
-            # if jmp_target < else_suite.first_child().off2int():
-            #     return True
+            # Below we check that jmp_target is jumping to a feasible
+            # location. It should be to the transition after the "then"
+            # block and to the beginning of the "else" block.
+            # However the "if/else" is inside a loop the false test can be
+            # back to the loop.
 
             # FIXME: the below logic for jf_cfs could probably be
             # simplified.
@@ -148,7 +151,7 @@ def ifelsestmt(
                 # If tokens[last] is a COME_FROM, it has to come from
                 # the jump_else forward.
 
-                # Given that offset values can be funky strings, the
+                # Since offset values can be funky strings, the
                 # most reliable is to check on COME_FROM attr field
                 # which will always be an integer instruction offset.
                 # Also the else jump-forward offset should be an int
@@ -156,9 +159,14 @@ def ifelsestmt(
                 # bytecode and wasn't an added instruction.
                 if (
                     tokens[last] == "COME_FROM"
-                    and tokens[last].attr == jump_else_forward.offset
+                    and tokens[last].attr == jump_else_forward.off2int(prefer_last=True)
                 ):
                     return False
+            if (
+                jump_else_end in ("jb_elsec", "jf_cfs", "jb_cfs") and
+                jump_else_end[-1] == "COME_FROM"
+            ):
+                return jump_else_end[-1].off2int() != jmp_target
 
             if tokens[first].off2int() > jmp_target:
                 return True
