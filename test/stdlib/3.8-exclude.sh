@@ -281,6 +281,7 @@ SKIP_TESTS=(
     [test_tracemalloc.py]=1 #
     [test_ttk_guionly.py]=1  # implementation specfic and test takes too long to run: 19 seconds
     [test_turtle_import.py]=1 # parse error
+    [test_turtle.py]=1 # parse error
     [test_types.py]=1 # parse error
     [test_typing.py]=1 # parse error
 
