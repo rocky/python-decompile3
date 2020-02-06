@@ -112,10 +112,6 @@ LINE_LENGTH = 80
 # Some parse trees created below are used for comparing code
 # fragments (like "return None" at the end of functions).
 
-RETURN_LOCALS = SyntaxTree("return",
-                    [ SyntaxTree("ret_expr", [SyntaxTree("expr", [ Token("LOAD_LOCALS") ])]),
-                      Token("RETURN_VALUE")])
-
 NONE = SyntaxTree("expr", [ NoneToken ] )
 
 RETURN_NONE = SyntaxTree("stmt",

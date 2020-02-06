@@ -143,8 +143,8 @@ class TreeTransform(GenericASTTraversal, object):
                 else:
                     assert testtrue_or_false in ("testfalse", "testfalsec")
                     assert_expr = testtrue_or_false[0]
-                    if assert_expr == "testfalse_not_and":
-                        # FIXME: come pack to stuff like this
+                    if assert_expr in ("testfalse_not_and", "and_not"):
+                        # FIXME: come back to stuff like this
                         return node
 
                     jump_cond = testtrue_or_false[1]

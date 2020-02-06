@@ -154,7 +154,6 @@ from decompyle3.scanners.tok import Token
 
 from decompyle3.semantics.consts import (
     LINE_LENGTH,
-    RETURN_LOCALS,
     NONE,
     RETURN_NONE,
     PASS,
@@ -1124,7 +1123,6 @@ class SourceWalker(GenericASTTraversal, object):
 
         # Python 2.7+ starts including set_comp_body
         # Python 3.5+ starts including set_comp_func
-        # Python 3.0  is yet another snowflake
         assert store, "Couldn't find store in list/set comprehension"
 
         # A problem created with later Python code generation is that there
@@ -1971,7 +1969,10 @@ class SourceWalker(GenericASTTraversal, object):
         indent = self.indent
         # self.println(indent, '#flags:\t', int(code.co_flags))
         ast = self.build_ast(code._tokens, code._customize)
-        code._tokens = None  # save memory
+
+        # save memory by deleting no-longer-used structures
+        code._tokens = None
+
         assert ast == "stmts"
 
         if ast[0] == "docstring":
@@ -2008,14 +2009,6 @@ class SourceWalker(GenericASTTraversal, object):
                 del ast[0]
             pass
 
-        # the function defining a class normally returns locals(); we
-        # don't want this to show up in the source, thus remove the node
-        if len(ast) > 0 and ast[-1][0] == RETURN_LOCALS:
-            if self.hide_internal:
-                del ast[-1]  # remove last node
-        # else:
-        #    print ast[-1][-1]
-
         globals, nonlocals = find_globals_and_nonlocals(
             ast, set(), set(), code, self.version
         )
@@ -2030,8 +2023,11 @@ class SourceWalker(GenericASTTraversal, object):
         old_name = self.name
         self.gen_source(ast, code.co_name, code._customize)
         self.name = old_name
+
+        # save memory by deleting no-longer-used structures
         code._tokens = None
-        code._customize = None  # save memory
+        code._customize = None
+
         self.classes.pop(-1)
 
     def gen_source(self, ast, name, customize, is_lambda=False, returnNone=False):
