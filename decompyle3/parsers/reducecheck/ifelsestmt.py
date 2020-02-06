@@ -2,16 +2,8 @@
 
 from decompyle3.scanners.tok import Token
 
-
-def ifelsestmt(
-    self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
-) -> bool:
-
-    if (last + 1) < n and tokens[last + 1] == "COME_FROM_LOOP":
-        # ifelsestmt jumped outside of loop. No good.
-        return True
-
-    if rule not in (
+IFELSE_STMT_RULES = frozenset(
+    [
         (
             "ifelsestmt",
             (
@@ -22,24 +14,8 @@ def ifelsestmt(
                 "_come_froms",
             ),
         ),
-        (
-            "ifelsestmtc",
-            (
-                "testexpr",
-                "c_stmts_opt",
-                "jb_elsec",
-                "else_suitec"
-            ),
-        ),
-        (
-            "ifelsestmtc",
-            (
-                "testexpr",
-                "c_stmts_opt",
-                "jb_cfs",
-                "else_suitec"
-            ),
-        ),
+        ("ifelsestmtc", ("testexpr", "c_stmts_opt", "jb_elsec", "else_suitec"),),
+        ("ifelsestmtc", ("testexpr", "c_stmts_opt", "jb_cfs", "else_suitec"),),
         (
             "ifelsestmt",
             (
@@ -66,13 +42,7 @@ def ifelsestmt(
         ),
         (
             "ifelsestmt",
-            (
-                "testexpr",
-                "stmts_opt",
-                "jf_cfs",
-                "else_suite",
-                "opt_come_from_except",
-            ),
+            ("testexpr", "stmts_opt", "jf_cfs", "else_suite", "opt_come_from_except",),
         ),
         (
             "ifelsestmt",
@@ -84,7 +54,27 @@ def ifelsestmt(
                 "\\e__come_froms",
             ),
         ),
-    ):
+    ]
+)
+
+
+def ifelsestmt(
+    self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
+) -> bool:
+
+    if (last + 1) < n and tokens[last + 1] == "COME_FROM_LOOP":
+        # ifelsestmt jumped outside of loop. No good.
+        return True
+
+    # if lhs == "ifelsestmtc":
+    #     print("XXX", first, last, rule)
+    #     for t in range(first, last):
+    #         print(tokens[t])
+    #     print("=" * 40)
+    #     if (first, last) == (6, 16):
+    #         from trepan.api import debug; debug()
+
+    if rule not in IFELSE_STMT_RULES:
         return False
 
     # Make sure all the offsets from the "come froms" at the
@@ -153,8 +143,8 @@ def ifelsestmt(
                     return True
                 pass
             if (
-                jump_else_end in ("jb_elsec", "jf_cfs", "jb_cfs") and
-                jump_else_end[-1] == "COME_FROM"
+                jump_else_end in ("jb_elsec", "jf_cfs", "jb_cfs")
+                and jump_else_end[-1] == "COME_FROM"
             ):
                 if jump_else_end[-1].off2int() != jmp_target:
                     return True

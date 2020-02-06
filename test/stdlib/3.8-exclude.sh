@@ -327,7 +327,7 @@ SKIP_TESTS=(
     [test_zipfile.py]=1 # it fails on its own
     [test_zipfile64.py]=1 #
 )
-# 262 test files, Elapsed time about 20 minutes
+# 114 test files, Elapsed time about 7 minutes
 
 if (( batch )) ; then
     SKIP_TESTS[test_idle.py]=1 # Probably installation specific

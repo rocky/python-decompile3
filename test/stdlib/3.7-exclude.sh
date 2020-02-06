@@ -1,6 +1,5 @@
 SKIP_TESTS=(
-    [test_urllib2.py]=1 # FIXME: works on uncompyle6
-    [test_generators.py]=1  # Investigate improper lamdba with bogus "False" added
+    [test_generators.py]=1  # parse eror. Investigate improper lamdba with bogus "False" added
     [test_grammar.py]=1 # investigate: like above: semantic rule missing probably
 
     [test___all__.py]=1 # it fails on its own
@@ -11,13 +10,13 @@ SKIP_TESTS=(
     [test_bdb.py]=1  #
     [test_buffer.py]=1  # parse error
     [test_clinic.py]=1 # it fails on its own
-    [test_cmath.py]=1 # test assertion failure
+    [test_cmath.py]=1 # control flow
     [test_cmd_line.py]=1  # Interactive?
     [test_cmd_line_script.py]=1
     [test_compileall.py]=1 # fails on its own
     [test_compile.py]=1  # Code introspects on co_consts in a non-decompilable way
     [test_concurrent_futures.py]=1 # too long
-    [test_coroutines.py]=1 # Investigate: Parse error - async/yield  stuff?
+    [test_coroutines.py]=1 # Parse error Investigate: Parse error - async/yield  stuff?
     [test_codecs.py]=1 # test assert failures; encoding/decoding stuff
     [test_ctypes.py]=1 # it fails on its own
     [test_curses.py]=1 # probably byte string not handled properly
@@ -34,7 +33,7 @@ SKIP_TESTS=(
     [test_enum.py]=1   # probably bad control flow
 
     [test_faulthandler.py]=1   # test takes too long before decompiling
-    [test_fileinput.py]=1 # Test assertion failures
+    [test_fileinput.py]=1 # control flow
     [test_frame.py]=1 # test assertion errors
     [test_ftplib.py]=1 # parse error
     [test_fstring.py]=1 # need to disambiguate leading fstrings from docstrings
@@ -42,11 +41,11 @@ SKIP_TESTS=(
 
     [test_gdb.py]=1 # it fails on its own
     [test_glob.py]=1  # TypeError: join() argument must be str or bytes, not 'tuple'
-    [test_grp.py]=1 # Doesn't terminate (killed)
+    [test_grp.py]=1 # Runnint test doesn't terminate (killed)
 
     [test_imaplib.py]=1  # test run loops before decompiling? More than 15 seconds to run
     [test_io.py]=1 # test takes too long to run: 37 seconds
-    [test_imaplib.py]=1 # decompiled test loops - killing after 15 seconds
+    [test_imaplib.py]=1 # test failures
     [test_inspect.py]=1 # Investigate test failures involving lambda
 
     [test_kqueue.py]=1 # it fails on its own
@@ -87,7 +86,7 @@ SKIP_TESTS=(
     [test_socket.py]=1 # Takes too long to run before decompiling
     [test_ssl.py]=1 # Takes too long to run more than 15 seconds. Probably control flow; unintialized variable
     [test_startfile.py]=1 # it fails on its own
-    [test_strptime.py]=1 # parfse error
+    [test_strptime.py]=1 # parse error
     [test_strtod.py]=1 # test assertions failed
     [test_struct.py]=1 # probably control flow
     [test_subprocess.py]=1 # Takes too long to run before decompile: 25 seconds
