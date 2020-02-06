@@ -27,9 +27,9 @@ for VERSION in $PYVERSIONS ; do
     LOGFILE=/tmp/pyenvlib-$VERSION-$$.log
 
     if [[ $VERSION == '3.7.6' ]] ; then
-	MAX_TESTS=224
+	MAX_TESTS=100
     elif [[ $VERSION == '3.8.1' ]] ; then
-	MAX_TESTS=225
+	MAX_TESTS=100
     fi
 
     actual_versions="$actual_versions $VERSION"
