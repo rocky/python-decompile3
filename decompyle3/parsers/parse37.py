@@ -828,8 +828,11 @@ class Python37Parser(Python37BaseParser):
         # FIXME: add this:
         # expr    ::= assert_expr_or
 
+        pop_jump    ::= POP_JUMP_IF_TRUE
+        pop_jump    ::= POP_JUMP_IF_FALSE
+
         ifstmt      ::= testexpr ifstmts_jump _come_froms
-        if_or_stmt  ::= expr POP_JUMP_IF_TRUE  expr POP_JUMP_IF_TRUE COME_FROM
+        if_or_stmt  ::= expr POP_JUMP_IF_TRUE expr pop_jump come_froms
                         stmts COME_FROM
         if_and_stmt ::= expr POP_JUMP_IF_FALSE expr POP_JUMP_IF_FALSE
                         stmts _come_froms
