@@ -6,6 +6,12 @@ from decompyle3.scanners.tok import Token
 def ifstmts_jump(
     self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
 ) -> bool:
+
+    # print("XXX", first, last, rule)
+    # for t in range(first, last): print(tokens[t])
+    # print("="*40)
+    # from trepan.api import debug; debug()
+
     come_froms = ast[-1]
     # This is complicated, but note that the JUMP_IF instruction comes immediately
     # *before* _ifstmts_jump so that's what we have to test

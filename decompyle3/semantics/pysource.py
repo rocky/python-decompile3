@@ -2074,7 +2074,7 @@ class SourceWalker(GenericASTTraversal, object):
                 p_insts = self.p.insts
                 self.p.insts = self.scanner.insts
                 self.p.offset2inst_index = self.scanner.offset2inst_index
-                ast = python_parser.parse(self.p, tokens, customize)
+                ast = python_parser.parse(self.p, tokens, customize, is_lambda)
                 self.customize(customize)
                 self.p.insts = p_insts
             except (python_parser.ParserError, AssertionError) as e:
@@ -2111,7 +2111,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.p.insts = self.scanner.insts
             self.p.offset2inst_index = self.scanner.offset2inst_index
             self.p.opc = self.scanner.opc
-            ast = python_parser.parse(self.p, tokens, customize)
+            ast = python_parser.parse(self.p, tokens, customize, is_lambda=is_lambda)
             self.p.insts = p_insts
         except (python_parser.ParserError, AssertionError) as e:
             raise ParserError(e, tokens)

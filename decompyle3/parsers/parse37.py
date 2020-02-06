@@ -146,7 +146,6 @@ class Python37Parser(Python37BaseParser):
         del_stmt ::= DELETE_GLOBAL
 
         stmt   ::= return
-        return ::= ret_expr RETURN_VALUE
 
         # "returns" nonterminal is a sequence of statements that ends in a RETURN statement.
         # In later Python versions with jump optimization, this can cause JUMPs
@@ -757,9 +756,6 @@ class Python37Parser(Python37BaseParser):
 
     def p_expr3(self, args):
         """
-        stmt               ::= if_exp_lambda
-        stmt               ::= if_exp_not_lambda
-
         expr               ::= if_exp_not
         if_exp_not         ::= expr jmp_true  expr jump_forward_else expr COME_FROM
 
@@ -885,7 +881,6 @@ class Python37Parser(Python37BaseParser):
         # ifelsestmt ::= testexpr c_stmts_opt jump_forward_else
         #                pass  _come_froms
 
-        ifelsestmtc ::= testexpr c_stmts_opt JUMP_FORWARD else_suitec
         ifelsestmtc ::= testexpr c_stmts_opt jump_forward_else else_suitec
         ifelsestmtc ::= testexpr c_stmts_opt cf_jump_back else_suitec
 
@@ -968,7 +963,6 @@ class Python37Parser(Python37BaseParser):
         for_block ::= c_stmts_opt COME_FROM_LOOP JUMP_BACK
         for_block ::= c_stmts
         for_block ::= c_stmts JUMP_BACK
-        iflaststmtc ::= testexpr c_stmts
         """
 
     def p_come_from3(self, args):
@@ -1144,7 +1138,6 @@ class Python37Parser(Python37BaseParser):
         # ifelsestmt -> ...else_suite _. suite_stmts... (last) stmt
         return ::= ret_expr RETURN_END_IF
         return ::= ret_expr RETURN_VALUE
-        return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA
 
         # A COME_FROM is dropped off because of JUMP-to-JUMP optimization
         and  ::= expr jmp_false expr

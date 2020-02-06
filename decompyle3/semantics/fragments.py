@@ -1139,12 +1139,20 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 # modularity is broken here
                 p_insts = self.p.insts
                 self.p.insts = self.scanner.insts
-                ast = python_parser.parse(self.p, tokens, customize)
+                self.p.offset2inst_index = self.scanner.offset2inst_index
+                ast = python_parser.parse(self.p, tokens, customize, is_lambda)
                 self.p.insts = p_insts
             except (python_parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens)
+
+            ## FIXME: So as not to remove tokens with offsets,
+            ## remove this phase until we have a chance to go over,
+            # transform_ast = self.treeTransform.transform(ast)
             maybe_show_tree(self, ast)
             return ast
+            # del ast # Save memory
+            # return transform_ast
+
 
         # The bytecode for the end of the main routine has a
         # "return None". However you can't issue a "return" statement in

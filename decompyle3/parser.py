@@ -98,6 +98,11 @@ class PythonParser(GenericASTBuilder):
         # Instructions filled in from scanner
         self.insts = []
 
+        # true if we are parsing inside a lambda expression.
+        # because a lambda expression are wrtten on a single line, certain line-oriented
+        # statements behave differently
+        self.is_lambda = False
+
     def ast_first_offset(self, ast):
         if hasattr(ast, "offset"):
             return ast.offset
@@ -266,9 +271,12 @@ class PythonParser(GenericASTBuilder):
         return GenericASTBuilder.resolve(self, list)
 
 
-def parse(p, tokens, customize):
+def parse(p, tokens, customize, is_lambda):
+    was_lambda = p.is_lambda
+    p.is_lambda = is_lambda
     p.customize_grammar_rules(tokens, customize)
     ast = p.parse(tokens)
+    p.is_lambda = was_lambda
     #  p.cleanup()
     return ast
 
@@ -331,6 +339,7 @@ def python_parser(
     showasm=False,
     parser_debug=PARSER_DEFAULT_DEBUG,
     is_pypy=False,
+    is_lambda=False
 ):
     """
     Parse a code object to an abstract syntax tree representation.
@@ -357,7 +366,7 @@ def python_parser(
     # parser_debug = {'rules': True, 'transition': True, 'reduce' : True,
     #                 'showstack': 'full'}
     p = get_python_parser(version, parser_debug)
-    return parse(p, tokens, customize)
+    return parse(p, tokens, customize, is_lambda)
 
 
 if __name__ == "__main__":
