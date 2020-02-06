@@ -216,7 +216,7 @@ class Python37Parser(Python37BaseParser):
 
         _mklambda ::= mklambda
 
-        expr ::= conditional
+        expr ::= if_exp
 
         ret_expr ::= expr
         ret_expr ::= ret_and
@@ -447,10 +447,9 @@ class Python37Parser(Python37BaseParser):
 
     def p_32on(self, args):
         """
-        conditional::= expr jmp_false expr jump_forward_else expr COME_FROM
-
         # compare_chained2 is used in a "chained_compare": x <= y <= z
         # used exclusively in compare_chained
+
         compare_chained2 ::= expr COMPARE_OP RETURN_VALUE
         compare_chained2 ::= expr COMPARE_OP RETURN_VALUE_LAMBDA
 
@@ -664,8 +663,9 @@ class Python37Parser(Python37BaseParser):
 
     def p_37conditionals(self, args):
         """
-        expr                       ::= conditional37
-        conditional37              ::= expr expr jf_cfs expr COME_FROM
+        expr                       ::= if_exp37
+        if_exp                     ::= expr jmp_false expr jump_forward_else expr COME_FROM
+        if_exp37                   ::= expr expr jf_cfs expr COME_FROM
         jf_cfs                     ::= JUMP_FORWARD _come_froms
         ifelsestmt                 ::= testexpr
                                        stmts_opt jf_cfs else_suite opt_come_from_except
@@ -757,18 +757,29 @@ class Python37Parser(Python37BaseParser):
 
     def p_expr3(self, args):
         """
-        expr           ::= conditionalnot
-        conditionalnot ::= expr jmp_true  expr jump_forward_else expr COME_FROM
+        stmt               ::= if_exp_lambda
+        stmt               ::= if_exp_not_lambda
+
+        expr               ::= if_exp_not
+        if_exp_not         ::= expr jmp_true  expr jump_forward_else expr COME_FROM
 
         # a JUMP_FORWARD to another JUMP_FORWARD can get turned into
         # a JUMP_ABSOLUTE with no COME_FROM
-        conditional    ::= expr jmp_false expr jump_forward_else expr
+        if_exp             ::= expr jmp_false expr jump_forward_else expr
 
-        # if_expr_true are for conditions which always evaluate true
+        if_exp_lambda      ::= expr jmp_false expr return_if_lambda
+                               return_lambda LAMBDA_MARKER
+
+        if_exp_lambda      ::= expr jmp_false COME_FROM expr return_lambda
+
+        if_exp_not_lambda  ::= expr jmp_true expr return_if_lambda
+                               return_lambda LAMBDA_MARKER
+        # if_exp_true are are IfExp which always evaluate true, e.g.:
+        #      x = a if 1 else b
         # There is dead or non-optional remnants of the condition code though,
         # and we use that to match on to reconstruct the source more accurately
-        expr           ::= if_expr_true
-        if_expr_true   ::= expr JUMP_FORWARD expr COME_FROM
+        expr           ::= if_exp_true
+        if_exp_true    ::= expr JUMP_FORWARD expr COME_FROM
         """
 
     def p_generator_exp3(self, args):
@@ -1018,15 +1029,15 @@ class Python37Parser(Python37BaseParser):
 
     def p_stmt3(self, args):
         """
-        stmt               ::= if_expr_lambda
-        stmt               ::= conditional_not_lambda
+        stmt               ::= if_exp_lambda
+        stmt               ::= if_exp_not_lambda
 
         # If statement inside a loop:
         cstmt              ::= ifstmtc
 
-        if_expr_lambda     ::= expr jmp_false expr return_if_lambda
+        if_exp_lambda      ::= expr jmp_false expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
-        conditional_not_lambda
+        if_exp_not_lambda
                            ::= expr jmp_true expr return_if_lambda
                                return_stmt_lambda LAMBDA_MARKER
 
@@ -1142,7 +1153,7 @@ class Python37Parser(Python37BaseParser):
         jf_cf       ::= JUMP_FORWARD COME_FROM
         cf_jf_else  ::= come_froms JUMP_FORWARD ELSE
 
-        conditional ::= expr jmp_false expr jf_cf expr COME_FROM
+        if_exp       ::= expr jmp_false expr jf_cf expr COME_FROM
 
         except_suite ::= c_stmts_opt COME_FROM POP_EXCEPT jump_except COME_FROM
 
