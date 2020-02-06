@@ -117,7 +117,7 @@ SKIP_TESTS=(
     [test_zipfile.py]=1 # it fails on its own
     [test_zipfile64.py]=1 # Too long to run
 )
-# 282 unit-test files in about 19 minutes
+# 306 unit-test files in about 19 minutes
 
 if (( batch )) ; then
     SKIP_TESTS[test_dbm_gnu.py]=1 # fails on its own on POWER
