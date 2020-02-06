@@ -1179,9 +1179,12 @@ class Python37Parser(Python37BaseParser):
         except_suite_finalize ::= SETUP_FINALLY returns
                                   COME_FROM_FINALLY suite_stmts_opt END_FINALLY jump
 
-        stmt ::= tryfinally_return_stmt
-        tryfinally_return_stmt ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK LOAD_CONST
-                                   COME_FROM_FINALLY
+        stmt ::= tryfinally_return_stmt1
+        stmt ::= tryfinally_return_stmt2
+        tryfinally_return_stmt1 ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK LOAD_CONST
+                                    COME_FROM_FINALLY returns
+        tryfinally_return_stmt2 ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK LOAD_CONST
+                                    COME_FROM_FINALLY
 
         compare_chained2 ::= expr COMPARE_OP come_froms JUMP_FORWARD
         """

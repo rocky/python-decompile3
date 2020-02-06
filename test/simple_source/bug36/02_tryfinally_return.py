@@ -4,3 +4,10 @@ def foo():
         x = 1
     finally:
         return
+
+# from 3.7.6 test_generators.py
+def g1():
+    try:
+        pass
+    finally:
+        return 1

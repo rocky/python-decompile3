@@ -169,6 +169,13 @@ def customize_for_version37(self, version):
             "testfalsec": ("not %c", (0, "expr")),
             "try_except36": ("%|try:\n%+%c%-%c\n\n", 1, -2),
             "tryfinally36": ("%|try:\n%+%c%-%|finally:\n%+%c%-\n\n", (1, "returns"), 3),
+            "tryfinally_return_stmt1":
+                ("%|try:\n%+%c%-%|finally:\n%+%c%-\n\n",
+                 (1, "suite_stmts_opt"),
+                 (-1, "returns")),
+            "tryfinally_return_stmt2":
+                ("%|try:\n%+%c%-%|finally:\n%+return%-\n\n",
+                 (1, "suite_stmts_opt")),
             "unmap_dict": ("{**%C}", (0, -1, ", **")),
             "unpack_list": ("*%c", (0, "list")),
             "yield_from": ("yield from %c", (0, "expr")),
