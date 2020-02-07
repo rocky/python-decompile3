@@ -308,14 +308,14 @@ def get_python_parser(
         if compile_mode == "exec":
             p = parse37.Python37Parser(debug_parser)
         else:
-            p = parse37.Python37ParserSingle(debug_parser)
+            p = parse37.Python37ParserSingle(debug_parser, compile_mode=compile_mode)
     elif version == 3.8:
         import decompyle3.parsers.parse38 as parse38
 
         if compile_mode == "exec":
             p = parse38.Python38Parser(debug_parser)
         else:
-            p = parse38.Python38ParserSingle(debug_parser)
+            p = parse38.Python38ParserSingle(debug_parser, compile_mode=compile_mode)
 
     p.version = version
     # p.dump_grammar() # debug

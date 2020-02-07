@@ -21,8 +21,8 @@ i = lambda c: 'a' <= c <= 'z', 'Hello World'
 assert i[0]('a') == True
 assert i[0]('A') == False
 
-# Issue #170. Bug is needing an "conditional_not_lambda" grammar rule
-# in addition the the "if_expr_lambda" rule
+# Issue #170. Bug is needing an "if_exp_not_lambda" grammar rule
+# in addition the the "if_exp_lambda" rule
 j = lambda a: False if not a else True
 assert j(True) == True
 assert j(False) == False

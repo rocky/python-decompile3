@@ -186,8 +186,8 @@ class Python38Parser(Python37Parser):
                                POP_FINALLY POP_TOP suite_stmts_opt END_FINALLY POP_TOP
         """
 
-    def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
-        super(Python38Parser, self).__init__(debug_parser)
+    def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG, compile_mode="exec"):
+        super(Python38Parser, self).__init__(debug_parser, compile_mode=compile_mode)
         self.customized = {}
 
     def remove_rules_38(self):

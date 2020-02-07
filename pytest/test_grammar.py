@@ -32,6 +32,7 @@ def test_grammar():
     expect_lhs.add("load_genexpr")
     expect_lhs.add("kvlist")
     expect_lhs.add("kv3")
+    expect_lhs.add("lambda_start") # Start symbol for lambda expressions
 
     unused_rhs = unused_rhs.union(
         set(

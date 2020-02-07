@@ -23,8 +23,8 @@ from decompyle3.scanners.tok import Token
 
 
 class Python37Parser(Python37BaseParser):
-    def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
-        super(Python37Parser, self).__init__(debug_parser)
+    def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG, compile_mode="exec"):
+        super(Python37Parser, self).__init__(debug_parser, compile_mode=compile_mode)
         self.customized = {}
 
     ###############################################
@@ -224,10 +224,11 @@ class Python37Parser(Python37BaseParser):
         ret_expr_or_cond ::= ret_expr
         ret_expr_or_cond ::= ret_cond
 
-        stmt ::= return_lambda
-
-        return_lambda ::= ret_expr RETURN_VALUE_LAMBDA LAMBDA_MARKER
-        return_lambda ::= ret_expr RETURN_VALUE_LAMBDA
+        lambda_start  ::= return_lambda LAMBDA_MARKER
+        return_lambda ::= expr RETURN_VALUE_LAMBDA
+        return_lambda ::= if_exp_lambda
+        return_lambda ::= if_exp_not_lambda
+        return_lambda ::= if_exp_dead_code
 
         compare        ::= compare_chained
         compare        ::= compare_single
@@ -766,7 +767,7 @@ class Python37Parser(Python37BaseParser):
         if_exp_lambda      ::= expr jmp_false expr return_if_lambda
                                return_lambda LAMBDA_MARKER
 
-        if_exp_lambda      ::= expr jmp_false COME_FROM expr return_lambda
+        if_exp_lambda      ::= expr jmp_false return_lambda COME_FROM return_lambda
 
         if_exp_not_lambda  ::= expr jmp_true expr return_if_lambda
                                return_lambda LAMBDA_MARKER
@@ -776,6 +777,8 @@ class Python37Parser(Python37BaseParser):
         # and we use that to match on to reconstruct the source more accurately
         expr           ::= if_exp_true
         if_exp_true    ::= expr JUMP_FORWARD expr COME_FROM
+
+        if_exp_dead_code ::= return_lambda return_lambda
         """
 
     def p_generator_exp3(self, args):
@@ -1023,17 +1026,14 @@ class Python37Parser(Python37BaseParser):
 
     def p_stmt3(self, args):
         """
-        stmt               ::= if_exp_lambda
-        stmt               ::= if_exp_not_lambda
-
         # If statement inside a loop:
         cstmt              ::= ifstmtc
 
         if_exp_lambda      ::= expr jmp_false expr return_if_lambda
-                               return_stmt_lambda LAMBDA_MARKER
+                               return_stmt_lambda
         if_exp_not_lambda
                            ::= expr jmp_true expr return_if_lambda
-                               return_stmt_lambda LAMBDA_MARKER
+                               return_stmt_lambda
 
         return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA
         return_if_lambda   ::= RETURN_END_IF_LAMBDA

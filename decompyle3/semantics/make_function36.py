@@ -325,7 +325,7 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
         # docstring exists, dump it
         self.println(self.traverse(node[-2]))
 
-    assert ast == "stmts"
+    assert ast in ("stmts", "lambda_start")
 
     all_globals = find_all_globals(ast, set())
     globals, nonlocals = find_globals_and_nonlocals(

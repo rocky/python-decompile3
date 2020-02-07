@@ -1,5 +1,5 @@
 SKIP_TESTS=(
-    [test_generators.py]=1  # parse eror. Investigate improper lamdba with bogus "False" added
+    [test_generators.py]=1  # parse error. this portion works in uncompyle6
     [test_grammar.py]=1 # investigate: like above: semantic rule missing probably
 
     [test___all__.py]=1 # it fails on its own

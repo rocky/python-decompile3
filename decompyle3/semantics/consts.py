@@ -292,8 +292,18 @@ TABLE_DIRECT = {
     "ret_or":           ( "%c or %c", 0, 2 ),
     "if_exp":           ( "%p if %c else %c",
                           (2, "expr", 27), 0, 4 ),
-    "if_exp_lambda":    ( "%p if %c else %c",
-                          (2, "expr", 27), (0, "expr"), 4 ),
+    "if_exp_lambda":    ( "%c if %c else %c",
+                          2, # expr or return_lambda
+                          (0, "expr"), 4 ),
+
+    # The arg2 is dead-code
+    'if_expr_true':     ( '%p if 1 else %c', (0, 'expr', 27), 2 ),
+
+    # The arg 1 is dead-code
+    "if_exp_dead_code": ( "%c if True else %c",
+                          (0, "return_lambda"),
+                          (1, "return_lambda") ),
+
     "if_exp_true":      ( "%p if 1 else %c", (0, "expr", 27), 2 ),
     "ret_cond":         ( "%p if %p else %p", (2, 27), (0, 27), (-1, 27) ),
     "if_exp_not":       ( "%p if not %p else %p",

@@ -234,6 +234,12 @@ class SourceWalker(GenericASTTraversal, object):
             compile_mode=compile_mode,
             is_pypy=is_pypy,
         )
+        self.p_lambda = get_python_parser(
+            version,
+            debug_parser=dict(debug_parser),
+            compile_mode="eval",
+            is_pypy=is_pypy,
+        )
 
         self.treeTransform = TreeTransform(showast)
         self.debug_parser = dict(debug_parser)
@@ -473,7 +479,6 @@ class SourceWalker(GenericASTTraversal, object):
     def n_return_lambda(self, node):
         if 1 <= len(node) <= 2:
             self.preorder(node[0])
-            self.write(" # Avoid dead code: ")
             self.prune()
         else:
             # We can't comment out like above because there may be a trailing ')'
@@ -1990,6 +1995,7 @@ class SourceWalker(GenericASTTraversal, object):
             pass
 
         have_qualname = False
+
         # Python 3.4+ has constants like 'cmp_to_key.<locals>.K'
         # which are not simple classes like the < 3 case.
 
@@ -2068,11 +2074,12 @@ class SourceWalker(GenericASTTraversal, object):
                 # FIXME: have p.insts update in a better way
                 # modularity is broken here
                 p_insts = self.p.insts
-                self.p.insts = self.scanner.insts
-                self.p.offset2inst_index = self.scanner.offset2inst_index
-                ast = python_parser.parse(self.p, tokens, customize, is_lambda)
+                p = self.p_lambda if is_lambda else self.p
+                p.insts = self.scanner.insts
+                p.offset2inst_index = self.scanner.offset2inst_index
+                ast = python_parser.parse(p, tokens, customize, is_lambda)
                 self.customize(customize)
-                self.p.insts = p_insts
+                p.insts = p_insts
             except (python_parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens)
             transform_ast = self.treeTransform.transform(ast)
