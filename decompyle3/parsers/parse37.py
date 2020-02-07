@@ -943,7 +943,12 @@ class Python37Parser(Python37BaseParser):
         except_suite_finalize ::= SETUP_FINALLY c_stmts_opt except_var_finalize
                                   END_FINALLY jump
 
+        except_suite_finalize ::= SETUP_FINALLY c_stmts_opt except_var_finalize
+                                  END_FINALLY POP_EXCEPT jump
+
         except_var_finalize ::= POP_BLOCK POP_EXCEPT LOAD_CONST COME_FROM_FINALLY
+                                LOAD_CONST store del_stmt
+        except_var_finalize ::= POP_BLOCK            LOAD_CONST COME_FROM_FINALLY
                                 LOAD_CONST store del_stmt
 
         except_suite ::= returns
