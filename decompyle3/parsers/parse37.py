@@ -120,6 +120,7 @@ class Python37Parser(Python37BaseParser):
         stmt ::= if_and_stmt
         stmt ::= ifelsestmt
         stmt ::= if_or_elsestmt
+        stmt ::= if_or_not_elsestmt
 
         stmt ::= whilestmt
         stmt ::= while1stmt
@@ -222,7 +223,7 @@ class Python37Parser(Python37BaseParser):
         ret_expr ::= ret_or
 
         ret_expr_or_cond ::= ret_expr
-        ret_expr_or_cond ::= ret_cond
+        ret_expr_or_cond ::= if_exp_ret
 
         lambda_start  ::= return_lambda LAMBDA_MARKER
         return_lambda ::= expr RETURN_VALUE_LAMBDA
@@ -672,6 +673,9 @@ class Python37Parser(Python37BaseParser):
         if_or_elsestmt             ::= expr jmp_true
                                        come_from_opt expr POP_JUMP_IF_FALSE come_froms
                                        stmts jf_cfs else_suite opt_come_from_except
+        if_or_not_elsestmt         ::= expr jmp_true
+                                       come_from_opt expr POP_JUMP_IF_TRUE come_froms
+                                       stmts jf_cfs else_suite opt_come_from_except
 
         jmp_false37                ::= POP_JUMP_IF_FALSE COME_FROM
         list_if                    ::= expr jmp_false37 list_iter
@@ -682,6 +686,8 @@ class Python37Parser(Python37BaseParser):
 
         ifstmts_jumpc             ::= c_stmts_opt come_froms
         ifstmts_jumpc             ::= COME_FROM c_stmts come_froms
+        ifstmts_jumpc             ::= c_stmts JUMP_BACK
+
         ifstmts_jump              ::= stmts come_froms
         ifstmts_jump              ::= COME_FROM stmts come_froms
 
@@ -992,9 +998,9 @@ class Python37Parser(Python37BaseParser):
         jmp_true  ::= POP_JUMP_IF_TRUE
 
         # FIXME: Common with 2.7
-        ret_and  ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
-        ret_or   ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
-        ret_cond ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
+        ret_and    ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
+        ret_or     ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
+        if_exp_ret ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
 
         jitop_come_from ::= JUMP_IF_TRUE_OR_POP come_froms
         jifop_come_from ::= JUMP_IF_FALSE_OR_POP come_froms
@@ -1056,7 +1062,6 @@ class Python37Parser(Python37BaseParser):
 
         ifstmtc            ::= testexpr ifstmts_jumpc
 
-        ifstmts_jumpc     ::= c_stmts JUMP_BACK
         ifstmts_jump      ::= stmts JUMP_BACK
         ifstmts_jumpc     ::= ifstmts_jump
 
