@@ -670,7 +670,7 @@ class Python37Parser(Python37BaseParser):
         ifelsestmt                 ::= testexpr
                                        stmts_opt jf_cfs else_suite opt_come_from_except
         if_or_elsestmt             ::= expr jmp_true
-                                       COME_FROM expr POP_JUMP_IF_FALSE COME_FROM
+                                       come_from_opt expr POP_JUMP_IF_FALSE come_froms
                                        stmts jf_cfs else_suite opt_come_from_except
 
         jmp_false37                ::= POP_JUMP_IF_FALSE COME_FROM
