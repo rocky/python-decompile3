@@ -864,6 +864,10 @@ class Python37Parser(Python37BaseParser):
         iflaststmtc ::= testexpr c_stmts JUMP_BACK COME_FROM_LOOP
         iflaststmtc ::= testexpr c_stmts JUMP_BACK POP_BLOCK
 
+        # c_stmts might terminate, or have "continue" so no JUMP_BACK.
+        # But if that's true, the "testexpr" needs still to jump to the "COME_FROM'
+        iflaststmtc ::= testexpr c_stmts COME_FROM
+
         # These are used to keep parse tree indices the same
         # in "if"/"else" like rules.
         jump_forward_else ::= JUMP_FORWARD ELSE
@@ -1091,6 +1095,7 @@ class Python37Parser(Python37BaseParser):
         # We can be missing a COME_FROM_LOOP if the "while" statement is nested inside an if/else
         # so after the POP_BLOCK we have a JUMP_FORWARD which forms the "else" portion of the "if"
         # This is undoubtedly some sort of JUMP optimization going on.
+        # We have a reduction check for this peculiar case.
 
         whilestmt         ::= setup_loop testexpr c_stmts_opt JUMP_BACK come_froms
                               POP_BLOCK
@@ -1112,7 +1117,6 @@ class Python37Parser(Python37BaseParser):
 
         while1elsestmt    ::= setup_loop c_stmts JUMP_BACK
                               else_suite COME_FROM_LOOP
-
         # FIXME: investigate - can code really produce a NOP?
         for               ::= setup_loop expr get_for_iter store for_block POP_BLOCK NOP
                               COME_FROM_LOOP

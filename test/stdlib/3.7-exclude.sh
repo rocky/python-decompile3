@@ -7,7 +7,6 @@ SKIP_TESTS=(
     [test_asdl_parser.py]=1 # it fails on its own
     [test_atexit.py]=1  # The atexit test looks for specific comments in error lines
     [test_baseexception.py]=1  # UnboundLocalError: local variable 'exc' referenced before assignment
-    [test_bdb.py]=1  #
     [test_buffer.py]=1  # parse error
     [test_clinic.py]=1 # it fails on its own
     [test_cmath.py]=1 # control flow

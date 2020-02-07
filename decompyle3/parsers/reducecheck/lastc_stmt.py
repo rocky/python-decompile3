@@ -12,5 +12,4 @@ def lastc_stmt(
     # Otherwise this kind of stmt should flow through to the next.
     # However that larger, set of stmts could be a lastc_stmt, but come back
     # here with that lareger set of stmts.
-    return tokens[last] not in ("POP_BLOCK", "JUMP_BACK", "COME_FROM_LOOP")
-    return False
+    return tokens[last] not in ("POP_BLOCK", "JUMP_BACK", "COME_FROM_LOOP", "BREAK_LOOP")

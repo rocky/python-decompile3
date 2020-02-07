@@ -12,3 +12,4 @@ from decompyle3.parsers.reducecheck.tryelsestmtc3 import *
 from decompyle3.parsers.reducecheck.tryexcept import *
 from decompyle3.parsers.reducecheck.while1elsestmt import *
 from decompyle3.parsers.reducecheck.while1stmt import *
+from decompyle3.parsers.reducecheck.whilestmt import *

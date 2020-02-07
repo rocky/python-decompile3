@@ -19,6 +19,7 @@ from decompyle3.parsers.reducecheck import (
     or_check,
     testtrue,
     tryelsestmtc3,
+    whilestmt,
     while1stmt,
     while1elsestmt,
 )
@@ -1010,6 +1011,7 @@ class Python37BaseParser(PythonParser):
             "testfalsec": testtrue,
             "while1elsestmt": while1elsestmt,
             "while1stmt": while1stmt,
+            "whilestmt": whilestmt,
             "try_elsestmtc38": tryelsestmtc3,
         }
 
@@ -1018,6 +1020,7 @@ class Python37BaseParser(PythonParser):
         self.check_reduce["annotate_tuple"] = "noAST"
         self.check_reduce["aug_assign1"] = "AST"
         self.check_reduce["aug_assign2"] = "AST"
+        self.check_reduce["whilestmt"] = "noAST"
         self.check_reduce["while1stmt"] = "noAST"
         self.check_reduce["while1elsestmt"] = "noAST"
         self.check_reduce["ifstmts_jump"] = "AST"

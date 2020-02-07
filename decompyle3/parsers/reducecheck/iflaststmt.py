@@ -31,7 +31,7 @@ def iflaststmt(
                         # No good. This is probably an if/else instead.
                         return True
                     pass
-                elif tokens[last + 1] == "COME_FROM_LOOP":
+                elif tokens[last + 1] == "COME_FROM_LOOP" and tokens[last] != "BREAK_LOOP":
                     # iflastsmtc is not at the end of a loop, but jumped outside of loop. No good.
                     # FIXME: check that tokens[last] == "POP_BLOCK"? Or allow for it not to appear?
                     return True
