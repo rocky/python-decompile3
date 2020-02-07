@@ -60,6 +60,7 @@ def decompile(
     magic_int=None,
     mapstream=None,
     do_fragments=False,
+    compile_mode="exec",
 ) -> Any:
     """
     ingests and deparses a given code block 'co'
@@ -134,7 +135,7 @@ def decompile(
             else:
                 deparse_fn = code_deparse
             deparsed = deparse_fn(
-                co, out, bytecode_version, debug_opts=debug_opts, is_pypy=is_pypy
+                co, out, bytecode_version, debug_opts=debug_opts, is_pypy=is_pypy, compile_mode=compile_mode
             )
             pass
         return deparsed
@@ -216,6 +217,7 @@ def decompile_file(
                 magic_int=magic_int,
                 mapstream=mapstream,
                 do_fragments=do_fragments,
+                compile_mode="exec",
             )
         ]
     co = None

@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2019 Rocky Bernstein
+#  Copyright (c) 2017-2020 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ class Python38Parser(Python37Parser):
         stmt               ::= for38
         stmt               ::= forelsestmt38
         stmt               ::= forelselaststmt38
-        stmt               ::= forelselaststmtl38
+        stmt               ::= forelselaststmtc38
         stmt               ::= tryfinally38stmt
         stmt               ::= tryfinally38rstmt
         stmt               ::= tryfinally38astmt
@@ -84,13 +84,13 @@ class Python38Parser(Python37Parser):
         return             ::= ret_expr ROT_TWO POP_TOP RETURN_VALUE
 
         # 3.8 can push a looping JUMP_BACK into into a JUMP_ from a statement that jumps to it
-        lastl_stmt         ::= ifpoplaststmtl
-        ifpoplaststmtl     ::= testexpr POP_TOP c_stmts_opt
-        ifelsestmtl        ::= testexpr c_stmts_opt jb_cfs else_suitel JUMP_BACK come_froms
+        lastc_stmt         ::= ifpoplaststmtc
+        ifpoplaststmtc     ::= testexpr POP_TOP c_stmts_opt
+        ifelsestmtc        ::= testexpr c_stmts_opt jb_cfs else_suitec JUMP_BACK come_froms
 
-        # Keep indices the same in ifelsestmtl
+        # Keep indices the same in ifelsestmtc
         cf_pt              ::= COME_FROM POP_TOP
-        ifelsestmtl        ::= testexpr c_stmts cf_pt else_suite
+        ifelsestmtc        ::= testexpr c_stmts cf_pt else_suite
 
         for38              ::= expr get_iter store for_block JUMP_BACK
         for38              ::= expr get_for_iter store for_block JUMP_BACK
@@ -99,23 +99,23 @@ class Python38Parser(Python37Parser):
 
         forelsestmt38      ::= expr get_for_iter store for_block POP_BLOCK else_suite
         forelselaststmt38  ::= expr get_for_iter store for_block POP_BLOCK else_suitec
-        forelselaststmtl38 ::= expr get_for_iter store for_block POP_BLOCK else_suitel
+        forelselaststmtc38 ::= expr get_for_iter store for_block POP_BLOCK else_suitec
 
-        whilestmt38        ::= _come_froms testexpr l_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
-        whilestmt38        ::= _come_froms testexpr l_stmts_opt JUMP_BACK POP_BLOCK
-        whilestmt38        ::= _come_froms testexpr l_stmts_opt JUMP_BACK come_froms
+        whilestmt38        ::= _come_froms testexpr c_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
+        whilestmt38        ::= _come_froms testexpr c_stmts_opt JUMP_BACK POP_BLOCK
+        whilestmt38        ::= _come_froms testexpr c_stmts_opt JUMP_BACK come_froms
         whilestmt38        ::= _come_froms testexpr returns               POP_BLOCK
-        whilestmt38        ::= _come_froms testexpr l_stmts     JUMP_BACK
-        whilestmt38        ::= _come_froms testexpr l_stmts     come_froms
+        whilestmt38        ::= _come_froms testexpr c_stmts     JUMP_BACK
+        whilestmt38        ::= _come_froms testexpr c_stmts     come_froms
 
-        # while1elsestmt   ::=          l_stmts     JUMP_BACK
-        whileTruestmt      ::= _come_froms l_stmts              JUMP_BACK POP_BLOCK
-        while1stmt         ::= _come_froms l_stmts COME_FROM_LOOP
-        while1stmt         ::= _come_froms l_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
-        whileTruestmt38    ::= _come_froms l_stmts JUMP_BACK
-        whileTruestmt38    ::= _come_froms l_stmts JUMP_BACK COME_FROM_EXCEPT_CLAUSE
+        # while1elsestmt   ::=          c_stmts     JUMP_BACK
+        whileTruestmt      ::= _come_froms c_stmts              JUMP_BACK POP_BLOCK
+        while1stmt         ::= _come_froms c_stmts COME_FROM_LOOP
+        while1stmt         ::= _come_froms c_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
+        whileTruestmt38    ::= _come_froms c_stmts JUMP_BACK
+        whileTruestmt38    ::= _come_froms c_stmts JUMP_BACK COME_FROM_EXCEPT_CLAUSE
 
-        for_block          ::= _come_froms l_stmts_opt _come_from_loops JUMP_BACK
+        for_block          ::= _come_froms c_stmts_opt _come_from_loops JUMP_BACK
 
         except_cond1       ::= DUP_TOP expr COMPARE_OP jmp_false
                                POP_TOP POP_TOP POP_TOP
@@ -123,7 +123,7 @@ class Python38Parser(Python37Parser):
 
         try_elsestmtl38    ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
                                except_handler38 COME_FROM
-                               else_suitel opt_come_from_except
+                               else_suitec opt_come_from_except
         try_except         ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
                                except_handler38
         try_except38       ::= SETUP_FINALLY POP_BLOCK POP_TOP suite_stmts_opt
@@ -141,7 +141,7 @@ class Python38Parser(Python37Parser):
                                expr ROT_FOUR
                                POP_EXCEPT RETURN_VALUE END_FINALLY
 
-        except_handler38   ::= _jump COME_FROM_FINALLY
+        except_handler38   ::= jump COME_FROM_FINALLY
                                except_stmts END_FINALLY opt_come_from_except
         except_handler38a  ::= COME_FROM_FINALLY POP_TOP POP_TOP POP_TOP
                                POP_EXCEPT POP_TOP stmts END_FINALLY
@@ -149,26 +149,45 @@ class Python38Parser(Python37Parser):
         tryfinallystmt     ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
                                BEGIN_FINALLY COME_FROM_FINALLY suite_stmts_opt
                                END_FINALLY
+
+
+        lc_setup_finally   ::= LOAD_CONST SETUP_FINALLY
+        call_finally_pt    ::= CALL_FINALLY POP_TOP
+        cf_cf_finally      ::= come_from_opt COME_FROM_FINALLY
+        pop_finally_pt     ::= POP_FINALLY POP_TOP
+
+
+        tryfinally38rstmt  ::= lc_setup_finally POP_BLOCK call_finally_pt
+                               returns
+                               cf_cf_finally pop_finally_pt
+                               suite_stmts
+                               END_FINALLY POP_TOP
         tryfinally38rstmt  ::= SETUP_FINALLY POP_BLOCK CALL_FINALLY
                                returns
-                               COME_FROM_FINALLY END_FINALLY suite_stmts
+                               cf_cf_finally END_FINALLY
+                               suite_stmts
         tryfinally38rstmt  ::= SETUP_FINALLY POP_BLOCK CALL_FINALLY
                                returns
-                               COME_FROM_FINALLY POP_FINALLY returns
+                               cf_cf_finally POP_FINALLY
+                               suite_stmts
                                END_FINALLY
+        tryfinally38rstmt  ::= SETUP_FINALLY POP_BLOCK CALL_FINALLY
+                               returns
+                               COME_FROM_FINALLY POP_FINALLY
+                               suite_stmts
+                               END_FINALLY
+
         tryfinally38stmt   ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
                                BEGIN_FINALLY COME_FROM_FINALLY
                                POP_FINALLY suite_stmts_opt END_FINALLY
-        tryfinally38stmt   ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
-                               BEGIN_FINALLY COME_FROM_FINALLY
-                               POP_FINALLY suite_stmts_opt END_FINALLY
+
         tryfinally38astmt  ::= LOAD_CONST SETUP_FINALLY suite_stmts_opt POP_BLOCK
                                BEGIN_FINALLY COME_FROM_FINALLY
                                POP_FINALLY POP_TOP suite_stmts_opt END_FINALLY POP_TOP
         """
 
-    def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
-        super(Python38Parser, self).__init__(debug_parser)
+    def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG, compile_mode="exec"):
+        super(Python38Parser, self).__init__(debug_parser, compile_mode=compile_mode)
         self.customized = {}
 
     def remove_rules_38(self):
@@ -220,13 +239,13 @@ class Python38Parser(Python37Parser):
            for                ::= setup_loop expr get_for_iter store for_block POP_BLOCK
            for                ::= setup_loop expr get_for_iter store for_block POP_BLOCK NOP
 
-           for_block          ::= l_stmts_opt COME_FROM_LOOP JUMP_BACK
+           for_block          ::= c_stmts_opt COME_FROM_LOOP JUMP_BACK
            forelsestmt        ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suite
            forelselaststmt    ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suitec
-           forelselaststmtl   ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suitel
+           forelselaststmtc   ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suitec
 
-           tryelsestmtl3      ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                                  except_handler COME_FROM else_suitel
+           tryelsestmtc3      ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                                  except_handler COME_FROM else_suitec
                                   opt_come_from_except
            try_except         ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                                   except_handler opt_come_from_except

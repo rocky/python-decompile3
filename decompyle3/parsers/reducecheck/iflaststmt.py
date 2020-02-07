@@ -6,26 +6,35 @@ def iflaststmt(
 ) -> bool:
     testexpr = ast[0]
 
-    if testexpr[0] in ("testtrue", "testfalse"):
+    # FIXME: should this be done in the caller?
+    if tokens[last] == "RETURN_LAST":
+        last -= 1
+
+    if testexpr[0] in ("testtrue", "testtruec", "testfalse", "testfalsec"):
 
         test = testexpr[0]
         if len(test) > 1 and test[1].kind.startswith("jmp_"):
             if last == n:
                 last -= 1
             jmp_target = test[1][0].attr
-            if tokens[first].off2int() <= jmp_target < tokens[last].off2int():
+            first_offset = tokens[first].off2int()
+            if  first_offset <= jmp_target < tokens[last].off2int():
                 return True
             # jmp_target less than tokens[first] is okay - is to a loop
             # jmp_target equal tokens[last] is also okay: normal non-optimized non-loop jump
 
-            if (
-                (last + 1) < n
-                and tokens[last - 1] != "JUMP_BACK"
-                and tokens[last + 1] == "COME_FROM_LOOP"
-            ):
-                # iflastsmtl is not at the end of a loop, but jumped outside of loop. No good.
-                # FIXME: check that tokens[last] == "POP_BLOCK"? Or allow for it not to appear?
-                return True
+            if (last + 1) < n:
+                if tokens[last - 1] == "JUMP_BACK":
+                    if jmp_target > first_offset:
+                        # The end of the iflaststmt if test jumps backward to a loop
+                        # but the false branch of the "if" doesn't also jump back.
+                        # No good. This is probably an if/else instead.
+                        return True
+                    pass
+                elif tokens[last + 1] == "COME_FROM_LOOP" and tokens[last] != "BREAK_LOOP":
+                    # iflastsmtc is not at the end of a loop, but jumped outside of loop. No good.
+                    # FIXME: check that tokens[last] == "POP_BLOCK"? Or allow for it not to appear?
+                    return True
 
             # If the instruction before "first" is a "POP_JUMP_IF_FALSE" which goes
             # to the same target as jmp_target, then this not nested "if .. if .."
@@ -34,16 +43,15 @@ def iflaststmt(
                 return tokens[first - 1].attr == jmp_target
 
             if jmp_target > tokens[last].off2int():
+                if jmp_target == tokens[last - 1].attr:
+                    # if c1 [jump] jumps exactly the end of the iflaststmt...
+                    return False
                 # One more weird case to look out for
                 #   if c1:
                 #      if c2:  # Jumps around the *outer* "else"
                 #       ...
                 #   else:
-                if jmp_target == tokens[last - 1].attr:
-                    return False
-                if last < n and tokens[last].kind.startswith("JUMP"):
-                    return False
-                return True
+                return (lhs == "iflaststmtl" and last < n and tokens[last] == "JUMP_FORWARD")
 
         pass
     return False

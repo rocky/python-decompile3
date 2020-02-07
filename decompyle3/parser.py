@@ -59,13 +59,14 @@ class PythonParser(GenericASTBuilder):
             "importlist",
             "kvlist",
             "kwargs",
-            "l_stmts",
+
+            # FIXME:
+            # If we add c_stmts, we can miss adding a c_stmt,
+            # test_float.py test_set_format() is an example.
+            # Investigate
+            # "c_stmts",
+
             "stmts",
-            # Python < 3
-            "print_items",
-            # PyPy:
-            "imports_cont",
-            "kvlist_n",
             # Python 3.6+
             "come_from_loops",
             # Python 3.7+
@@ -84,7 +85,7 @@ class PythonParser(GenericASTBuilder):
         # singleton reduction that we can simplify. It also happens to be optional
         # in its other derivation
         self.optional_nt |= frozenset(
-            ("come_froms", "suite_stmts", "l_stmts_opt", "c_stmts_opt", "stmt")
+            ("come_froms", "suite_stmts", "c_stmts_opt", "stmt", "sstmt")
         )
 
         # Reduce singleton reductions in these nonterminals:
@@ -96,6 +97,11 @@ class PythonParser(GenericASTBuilder):
         )
         # Instructions filled in from scanner
         self.insts = []
+
+        # true if we are parsing inside a lambda expression.
+        # because a lambda expression are wrtten on a single line, certain line-oriented
+        # statements behave differently
+        self.is_lambda = False
 
     def ast_first_offset(self, ast):
         if hasattr(ast, "offset"):
@@ -265,9 +271,12 @@ class PythonParser(GenericASTBuilder):
         return GenericASTBuilder.resolve(self, list)
 
 
-def parse(p, tokens, customize):
+def parse(p, tokens, customize, is_lambda):
+    was_lambda = p.is_lambda
+    p.is_lambda = is_lambda
     p.customize_grammar_rules(tokens, customize)
     ast = p.parse(tokens)
+    p.is_lambda = was_lambda
     #  p.cleanup()
     return ast
 
@@ -299,14 +308,14 @@ def get_python_parser(
         if compile_mode == "exec":
             p = parse37.Python37Parser(debug_parser)
         else:
-            p = parse37.Python37ParserSingle(debug_parser)
+            p = parse37.Python37ParserSingle(debug_parser, compile_mode=compile_mode)
     elif version == 3.8:
         import decompyle3.parsers.parse38 as parse38
 
         if compile_mode == "exec":
             p = parse38.Python38Parser(debug_parser)
         else:
-            p = parse38.Python38ParserSingle(debug_parser)
+            p = parse38.Python38ParserSingle(debug_parser, compile_mode=compile_mode)
 
     p.version = version
     # p.dump_grammar() # debug
@@ -330,6 +339,7 @@ def python_parser(
     showasm=False,
     parser_debug=PARSER_DEFAULT_DEBUG,
     is_pypy=False,
+    is_lambda=False
 ):
     """
     Parse a code object to an abstract syntax tree representation.
@@ -356,7 +366,7 @@ def python_parser(
     # parser_debug = {'rules': True, 'transition': True, 'reduce' : True,
     #                 'showstack': 'full'}
     p = get_python_parser(version, parser_debug)
-    return parse(p, tokens, customize)
+    return parse(p, tokens, customize, is_lambda)
 
 
 if __name__ == "__main__":

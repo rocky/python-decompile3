@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 by Rocky Bernstein
+#  Copyright (c) 2019-2020 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ def customize_for_version38(self, version):
 
     # FIXME: pytest doesn't add proper keys in testing. Reinstate after we have fixed pytest.
     # for lhs in 'for forelsestmt forelselaststmt '
-    #             'forelselaststmtl tryfinally38'.split():
+    #             'forelselaststmtc tryfinally38'.split():
     #     del TABLE_DIRECT[lhs]
 
     TABLE_DIRECT.update({
@@ -74,7 +74,7 @@ def customize_for_version38(self, version):
             (2, 'store'),
             (0, 'expr'),
             (3, 'for_block'), -2 ),
-        'forelselaststmtl38':	(
+        'forelselaststmtc38':	(
             '%|for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n',
             (2, 'store'),
             (0, 'expr'),
@@ -86,14 +86,14 @@ def customize_for_version38(self, version):
 
         'whilestmt38': ( '%|while %c:\n%+%c%-\n\n',
                          (1, 'testexpr'),
-                         2 ), # "l_stmts" or "pass"
+                         2 ), # "c_stmts" or "pass"
         'whileTruestmt38': ( '%|while True:\n%+%c%-\n\n',
-                             1 ), # "l_stmts" or "pass"
+                             1 ), # "c_stmts" or "pass"
         'try_elsestmtl38': (
             '%|try:\n%+%c%-%c%|else:\n%+%c%-',
             (1, 'suite_stmts_opt'),
             (3, 'except_handler38'),
-            (5, 'else_suitel') ),
+            (5, 'else_suitec') ),
         'try_except38': (
             '%|try:\n%+%c\n%-%|except:\n%|%-%c\n\n',
                    (-2, 'suite_stmts_opt'), (-1, 'except_handler38a') ),

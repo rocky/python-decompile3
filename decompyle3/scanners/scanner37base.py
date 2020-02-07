@@ -446,17 +446,24 @@ class Scanner37Base(Scanner):
                 opname = "%s_%d+%d" % (opname, before_args, after_args)
 
             elif op == self.opc.JUMP_ABSOLUTE:
-                # Further classify JUMP_ABSOLUTE into backward jumps
-                # which are used in loops, and "CONTINUE" jumps which
-                # may appear in a "continue" statement.  The loop-type
-                # and continue-type jumps will help us classify loop
-                # boundaries The continue-type jumps help us get
-                # "continue" statements with would otherwise be turned
-                # into a "pass" statement because JUMPs are sometimes
-                # ignored in rules as just boundary overhead. In
-                # comprehensions we might sometimes classify JUMP_BACK
-                # as CONTINUE, but that's okay since we add a grammar
-                # rule for that.
+                #  Refine JUMP_ABSOLUTE further in into:
+                #
+                # * "JUMP_BACK"    - which are are used in loops. This is sometimes
+                #                   found at the end of a looping construct
+                # * "BREAK_LOOP"  - which are are used to break loops.
+                # * "CONTINUE"    - jumps which may appear in a "continue" statement.
+                #                   It is okay to confuse this with JUMP_BACK. The
+                #                   grammar should tolerate this.
+                # * "JUMP_FORWARD - forward jumps that are not BREAK_LOOP jumps.
+                #
+                # The loop-type and continue-type jumps will help us
+                # classify loop boundaries The continue-type jumps
+                # help us get "continue" statements with would
+                # otherwise be turned into a "pass" statement because
+                # JUMPs are sometimes ignored in rules as just
+                # boundary overhead. Again, in comprehensions we might
+                # sometimes classify JUMP_BACK as CONTINUE, but that's
+                # okay since grammar rules should tolerate that.
                 pattr = argval
                 target = self.get_target(inst.offset)
                 if target <= inst.offset:
@@ -498,6 +505,9 @@ class Scanner37Base(Scanner):
                     if last_op_was_break and opname == "CONTINUE":
                         last_op_was_break = False
                         continue
+                    pass
+                else:
+                    opname = "JUMP_FORWARD"
 
             elif inst.offset in self.load_asserts:
                 opname = "LOAD_ASSERT"
@@ -543,7 +553,7 @@ class Scanner37Base(Scanner):
         self.loops: List[int] = []
 
         # Map fixed jumps to their real destination
-        self.fixed_jumps = {}
+        self.fixed_jumps: Dict[int, int] = {}
         self.except_targets = {}
         self.ignore_if = set()
         self.build_statement_indices()

@@ -23,14 +23,14 @@ from decompyle3.scanners.tok import NoneToken, Token
 from decompyle3.semantics.consts import RETURN_NONE
 
 
-def is_docstring(node):
+def is_docstring(node) -> bool:
     try:
-        return node[0].kind == "assign" and node[0][1][0].pattr == "__doc__"
+        return node.kind == "assign" and node[1][0].pattr == "__doc__"
     except:
         return False
 
 
-def is_not_docstring(call_stmt_node):
+def is_not_docstring(call_stmt_node) -> bool:
     try:
         return (
             call_stmt_node == "call_stmt"
@@ -104,44 +104,53 @@ class TreeTransform(GenericASTTraversal, object):
         return node
 
     def n_ifstmt(self, node):
-        """Here we check if we can turn an `ifstmt` or 'iflaststmtl` into
+        """Here we check if we can turn an `ifstmt` or 'iflaststmtc` into
            some kind of `assert` statement"""
 
         testexpr = node[0]
 
-        if testexpr != "testexpr":
+        if testexpr not in ("testexpr", "testexprc"):
             return node
 
-        if node.kind in ("ifstmt", "ifstmtl"):
+        if node.kind in ("ifstmt", "ifstmtc"):
             ifstmts_jump = node[1]
 
-            if ifstmts_jump == "_ifstmts_jumpl" and ifstmts_jump[0] == "_ifstmts_jump":
+            if ifstmts_jump == "ifstmts_jumpc" and ifstmts_jump[0] == "ifstmts_jump":
                 ifstmts_jump = ifstmts_jump[0]
-            elif ifstmts_jump not in ("_ifstmts_jump", "ifstmts_jumpl"):
+            elif ifstmts_jump not in ("ifstmts_jump", "ifstmts_jumpc"):
                 return node
             stmts = ifstmts_jump[0]
         else:
-            # iflaststmtl works this way
+            # iflaststmtc works this way
             stmts = node[1]
 
-        if stmts in ("c_stmts",) and len(stmts) == 1:
-            stmt = stmts[0]
-            raise_stmt = stmt[0]
+        if stmts in ("c_stmts", "stmts") and len(stmts) == 1:
+            raise_stmt = stmts[0]
+            if raise_stmt != "raise_stmt1":
+                raise_stmt = raise_stmt[0]
+
             testtrue_or_false = testexpr[0]
             if (
                 raise_stmt == "raise_stmt1"
                 and 1 <= len(testtrue_or_false) <= 2
                 and raise_stmt.first_child().pattr == "AssertionError"
             ):
-                if testtrue_or_false == "testtrue":
+                if testtrue_or_false in ("testtrue", "testtruec"):
                     # Skip over the testtrue because because it would
                     # produce a "not" and we don't want that here.
                     assert_expr = testtrue_or_false[0]
                     jump_cond = NoneToken
                 else:
+                    assert testtrue_or_false in ("testfalse", "testfalsec")
                     assert_expr = testtrue_or_false[0]
+                    if assert_expr in ("testfalse_not_and", "and_not"):
+                        # FIXME: come back to stuff like this
+                        return node
+
                     jump_cond = testtrue_or_false[1]
                     assert_expr.kind = "assert_expr"
+                    pass
+
                 expr = raise_stmt[0]
                 RAISE_VARARGS_1 = raise_stmt[1]
                 call = expr[0]
@@ -168,7 +177,7 @@ class TreeTransform(GenericASTTraversal, object):
                         kind = "assert2not"
 
                     LOAD_ASSERT = call[0].first_child()
-                    if LOAD_ASSERT != "LOAD_ASSERT":
+                    if LOAD_ASSERT not in ( "LOAD_ASSERT", "LOAD_GLOBAL"):
                         return node
                     if isinstance(call[1], SyntaxTree):
                         expr = call[1][0]
@@ -214,7 +223,7 @@ class TreeTransform(GenericASTTraversal, object):
             pass
         return node
 
-    n_ifstmtl = n_iflaststmtl = n_ifstmt
+    n_ifstmtc = n_iflaststmtc = n_ifstmt
 
     # preprocess is used for handling chains of
     # if elif elif
@@ -237,26 +246,26 @@ class TreeTransform(GenericASTTraversal, object):
 
         where appropriate.
         """
+
         else_suite = node[3]
 
         n = else_suite[0]
         old_stmts = None
         else_suite_index = 1
 
-        if len(n) == 1 == len(n[0]) and n[0] == "stmt":
+        if len(n) == 1 == len(n[0]) and n[0] in ("stmt", "stmts"):
             n = n[0][0]
-        elif n[0].kind in ("lastc_stmt", "lastl_stmt"):
+        elif n[0].kind in ("lastc_stmt",):
             n = n[0]
             if n[0].kind in (
                 "ifstmt",
                 "iflaststmt",
-                "iflaststmtl",
-                "ifelsestmtl",
+                "iflaststmtc",
                 "ifelsestmtc",
-                "ifpoplaststmtl",
+                "ifpoplaststmtc",
             ):
                 n = n[0]
-                if n.kind == "ifpoplaststmtl":
+                if n.kind == "ifpoplaststmtc":
                     old_stmts = n[2]
                     else_suite_index = 2
                 pass
@@ -269,25 +278,27 @@ class TreeTransform(GenericASTTraversal, object):
             and n[1].kind == "stmt"
         ):
             else_suite_stmts = n[0]
-            if else_suite_stmts[0].kind not in ("ifstmt", "iflaststmt", "ifelsestmtl",):
+            if else_suite_stmts[0].kind not in ("ifstmt", "iflaststmt", "ifelsestmtc",):
                 return node
             old_stmts = n
             n = else_suite_stmts[0]
         else:
             return node
 
-        if n.kind in ("ifstmt", "iflaststmt", "iflaststmtl", "ifpoplaststmtl"):
+        if n.kind == "last_stmt":
+            n = n[0]
+        if n.kind in ("ifstmt", "iflaststmt", "iflaststmtc", "ifpoplaststmtc"):
             node.kind = "ifelifstmt"
             n.kind = "elifstmt"
         elif n.kind in ("ifelsestmtr",):
             node.kind = "ifelifstmt"
             n.kind = "elifelsestmtr"
-        elif n.kind in ("ifelsestmt", "ifelsestmtc", "ifelsestmtl"):
+        elif n.kind in ("ifelsestmt", "ifelsestmtc", "ifelsestmtc"):
             node.kind = "ifelifstmt"
             self.n_ifelsestmt(n, preprocess=True)
             if n == "ifelifstmt":
                 n.kind = "elifelifstmt"
-            elif n.kind in ("ifelsestmt", "ifelsestmtc", "ifelsestmtl"):
+            elif n.kind in ("ifelsestmt", "ifelsestmtc"):
                 n.kind = "elifelsestmt"
         if not preprocess:
             if old_stmts:
@@ -311,7 +322,7 @@ class TreeTransform(GenericASTTraversal, object):
                 pass
             return node
 
-    n_ifelsestmtc = n_ifelsestmtl = n_ifelsestmt
+    n_ifelsestmtc = n_ifelsestmt
 
     def n_import_from37(self, node):
         importlist37 = node[3]
@@ -350,10 +361,10 @@ class TreeTransform(GenericASTTraversal, object):
 
     def n_stmts(self, node):
         if node.first_child() == "SETUP_ANNOTATIONS":
-            prev = node[0][0]
+            prev = node[0]
             new_stmts = [node[0]]
             for i, sstmt in enumerate(node[1:]):
-                ann_assign = sstmt[0][0]
+                ann_assign = sstmt[0]
                 if (
                     sstmt[0] == "stmt"
                     and ann_assign == "ann_assign"
@@ -389,7 +400,7 @@ class TreeTransform(GenericASTTraversal, object):
             # Disambiguate a string (expression) which appears as a "call_stmt" at
             # the beginning of a function versus a docstring. Seems pretty academic,
             # but this is Python.
-            call_stmt = ast[0][0][0]
+            call_stmt = ast[0][0]
             if is_not_docstring(call_stmt):
                 call_stmt.kind = "string_at_beginning"
                 call_stmt.transformed_by = "transform"
@@ -407,7 +418,8 @@ class TreeTransform(GenericASTTraversal, object):
                                 "LOAD_STR",
                                 has_arg=True,
                                 offset=0,
-                                pattr=self.ast[i][0][0][0].attr,
+                                attr=self.ast[i][0][0].attr,
+                                pattr=self.ast[i][0][0].pattr,
                             )
                         ],
                         transformed_by="transform",

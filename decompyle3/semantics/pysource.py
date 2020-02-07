@@ -154,7 +154,6 @@ from decompyle3.scanners.tok import Token
 
 from decompyle3.semantics.consts import (
     LINE_LENGTH,
-    RETURN_LOCALS,
     NONE,
     RETURN_NONE,
     PASS,
@@ -235,6 +234,12 @@ class SourceWalker(GenericASTTraversal, object):
             compile_mode=compile_mode,
             is_pypy=is_pypy,
         )
+        self.p_lambda = get_python_parser(
+            version,
+            debug_parser=dict(debug_parser),
+            compile_mode="eval",
+            is_pypy=is_pypy,
+        )
 
         self.treeTransform = TreeTransform(showast)
         self.debug_parser = dict(debug_parser)
@@ -254,6 +259,7 @@ class SourceWalker(GenericASTTraversal, object):
         # FIXME: have p.insts update in a better way
         # modularity is broken here
         self.p.insts = scanner.insts
+        self.offset2inst_index = scanner.offset2inst_index
 
         # This is in Python 2.6 on. It changes the way
         # strings get interpreted. See n_LOAD_CONST
@@ -473,7 +479,6 @@ class SourceWalker(GenericASTTraversal, object):
     def n_return_lambda(self, node):
         if 1 <= len(node) <= 2:
             self.preorder(node[0])
-            self.write(" # Avoid dead code: ")
             self.prune()
         else:
             # We can't comment out like above because there may be a trailing ')'
@@ -677,26 +682,6 @@ class SourceWalker(GenericASTTraversal, object):
 
     n_store_subscript = n_subscript = n_delete_subscript
 
-    # Note: this node is only in Python 2.x
-    # FIXME: figure out how to get this into customization
-    # put so that we can get access via super from
-    # the fragments routine.
-    def n_exec_stmt(self, node):
-        """
-        exec_stmt ::= expr exprlist DUP_TOP EXEC_STMT
-        exec_stmt ::= expr exprlist EXEC_STMT
-        """
-        self.write(self.indent, "exec ")
-        self.preorder(node[0])
-        if not node[1][0].isNone():
-            sep = " in "
-            for subnode in node[1]:
-                self.write(sep)
-                sep = ", "
-                self.preorder(subnode)
-        self.println()
-        self.prune()  # stop recursing
-
     def n_ifelsestmtr(self, node):
         if node[2] == "COME_FROM":
             return_stmts_node = node[3]
@@ -837,7 +822,9 @@ class SourceWalker(GenericASTTraversal, object):
     def n_docstring(self, node):
 
         indent = self.indent
-        docstring = node[0].pattr
+        doc_node = node[0]
+        docstring = doc_node.attr if doc_node.attr else node[0].pattr
+
 
         quote = '"""'
         if docstring.find(quote) >= 0:
@@ -852,7 +839,7 @@ class SourceWalker(GenericASTTraversal, object):
                                 ('\\n', '\n'),
                                 ('\\r', '\n'),
                                 ('\\"', '"'),
-                                ("\\'", "'")):
+                                ("\\'", "\'")):
             docstring = docstring.replace(orig, replace)
 
         # Do a raw string if there are backslashes but no other escaped characters:
@@ -1141,7 +1128,6 @@ class SourceWalker(GenericASTTraversal, object):
 
         # Python 2.7+ starts including set_comp_body
         # Python 3.5+ starts including set_comp_func
-        # Python 3.0  is yet another snowflake
         assert store, "Couldn't find store in list/set comprehension"
 
         # A problem created with later Python code generation is that there
@@ -1988,69 +1974,46 @@ class SourceWalker(GenericASTTraversal, object):
         indent = self.indent
         # self.println(indent, '#flags:\t', int(code.co_flags))
         ast = self.build_ast(code._tokens, code._customize)
-        code._tokens = None  # save memory
-        assert ast == "stmts"
 
+        # save memory by deleting no-longer-used structures
+        code._tokens = None
+
+        assert ast == "stmts"
 
         if ast[0] == "docstring":
             self.println(self.traverse(ast[0]))
             del ast[0]
 
-        first_stmt = ast[0][0]
+        first_stmt = ast[0]
         try:
             if first_stmt == NAME_MODULE:
                 if self.hide_internal:
                     del ast[0]
-                    first_stmt = ast[0][0]
+                    first_stmt = ast[0]
             pass
         except:
             pass
 
         have_qualname = False
-        if self.version < 3.0:
-            # Should we ditch this in favor of the "else" case?
-            qualname = ".".join(self.classes)
-            QUAL_NAME = SyntaxTree(
-                "stmt",
-                [
-                    SyntaxTree(
-                        "assign",
-                        [
-                            SyntaxTree("expr", [Token("LOAD_CONST", pattr=qualname)]),
-                            SyntaxTree(
-                                "store", [Token("STORE_NAME", pattr="__qualname__")]
-                            ),
-                        ],
-                    )
-                ],
-            )
-            have_qualname = ast[0][0] == QUAL_NAME
-        else:
-            # Python 3.4+ has constants like 'cmp_to_key.<locals>.K'
-            # which are not simple classes like the < 3 case.
-            try:
-                if (
-                    first_stmt[0] == "assign"
-                    and first_stmt[0][0][0] == "LOAD_STR"
-                    and first_stmt[0][1] == "store"
-                    and first_stmt[0][1][0] == Token("STORE_NAME", pattr="__qualname__")
-                ):
-                    have_qualname = True
-            except:
-                pass
+
+        # Python 3.4+ has constants like 'cmp_to_key.<locals>.K'
+        # which are not simple classes like the < 3 case.
+
+        try:
+            if (
+                first_stmt == "assign"
+                and first_stmt[0][0] == "LOAD_STR"
+                and first_stmt[1] == "store"
+                and first_stmt[1][0] == Token("STORE_NAME", pattr="__qualname__")
+            ):
+                have_qualname = True
+        except:
+            pass
 
         if have_qualname:
             if self.hide_internal:
                 del ast[0]
             pass
-
-        # the function defining a class normally returns locals(); we
-        # don't want this to show up in the source, thus remove the node
-        if len(ast) > 0 and ast[-1][0] == RETURN_LOCALS:
-            if self.hide_internal:
-                del ast[-1]  # remove last node
-        # else:
-        #    print ast[-1][-1]
 
         globals, nonlocals = find_globals_and_nonlocals(
             ast, set(), set(), code, self.version
@@ -2066,8 +2029,11 @@ class SourceWalker(GenericASTTraversal, object):
         old_name = self.name
         self.gen_source(ast, code.co_name, code._customize)
         self.name = old_name
+
+        # save memory by deleting no-longer-used structures
         code._tokens = None
-        code._customize = None  # save memory
+        code._customize = None
+
         self.classes.pop(-1)
 
     def gen_source(self, ast, name, customize, is_lambda=False, returnNone=False):
@@ -2108,10 +2074,12 @@ class SourceWalker(GenericASTTraversal, object):
                 # FIXME: have p.insts update in a better way
                 # modularity is broken here
                 p_insts = self.p.insts
-                self.p.insts = self.scanner.insts
-                ast = python_parser.parse(self.p, tokens, customize)
+                p = self.p_lambda if is_lambda else self.p
+                p.insts = self.scanner.insts
+                p.offset2inst_index = self.scanner.offset2inst_index
+                ast = python_parser.parse(p, tokens, customize, is_lambda)
                 self.customize(customize)
-                self.p.insts = p_insts
+                p.insts = p_insts
             except (python_parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens)
             transform_ast = self.treeTransform.transform(ast)
@@ -2144,8 +2112,9 @@ class SourceWalker(GenericASTTraversal, object):
             # modularity is broken here
             p_insts = self.p.insts
             self.p.insts = self.scanner.insts
+            self.p.offset2inst_index = self.scanner.offset2inst_index
             self.p.opc = self.scanner.opc
-            ast = python_parser.parse(self.p, tokens, customize)
+            ast = python_parser.parse(self.p, tokens, customize, is_lambda=is_lambda)
             self.p.insts = p_insts
         except (python_parser.ParserError, AssertionError) as e:
             raise ParserError(e, tokens)

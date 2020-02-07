@@ -9,23 +9,35 @@ from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
 from decompyle3.parsers.reducecheck import (
     and_check,
+    and_not_check,
+    if_and_stmt,
     ifelsestmt,
     iflaststmt,
     ifstmt,
     ifstmts_jump,
+    lastc_stmt,
     or_check,
     testtrue,
-    tryelsestmtl3,
+    tryelsestmtc3,
+    whilestmt,
     while1stmt,
     while1elsestmt,
 )
 
 
 class Python37BaseParser(PythonParser):
-    def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
+    def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG, compile_mode="exec"):
         self.added_rules = set()
+        # FIXME: Not sure if start symbol is correct for "single"
+        if compile_mode in ("exec", "single"):
+            start_symbol = "stmts"
+        # FIXME: "eval" should be "lambda"
+        elif compile_mode == "eval":
+            start_symbol = "lambda_start"
+        else:
+            raise f'compile_mode should be either "exec" or "eval"; got {compile_mode}'
         super(Python37BaseParser, self).__init__(
-            SyntaxTree, "stmts", debug=debug_parser
+            SyntaxTree, start_symbol, debug=debug_parser
         )
         self.new_rules = set()
 
@@ -159,13 +171,6 @@ class Python37BaseParser(PythonParser):
               stmt ::= assign2_pypy
               assign3_pypy       ::= expr expr expr store store store
               assign2_pypy       ::= expr expr store store
-              stmt               ::= if_expr_lambda
-              stmt               ::= conditional_not_lambda
-              if_expr_lambda     ::= expr jmp_false expr return_if_lambda
-                                     return_lambda LAMBDA_MARKER
-              conditional_not_lambda
-                                 ::= expr jmp_true expr return_if_lambda
-                                     return_lambda LAMBDA_MARKER
               """,
                 nop_func,
             )
@@ -906,12 +911,12 @@ class Python37BaseParser(PythonParser):
                     tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                                        except_handler else_suite come_froms
 
-                    tryelsestmtl   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                                       except_handler else_suitel come_from_except_clauses
+                    tryelsestmtc   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                                       except_handler else_suitec come_from_except_clauses
 
-                    stmt             ::= tryelsestmtl3
-                    tryelsestmtl3    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                                         except_handler COME_FROM else_suitel
+                    stmt             ::= tryelsestmtc3
+                    tryelsestmtc3    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                                         except_handler COME_FROM else_suitec
                                          opt_come_from_except
                     """,
                     nop_func,
@@ -990,37 +995,48 @@ class Python37BaseParser(PythonParser):
             pass
 
         self.reduce_check_table = {
-            "_ifstmts_jump": ifstmts_jump,
+            "ifstmts_jump": ifstmts_jump,
             "and": and_check,
+            "and_not": and_not_check,
+            "if_and_stmt": if_and_stmt,
             "ifelsestmt": ifelsestmt,
+            "ifelsestmtc": ifelsestmt,
             "iflaststmt": iflaststmt,
-            "iflaststmtl": iflaststmt,
+            "iflaststmtc": iflaststmt,
             "ifstmt": ifstmt,
-            "ifstmtl": ifstmt,
+            "ifstmtc": ifstmt,
+            "lastc_stmt": lastc_stmt,
             "or": or_check,
             "testtrue": testtrue,
-            "testfalsel": testtrue,
+            "testfalsec": testtrue,
             "while1elsestmt": while1elsestmt,
             "while1stmt": while1stmt,
-            "try_elsestmtl38": tryelsestmtl3,
+            "whilestmt": whilestmt,
+            "try_elsestmtc38": tryelsestmtc3,
         }
 
         self.check_reduce["and"] = "AST"
+        self.check_reduce["and_not"] = "AST"
         self.check_reduce["annotate_tuple"] = "noAST"
         self.check_reduce["aug_assign1"] = "AST"
         self.check_reduce["aug_assign2"] = "AST"
+        self.check_reduce["whilestmt"] = "noAST"
         self.check_reduce["while1stmt"] = "noAST"
         self.check_reduce["while1elsestmt"] = "noAST"
-        self.check_reduce["_ifstmts_jump"] = "AST"
+        self.check_reduce["ifstmts_jump"] = "AST"
+        self.check_reduce["ifstmts_jumpc"] = "AST"
         self.check_reduce["ifelsestmt"] = "AST"
+        self.check_reduce["ifelsestmtc"] = "AST"
         self.check_reduce["iflaststmt"] = "AST"
-        self.check_reduce["iflaststmtl"] = "AST"
+        self.check_reduce["iflaststmtc"] = "AST"
         self.check_reduce["ifstmt"] = "AST"
-        self.check_reduce["ifstmtl"] = "AST"
+        self.check_reduce["if_and_stmt"] = "AST"
+        self.check_reduce["ifstmtc"] = "AST"
         self.check_reduce["import_from37"] = "AST"
+        self.check_reduce["lastc_stmt"] = "tokens"
         self.check_reduce["or"] = "AST"
         self.check_reduce["testtrue"] = "tokens"
-        self.check_reduce["testfalsel"] = "tokens"
+        self.check_reduce["testfalsec"] = "tokens"
         return
 
     def custom_classfunc_rule(self, opname, token, customize, next_token):

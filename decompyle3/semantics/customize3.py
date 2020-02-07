@@ -28,7 +28,7 @@ def customize_for_version3(self, version):
     TABLE_DIRECT.update(
         {
             "comp_for": (" for %c in %c", (2, "store"), (0, "expr")),
-            "conditionalnot": (
+            "if_exp_not": (
                 "%c if not %c else %c",
                 (2, "expr"),
                 (0, "expr"),
@@ -42,7 +42,7 @@ def customize_for_version3(self, version):
             "importmultiple": ("%|import %c%c\n", 2, 3),
             "import_cont": (", %c", 2),
             "raise_stmt2": ("%|raise %c from %c\n", 0, 1),
-            "tf_tryelsestmtl3": ( '%c%-%c%|else:\n%+%c', 1, 3, 5 ),
+            "tf_tryelsestmtc3": ( '%c%-%c%|else:\n%+%c', 1, 3, 5 ),
             "store_locals": ("%|# inspect.currentframe().f_locals = __locals__\n",),
             "withstmt": ("%|with %c:\n%+%c%-", 0, 3),
             "withasstmt": ("%|with %c as %c:\n%+%c%-", 0, 2, 3),
@@ -64,8 +64,8 @@ def customize_for_version3(self, version):
             if try_something == "try_except":
                 try_something.kind = "tf_try_except"
             if try_something.kind.startswith("tryelsestmt"):
-                if try_something == "tryelsestmtl3":
-                    try_something.kind = 'tf_tryelsestmtl3'
+                if try_something == "tryelsestmtc3":
+                    try_something.kind = 'tf_tryelsestmtc3'
                 else:
                     try_something.kind = 'tf_tryelsestmt'
         self.default(node)
@@ -179,11 +179,11 @@ def customize_for_version3(self, version):
 
     TABLE_DIRECT.update(
         {
-            "tryelsestmtl3": (
+            "tryelsestmtc3": (
                 "%|try:\n%+%c%-%c%|else:\n%+%c%-",
                 (1, "suite_stmts_opt"),
                 (3, "except_handler"),
-                (5, "else_suitel"),
+                (5, "else_suitec"),
             ),
             "LOAD_CLASSDEREF": ("%{pattr}",),
         }

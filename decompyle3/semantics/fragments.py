@@ -134,7 +134,7 @@ TABLE_DIRECT_FRAGMENT = {
         4,
         -2,
     ),
-    "forelselaststmtl": (
+    "forelselaststmtc": (
         "%|for%b %c%x in %c:\n%+%c%-%|else:\n%+%c%-\n\n",
         0,
         (3, "store"),
@@ -466,20 +466,6 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.prune()
 
     n_LOAD_STR = n_LOAD_CONST
-
-    def n_exec_stmt(self, node):
-        """
-        exec_stmt ::= expr exprlist DUP_TOP EXEC_STMT
-        exec_stmt ::= expr exprlist EXEC_STMT
-        """
-        start = len(self.f.getvalue()) + len(self.indent)
-        try:
-            super(FragmentsWalker, self).n_exec_stmt(node)
-        except GenericASTTraversalPruningException:
-            pass
-        self.set_pos_info(node, start, len(self.f.getvalue()))
-        self.set_pos_info(node[-1], start, len(self.f.getvalue()))
-        self.prune()  # stop recursing
 
     def n_ifelsestmtr(self, node):
         if node[2] == "COME_FROM":
@@ -974,15 +960,6 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.write("]")
         self.prune()
 
-    def n__ifstmts_jump_exit(self, node):
-        if len(node) > 1:
-            if (
-                node[0] == "c_stmts_opt"
-                and node[0][0] == "pass"
-                and node[1].kind.startswith("JUMP_FORWARD")
-            ):
-                self.set_pos_info(node[1], node[0][0].start, node[0][0].finish)
-
     def setcomprehension_walk3(self, node, collection_index):
         """Set comprehensions the way they are done in Python3.
         They're more other comprehensions, e.g. set comprehensions
@@ -1162,12 +1139,20 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 # modularity is broken here
                 p_insts = self.p.insts
                 self.p.insts = self.scanner.insts
-                ast = python_parser.parse(self.p, tokens, customize)
+                self.p.offset2inst_index = self.scanner.offset2inst_index
+                ast = python_parser.parse(self.p, tokens, customize, is_lambda)
                 self.p.insts = p_insts
             except (python_parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens)
+
+            ## FIXME: So as not to remove tokens with offsets,
+            ## remove this phase until we have a chance to go over,
+            # transform_ast = self.treeTransform.transform(ast)
             maybe_show_tree(self, ast)
             return ast
+            # del ast # Save memory
+            # return transform_ast
+
 
         # The bytecode for the end of the main routine has a
         # "return None". However you can't issue a "return" statement in

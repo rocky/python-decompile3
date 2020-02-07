@@ -1,5 +1,5 @@
 import sys
-from decompyle3.scanners.tok import NoneToken
+from decompyle3.scanners.tok import NoneToken, Token
 from spark_parser.ast import AST as spark_AST
 
 intern = sys.intern
@@ -55,12 +55,15 @@ class SyntaxTree(spark_AST):
         return rv
 
     def first_child(self):
-        if len(self) > 0:
-            child = self[0]
-            if not isinstance(child, SyntaxTree):
+        for child in self:
+            if isinstance(child, Token):
                 return child
-            return child.first_child()
-        return self
+            if child is not None:
+                child = child.first_child()
+                if isinstance(child, Token):
+                    return child
+                pass
+        return None
 
     def last_child(self):
         if len(self) > 0:
