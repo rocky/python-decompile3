@@ -1860,10 +1860,10 @@ def code_deparse(
     co,
     out=StringIO(),
     version=None,
-    is_pypy=None,
     debug_opts=DEFAULT_DEBUG_OPTS,
     code_objects={},
     compile_mode="exec",
+    is_pypy=None,
     walker=FragmentsWalker,
 ):
     """

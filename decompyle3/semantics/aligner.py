@@ -15,7 +15,6 @@
 
 import sys
 from decompyle3.semantics.consts import ASSIGN_DOC_STRING, RETURN_NONE
-from decompyle3.semantics.helper import find_locals
 from decompyle3.semantics.pysource import SourceWalker, SourceWalkerError
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
