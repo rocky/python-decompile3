@@ -670,6 +670,9 @@ class Python37Parser(Python37BaseParser):
         jf_cfs                     ::= JUMP_FORWARD _come_froms
         ifelsestmt                 ::= testexpr
                                        stmts_opt jf_cfs else_suite opt_come_from_except
+        if_and_elsestmtc           ::= expr POP_JUMP_IF_FALSE
+                                       expr POP_JUMP_IF_FALSE
+                                       c_stmts jb_cfs else_suitec opt_come_from_except
         if_or_elsestmt             ::= expr jmp_true
                                        come_from_opt expr POP_JUMP_IF_FALSE come_froms
                                        stmts jf_cfs else_suite opt_come_from_except
@@ -1043,6 +1046,7 @@ class Python37Parser(Python37BaseParser):
         """
         # If statement inside a loop:
         cstmt              ::= ifstmtc
+        cstmt              ::= if_and_elsestmtc
 
         if_exp_lambda      ::= expr jmp_false expr return_if_lambda
                                return_stmt_lambda

@@ -102,10 +102,12 @@ def ifelsestmt(
         else_suite = ast[3]
         assert else_suite in ("else_suite", "else_suitec")
 
-        if else_suite == "else_suitec" and ast[2] in ("jb_elsec", "jbcfs"):
+        if else_suite == "else_suitec" and ast[2] in ("jb_elsec", "jb_cfs"):
             stmts = ast[1]
             jb_else = ast[2]
             come_from = jb_else[-1]
+            if come_from == "come_froms":
+                come_from = come_from[-1]
             assert come_from == "COME_FROM"
             if come_from.attr > stmts.first_child().off2int():
                 return True
@@ -126,6 +128,16 @@ def ifelsestmt(
             # FIXME: the below logic for jf_cfs could probably be
             # simplified.
             jump_else_end = ast[2]
+            if jump_else_end == "jf_cf_pop":
+                jump_else_end = jump_else_end[0]
+
+            jump_to_jump = False
+            if jump_else_end == "JUMP_FORWARD":
+                jump_to_jump = True
+                endif_target = int(jump_else_end.pattr)
+                last_offset = tokens[last].off2int()
+                if endif_target != last_offset:
+                    return True
             last_offset = tokens[last].off2int(prefer_last=False)
             if jmp_target == last_offset:
                 # jmp_target should be jumping to the end of the if/then/else
