@@ -1057,17 +1057,17 @@ class Python37Parser(Python37BaseParser):
         return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA
         return_if_lambda   ::= RETURN_END_IF_LAMBDA
 
-        stmt ::= return_closure
-        return_closure ::= LOAD_CLOSURE RETURN_VALUE RETURN_LAST
+        stmt               ::= return_closure
+        return_closure     ::= LOAD_CLOSURE RETURN_VALUE RETURN_LAST
 
-        stmt ::= whileTruestmt
-        ifelsestmt  ::= testexpr stmts_opt JUMP_FORWARD else_suite _come_froms
-        ifelsestmtc ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_froms
+        stmt               ::= whileTruestmt
+        ifelsestmt         ::= testexpr stmts_opt JUMP_FORWARD else_suite _come_froms
+        ifelsestmtc        ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_froms
 
         ifstmtc            ::= testexpr ifstmts_jumpc
 
-        ifstmts_jump      ::= stmts JUMP_BACK
-        ifstmts_jumpc     ::= ifstmts_jump
+        ifstmts_jump       ::= stmts JUMP_BACK
+        ifstmts_jumpc      ::= ifstmts_jump
 
         # The following can happen when the jump offset is large and
         # Python is looking to do a small jump to a larger jump to get
