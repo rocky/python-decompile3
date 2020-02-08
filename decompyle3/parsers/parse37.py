@@ -1274,6 +1274,7 @@ class Python37Parser(Python37BaseParser):
                                          WITH_CLEANUP_START GET_AWAITABLE LOAD_CONST YIELD_FROM
                                          WITH_CLEANUP_FINISH END_FINALLY
 
+                  stmt               ::= async_with_as_stmt
                   async_with_as_stmt ::= expr
                                          async_with_pre
                                          store
@@ -1281,7 +1282,6 @@ class Python37Parser(Python37BaseParser):
                                          POP_BLOCK LOAD_CONST
                                          async_with_post
 
-                 stmt                ::= async_with_as_stmt
                  async_with_stmt     ::= expr
                                          async_with_pre
                                          POP_TOP
