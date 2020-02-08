@@ -20,7 +20,6 @@ from decompyle3.parser import PythonParserSingle
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from decompyle3.parsers.parse37 import Python37Parser
 
-
 class Python38Parser(Python37Parser):
     def p_38walrus(self, args):
         """
