@@ -96,7 +96,12 @@ def customize_for_version37(self, version):
                 (0, "IMPORT_NAME_ATTR"),
                 (1, "IMPORT_FROM"),
             ),
-            "await_expr": ("await %c", 0),
+
+            # nested await expressions like:
+            #   return await (await bar())
+            # need parenthesis.
+            "await_expr": ("await %p", (0, PRECEDENCE["await_expr"]-1)),
+
             "await_stmt": ("%|%c\n", 0),
             "call_ex": ("%c(%p)", (0, "expr"), (1, 100)),
             "compare_chained1a_37": (
