@@ -239,13 +239,8 @@ class SourceWalker(GenericASTTraversal, object):
             compile_mode=compile_mode,
             is_pypy=is_pypy,
         )
-        self.p_lambda = get_python_parser(
-            version,
-            debug_parser=dict(debug_parser),
-            compile_mode="lambda",
-            is_pypy=is_pypy,
-        )
-
+        # Initialize p_lambda on demand
+        self.p_lambda = None
         self.treeTransform = TreeTransform(showast)
         self.debug_parser = dict(debug_parser)
         self.showast = showast
@@ -2076,15 +2071,18 @@ class SourceWalker(GenericASTTraversal, object):
                     t.kind = "RETURN_VALUE_LAMBDA"
             tokens.append(Token("LAMBDA_MARKER"))
             try:
-                # FIXME: have p.insts update in a better way
-                # modularity is broken here
-                p_insts = self.p.insts
-                p = self.p_lambda if is_lambda else self.p
+                if self.p_lambda is None:
+                    self.p_lambda = get_python_parser(
+                        self.version,
+                        self.debug_parser,
+                        compile_mode="lambda",
+                        is_pypy=self.is_pypy,
+                    )
+                p = self.p_lambda
                 p.insts = self.scanner.insts
                 p.offset2inst_index = self.scanner.offset2inst_index
                 ast = python_parser.parse(p, tokens, customize, is_lambda)
                 self.customize(customize)
-                p.insts = p_insts
             except (python_parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens)
             transform_ast = self.treeTransform.transform(ast)
