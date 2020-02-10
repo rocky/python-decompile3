@@ -239,8 +239,10 @@ class SourceWalker(GenericASTTraversal, object):
             compile_mode=compile_mode,
             is_pypy=is_pypy,
         )
+
         # Initialize p_lambda on demand
         self.p_lambda = None
+
         self.treeTransform = TreeTransform(showast)
         self.debug_parser = dict(debug_parser)
         self.showast = showast

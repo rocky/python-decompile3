@@ -91,6 +91,7 @@ class Python38Parser(Python37Parser):
         cf_pt              ::= COME_FROM POP_TOP
         ifelsestmtc        ::= testexpr c_stmts cf_pt else_suite
 
+        get_iter           ::= expr GET_ITER
         for38              ::= expr get_iter store for_block JUMP_BACK
         for38              ::= expr get_for_iter store for_block JUMP_BACK
         for38              ::= expr get_for_iter store for_block JUMP_BACK POP_BLOCK

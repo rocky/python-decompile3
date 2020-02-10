@@ -124,9 +124,9 @@ class TreeTransform(GenericASTTraversal, object):
             # iflaststmtc works this way
             stmts = node[1]
 
-        if stmts in ("c_stmts", "stmts") and len(stmts) == 1:
+        if stmts in ("c_stmts", "stmts", "stmts_opt") and len(stmts) == 1:
             raise_stmt = stmts[0]
-            if raise_stmt != "raise_stmt1":
+            if raise_stmt != "raise_stmt1" and len(raise_stmt) > 0:
                 raise_stmt = raise_stmt[0]
 
             testtrue_or_false = testexpr[0]
@@ -270,20 +270,30 @@ class TreeTransform(GenericASTTraversal, object):
                     else_suite_index = 2
                 pass
             pass
-        elif (
-            len(n) > 1
-            and isinstance(n[0], SyntaxTree)
-            and 1 == len(n[0])
-            and n[0] == "stmt"
-            and n[1].kind == "stmt"
-        ):
-            else_suite_stmts = n[0]
-            if else_suite_stmts[0].kind not in ("ifstmt", "iflaststmt", "ifelsestmtc",):
-                return node
-            old_stmts = n
-            n = else_suite_stmts[0]
         else:
-            return node
+            if (
+                len(n) > 1
+                and isinstance(n[0], SyntaxTree)
+                and 1 == len(n[0])
+                and n[0] == "stmt"
+                and n[1].kind == "stmt"
+            ):
+                else_suite_stmts = n[0]
+            elif len(n) == 1:
+                else_suite_stmts = n
+            else:
+                return node
+
+            if else_suite_stmts[0].kind in (
+                "ifstmt",
+                "iflaststmt",
+                "ifelsestmt",
+                "ifelsestmtl",
+            ):
+                old_stmts = n
+                n = else_suite_stmts[0]
+            else:
+                return node
 
         if n.kind == "last_stmt":
             n = n[0]

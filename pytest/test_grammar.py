@@ -21,30 +21,22 @@ def test_grammar():
 
     # We have custom rules that create the below
     expect_lhs = set(["pos_arg"])
-
-    if PYTHON_VERSION < 3.8:
-        expect_lhs.add("get_iter")
-
-    unused_rhs = set(["list", "mkfunc", "mklambda", "unpack"])
-
+    unused_rhs = set(["list", "mkfunc", "unpack"])
     expect_right_recursive = set([("designList", ("store", "DUP_TOP", "designList"))])
 
     expect_lhs.add("load_genexpr")
-    expect_lhs.add("kvlist")
     expect_lhs.add("kv3")
     expect_lhs.add("lambda_start") # Start symbol for lambda expressions
 
     unused_rhs = unused_rhs.union(
         set(
             """
-    except_pop_except generator_exp
+    except_pop_except
     """.split()
         )
     )
-    unused_rhs.add("dict_comp")
     unused_rhs.add("classdefdeco1")
     unused_rhs.add("tryelsestmtc")
-    unused_rhs.add("dict")
 
     expect_right_recursive.add((("c_stmts", ("lastc_stmt", "come_froms", "c_stmts"))))
     pass

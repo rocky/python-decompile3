@@ -265,7 +265,10 @@ class Python37BaseParser(PythonParser):
 
             elif opname_base == "BUILD_CONST_KEY_MAP":
                 kvlist_n = "expr " * (token.attr)
-                rule = "dict ::= %sLOAD_CONST %s" % (kvlist_n, opname)
+                rule = """
+                   expr ::= dict
+                   dict ::= %sLOAD_CONST %s
+                """ % (kvlist_n, opname)
                 self.addRule(rule, nop_func)
 
             elif opname.startswith("BUILD_LIST_UNPACK"):
@@ -281,7 +284,7 @@ class Python37BaseParser(PythonParser):
                     self.addRule(
                         """
                         expr       ::= unmap_dict
-                        unmap_dict ::= dict_comp BUILD_MAP_UNPACK
+                        unmap_dict ::= expr BUILD_MAP_UNPACK
                         """,
                         nop_func,
                     )
@@ -305,7 +308,10 @@ class Python37BaseParser(PythonParser):
                     self.add_unique_rule(rule, "kvlist_n", 0, customize)
                     rule = "kvlist_n ::="
                     self.add_unique_rule(rule, "kvlist_n", 1, customize)
-                    rule = "dict ::=  BUILD_MAP_n kvlist_n"
+                    rule = """
+                       expr ::= dict
+                       dict ::=  BUILD_MAP_n kvlist_n
+                    """
 
                 if not opname.startswith("BUILD_MAP_WITH_CALL"):
                     # FIXME: Use the attr
@@ -316,7 +322,11 @@ class Python37BaseParser(PythonParser):
                         # It just so happens the most common case is not to mix
                         # dictionary comphensions with dictionary, elements
                         if "LOAD_DICTCOMP" in self.seen_ops:
-                            rule = "dict ::= %s%s" % ("dict_comp " * token.attr, opname)
+                            rule = """
+                               expr ::= dict_comp
+                               expr ::= dict
+                               dict ::= %s%s
+                            """ % ("dict_comp " * token.attr, opname)
                             self.addRule(rule, nop_func)
                         rule = """
                          expr       ::= unmap_dict
@@ -332,7 +342,10 @@ class Python37BaseParser(PythonParser):
                             opname,
                         )
                         self.add_unique_rule(rule, opname, token.attr, customize)
-                        rule = "dict ::=  %s" % kvlist_n
+                        rule = """
+                        expr ::= dict
+                        dict ::=  %s
+                        """ % kvlist_n
                 self.add_unique_rule(rule, opname, token.attr, customize)
 
             elif opname.startswith("BUILD_MAP_UNPACK_WITH_CALL"):
@@ -452,6 +465,7 @@ class Python37BaseParser(PythonParser):
 
                 if opname == "CALL_FUNCTION" and token.attr == 1:
                     rule = """
+                     expr         ::= dict_comp
                      dict_comp    ::= LOAD_DICTCOMP LOAD_STR MAKE_FUNCTION_0 expr
                                       GET_ITER CALL_FUNCTION_1
                     classdefdeco1 ::= expr classdefdeco2 CALL_FUNCTION_1
@@ -471,7 +485,7 @@ class Python37BaseParser(PythonParser):
                 nak = (len(opname_base) - len("CALL_METHOD")) // 3
                 rule = (
                     "call ::= expr "
-                    + ("pos_arg " * args_pos)
+                    + ("expr " * args_pos)
                     + ("kwarg " * args_kw)
                     + "expr " * nak
                     + opname
@@ -668,16 +682,16 @@ class Python37BaseParser(PythonParser):
                 # FIXME: Fold test  into add_make_function_rule
                 j = 2
                 if is_pypy or (i >= j and tokens[i - j] == "LOAD_LAMBDA"):
-                    rule_pat = "mklambda ::= %sload_closure LOAD_LAMBDA %%s%s" % (
-                        "pos_arg " * args_pos,
-                        opname,
-                    )
+                    rule_pat = """
+                                expr     ::= mklambda
+                                mklambda ::= %sload_closure LOAD_LAMBDA %%s%s
+                               """ % ("expr " * args_pos, opname)
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
 
                 if has_get_iter_call_function1:
                     rule_pat = (
                         "generator_exp ::= %sload_closure load_genexpr %%s%s expr "
-                        "GET_ITER CALL_FUNCTION_1" % ("pos_arg " * args_pos, opname)
+                        "GET_ITER CALL_FUNCTION_1" % ("expr " * args_pos, opname)
                     )
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
 
@@ -691,7 +705,7 @@ class Python37BaseParser(PythonParser):
                             rule_pat = (
                                 "listcomp ::= %sload_closure LOAD_LISTCOMP %%s%s expr "
                                 "GET_ITER CALL_FUNCTION_1"
-                                % ("pos_arg " * args_pos, opname)
+                                % ("expr " * args_pos, opname)
                             )
                             self.add_make_function_rule(
                                 rule_pat, opname, token.attr, customize
@@ -700,7 +714,7 @@ class Python37BaseParser(PythonParser):
                             rule_pat = (
                                 "set_comp ::= %sload_closure LOAD_SETCOMP %%s%s expr "
                                 "GET_ITER CALL_FUNCTION_1"
-                                % ("pos_arg " * args_pos, opname)
+                                % ("expr " * args_pos, opname)
                             )
                             self.add_make_function_rule(
                                 rule_pat, opname, token.attr, customize
@@ -709,7 +723,7 @@ class Python37BaseParser(PythonParser):
                             self.add_unique_rule(
                                 "dict_comp ::= %sload_closure LOAD_DICTCOMP %s "
                                 "expr GET_ITER CALL_FUNCTION_1"
-                                % ("pos_arg " * args_pos, opname),
+                                % ("expr " * args_pos, opname),
                                 opname,
                                 token.attr,
                                 customize,
@@ -731,7 +745,7 @@ class Python37BaseParser(PythonParser):
 
                 if args_kw == 0:
                     rule = "mkfunc ::= %sload_closure load_genexpr %s" % (
-                        "pos_arg " * args_pos,
+                        "expr " * args_pos,
                         opname,
                     )
                     self.add_unique_rule(rule, opname, token.attr, customize)
@@ -742,14 +756,19 @@ class Python37BaseParser(PythonParser):
                 stack_count = args_pos + args_kw + annotate_args
                 if closure:
                     if args_pos:
-                        rule = "mklambda ::= %s%s%s%s" % (
+                        rule = """
+                             expr     ::= mklambda
+                             mklambda ::= %s%s%s%s
+                             """ % (
                             "expr " * stack_count,
                             "load_closure " * closure,
                             "BUILD_TUPLE_1 LOAD_LAMBDA LOAD_STR ",
                             opname,
                         )
                     else:
-                        rule = "mklambda ::= %s%s%s" % (
+                        rule = """
+                             expr     ::= mklambda
+                             mklambda ::= %s%s%s""" % (
                             "load_closure " * closure,
                             "LOAD_LAMBDA LOAD_STR ",
                             opname,
@@ -757,7 +776,9 @@ class Python37BaseParser(PythonParser):
                     self.add_unique_rule(rule, opname, token.attr, customize)
 
                 else:
-                    rule = "mklambda ::= %sLOAD_LAMBDA LOAD_STR %s" % (
+                    rule = """
+                         expr     ::= mklambda
+                         mklambda ::= %sLOAD_LAMBDA LOAD_STR %s""" % (
                         ("expr " * stack_count),
                         opname,
                     )
@@ -774,12 +795,14 @@ class Python37BaseParser(PythonParser):
                 if has_get_iter_call_function1:
                     rule_pat = (
                         "generator_exp ::= %sload_genexpr %%s%s expr "
-                        "GET_ITER CALL_FUNCTION_1" % ("pos_arg " * args_pos, opname)
+                        "GET_ITER CALL_FUNCTION_1" % ("expr " * args_pos, opname)
                     )
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                     rule_pat = (
-                        "generator_exp ::= %sload_closure load_genexpr %%s%s expr "
-                        "GET_ITER CALL_FUNCTION_1" % ("pos_arg " * args_pos, opname)
+                        """
+                           expr          ::= generator_exp
+                           generator_exp ::= %sload_closure load_genexpr %%s%s expr
+                           GET_ITER CALL_FUNCTION_1""" % ("expr " * args_pos, opname)
                     )
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                     if is_pypy or (i >= 2 and tokens[i - 2] == "LOAD_LISTCOMP"):
@@ -802,8 +825,11 @@ class Python37BaseParser(PythonParser):
                         )
 
                 if is_pypy or (i >= 2 and tokens[i - 2] == "LOAD_LAMBDA"):
-                    rule_pat = "mklambda ::= %s%sLOAD_LAMBDA %%s%s" % (
-                        ("pos_arg " * args_pos),
+                    rule_pat = """
+                        expr     ::= mklambda
+                        mklambda ::= %s%sLOAD_LAMBDA %%s%s
+                        """ % (
+                        ("expr " * args_pos),
                         ("kwarg " * args_kw),
                         opname,
                     )
@@ -817,7 +843,7 @@ class Python37BaseParser(PythonParser):
                 if has_get_iter_call_function1:
                     rule_pat = (
                         "generator_exp ::= %sload_genexpr %%s%s expr "
-                        "GET_ITER CALL_FUNCTION_1" % ("pos_arg " * args_pos, opname)
+                        "GET_ITER CALL_FUNCTION_1" % ("expr " * args_pos, opname)
                     )
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
 
@@ -837,8 +863,11 @@ class Python37BaseParser(PythonParser):
 
                 # FIXME: Fold test  into add_make_function_rule
                 if is_pypy or (i >= j and tokens[i - j] == "LOAD_LAMBDA"):
-                    rule_pat = "mklambda ::= %s%sLOAD_LAMBDA %%s%s" % (
-                        ("pos_arg " * args_pos),
+                    rule_pat = """
+                        expr     ::= mklambda
+                        mklambda ::= %s%sLOAD_LAMBDA %%s%s
+                        """ % (
+                        ("expr " * args_pos),
                         ("kwarg " * args_kw),
                         opname,
                     )
@@ -852,7 +881,7 @@ class Python37BaseParser(PythonParser):
 
                 # positional args before keyword args
                 rule = "mkfunc ::= %s%s %s%s" % (
-                    "pos_arg " * args_pos,
+                    "expr " * args_pos,
                     kwargs,
                     "LOAD_CODE LOAD_STR ",
                     opname,
@@ -863,12 +892,14 @@ class Python37BaseParser(PythonParser):
                 if "LOAD_DICTCOMP" in self.seen_ops:
                     # Is there something general going on here?
                     rule = """
+                       expr      ::= dict_comp
                        dict_comp ::= load_closure LOAD_DICTCOMP LOAD_STR
                                      MAKE_FUNCTION_8 expr
                                      GET_ITER CALL_FUNCTION_1
                        """
                     self.addRule(rule, nop_func)
                 elif "LOAD_SETCOMP" in self.seen_ops:
+                    self.addRule("expr ::= set_comp", nop_func)
                     rule = """
                        set_comp ::= load_closure LOAD_SETCOMP LOAD_STR
                                     MAKE_FUNCTION_8 expr
@@ -1074,7 +1105,7 @@ class Python37BaseParser(PythonParser):
         if frozenset(("GET_AWAITABLE", "YIELD_FROM")).issubset(self.seen_ops):
             rule = (
                 "async_call ::= expr "
-                + ("pos_arg " * args_pos)
+                + ("expr " * args_pos)
                 + ("kwarg " * args_kw)
                 + "expr " * nak
                 + token.kind
@@ -1093,7 +1124,7 @@ class Python37BaseParser(PythonParser):
                 kw = ""
             rule = (
                 "call ::= expr expr "
-                + ("pos_arg " * args_pos)
+                + ("expr " * args_pos)
                 + ("kwarg " * args_kw)
                 + kw
                 + token.kind
@@ -1110,7 +1141,7 @@ class Python37BaseParser(PythonParser):
             # 'CALL_FUNCTION_VAR' or 'CALL_FUNCTION_EX' here.
             rule = (
                 "call ::= expr "
-                + ("pos_arg " * args_pos)
+                + ("expr " * args_pos)
                 + ("kwarg " * args_kw)
                 + "expr " * nak
                 + token.kind
