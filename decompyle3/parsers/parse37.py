@@ -22,7 +22,28 @@ from decompyle3.parsers.parse37base import Python37BaseParser
 from decompyle3.scanners.tok import Token
 
 
-class Python37Parser(Python37BaseParser):
+class Python37LambdaParser(Python37BaseParser):
+    def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG, compile_mode="lambda"):
+        super(Python37LambdaParser, self).__init__(debug_parser, compile_mode=compile_mode)
+        self.customized = {}
+    ###################################################
+    #  Python 3.7 grammar rules for lambda expressions
+    ###################################################
+    pass
+
+    def p_lambda(self, args):
+        """
+        lambda_start  ::= return_lambda LAMBDA_MARKER
+        return_lambda ::= expr RETURN_VALUE_LAMBDA
+        return_lambda ::= if_exp_lambda
+        return_lambda ::= if_exp_not_lambda
+        return_lambda ::= if_exp_dead_code
+        """
+
+    # FIXME: pull out rules from Python37Parse
+
+
+class Python37Parser(Python37LambdaParser):
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG, compile_mode="exec"):
         super(Python37Parser, self).__init__(debug_parser, compile_mode=compile_mode)
         self.customized = {}
@@ -224,12 +245,6 @@ class Python37Parser(Python37BaseParser):
 
         ret_expr_or_cond ::= ret_expr
         ret_expr_or_cond ::= if_exp_ret
-
-        lambda_start  ::= return_lambda LAMBDA_MARKER
-        return_lambda ::= expr RETURN_VALUE_LAMBDA
-        return_lambda ::= if_exp_lambda
-        return_lambda ::= if_exp_not_lambda
-        return_lambda ::= if_exp_dead_code
 
         compare        ::= compare_chained
         compare        ::= compare_single
@@ -1516,40 +1531,41 @@ def info(args):
 
 
 class Python37ParserSingle(Python37Parser, PythonParserSingle):
+    # FIXME: add a suitable __init__
     pass
-
 
 if __name__ == "__main__":
     # Check grammar
     # FIXME: DRY this with other parseXX.py routines
     p = Python37Parser()
-    p.check_grammar()
-    from decompyle3 import PYTHON_VERSION, IS_PYPY
+    p.dump_grammar()
+    # p.check_grammar()
+    # from decompyle3 import PYTHON_VERSION, IS_PYPY
 
-    if PYTHON_VERSION == 3.7:
-        lhs, rhs, tokens, right_recursive, dup_rhs = p.check_sets()
-        from decompyle3.scanner import get_scanner
+    # if PYTHON_VERSION == 3.7:
+    #     lhs, rhs, tokens, right_recursive, dup_rhs = p.check_sets()
+    #     from decompyle3.scanner import get_scanner
 
-        s = get_scanner(PYTHON_VERSION, IS_PYPY)
-        opcode_set = set(s.opc.opname).union(
-            set(
-                """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
-               LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_CLASSNAME
-               LAMBDA_MARKER RETURN_LAST
-            """.split()
-            )
-        )
-        remain_tokens = set(tokens) - opcode_set
-        import re
+    #     s = get_scanner(PYTHON_VERSION, IS_PYPY)
+    #     opcode_set = set(s.opc.opname).union(
+    #         set(
+    #             """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
+    #            LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_CLASSNAME
+    #            LAMBDA_MARKER RETURN_LAST
+    #         """.split()
+    #         )
+    #     )
+    #     remain_tokens = set(tokens) - opcode_set
+    #     import re
 
-        remain_tokens = set([re.sub(r"_\d+$", "", t) for t in remain_tokens])
-        remain_tokens = set([re.sub("_CONT$", "", t) for t in remain_tokens])
-        remain_tokens = set(remain_tokens) - opcode_set
-        print(remain_tokens)
-        import sys
+    #     remain_tokens = set([re.sub(r"_\d+$", "", t) for t in remain_tokens])
+    #     remain_tokens = set([re.sub("_CONT$", "", t) for t in remain_tokens])
+    #     remain_tokens = set(remain_tokens) - opcode_set
+    #     print(remain_tokens)
+    #     import sys
 
-        if len(sys.argv) > 1:
-            from spark_parser.spark import rule2str
+    #     if len(sys.argv) > 1:
+    #         from spark_parser.spark import rule2str
 
-            for rule in sorted(p.rule2name.items()):
-                print(rule2str(rule[0]))
+    #         for rule in sorted(p.rule2name.items()):
+    #             print(rule2str(rule[0]))

@@ -40,9 +40,9 @@ def nop_func(self, args):
     return None
 
 
-class PythonParser(GenericASTBuilder):
-    def __init__(self, SyntaxTree, start, debug):
-        super(PythonParser, self).__init__(SyntaxTree, start, debug)
+class PythonLambdaParser(GenericASTBuilder):
+    def __init__(self, SyntaxTree, start_symbol, debug):
+        super(PythonLambdaParser, self).__init__(SyntaxTree, start_symbol, debug)
         # FIXME: customize per python parser version
 
         # These are the non-terminals we should collect into a list.
@@ -51,26 +51,11 @@ class PythonParser(GenericASTBuilder):
         # collect as stmts -> stmt stmt ...
         nt_list = [
             "_come_froms",
-            "_stmts",
             "attributes",
             "come_froms",
-            "except_stmts",
             "exprlist",
-            "importlist",
             "kvlist",
             "kwargs",
-
-            # FIXME:
-            # If we add c_stmts, we can miss adding a c_stmt,
-            # test_float.py test_set_format() is an example.
-            # Investigate
-            # "c_stmts",
-
-            "stmts",
-            # Python 3.6+
-            "come_from_loops",
-            # Python 3.7+
-            "importlist37",
         ]
         self.collect = frozenset(nt_list)
 
@@ -93,7 +78,7 @@ class PythonParser(GenericASTBuilder):
         # so on but that would require major changes to the
         # semantic actions
         self.singleton = frozenset(
-            ("str", "store", "_stmts", "suite_stmts_opt", "inplace_op")
+            ("str", "store", "inplace_op")
         )
         # Instructions filled in from scanner
         self.insts = []
@@ -101,7 +86,7 @@ class PythonParser(GenericASTBuilder):
         # true if we are parsing inside a lambda expression.
         # because a lambda expression are wrtten on a single line, certain line-oriented
         # statements behave differently
-        self.is_lambda = False
+        self.is_lambda = True
 
     def ast_first_offset(self, ast):
         if hasattr(ast, "offset"):
@@ -271,6 +256,82 @@ class PythonParser(GenericASTBuilder):
         return GenericASTBuilder.resolve(self, list)
 
 
+class PythonParser(PythonLambdaParser):
+    def __init__(self, SyntaxTree, compile_mode, debug):
+        # FIXME: Not sure if start symbol is correct for "single"
+        if compile_mode in ("exec", "single"):
+            start_symbol = "stmts"
+        # FIXME: "eval" should be "lambda"
+        elif compile_mode == "lambda":
+            start_symbol = "lambda_start"
+        elif compile_mode == "eval":
+            start_symbol = "call_stmt"
+        else:
+            raise f'compile_mode should be either "exec", "single", "lambda", or "eval"; got {compile_mode}'
+
+        super(PythonParser, self).__init__(SyntaxTree, start_symbol, debug)
+        # FIXME: customize per python parser version
+
+        # These are the non-terminals we should collect into a list.
+        # For example instead of:
+        #   stmts -> stmts stmt -> stmts stmt stmt ...
+        # collect as stmts -> stmt stmt ...
+        nt_list = [
+            "_come_froms",
+            "_stmts",
+            "attributes",
+            "come_froms",
+            "except_stmts",
+            "exprlist",
+            "importlist",
+            "kvlist",
+            "kwargs",
+
+            # FIXME:
+            # If we add c_stmts, we can miss adding a c_stmt,
+            # test_float.py test_set_format() is an example.
+            # Investigate
+            # "c_stmts",
+
+            "stmts",
+            # Python 3.6+
+            "come_from_loops",
+            # Python 3.7+
+            "importlist37",
+        ]
+        self.collect = frozenset(nt_list)
+
+        # For these items we need to keep the 1st epslion reduction since
+        # the nonterminal name is used in a semantic action.
+        self.keep_epsilon = frozenset(("kvlist_n", "kvlist"))
+
+        # ??? Do we need a debug option to skip eliding singleton reductions?
+        # Time will tell if it if useful in debugging
+
+        # FIXME: optional_nt is a misnomer. It's really about there being a
+        # singleton reduction that we can simplify. It also happens to be optional
+        # in its other derivation
+        self.optional_nt |= frozenset(
+            ("come_froms", "suite_stmts", "c_stmts_opt", "stmt", "sstmt")
+        )
+
+        # Reduce singleton reductions in these nonterminals:
+        # FIXME: would love to do expr, sstmts, stmts and
+        # so on but that would require major changes to the
+        # semantic actions
+        self.singleton = frozenset(
+            ("str", "store", "_stmts", "suite_stmts_opt", "inplace_op")
+        )
+        # Instructions filled in from scanner
+        self.insts = []
+
+        # true if we are parsing inside a lambda expression.
+        # because a lambda expression are wrtten on a single line, certain line-oriented
+        # statements behave differently
+        self.is_lambda = False
+
+
+
 def parse(p, tokens, customize, is_lambda):
     was_lambda = p.is_lambda
     p.is_lambda = is_lambda
@@ -286,9 +347,14 @@ def get_python_parser(
 ):
     """Returns parser object for Python version 3.7, 3.8,
     etc., depending on the parameters passed.  *compile_mode* is either
-    'exec', 'eval', or 'single'. See
-    https://docs.python.org/3.6/library/functions.html#compile for an
+    "exec", "eval", or "single" or "lambda".
+
+    "lambda" is for the grammar that can appear in lambda statements. "eval"
+    is for eval kinds of expressions.
+
+    For the others, see https://docs.python.org/3/library/functions.html#compile for an
     explanation of the different modes.
+
     """
 
     # If version is a string, turn that into the corresponding float.
@@ -323,12 +389,22 @@ def get_python_parser(
 
 
 class PythonParserSingle(PythonParser):
+    # FIXME: Remove rules from parse37, parse38
     def p_call_stmt_single(self, args):
         """
         # single-mode compilation. Eval-mode interactive compilation
         # drops the last rule.
 
         call_stmt ::= expr PRINT_EXPR
+        """
+    pass
+
+class PythonParserEval(PythonParser):
+    def p_call_stmt_eval(self, args):
+        """
+        # eval-mode compilation.  Single-mode interactive compilation
+        # adds another rule.
+        call_stmt ::= expr POP_TOP
         """
 
 
@@ -374,7 +450,7 @@ if __name__ == "__main__":
     def parse_test(co) -> None:
         from decompyle3 import IS_PYPY
 
-        ast = python_parser("3.7.3", co, showasm=True, is_pypy=IS_PYPY)
+        ast = python_parser("3.8.1", co, showasm=True, is_pypy=IS_PYPY)
         print(ast)
         return
 

@@ -27,17 +27,10 @@ from decompyle3.parsers.reducecheck import (
 
 class Python37BaseParser(PythonParser):
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG, compile_mode="exec"):
+
         self.added_rules = set()
-        # FIXME: Not sure if start symbol is correct for "single"
-        if compile_mode in ("exec", "single"):
-            start_symbol = "stmts"
-        # FIXME: "eval" should be "lambda"
-        elif compile_mode == "eval":
-            start_symbol = "lambda_start"
-        else:
-            raise f'compile_mode should be either "exec" or "eval"; got {compile_mode}'
         super(Python37BaseParser, self).__init__(
-            SyntaxTree, start_symbol, debug=debug_parser
+            SyntaxTree, compile_mode, debug=debug_parser
         )
         self.new_rules = set()
 
