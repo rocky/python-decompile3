@@ -18,7 +18,7 @@ spark grammar differences over Python 3.7 for Python 3.8
 
 from decompyle3.parser import PythonParserSingle
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
-from decompyle3.parsers.parse37 import Python37Parser
+from decompyle3.parsers.p37.full import Python37Parser
 
 class Python38Parser(Python37Parser):
     def p_38walrus(self, args):
@@ -295,6 +295,9 @@ if __name__ == "__main__":
     # FIXME: DRY this with other parseXX.py routines
     p = Python38Parser()
     p.remove_rules_38()
+    p.dump_grammar()
+    print("=" * 50, "\n")
+
     p.check_grammar()
     from decompyle3 import PYTHON_VERSION, IS_PYPY
 
@@ -303,21 +306,22 @@ if __name__ == "__main__":
         from decompyle3.scanner import get_scanner
 
         s = get_scanner(PYTHON_VERSION, IS_PYPY)
-        opcode_set = set(s.opc.opname).union(
-            set(
+        modified_tokens = set(
                 """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
                LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_CLASSNAME
                LAMBDA_MARKER RETURN_LAST
             """.split()
-            )
         )
-        remain_tokens = set(tokens) - opcode_set
+        print("\nModified opcodes:", modified_tokens)
+        opcode_set = set(s.opc.opname).union(modified_tokens)
+
+        pseudo_tokens = set(tokens) - opcode_set
         import re
 
-        remain_tokens = set([re.sub(r"_\d+$", "", t) for t in remain_tokens])
-        remain_tokens = set([re.sub("_CONT$", "", t) for t in remain_tokens])
-        remain_tokens = set(remain_tokens) - opcode_set
-        print(remain_tokens)
+        pseudo_tokens = set([re.sub(r"_\d+$", "", t) for t in pseudo_tokens])
+        pseudo_tokens = set([re.sub("_CONT$", "", t) for t in pseudo_tokens])
+        pseudo_tokens = set(pseudo_tokens) - opcode_set
+        print(pseudo_tokens)
         import sys
         if len(sys.argv) > 1:
             from spark_parser.spark import rule2str

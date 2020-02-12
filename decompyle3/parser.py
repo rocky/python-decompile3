@@ -77,9 +77,7 @@ class PythonLambdaParser(GenericASTBuilder):
         # FIXME: would love to do expr, sstmts, stmts and
         # so on but that would require major changes to the
         # semantic actions
-        self.singleton = frozenset(
-            ("str", "store", "inplace_op")
-        )
+        self.singleton = frozenset(("str", "store", "inplace_op"))
         # Instructions filled in from scanner
         self.insts = []
 
@@ -286,13 +284,11 @@ class PythonParser(PythonLambdaParser):
             "importlist",
             "kvlist",
             "kwargs",
-
             # FIXME:
             # If we add c_stmts, we can miss adding a c_stmt,
             # test_float.py test_set_format() is an example.
             # Investigate
             # "c_stmts",
-
             "stmts",
             # Python 3.6+
             "come_from_loops",
@@ -329,7 +325,6 @@ class PythonParser(PythonLambdaParser):
         # because a lambda expression are wrtten on a single line, certain line-oriented
         # statements behave differently
         self.is_lambda = False
-
 
 
 def parse(p, tokens, customize, is_lambda):
@@ -369,7 +364,7 @@ def get_python_parser(
     if version < 3.7:
         raise RuntimeError(f"Unsupported Python version {version}")
     elif version == 3.7:
-        import decompyle3.parsers.parse37 as parse37
+        import decompyle3.parsers.p37 as parse37
 
         if compile_mode == "exec":
             p = parse37.Python37Parser(debug_parser)
@@ -402,7 +397,9 @@ class PythonParserSingle(PythonParser):
 
         call_stmt ::= expr PRINT_EXPR
         """
+
     pass
+
 
 class PythonParserEval(PythonParser):
     def p_call_stmt_eval(self, args):
@@ -420,7 +417,7 @@ def python_parser(
     showasm=False,
     parser_debug=PARSER_DEFAULT_DEBUG,
     is_pypy=False,
-    is_lambda=False
+    is_lambda=False,
 ):
     """
     Parse a code object to an abstract syntax tree representation.
@@ -455,7 +452,7 @@ if __name__ == "__main__":
     def parse_test(co) -> None:
         from decompyle3 import IS_PYPY
 
-        ast = python_parser("3.8.1", co, showasm=True, is_pypy=IS_PYPY)
+        ast = python_parser("3.7.6", co, showasm=True, is_pypy=IS_PYPY)
         print(ast)
         return
 
