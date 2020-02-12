@@ -344,22 +344,6 @@ class Scanner37Base(Scanner):
                     jump_idx += 1
                     pass
                 pass
-            elif inst.offset in self.else_start:
-                end_offset = self.else_start[inst.offset]
-                j = tokens_append(
-                    j,
-                    Token(
-                        "ELSE",
-                        None,
-                        repr(end_offset),
-                        offset="%s" % (inst.offset),
-                        has_arg=True,
-                        opc=self.opc,
-                        has_extended_arg=inst.has_extended_arg,
-                    ),
-                )
-
-                pass
 
             pattr = inst.argrepr
             opname = inst.opname
@@ -557,7 +541,6 @@ class Scanner37Base(Scanner):
         self.except_targets = {}
         self.ignore_if = set()
         self.build_statement_indices()
-        self.else_start = {}
 
         # Containers filled by detect_control_flow()
         self.not_continue = set()

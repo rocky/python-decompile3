@@ -99,7 +99,6 @@ class Python37LambdaParser(Python37BaseParser):
 
         # These are used to keep parse tree indices the same
         # in "if"/"else" like rules.
-        jump_forward_else  ::= JUMP_FORWARD ELSE
         jump_forward_else  ::= JUMP_FORWARD _come_froms
         jump_forward_else  ::= come_froms jump COME_FROM
 
@@ -154,8 +153,6 @@ class Python37LambdaParser(Python37BaseParser):
         compare_chained2b_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE JUMP_FORWARD COME_FROM
         compare_chained2b_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE JUMP_FORWARD
 
-        compare_chained2c_37       ::= expr DUP_TOP ROT_THREE COMPARE_OP come_from_opt POP_JUMP_IF_FALSE
-                                       compare_chained2a_false_37 ELSE
         compare_chained2c_37       ::= expr DUP_TOP ROT_THREE COMPARE_OP come_from_opt POP_JUMP_IF_FALSE
                                        compare_chained2a_false_37
         """
@@ -997,7 +994,6 @@ class Python37Parser(Python37LambdaParser):
 
         return_if_stmt ::= ret_expr RETURN_END_IF POP_BLOCK
 
-        jb_elsec     ::= JUMP_BACK ELSE
         jb_elsec     ::= JUMP_BACK COME_FROM
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_FORWARD else_suitec
         ifelsestmtc ::= testexpr c_stmts_opt jb_elsec else_suitec
@@ -1007,18 +1003,7 @@ class Python37Parser(Python37LambdaParser):
         testexpr_cf ::= testexpr come_froms
 
         ifelsestmtc ::= testexpr_cf c_stmts_opt jb_elsec else_suitec
-
-        # 3.5 Has jump optimization which can route the end of an
-        # "if/then" back to to a loop just before an else.
-        jb_elsec ::= CONTINUE ELSE
-
-        # Our hacky "ELSE" determination doesn't do a good job and really
-        # determine the start of an "else". It could also be the end of an
-        # "if-then" which ends in a "continue". Perhaps with real control-flow
-        # analysis we'll sort this out. Or call "ELSE" something more appropriate.
-        ifstmts_jump ::= stmts_opt ELSE
-
-        iflaststmt ::= testexpr stmts_opt JUMP_FORWARD
+        iflaststmt  ::= testexpr stmts_opt JUMP_FORWARD
         """
 
     def p_37async(self, args):
@@ -1433,8 +1418,7 @@ class Python37Parser(Python37LambdaParser):
         return ::= ret_expr RETURN_END_IF
         return ::= ret_expr RETURN_VALUE
 
-        jf_cf       ::= JUMP_FORWARD COME_FROM
-        cf_jf_else  ::= come_froms JUMP_FORWARD ELSE
+        jf_cf        ::= JUMP_FORWARD COME_FROM
 
         if_exp       ::= expr jmp_false expr jf_cf expr COME_FROM
 
@@ -1442,7 +1426,6 @@ class Python37Parser(Python37LambdaParser):
 
         jb_cfs      ::= come_from_opt JUMP_BACK come_froms
         ifelsestmtc ::= testexpr c_stmts_opt jb_cfs else_suitec
-        ifelsestmtc ::= testexpr c_stmts_opt cf_jf_else else_suitec
 
         # In 3.6+, A sequence of statements ending in a RETURN can cause
         # JUMP_FORWARD END_FINALLY to be omitted from try middle
@@ -1481,15 +1464,6 @@ class Python37Parser(Python37LambdaParser):
                                     COME_FROM_FINALLY
 
         compare_chained2 ::= expr COMPARE_OP come_froms JUMP_FORWARD
-        """
-
-    def p_37misc(self, args):
-        """
-        # long except clauses in a loop can sometimes cause a JUMP_BACK to turn into a
-        # JUMP_FORWARD to a JUMP_BACK. And when this happens there is an additional
-        # ELSE added to the except_suite. With better flow control perhaps we can
-        # sort this out better.
-        except_suite ::= c_stmts_opt POP_EXCEPT jump_except ELSE
         """
 
 

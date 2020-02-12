@@ -15,7 +15,6 @@ def ifstmts_jump(
     #
     pop_jump_index = first - 1
     while pop_jump_index > 0 and tokens[pop_jump_index] in (
-        "ELSE",
         "POP_TOP",
         "JUMP_FORWARD",
         "COME_FROM",
