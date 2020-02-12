@@ -376,7 +376,7 @@ def get_python_parser(
         else:
             p = parse37.Python37ParserSingle(debug_parser, compile_mode=compile_mode)
     elif version == 3.8:
-        import decompyle3.parsers.parse38 as parse38
+        import decompyle3.parsers.p38 as parse38
 
         if compile_mode == "exec":
             p = parse38.Python38Parser(debug_parser)
@@ -452,7 +452,7 @@ if __name__ == "__main__":
     def parse_test(co) -> None:
         from decompyle3 import IS_PYPY
 
-        ast = python_parser("3.7.6", co, showasm=True, is_pypy=IS_PYPY)
+        ast = python_parser("3.8.1", co, showasm=True, is_pypy=IS_PYPY)
         print(ast)
         return
 
