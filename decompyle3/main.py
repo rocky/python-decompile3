@@ -21,6 +21,7 @@ from xdis.code import iscode
 from xdis.magics import sysinfo2float
 from decompyle3.disas import check_object_path
 from decompyle3.semantics import pysource
+from decompyle3.parsers import ParserError
 from decompyle3.version import VERSION
 
 # from decompyle3.linenumbers import line_number_mapping
