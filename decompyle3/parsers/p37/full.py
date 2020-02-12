@@ -345,8 +345,6 @@ class Python37Parser(Python37LambdaParser):
 
         jump_excepts   ::= jump_except+
 
-        subscript2 ::= expr expr DUP_TOP_TWO BINARY_SUBSCR
-
         kv3       ::= expr expr STORE_MAP
         """
         return

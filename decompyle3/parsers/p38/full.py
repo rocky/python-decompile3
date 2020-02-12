@@ -115,7 +115,7 @@ class Python38Parser(Python37Parser):
         whileTruestmt38    ::= _come_froms c_stmts JUMP_BACK
         whileTruestmt38    ::= _come_froms c_stmts JUMP_BACK COME_FROM_EXCEPT_CLAUSE
 
-        for_block          ::= _come_froms c_stmts_opt _come_from_loops JUMP_BACK
+        for_block          ::= _come_froms c_stmts_opt come_from_loops JUMP_BACK
 
         except_cond1       ::= DUP_TOP expr COMPARE_OP jmp_false
                                POP_TOP POP_TOP POP_TOP

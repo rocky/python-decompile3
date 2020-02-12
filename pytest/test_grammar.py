@@ -45,11 +45,10 @@ def test_grammar():
 
     assert expect_lhs == set(lhs)
 
-    # FIXME
-    if PYTHON_VERSION != 3.8:
-        unused_rhs.add("list")
-        assert unused_rhs == set(rhs)
+    # FIXME: figure out what's up
+    unused_rhs.add("list")
 
+    assert unused_rhs == set(rhs)
     assert expect_right_recursive == right_recursive
 
     expect_dup_rhs = frozenset(

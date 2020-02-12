@@ -203,17 +203,18 @@ class Python37LambdaParser(Python37BaseParser):
         unary_operator    ::= UNARY_NEGATIVE
         unary_operator    ::= UNARY_INVERT
 
-        unary_not ::= expr UNARY_NOT
+        unary_not         ::= expr UNARY_NOT
 
-        subscript ::= expr expr BINARY_SUBSCR
+        subscript         ::= expr expr BINARY_SUBSCR
+        subscript2        ::= expr expr DUP_TOP_TWO BINARY_SUBSCR
 
-        yield ::= expr YIELD_VALUE
+        yield             ::= expr YIELD_VALUE
 
-        expr ::= if_exp
+        expr              ::= if_exp
 
-        compare        ::= compare_chained
-        compare        ::= compare_single
-        compare_single ::= expr expr COMPARE_OP
+        compare           ::= compare_chained
+        compare           ::= compare_single
+        compare_single    ::= expr expr COMPARE_OP
 
 
         # FIXME: the below is to work around test_grammar expecting a "call" to be
