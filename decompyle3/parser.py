@@ -380,6 +380,11 @@ def get_python_parser(
 
         if compile_mode == "exec":
             p = parse38.Python38Parser(debug_parser)
+        elif compile_mode == "lambda":
+            p = parse38.Python38LambdaParser(debug_parser, compile_mode=compile_mode)
+            ## If the above gives a parse error, use the below to debug what grammar rule(s)
+            ## need to get added
+            # p = parse38.Python38ParserSingle(debug_parser, compile_mode=compile_mode)
         else:
             p = parse38.Python38ParserSingle(debug_parser, compile_mode=compile_mode)
 
