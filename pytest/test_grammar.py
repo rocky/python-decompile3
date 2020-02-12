@@ -1,5 +1,5 @@
 import re
-from decompyle3 import PYTHON_VERSION, IS_PYPY  # , PYTHON_VERSION
+from decompyle3 import PYTHON_VERSION, IS_PYPY
 from decompyle3.parsers.main import get_python_parser, python_parser
 from decompyle3.scanner import get_scanner
 
@@ -41,13 +41,8 @@ def test_grammar():
     unused_rhs.add("tryelsestmtc")
 
     expect_right_recursive.add((("c_stmts", ("lastc_stmt", "come_froms", "c_stmts"))))
-    pass
 
     assert expect_lhs == set(lhs)
-
-    # FIXME: figure out what's up
-    unused_rhs.add("list")
-
     assert unused_rhs == set(rhs)
     assert expect_right_recursive == right_recursive
 

@@ -129,7 +129,7 @@ class Python37LambdaParser(Python37BaseParser):
         compare_chained1a_37      ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
                                       compare_chained2a_37 COME_FROM POP_TOP COME_FROM
         compare_chained1b_false_37 ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
-                                      compare_chained2b_false_37 POP_TOP jump COME_FROM
+                                       compare_chained2b_false_37 POP_TOP jump COME_FROM
 
         compare_chained1c_37      ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
                                       compare_chained2a_37 POP_TOP
@@ -170,7 +170,6 @@ class Python37LambdaParser(Python37BaseParser):
         expr ::= bin_op
         expr ::= call
         expr ::= compare
-        expr ::= list
         expr ::= or
         expr ::= subscript
         expr ::= subscript2
