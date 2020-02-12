@@ -19,9 +19,11 @@ def test_grammar():
     p = get_python_parser(PYTHON_VERSION, is_pypy=IS_PYPY)
     (lhs, rhs, tokens, right_recursive, dup_rhs) = p.check_sets()
 
+    expect_lhs = set([])
+
     # We have custom rules that create the below
-    expect_lhs = set(["pos_arg"])
-    unused_rhs = set(["list", "mkfunc", "unpack"])
+    unused_rhs = set(["mkfunc"])
+
     expect_right_recursive = set([("designList", ("store", "DUP_TOP", "designList"))])
 
     expect_lhs.add("load_genexpr")
@@ -45,6 +47,8 @@ def test_grammar():
 
     # FIXME
     if PYTHON_VERSION != 3.8:
+        unused_rhs.add("unpack")
+        unused_rhs.add("list")
         assert unused_rhs == set(rhs)
 
     assert expect_right_recursive == right_recursive
@@ -97,3 +101,7 @@ def test_dup_rule():
             "context": True,
         },
     )
+
+if __name__ == "__main__":
+    test_grammar()
+    test_dup_rule()

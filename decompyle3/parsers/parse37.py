@@ -83,7 +83,6 @@ class Python37LambdaParser(Python37BaseParser):
         # Zero or more COME_FROMs - loops can have this
         _come_froms   ::= COME_FROM*
         _come_froms   ::= _come_froms COME_FROM_LOOP
-        _come_froms   ::=
         """
 
     def p_jump(self, args):
@@ -581,7 +580,6 @@ class Python37Parser(Python37LambdaParser):
         import_from_star ::= LOAD_CONST LOAD_CONST IMPORT_NAME IMPORT_STAR
         import_from_star ::= LOAD_CONST LOAD_CONST IMPORT_NAME_ATTR IMPORT_STAR
         import_from      ::= LOAD_CONST LOAD_CONST IMPORT_NAME importlist POP_TOP
-        import_from_star ::= LOAD_CONST LOAD_CONST IMPORT_NAME_ATTR IMPORT_STAR
         importmultiple   ::= LOAD_CONST LOAD_CONST alias imports_cont
 
         imports_cont ::= import_cont+
@@ -856,9 +854,6 @@ class Python37Parser(Python37LambdaParser):
         assert_invert ::= testtrue LOAD_GLOBAL RAISE_VARARGS_1
 
         expr    ::= LOAD_ASSERT
-
-        # Positional arguments in make_function
-        pos_arg ::= expr
 
         # FIXME: add this:
         # expr    ::= assert_expr_or
@@ -1370,7 +1365,7 @@ class Python37Parser(Python37LambdaParser):
         if frozenset(("GET_AWAITABLE", "YIELD_FROM")).issubset(self.seen_ops):
             rule = (
                 "async_call ::= expr "
-                + ("pos_arg " * args_pos)
+                + ("expr " * args_pos)
                 + ("kwarg " * args_kw)
                 + "expr " * nak
                 + token.kind
