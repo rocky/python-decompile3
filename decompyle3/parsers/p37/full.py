@@ -915,41 +915,13 @@ class Python37ParserSingle(Python37Parser, PythonParserSingle):
 
 if __name__ == "__main__":
     # Check grammar
-    # FIXME: DRY this with other parseXX.py routines
+    from decompyle3.parsers.dump import dump_and_check
     p = Python37Parser()
-    p.dump_grammar()
-    print("=" * 50, "\n")
+    modified_tokens = set(
+        """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
+           LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_CLASSNAME
+           LAMBDA_MARKER RETURN_LAST
+        """.split()
+    )
 
-    p.check_grammar()
-    from decompyle3 import PYTHON_VERSION, IS_PYPY
-
-    if PYTHON_VERSION == 3.7:
-        lhs, rhs, tokens, right_recursive, dup_rhs = p.check_sets()
-        from decompyle3.scanner import get_scanner
-
-        s = get_scanner(PYTHON_VERSION, IS_PYPY)
-        modified_tokens = set(
-                """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
-               LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_CLASSNAME
-               LAMBDA_MARKER RETURN_LAST
-            """.split()
-        )
-        print("\nModified opcodes:", modified_tokens)
-        opcode_set = set(s.opc.opname).union(modified_tokens)
-
-        pseudo_tokens = set(tokens) - opcode_set
-        import re
-
-        pseudo_tokens = set([re.sub(r"_\d+$", "", t) for t in pseudo_tokens])
-        pseudo_tokens = set([re.sub("_CONT$", "", t) for t in pseudo_tokens])
-        pseudo_tokens = set(pseudo_tokens) - opcode_set
-
-        print("\nPseudo tokens:")
-        print(pseudo_tokens)
-        import sys
-
-        if len(sys.argv) > 1:
-            from spark_parser.spark import rule2str
-
-            for rule in sorted(p.rule2name.items()):
-                print(rule2str(rule[0]))
+    dump_and_check(p, 3.7, modified_tokens)
