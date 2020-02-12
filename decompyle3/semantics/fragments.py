@@ -67,12 +67,11 @@ from __future__ import print_function
 
 import re
 
+import decompyle3.parsers.main as python_parser
 from xdis.code import iscode
 from xdis.magics import sysinfo2float
 from decompyle3.semantics import pysource
-from decompyle3 import parser
 from decompyle3.scanner import Token, Code, get_scanner
-import decompyle3.parser as python_parser
 from decompyle3.semantics.check_ast import checker
 from decompyle3 import IS_PYPY
 

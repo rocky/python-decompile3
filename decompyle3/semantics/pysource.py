@@ -131,11 +131,11 @@ IS_PYPY = "__pypy__" in sys.builtin_module_names
 from xdis.code import iscode
 from xdis.util import COMPILER_FLAG_BIT
 
-from decompyle3.parser import get_python_parser
+import decompyle3.parsers.main as python_parser
+from decompyle3.parsers.main import get_python_parser
 from decompyle3.parsers.treenode import SyntaxTree
 from spark_parser import GenericASTTraversal, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from decompyle3.scanner import Code, get_scanner
-import decompyle3.parser as python_parser
 from decompyle3.semantics.make_function36 import make_function36
 from decompyle3.semantics.parser_error import ParserError
 from decompyle3.semantics.check_ast import checker
@@ -200,25 +200,30 @@ class SourceWalker(GenericASTTraversal, object):
         linestarts={},
         tolerate_errors=False,
     ):
-        """`version' is the Python version (a float) of the Python dialect
-        of both the syntax tree and language we should produce.
+        """
+        "version" is the Python version (a float) of the Python
+        dialect of both the syntax tree and language we should
+        produce.
 
-        `out' is IO-like file pointer to where the output should go. It
+        "out" is IO-like file pointer to where the output should go. It
         whould have a getvalue() method.
 
-        `scanner' is a method to call when we need to scan tokens. Sometimes
+        "scanner" is a method to call when we need to scan tokens. Sometimes
         in producing output we will run across further tokens that need
         to be scaned.
 
-        If `showast' is True, we print the syntax tree.
+        If "showast" is True, we print the syntax tree.
 
-        `compile_mode' is is either 'exec' or 'single'. It isthe compile
-        mode that was used to create the Syntax Tree and specifies a
-        gramar variant within a Python version to use.
+        "compile_mode" is is either "exec" or "single" or "lambda".
 
-        `is_pypy' should be True if the Syntax Tree was generated for PyPy.
+        For "lambda", the grammar that can be used in lambda
+        expressions is used.  Otherwise, it is the compile mode that
+        was used to create the Syntax Tree and specifies a gramar
+        variant within a Python version to use.
 
-        `linestarts' is a dictionary of line number to bytecode offset. This
+        "is_pypy" should be True if the Syntax Tree was generated for PyPy.
+
+        "linestarts" is a dictionary of line number to bytecode offset. This
         can sometimes assist in determinte which kind of source-code construct
         to use when there is ambiguity.
 
@@ -234,12 +239,9 @@ class SourceWalker(GenericASTTraversal, object):
             compile_mode=compile_mode,
             is_pypy=is_pypy,
         )
-        self.p_lambda = get_python_parser(
-            version,
-            debug_parser=dict(debug_parser),
-            compile_mode="eval",
-            is_pypy=is_pypy,
-        )
+
+        # Initialize p_lambda on demand
+        self.p_lambda = None
 
         self.treeTransform = TreeTransform(showast)
         self.debug_parser = dict(debug_parser)
@@ -2071,15 +2073,18 @@ class SourceWalker(GenericASTTraversal, object):
                     t.kind = "RETURN_VALUE_LAMBDA"
             tokens.append(Token("LAMBDA_MARKER"))
             try:
-                # FIXME: have p.insts update in a better way
-                # modularity is broken here
-                p_insts = self.p.insts
-                p = self.p_lambda if is_lambda else self.p
+                if self.p_lambda is None:
+                    self.p_lambda = get_python_parser(
+                        self.version,
+                        self.debug_parser,
+                        compile_mode="lambda",
+                        is_pypy=self.is_pypy,
+                    )
+                p = self.p_lambda
                 p.insts = self.scanner.insts
                 p.offset2inst_index = self.scanner.offset2inst_index
                 ast = python_parser.parse(p, tokens, customize, is_lambda)
                 self.customize(customize)
-                p.insts = p_insts
             except (python_parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens)
             transform_ast = self.treeTransform.transform(ast)

@@ -19,6 +19,8 @@ function displaytime {
 USER=${USER:-rocky}
 EMAIL=${EMAIL:-rb@dustyfeet.com}
 MAX_TESTS=${MAX_TESTS:-800}
+export BATCH=1
+
 typeset -i RUN_STARTTIME=$(date +%s)
 
 actual_versions=""
@@ -55,10 +57,12 @@ for VERSION in $PYVERSIONS ; do
 
     SUBJECT_PREFIX="pyenv weak verify (max $MAX_TESTS) for"
     if ((rc == 0)); then
+	actual_versions="$actual_versions ok;"
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION ok" ${USER}@localhost
     else
+	actual_versions="$actual_versions failed;"
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION not ok" ${USER}@localhost
-	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION not ok" ${EMAIL}
+	tail -v $LOGFILE | mail -s "$HOST $SUBJECT_PREFIX $VERSION not ok" ${EMAIL}
     fi
     rm .python-version
 done
@@ -66,4 +70,4 @@ done
 typeset -i RUN_ENDTIME=$(date +%s)
 (( time_diff =  RUN_ENDTIME - RUN_STARTTIME))
 elapsed_time=$(displaytime $time_diff)
-echo "Run complete $elapsed_time for versions $actual_versions" | mail -s "pyenv weak verify in $elapsed_time" ${EMAIL}
+echo "Run complete $elapsed_time for versions $actual_versions" | mail -s "$HOST pyenv weak verify in $elapsed_time" ${EMAIL}

@@ -1,6 +1,6 @@
 import re
-from decompyle3 import PYTHON_VERSION, IS_PYPY  # , PYTHON_VERSION
-from decompyle3.parser import get_python_parser, python_parser
+from decompyle3 import PYTHON_VERSION, IS_PYPY
+from decompyle3.parsers.main import get_python_parser, python_parser
 from decompyle3.scanner import get_scanner
 
 
@@ -19,42 +19,31 @@ def test_grammar():
     p = get_python_parser(PYTHON_VERSION, is_pypy=IS_PYPY)
     (lhs, rhs, tokens, right_recursive, dup_rhs) = p.check_sets()
 
+    expect_lhs = set([])
+
     # We have custom rules that create the below
-    expect_lhs = set(["pos_arg"])
-
-    if PYTHON_VERSION < 3.8:
-        expect_lhs.add("get_iter")
-
-    unused_rhs = set(["list", "mkfunc", "mklambda", "unpack"])
+    unused_rhs = set(["mkfunc"])
 
     expect_right_recursive = set([("designList", ("store", "DUP_TOP", "designList"))])
 
     expect_lhs.add("load_genexpr")
-    expect_lhs.add("kvlist")
     expect_lhs.add("kv3")
     expect_lhs.add("lambda_start") # Start symbol for lambda expressions
 
     unused_rhs = unused_rhs.union(
         set(
             """
-    except_pop_except generator_exp
+    except_pop_except
     """.split()
         )
     )
-    unused_rhs.add("dict_comp")
     unused_rhs.add("classdefdeco1")
     unused_rhs.add("tryelsestmtc")
-    unused_rhs.add("dict")
 
     expect_right_recursive.add((("c_stmts", ("lastc_stmt", "come_froms", "c_stmts"))))
-    pass
 
     assert expect_lhs == set(lhs)
-
-    # FIXME
-    if PYTHON_VERSION != 3.8:
-        assert unused_rhs == set(rhs)
-
+    assert unused_rhs == set(rhs)
     assert expect_right_recursive == right_recursive
 
     expect_dup_rhs = frozenset(
@@ -105,3 +94,7 @@ def test_dup_rule():
             "context": True,
         },
     )
+
+if __name__ == "__main__":
+    test_grammar()
+    test_dup_rule()

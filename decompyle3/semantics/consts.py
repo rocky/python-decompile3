@@ -46,7 +46,7 @@ PRECEDENCE = {
     "yield":                 102,
     "yield_from":            102,
 
-    "_mklambda":              30,
+    "mklambda":               30,
 
     "if_exp":                 28, # IfExp ( a if x else b)
     "if_exp_lambda":          28, # IfExp involving a lambda expression

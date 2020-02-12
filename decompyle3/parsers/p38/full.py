@@ -16,9 +16,9 @@
 spark grammar differences over Python 3.7 for Python 3.8
 """
 
-from decompyle3.parser import PythonParserSingle
+from decompyle3.parsers.main import PythonParserSingle
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
-from decompyle3.parsers.parse37 import Python37Parser
+from decompyle3.parsers.p37.full import Python37Parser
 
 class Python38Parser(Python37Parser):
     def p_38walrus(self, args):
@@ -91,6 +91,7 @@ class Python38Parser(Python37Parser):
         cf_pt              ::= COME_FROM POP_TOP
         ifelsestmtc        ::= testexpr c_stmts cf_pt else_suite
 
+        get_iter           ::= expr GET_ITER
         for38              ::= expr get_iter store for_block JUMP_BACK
         for38              ::= expr get_for_iter store for_block JUMP_BACK
         for38              ::= expr get_for_iter store for_block JUMP_BACK POP_BLOCK
@@ -114,7 +115,7 @@ class Python38Parser(Python37Parser):
         whileTruestmt38    ::= _come_froms c_stmts JUMP_BACK
         whileTruestmt38    ::= _come_froms c_stmts JUMP_BACK COME_FROM_EXCEPT_CLAUSE
 
-        for_block          ::= _come_froms c_stmts_opt _come_from_loops JUMP_BACK
+        for_block          ::= _come_froms c_stmts_opt come_from_loops JUMP_BACK
 
         except_cond1       ::= DUP_TOP expr COMPARE_OP jmp_false
                                POP_TOP POP_TOP POP_TOP
@@ -291,34 +292,14 @@ class Python38ParserSingle(Python38Parser, PythonParserSingle):
 
 if __name__ == "__main__":
     # Check grammar
-    # FIXME: DRY this with other parseXX.py routines
+    from decompyle3.parsers.dump import dump_and_check
     p = Python38Parser()
-    p.remove_rules_38()
-    p.check_grammar()
-    from decompyle3 import PYTHON_VERSION, IS_PYPY
-
-    if PYTHON_VERSION == 3.8:
-        lhs, rhs, tokens, right_recursive, dup_rhs = p.check_sets()
-        from decompyle3.scanner import get_scanner
-
-        s = get_scanner(PYTHON_VERSION, IS_PYPY)
-        opcode_set = set(s.opc.opname).union(
-            set(
-                """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
-               LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_CLASSNAME
-               LAMBDA_MARKER RETURN_LAST
-            """.split()
-            )
+    modified_tokens = set(
+        """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
+           LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_CLASSNAME
+           LAMBDA_MARKER RETURN_LAST
+        """.split()
         )
-        remain_tokens = set(tokens) - opcode_set
-        import re
 
-        remain_tokens = set([re.sub(r"_\d+$", "", t) for t in remain_tokens])
-        remain_tokens = set([re.sub("_CONT$", "", t) for t in remain_tokens])
-        remain_tokens = set(remain_tokens) - opcode_set
-        print(remain_tokens)
-        import sys
-        if len(sys.argv) > 1:
-            from spark_parser.spark import rule2str
-            for rule in sorted(p.rule2name.items()):
-                print(rule2str(rule[0]))
+    p.remove_rules_38()
+    dump_and_check(p, 3.7, modified_tokens)

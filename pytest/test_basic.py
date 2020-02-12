@@ -1,5 +1,5 @@
 from decompyle3.scanner import get_scanner
-from decompyle3.parser import get_python_parser
+from decompyle3.parsers.main import get_python_parser
 
 
 def test_get_scanner():
