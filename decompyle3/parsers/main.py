@@ -12,8 +12,19 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 """
-Common decompyle3 parser routines.
+Common decompyle3 parser routines. From the outside, of the module
+you'll usually import a call something here, such as:
+* python_parser(), or
+* parse()
+or import a base class such as:
+
+*ParseError(),
+* PythonLambdaParser(), or
+* PythonParser()
+
+Note however all of this is imported from the __init__ module
 """
 
 import sys
@@ -34,7 +45,6 @@ class ParserError(Exception):
             self.token,
             self.offset,
         )
-
 
 def nop_func(self, args):
     return None

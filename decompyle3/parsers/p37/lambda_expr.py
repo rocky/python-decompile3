@@ -16,7 +16,7 @@
 Python 3.7 lambda grammar for the spark Earley-algorithm parser.
 """
 
-from decompyle3.parser import PythonParserSingle, nop_func
+from decompyle3.parsers.main import PythonParserSingle, nop_func
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from decompyle3.parsers.p37.base import Python37BaseParser
 from decompyle3.scanners.tok import Token

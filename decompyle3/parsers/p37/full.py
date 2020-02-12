@@ -14,7 +14,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
-from decompyle3.parser import PythonParserSingle
+from decompyle3.parsers.main import PythonParserSingle
 from decompyle3.parsers.p37.lambda_expr import Python37LambdaParser
 
 class Python37Parser(Python37LambdaParser):

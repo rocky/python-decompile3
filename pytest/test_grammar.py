@@ -1,6 +1,6 @@
 import re
 from decompyle3 import PYTHON_VERSION, IS_PYPY  # , PYTHON_VERSION
-from decompyle3.parser import get_python_parser, python_parser
+from decompyle3.parsers.main import get_python_parser, python_parser
 from decompyle3.scanner import get_scanner
 
 

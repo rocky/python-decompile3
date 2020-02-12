@@ -20,7 +20,7 @@ from xdis.util import CO_GENERATOR, CO_ASYNC_GENERATOR
 from decompyle3.scanner import Code
 from decompyle3.parsers.treenode import SyntaxTree
 from decompyle3.semantics.parser_error import ParserError
-from decompyle3.parser import ParserError as ParserError2
+from decompyle3.parsers.main import ParserError as ParserError2
 from decompyle3.semantics.helper import (
     print_docstring,
     find_all_globals,

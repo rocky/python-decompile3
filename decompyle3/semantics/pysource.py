@@ -131,11 +131,11 @@ IS_PYPY = "__pypy__" in sys.builtin_module_names
 from xdis.code import iscode
 from xdis.util import COMPILER_FLAG_BIT
 
-from decompyle3.parser import get_python_parser
+import decompyle3.parsers.main as python_parser
+from decompyle3.parsers.main import get_python_parser
 from decompyle3.parsers.treenode import SyntaxTree
 from spark_parser import GenericASTTraversal, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from decompyle3.scanner import Code, get_scanner
-import decompyle3.parser as python_parser
 from decompyle3.semantics.make_function36 import make_function36
 from decompyle3.semantics.parser_error import ParserError
 from decompyle3.semantics.check_ast import checker

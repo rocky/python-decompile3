@@ -2,7 +2,7 @@
 """
 Python 3.7 base code. We keep non-custom-generated grammar rules out of this file.
 """
-from decompyle3.parser import PythonParser, PythonParserSingle, nop_func
+from decompyle3.parsers.main import PythonParser, PythonParserSingle, nop_func
 from decompyle3.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
