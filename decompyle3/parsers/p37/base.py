@@ -1011,7 +1011,7 @@ class Python37BaseParser(PythonParser):
                                      SETUP_WITH store suite_stmts_opt
                                      POP_BLOCK LOAD_CONST COME_FROM_WITH
 
-                       withstmt  ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
+                      withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
                                      BEGIN_FINALLY COME_FROM_WITH
                                      WITH_CLEANUP_START WITH_CLEANUP_FINISH
                                      END_FINALLY
@@ -1020,21 +1020,16 @@ class Python37BaseParser(PythonParser):
 
             elif opname_base in ("UNPACK_EX",):
                 before_count, after_count = token.attr
-                rule = (
-                    "unpack ::= " + opname + " store" * (before_count + after_count + 1)
-                )
+                rule =  """
+                        store  ::= unpack
+                        unpack ::= """ + opname + " store" * (before_count + after_count + 1)
                 self.addRule(rule, nop_func)
 
-            elif opname_base in ("UNPACK_TUPLE", "UNPACK_SEQUENCE"):
-                rule = "unpack ::= " + opname + " store" * token.attr
+            elif opname_base == "UNPACK_SEQUENCE":
+                rule = """
+                    store  ::= unpack
+                    unpack ::= """ + opname + " store" * token.attr
                 self.addRule(rule, nop_func)
-
-            elif opname_base == "UNPACK_LIST":
-                rule = "unpack_list ::= " + opname + " store" * token.attr
-                self.addRule(rule, nop_func)
-                custom_ops_processed.add(opname)
-                pass
-
             pass
 
         self.reduce_check_table = {

@@ -322,7 +322,6 @@ class Python37LambdaParser(Python37BaseParser):
         store           ::= expr STORE_ATTR
         store           ::= store_subscript
         store_subscript ::= expr expr STORE_SUBSCR
-        store           ::= unpack
         """
 
     def customize_grammar_rules(self, tokens, customize):

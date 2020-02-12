@@ -47,7 +47,6 @@ def test_grammar():
 
     # FIXME
     if PYTHON_VERSION != 3.8:
-        unused_rhs.add("unpack")
         unused_rhs.add("list")
         assert unused_rhs == set(rhs)
 

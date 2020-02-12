@@ -587,13 +587,6 @@ class Python37Parser(Python37LambdaParser):
         ifelsestmt    ::= testexpr stmts_opt JUMP_FORWARD
                           else_suite opt_come_from_except
 
-        # FIXME: The below seems to to be a duplicate? jump_foward_else == jf_cfs?
-        # ifelsestmt ::= testexpr stmts_opt jump_forward_else
-        #                else_suite _come_froms
-
-        # ifelsestmt ::= testexpr c_stmts_opt jump_forward_else
-        #                pass  _come_froms
-
         ifelsestmtc ::= testexpr c_stmts_opt jump_forward_else else_suitec
         ifelsestmtc ::= testexpr c_stmts_opt cf_jump_back else_suitec
 
