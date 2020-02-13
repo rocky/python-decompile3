@@ -714,6 +714,7 @@ class Python37Parser(Python37LambdaParser):
         # If statement inside a loop:
         c_stmt             ::= ifstmtc
         c_stmt             ::= if_and_elsestmtc
+        c_stmt             ::= assign
 
         if_exp_lambda      ::= expr jmp_false expr return_if_lambda
                                return_stmt_lambda
