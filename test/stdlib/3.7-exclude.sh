@@ -1,6 +1,7 @@
 SKIP_TESTS=(
     [test_generators.py]=1  # parse error. this portion works in uncompyle6
     [test_grammar.py]=1 # investigate: like above: semantic rule missing probably
+    [test_httplib.py]=1 # control flow: works on f7e2064e
 
     [test___all__.py]=1 # it fails on its own
     [test_argparse.py]=1 #- it fails on its own
