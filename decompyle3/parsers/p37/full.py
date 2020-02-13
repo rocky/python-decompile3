@@ -64,10 +64,12 @@ class Python37Parser(Python37LambdaParser):
         c_stmts ::= _stmts lastc_stmt
         c_stmts ::= lastc_stmt
         c_stmts ::= continues
-        c_stmts ::= cstmt+
+        c_stmts ::= c_stmt+
         c_stmts ::= returns
 
-        cstmt   ::= stmt
+        c_stmt  ::= ifelsestmtc
+        c_stmt  ::= ifstmtc
+        c_stmt  ::= break
 
         c_stmts_opt ::= c_stmts
         c_stmts_opt ::= pass
@@ -414,7 +416,7 @@ class Python37Parser(Python37LambdaParser):
 
         jb_elsec     ::= JUMP_BACK COME_FROM
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_FORWARD else_suitec
-        ifelsestmtc ::= testexpr c_stmts_opt jb_elsec else_suitec
+        ifelsestmtc ::= testexpr c_stmts_opt jb_elsec else_suitec come_from_opt
 
         # We want to keep the positions of the "then" and
         # "else" statements in "ifelstmtl" similar to others of this ilk.
@@ -493,9 +495,10 @@ class Python37Parser(Python37LambdaParser):
         return_if_stmt  ::= ret_expr RETURN_END_IF
         returns         ::= _stmts return_if_stmt
 
+
+        # FIXME: "break" and "continue" should be isolated to loops
         stmt      ::= break
         break     ::= BREAK_LOOP
-
         stmt      ::= continue
         continue  ::= CONTINUE
         continues ::= _stmts lastc_stmt continue
@@ -530,16 +533,13 @@ class Python37Parser(Python37LambdaParser):
 
         expr    ::= LOAD_ASSERT
 
-        # FIXME: add this:
-        # expr    ::= assert_expr_or
-
         pop_jump    ::= POP_JUMP_IF_TRUE
         pop_jump    ::= POP_JUMP_IF_FALSE
 
         ifstmt      ::= testexpr ifstmts_jump _come_froms
         if_or_stmt  ::= expr POP_JUMP_IF_TRUE expr pop_jump come_froms
                         stmts COME_FROM
-        if_and_stmt ::= expr POP_JUMP_IF_FALSE expr POP_JUMP_IF_FALSE
+        if_and_stmt ::= expr POP_JUMP_IF_FALSE expr COME_FROM
                         stmts _come_froms
 
         if_and_elsestmtc    ::= expr POP_JUMP_IF_FALSE
@@ -736,7 +736,6 @@ class Python37Parser(Python37LambdaParser):
         ifstmts_jumpc             ::= COME_FROM c_stmts come_froms
         ifstmts_jumpc             ::= c_stmts JUMP_BACK
 
-        ifstmts_jump              ::= stmts JUMP_BACK
         ifstmts_jump              ::= stmts come_froms
         ifstmts_jump              ::= COME_FROM stmts come_froms
 

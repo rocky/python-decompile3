@@ -29,8 +29,12 @@ def if_and_stmt(
     if not ast:
         return False
 
-    end_if_jump = ast[1]
-    end_if_offset = end_if_jump.attr
-    # stmts = ast[-2]
-    # come_froms = ast[-1]
-    return end_if_offset < tokens[last].off2int(prefer_last=False)
+    if rule[1][:-1] == ("expr", "POP_JUMP_IF_FALSE", "expr", "COME_FROM", "stmts"):
+        # POP_JUMP_IF_FALSE should go to the COME_FROM
+        return ast[3].attr != ast[1].off2int(prefer_last=False)
+    else:
+        end_if_jump = ast[1]
+        end_if_offset = end_if_jump.attr
+        # stmts = ast[-2]
+        # come_froms = ast[-1]
+        return end_if_offset < tokens[last].off2int(prefer_last=False)
