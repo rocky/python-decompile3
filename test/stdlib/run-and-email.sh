@@ -23,6 +23,7 @@ mydir=$(dirname $bs)
 cd $mydir
 
 source ../../admin-tools/pyenv-versions
+RUNTESTS="runtests3.sh"
 
 USER=${USER:-rocky}
 EMAIL=${EMAIL:-rb@dustyfeet.com}
@@ -43,14 +44,19 @@ for VERSION in $PYVERSIONS ; do
     if ! pyenv local $VERSION ; then
 	rc=1
     else
-      /bin/bash ./runtests3.sh  >$LOGFILE 2>&1
+      /bin/bash ./${RUNTESTS}  >$LOGFILE 2>&1
       rc=$?
     fi
+    typeset -i RUN_ENDTIME=$(date +%s)
+    (( time_diff =  RUN_ENDTIME - RUN_STARTTIME))
+    elapsed_time=$(displaytime $time_diff)
+    echo $elaped_time >> $LOGFILE
+    actual_versions="$actual_versions $elapsed_time"
     if ((rc == 0)); then
-	actual_versions="$actual_versions ok;"
+	actual_versions="$actual_versions ok\n"
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION ok" ${USER}@localhost
     else
-	actual_versions="$actual_versions failed;"
+	actual_versions="$actual_versions failed\n"
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION not ok" ${USER}@localhost
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION not ok" $EMAIL
     fi
@@ -59,4 +65,4 @@ done
 typeset -i RUN_ENDTIME=$(date +%s)
 (( time_diff =  RUN_ENDTIME - RUN_STARTTIME))
 elapsed_time=$(displaytime $time_diff)
-echo "Run complete $elapsed_time for versions $actual_versions" | mail -s "$HOST runtests in $elapsed_time" ${EMAIL}
+echo "Run complete $elapsed_time for versions $actual_versions" | mail -s "$HOST decompyle3 ${RUNTESTS} finished in $elapsed_time" ${EMAIL}
