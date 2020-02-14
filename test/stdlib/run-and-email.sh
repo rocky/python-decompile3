@@ -34,13 +34,12 @@ typeset -i RUN_STARTTIME=$(date +%s)
 
 actual_versions=""
 DEBUG=""  # -x
+MAILBODY=/tmp/runtests-mailbody-$$.txt
 
 for VERSION in $PYVERSIONS ; do
     typeset -i rc=0
     LOGFILE=/tmp/runtests-$VERSION-$$.log
 
-
-    actual_versions="$actual_versions $VERSION"
     if ! pyenv local $VERSION ; then
 	rc=1
     else
@@ -51,18 +50,20 @@ for VERSION in $PYVERSIONS ; do
     (( time_diff =  RUN_ENDTIME - RUN_STARTTIME))
     elapsed_time=$(displaytime $time_diff)
     echo $elaped_time >> $LOGFILE
-    actual_versions="$actual_versions $elapsed_time"
+    mailbody_line="Python $VERSION ran in $elapsed_time"
     if ((rc == 0)); then
-	actual_versions="$actual_versions ok\n"
+	mailbody_line="$mailbody_line ok"
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION ok" ${USER}@localhost
     else
-	actual_versions="$actual_versions failed\n"
+	mailbody_line="$mailbody_line failed"
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION not ok" ${USER}@localhost
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION not ok" $EMAIL
     fi
+    echo $mailbody_line >> $MAILBODY
 done
 
 typeset -i RUN_ENDTIME=$(date +%s)
 (( time_diff =  RUN_ENDTIME - RUN_STARTTIME))
 elapsed_time=$(displaytime $time_diff)
-echo "Run complete $elapsed_time for versions $actual_versions" | mail -s "$HOST decompyle3 ${RUNTESTS} finished in $elapsed_time" ${EMAIL}
+echo "Run complete in $elapsed_time" >> $MAILBODY
+cat $MAILBODY | mail -s "$HOST decompyle3 ${RUNTESTS} finished in $elapsed_time" ${EMAIL}
