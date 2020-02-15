@@ -120,7 +120,7 @@ SKIP_TESTS=(
 )
 # 306 unit-test files in about 19 minutes
 
-if (( batch )) ; then
+if (( BATCH )) ; then
     SKIP_TESTS[test_dbm_gnu.py]=1 # fails on its own on POWER
     SKIP_TESTS[test_distutils.py]=1
     SKIP_TESTS[test_fileio.py]=1
