@@ -1,10 +1,12 @@
 #!/bin/bash
 me=${BASH_SOURCE[0]}
 
-typeset -i batch=1
-isatty=$(/usr/bin/tty 2>/dev/null)
-if [[ -n $isatty ]] && [[ "$isatty" != 'not a tty' ]] ; then
-    batch=0
+typeset -i BATCH=${BATCH:-0}
+if (( ! BATCH )) ; then
+    isatty=$(/usr/bin/tty 2>/dev/null)
+    if [[ -n $isatty ]] && [[ "$isatty" != 'not a tty' ]] ; then
+	BATCH=0
+    fi
 fi
 
 
@@ -79,7 +81,7 @@ fi
 PYENV_ROOT=${PYENV_ROOT:-$HOME/.pyenv}
 pyenv_local=$(pyenv local)
 
-# pyenv version cleaning
+# pyenv version update
 for dir in ../ ../../ ; do
     cp -v .python-version $dir
 done
