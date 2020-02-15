@@ -4,7 +4,7 @@
 # On Python 3.5 you should get
 #   compare ::= expr expr COMPARE_OP
 #   ...
-#   jmp_false ::= POP_JUMP_IF_FALSE
+#   jump_if_false ::= POP_JUMP_IF_FALSE
 #   ...
 
 from weakref import ref

@@ -167,11 +167,11 @@ class TreeTransform(GenericASTTraversal, object):
                     #                         call (3)
                     #                     1. RAISE_VARARGS_1
                     # becomes:
-                    # assert2 ::= assert_expr jmp_true LOAD_ASSERT expr RAISE_VARARGS_1 COME_FROM
-                    if jump_cond in ("jmp_true", NoneToken):
+                    # assert2 ::= assert_expr jump_if_true LOAD_ASSERT expr RAISE_VARARGS_1 COME_FROM
+                    if jump_cond in ("jump_if_true", NoneToken):
                         kind = "assert2"
                     else:
-                        if jump_cond == "jmp_false":
+                        if jump_cond == "jump_if_false":
                             # FIXME: We don't handle this kind of thing yet.
                             return node
                         kind = "assert2not"
@@ -206,11 +206,11 @@ class TreeTransform(GenericASTTraversal, object):
                     #                  LOAD_ASSERT
                     #             1.   RAISE_VARARGS_1
                     # becomes:
-                    # assert ::= assert_expr jmp_true LOAD_ASSERT RAISE_VARARGS_1 COME_FROM
-                    if jump_cond in ("jmp_true", NoneToken):
+                    # assert ::= assert_expr jump_if_true LOAD_ASSERT RAISE_VARARGS_1 COME_FROM
+                    if jump_cond in ("jump_if_true", NoneToken):
                         kind = "assert"
                     else:
-                        assert jump_cond == "jmp_false"
+                        assert jump_cond == "jump_if_false"
                         kind = "assertnot"
 
                     LOAD_ASSERT = expr[0]

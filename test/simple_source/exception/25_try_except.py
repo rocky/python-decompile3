@@ -5,10 +5,10 @@
 #   try_except ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK except_handler COME_FROM
 #   except_handler ::= JUMP_FORWARD COME_FROM except_stmts END_FINALLY COME_FROM
 #   except_stmt ::= except_cond1 except_suite
-#   except_cond1 ::= DUP_TOP expr COMPARE_OP jmp_false POP_TOP POP_TOP POP_TOP
+#   except_cond1 ::= DUP_TOP expr COMPARE_OP jump_if_false POP_TOP POP_TOP POP_TOP
 #   try_except ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK except_handler COME_FROM
 #   except_handler ::= JUMP_FORWARD COME_FROM except_stmts END_FINALLY COME_FROM
-#   except_cond1 ::= DUP_TOP expr COMPARE_OP jmp_false POP_TOP POP_TOP POP_TOP
+#   except_cond1 ::= DUP_TOP expr COMPARE_OP jump_if_false POP_TOP POP_TOP POP_TOP
 try:
     try:
         x = 1

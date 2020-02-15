@@ -1,8 +1,8 @@
 # Tests:
 
 # Python2:
-#   assert_expr_and ::= assert_expr jmp_false expr
-#   and ::= expr jmp_false expr \e__come_from
+#   assert_expr_and ::= assert_expr jump_if_false expr
+#   and ::= expr jump_if_false expr \e__come_from
 #   expr ::= list_compr
 #   list_iter ::= list_for
 #   list_for ::= expr _for store list_iter JUMP_BACK

@@ -6,7 +6,7 @@ ASSERT_OPS = frozenset(["LOAD_ASSERT", "RAISE_VARARGS_1"])
 def or_check(
     self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
 ) -> bool:
-    if rule == ("or", ("expr", "jmp_true", "expr")):
+    if rule == ("or", ("expr", "jump_if_true", "expr")):
         if tokens[last] in ASSERT_OPS or tokens[last-1] in ASSERT_OPS:
             return True
 
@@ -22,21 +22,21 @@ def or_check(
             return True
 
         first_offset = tokens[first].off2int()
-        jmp_true_target = ast[1][0].attr
-        if jmp_true_target < first_offset:
+        jump_if_true_target = ast[1][0].attr
+        if jump_if_true_target < first_offset:
             return False
 
-        jmp_false = tokens[last]
+        jump_if_false = tokens[last]
         # If the jmp is backwards
-        if jmp_false == "POP_JUMP_IF_FALSE":
-            jmp_false_offset = jmp_false.off2int()
-            if jmp_false.attr < jmp_false_offset:
+        if jump_if_false == "POP_JUMP_IF_FALSE":
+            jump_if_false_offset = jump_if_false.off2int()
+            if jump_if_false.attr < jump_if_false_offset:
                 # For a backwards loop, well compare to the instruction *after*
                 # then POP_JUMP...
-                jmp_false = tokens[last + 1]
+                jump_if_false = tokens[last + 1]
             return not (
-                (jmp_false_offset <= jmp_true_target <= jmp_false_offset + 2)
-                or jmp_true_target < tokens[first].off2int()
+                (jump_if_false_offset <= jump_if_true_target <= jump_if_false_offset + 2)
+                or jump_if_true_target < tokens[first].off2int()
             )
 
     return False

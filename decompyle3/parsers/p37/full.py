@@ -316,13 +316,13 @@ class Python37Parser(Python37LambdaParser):
         list_for  ::= expr for_iter store list_iter jb_or_c
         list_comp ::= BUILD_LIST_0 list_iter
 
-        list_if     ::= expr jmp_false   list_iter
-        list_if_not ::= expr jmp_true    list_iter
-        list_if     ::= expr jmp_false37 list_iter
-        list_if     ::= expr jmp_false   list_iter COME_FROM
-        list_if_not ::= expr jmp_true    list_iter COME_FROM
+        list_if     ::= expr jump_if_false   list_iter
+        list_if_not ::= expr jump_if_true    list_iter
+        list_if     ::= expr jump_if_false37 list_iter
+        list_if     ::= expr jump_if_false   list_iter COME_FROM
+        list_if_not ::= expr jump_if_true    list_iter COME_FROM
 
-        jmp_false37 ::= POP_JUMP_IF_FALSE COME_FROM
+        jump_if_false37 ::= POP_JUMP_IF_FALSE COME_FROM
 
         jb_or_c ::= JUMP_BACK
         jb_or_c ::= CONTINUE
@@ -525,7 +525,7 @@ class Python37Parser(Python37LambdaParser):
 
         # In 3.7 there are some LOAD_GLOBALs we don't convert to LOAD_ASSERT
         stmt    ::= assert2
-        assert2 ::= expr jmp_true LOAD_GLOBAL expr CALL_FUNCTION_1 RAISE_VARARGS_1
+        assert2 ::= expr jump_if_true LOAD_GLOBAL expr CALL_FUNCTION_1 RAISE_VARARGS_1
 
         # "assert_invert" tests on the negative of the condition given
         stmt          ::= assert_invert
@@ -545,17 +545,17 @@ class Python37Parser(Python37LambdaParser):
         if_and_elsestmtc    ::= expr POP_JUMP_IF_FALSE
                                 expr POP_JUMP_IF_FALSE
                                 c_stmts jb_cfs else_suitec opt_come_from_except
-        if_or_elsestmt      ::= expr jmp_true
+        if_or_elsestmt      ::= expr jump_if_true
                                 come_from_opt expr POP_JUMP_IF_FALSE come_froms
                                 stmts jf_cfs else_suite opt_come_from_except
-        if_or_not_elsestmt  ::= expr jmp_true
+        if_or_not_elsestmt  ::= expr jump_if_true
                                 come_from_opt expr POP_JUMP_IF_TRUE come_froms
                                 stmts jf_cfs else_suite opt_come_from_except
 
         testexpr   ::= testfalse
         testexpr   ::= testtrue
-        testfalse  ::= expr jmp_false
-        testtrue   ::= expr jmp_true
+        testfalse  ::= expr jump_if_false
+        testtrue   ::= expr jump_if_true
         testtrue   ::= compare_chained37
         testfalse  ::= and_not
         testfalse  ::= compare_chained37_false
@@ -651,10 +651,10 @@ class Python37Parser(Python37LambdaParser):
         except_suite ::= returns
 
         except_cond1 ::= DUP_TOP expr COMPARE_OP
-                         jmp_false POP_TOP POP_TOP POP_TOP
+                         jump_if_false POP_TOP POP_TOP POP_TOP
 
         except_cond2 ::= DUP_TOP expr COMPARE_OP
-                         jmp_false POP_TOP store POP_TOP come_from_opt
+                         jump_if_false POP_TOP store POP_TOP come_from_opt
 
         except  ::=  POP_TOP POP_TOP POP_TOP c_stmts_opt POP_EXCEPT jump
         except  ::=  POP_TOP POP_TOP POP_TOP returns
@@ -693,19 +693,19 @@ class Python37Parser(Python37LambdaParser):
         ret_or     ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
         if_exp_ret ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
 
-        testfalse_not_or   ::= expr jmp_false expr jmp_false COME_FROM
-        testfalse_not_and ::= and jmp_true come_froms
+        testfalse_not_or   ::= expr jump_if_false expr jump_if_false COME_FROM
+        testfalse_not_and ::= and jump_if_true come_froms
 
-        testfalse_not_and ::= expr jmp_false expr jmp_true  COME_FROM
+        testfalse_not_and ::= expr jump_if_false expr jump_if_true  COME_FROM
         testfalse ::= testfalse_not_or
         testfalse ::= testfalse_not_and
-        testfalse ::= or jmp_false COME_FROM
+        testfalse ::= or jump_if_false COME_FROM
 
         iflaststmtc ::= testexprc c_stmts JUMP_BACK
         iflaststmtc ::= testexprc c_stmts JUMP_BACK COME_FROM_LOOP
         iflaststmtc ::= testexprc c_stmts JUMP_BACK POP_BLOCK
         testexprc   ::= testfalsec
-        testfalsec  ::= expr jmp_true
+        testfalsec  ::= expr jump_if_true
 
         """
 
@@ -716,10 +716,10 @@ class Python37Parser(Python37LambdaParser):
         c_stmt             ::= if_and_elsestmtc
         c_stmt             ::= assign
 
-        if_exp_lambda      ::= expr jmp_false expr return_if_lambda
+        if_exp_lambda      ::= expr jump_if_false expr return_if_lambda
                                return_stmt_lambda
         if_exp_not_lambda
-                           ::= expr jmp_true expr return_if_lambda
+                           ::= expr jump_if_true expr return_if_lambda
                                return_stmt_lambda
         return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA
 
@@ -831,7 +831,7 @@ class Python37Parser(Python37LambdaParser):
 
         jf_cf        ::= JUMP_FORWARD COME_FROM
 
-        if_exp       ::= expr jmp_false expr jf_cf expr COME_FROM
+        if_exp       ::= expr jump_if_false expr jf_cf expr COME_FROM
 
         except_suite ::= c_stmts_opt COME_FROM POP_EXCEPT jump_except COME_FROM
 

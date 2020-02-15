@@ -122,7 +122,7 @@ class Python38Parser(Python37Parser):
 
         for_block          ::= _come_froms c_stmts_opt come_from_loops JUMP_BACK
 
-        except_cond1       ::= DUP_TOP expr COMPARE_OP jmp_false
+        except_cond1       ::= DUP_TOP expr COMPARE_OP jump_if_false
                                POP_TOP POP_TOP POP_TOP
                                POP_EXCEPT
 
