@@ -29,86 +29,88 @@ def customize_for_version38(self, version):
     #     del TABLE_DIRECT[lhs]
 
     TABLE_DIRECT.update({
-        'async_for_stmt38':  (
-            '%|async for %c in %c:\n%+%c%-%-\n\n',
-            (7, 'store'), (0, 'expr'), (8, 'for_block') ),
+        "async_for_stmt38":  (
+            "%|async for %c in %c:\n%+%c%-%-\n\n",
+            (7, "store"), (0, "expr"), (8, "for_block") ),
 
-        'async_forelse_stmt38':  (
-            '%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n',
-            (7, 'store'), (0, 'expr'), (8, 'for_block'), (-1, 'else_suite') ),
+        "async_forelse_stmt38":  (
+            "%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n",
+            (7, "store"), (0, "expr"), (8, "for_block"), (-1, "else_suite") ),
 
-        'async_with_stmt38': (
-            '%|async with %c:\n%+%|%c%-',
-            (0, 'expr'), 7),
+        "async_with_stmt38": (
+            "%|async with %c:\n%+%|%c%-",
+            (0, "expr"), 7),
 
-        'async_with_as_stmt38':  (
-            '%|async with %c as %c:\n%+%|%c%-',
-            (0, 'expr'), (6, 'store'),
-            (7, 'suite_stmts') ),
+        "async_with_as_stmt38":  (
+            "%|async with %c as %c:\n%+%|%c%-",
+            (0, "expr"), (6, "store"),
+            (7, "suite_stmts") ),
 
-        'except_handler38': (
-            '%c', (2, 'except_stmts') ),
+        "except_handler38": (
+            "%c", (2, "except_stmts") ),
 
-        'except_handler38a': (
-            '%c', (-2, 'stmts') ),
+        "except_handler38a": (
+            "%c", (-2, "stmts") ),
 
-        'except_ret38a': (
-            'return %c', (4, 'expr') ),
+        "except_ret38a": (
+            "return %c", (4, "expr") ),
 
         # Note: there is a suite_stmts_opt which seems
         # to be bookkeeping which is not expressed in source code
-        'except_ret38':  ( '%|return %c\n', (1, 'expr') ),
+        "except_ret38":  ( "%|return %c\n", (1, "expr") ),
 
-        'for38':            (
-            '%|for %c in %c:\n%+%c%-\n\n',
-            (2, 'store'),
-            (0, 'expr'),
-            (3, 'for_block') ),
-        'forelsestmt38':    (
-            '%|for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n',
-            (2, 'store'),
-            (0, 'expr'),
-            (3, 'for_block'), -2 ),
-        'forelselaststmt38': (
-            '%|for %c in %c:\n%+%c%-%|else:\n%+%c%-',
-            (2, 'store'),
-            (0, 'expr'),
-            (3, 'for_block'), -2 ),
-        'forelselaststmtc38':	(
-            '%|for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n',
-            (2, 'store'),
-            (0, 'expr'),
-            (3, 'for_block'), -2 ),
+        "for38":            (
+            "%|for %c in %c:\n%+%c%-\n\n",
+            (2, "store"),
+            (0, "expr"),
+            (3, "for_block") ),
+        "forelsestmt38":    (
+            "%|for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n",
+            (2, "store"),
+            (0, "expr"),
+            (3, "for_block"), -2 ),
+        "forelselaststmt38": (
+            "%|for %c in %c:\n%+%c%-%|else:\n%+%c%-",
+            (2, "store"),
+            (0, "expr"),
+            (3, "for_block"), -2 ),
+        "forelselaststmtc38":	(
+            "%|for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n",
+            (2, "store"),
+            (0, "expr"),
+            (3, "for_block"), -2 ),
 
-        'ifpoplaststmtl': ( '%|if %c:\n%+%c%-',
+        "ifpoplaststmtl": ( "%|if %c:\n%+%c%-",
                             (0, "testexpr"),
                             (2, "c_stmts" ) ),
 
-        'whilestmt38': ( '%|while %c:\n%+%c%-\n\n',
-                         (1, 'testexpr'),
+        "pop_return": ( "%|return %c:\n", (1, "ret_expr") ),
+
+        "whilestmt38": ( "%|while %c:\n%+%c%-\n\n",
+                         (1, "testexpr"),
                          2 ), # "c_stmts" or "pass"
-        'whileTruestmt38': ( '%|while True:\n%+%c%-\n\n',
+        "whileTruestmt38": ( "%|while True:\n%+%c%-\n\n",
                              1 ), # "c_stmts" or "pass"
-        'try_elsestmtl38': (
-            '%|try:\n%+%c%-%c%|else:\n%+%c%-',
-            (1, 'suite_stmts_opt'),
-            (3, 'except_handler38'),
-            (5, 'else_suitec') ),
-        'try_except38': (
-            '%|try:\n%+%c\n%-%|except:\n%|%-%c\n\n',
-                   (-2, 'suite_stmts_opt'), (-1, 'except_handler38a') ),
-        'try_except_ret38': (
-            '%|try:\n%+%|return %c%-\n%|except:\n%+%|%c%-\n\n',
-                   (1, 'expr'), (-1, 'except_ret38a') ),
-        'tryfinally38rstmt': (
-            '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
-                   (3, 'returns'), 6 ),
-        'tryfinally38stmt': (
-            '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
+        "try_elsestmtl38": (
+            "%|try:\n%+%c%-%c%|else:\n%+%c%-",
+            (1, "suite_stmts_opt"),
+            (3, "except_handler38"),
+            (5, "else_suitec") ),
+        "try_except38": (
+            "%|try:\n%+%c\n%-%|except:\n%|%-%c\n\n",
+                   (-2, "suite_stmts_opt"), (-1, "except_handler38a") ),
+        "try_except_ret38": (
+            "%|try:\n%+%|return %c%-\n%|except:\n%+%|%c%-\n\n",
+                   (1, "expr"), (-1, "except_ret38a") ),
+        "tryfinally38rstmt": (
+            "%|try:\n%+%c%-%|finally:\n%+%c%-\n\n",
+                   (3, "returns"), 6 ),
+        "tryfinally38stmt": (
+            "%|try:\n%+%c%-%|finally:\n%+%c%-\n\n",
             (1, "suite_stmts_opt"),
             (6, "suite_stmts_opt") ),
-        'tryfinally38astmt': (
-            '%|try:\n%+%c%-%|finally:\n%+%c%-\n\n',
+        "tryfinally38astmt": (
+            "%|try:\n%+%c%-%|finally:\n%+%c%-\n\n",
             (2, "suite_stmts_opt"),
             (8, "suite_stmts_opt") ),
         "named_expr": ( # AKA "walrus operator"

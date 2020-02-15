@@ -83,6 +83,10 @@ class Python38Parser(Python37Parser):
         return             ::= ret_expr
                                ROT_TWO POP_TOP RETURN_VALUE
 
+        stmt               ::= pop_return
+        pop_return         ::= POP_TOP ret_expr RETURN_VALUE
+
+
         # 3.8 can push a looping JUMP_BACK into into a JUMP_ from a statement that jumps to it
         lastc_stmt         ::= ifpoplaststmtc
         ifpoplaststmtc     ::= testexpr POP_TOP c_stmts_opt
