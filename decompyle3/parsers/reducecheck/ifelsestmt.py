@@ -112,14 +112,14 @@ def ifelsestmt(
             if come_from.attr > stmts.first_child().off2int():
                 return True
 
-        if len(if_condition) > 1 and if_condition[1].kind.startswith("jmp_"):
+        if len(if_condition) > 1 and if_condition[1].kind.startswith("jump_"):
             if last == n:
                 last -= 1
 
             jmp = if_condition[1]
-            jmp_target = jmp[0].attr
+            jump_target = jmp[0].attr
 
-            # Below we check that jmp_target is jumping to a feasible
+            # Below we check that jump_target is jumping to a feasible
             # location. It should be to the transition after the "then"
             # block and to the beginning of the "else" block.
             # However the "if/else" is inside a loop the false test can be
@@ -139,8 +139,8 @@ def ifelsestmt(
                 if endif_target != last_offset:
                     return True
             last_offset = tokens[last].off2int(prefer_last=False)
-            if jmp_target == last_offset:
-                # jmp_target should be jumping to the end of the if/then/else
+            if jump_target == last_offset:
+                # jump_target should be jumping to the end of the if/then/else
                 # but is it jumping to the beginning of the "else"
                 return True
             if (
@@ -158,12 +158,12 @@ def ifelsestmt(
                 jump_else_end in ("jb_elsec", "jf_cfs", "jb_cfs")
                 and jump_else_end[-1] == "COME_FROM"
             ):
-                if jump_else_end[-1].off2int() != jmp_target:
+                if jump_else_end[-1].off2int() != jump_target:
                     return True
 
-            if tokens[first].off2int() > jmp_target:
+            if tokens[first].off2int() > jump_target:
                 return True
 
-            return (jmp_target > last_offset) and tokens[last] != "JUMP_FORWARD"
+            return (jump_target > last_offset) and tokens[last] != "JUMP_FORWARD"
 
     return False

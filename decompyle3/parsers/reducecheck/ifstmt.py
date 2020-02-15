@@ -46,23 +46,23 @@ def ifstmt(
 
     if testexpr[0] in ("testtrue", "testfalse"):
         test = testexpr[0]
-        if len(test) > 1 and test[1].kind.startswith("jmp_"):
-            jmp_target = test[1][0].attr
+        if len(test) > 1 and test[1].kind.startswith("jump_"):
+            jump_target = test[1][0].attr
             if (
                 tokens[first].off2int(prefer_last=True)
-                <= jmp_target
+                <= jump_target
                 < tokens[last].off2int(prefer_last=False)
             ):
                 return True
-            # jmp_target less than tokens[first] is okay - is to a loop
-            # jmp_target equal tokens[last] is also okay: normal non-optimized non-loop jump
-            if jmp_target > tokens[last].off2int():
+            # jump_target less than tokens[first] is okay - is to a loop
+            # jump_target equal tokens[last] is also okay: normal non-optimized non-loop jump
+            if jump_target > tokens[last].off2int():
                 # One more weird case to look out for
                 #   if c1:
                 #      if c2:  # Jumps around the *outer* "else"
                 #       ...
                 #   else:
-                if jmp_target == tokens[last - 1].attr:
+                if jump_target == tokens[last - 1].attr:
                     return False
                 if last < n and tokens[last].kind.startswith("JUMP"):
                     return False
