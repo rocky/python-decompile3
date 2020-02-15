@@ -258,9 +258,6 @@ class Python38Parser(Python37Parser):
            forelselaststmt    ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suitec
            forelselaststmtc   ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suitec
 
-           tryelsestmtc3      ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                                  except_handler COME_FROM else_suitec
-                                  opt_come_from_except
            try_except         ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                                   except_handler opt_come_from_except
            tryfinallystmt     ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK

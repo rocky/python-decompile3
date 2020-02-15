@@ -17,7 +17,7 @@ from decompyle3.parsers.reducecheck import (
     lastc_stmt,
     or_check,
     testtrue,
-    tryelsestmtc3,
+    c_tryelsestmt,
     whilestmt,
     while1stmt,
     while1elsestmt,
@@ -950,22 +950,20 @@ class Python37BaseParser(PythonParser):
                     c_try_except   ::= SETUP_EXCEPT c_suite_stmts POP_BLOCK
                                        except_handler opt_come_from_except
 
-                    tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                                       except_handler else_suite come_from_except_clauses
+                    stmt           ::= tryelsestmt3
+                    tryelsestmt3   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                                       except_handler COME_FROM else_suite
+                                       opt_come_from_except
 
-                    tryelsestmtc   ::= SETUP_EXCEPT c_suite_stmts POP_BLOCK
+                    tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                                        except_handler else_suite come_from_except_clauses
 
                     tryelsestmt    ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                                        except_handler else_suite come_froms
 
-                    tryelsestmtc   ::= SETUP_EXCEPT c_suite_stmts_opt POP_BLOCK
-                                       except_handler else_suitec come_from_except_clauses
-
-                    c_stmt         ::= c_tryelsestmt3
-                    c_tryelsestmtc ::= SETUP_EXCEPT c_suite_stmts POP_BLOCK
-                                       except_handler COME_FROM else_suitec
-                                       opt_come_from_except
+                    c_stmt         ::= c_tryelsestmt
+                    c_tryelsestmt  ::= SETUP_EXCEPT c_suite_stmts POP_BLOCK
+                                       except_handler else_suite come_from_except_clauses
                     """,
                     nop_func,
                 )
@@ -1071,7 +1069,7 @@ class Python37BaseParser(PythonParser):
             "while1elsestmt": while1elsestmt,
             "while1stmt": while1stmt,
             "whilestmt": whilestmt,
-            "try_elsestmtc38": tryelsestmtc3,
+            "c_try_elsestmtc": c_tryelsestmt,
         }
 
         self.check_reduce["and"] = "AST"

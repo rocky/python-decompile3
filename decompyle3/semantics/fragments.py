@@ -276,7 +276,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.set_pos_info(node[0], start, start + len("try:"))
         self.default(node)
 
-    n_tryelsestmt = n_tryelsestmtc = n_tryelsestmtl = n_tryfinallystmt = n_try_except
+    n_tryelsestmt = n_c_tryelsestmt = n_tryelsestmtl = n_tryfinallystmt = n_try_except
 
     def n_raise_stmt0(self, node):
         assert node[0] == "RAISE_VARARGS_0"

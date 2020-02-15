@@ -2,7 +2,7 @@
 
 from decompyle3.parsers.treenode import SyntaxTree
 
-def tryelsestmtc3(self, lhs, n, rule, ast, tokens, first, last):
+def c_tryelsestmt(self, lhs, n, rule, ast, tokens, first, last):
     # Check the end of the except handler that there isn't a jump from
     # inside the except handler to the end. If that happens
     # then this is a "try" with no "else".

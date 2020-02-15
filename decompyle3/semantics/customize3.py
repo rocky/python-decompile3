@@ -64,7 +64,7 @@ def customize_for_version3(self, version):
             if try_something == "try_except":
                 try_something.kind = "tf_try_except"
             if try_something.kind.startswith("tryelsestmt"):
-                if try_something == "tryelsestmtc3":
+                if try_something == "c_tryelsestmt":
                     try_something.kind = 'tf_tryelsestmtc3'
                 else:
                     try_something.kind = 'tf_tryelsestmt'
@@ -179,7 +179,7 @@ def customize_for_version3(self, version):
 
     TABLE_DIRECT.update(
         {
-            "tryelsestmtc3": (
+            "c_tryelsestmt": (
                 "%|try:\n%+%c%-%c%|else:\n%+%c%-",
                 (1, "suite_stmts_opt"),
                 (3, "except_handler"),

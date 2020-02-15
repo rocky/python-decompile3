@@ -82,7 +82,6 @@ class Python37Parser(Python37LambdaParser):
 
         # FIXME: Do we need these?
         lastc_stmt ::= ifelsestmtc
-        lastc_stmt ::= tryelsestmtc
 
         else_suitec ::= c_stmts
         else_suitec ::= returns
