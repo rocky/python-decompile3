@@ -13,7 +13,7 @@ def iflaststmt(
     if testexpr[0] in ("testtrue", "testtruec", "testfalse", "testfalsec"):
 
         test = testexpr[0]
-        if len(test) > 1 and test[1].kind.startswith("jump_"):
+        if len(test) > 1 and test[1].kind.startswith("jump_if_"):
             if last == n:
                 last -= 1
             jump_target = test[1][0].attr

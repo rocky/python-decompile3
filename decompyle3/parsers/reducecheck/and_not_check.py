@@ -5,7 +5,7 @@ def and_not_check(
     self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
 ) -> bool:
     jmp = ast[1]
-    if jmp.kind.startswith("jump_"):
+    if jmp.kind.startswith("jump_if_"):
         if last == n:
             return True
         jump_target = jmp[0].attr

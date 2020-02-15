@@ -5,7 +5,7 @@ def and_check(
     self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
 ) -> bool:
     jump = ast[1]
-    if jump.kind.startswith("jump_"):
+    if jump.kind.startswith("jump_if_"):
         if last == n:
             return True
         jump_target = jump[0].attr

@@ -112,7 +112,7 @@ def ifelsestmt(
             if come_from.attr > stmts.first_child().off2int():
                 return True
 
-        if len(if_condition) > 1 and if_condition[1].kind.startswith("jump_"):
+        if len(if_condition) > 1 and if_condition[1].kind.startswith("jump_if_"):
             if last == n:
                 last -= 1
 
