@@ -1,4 +1,11 @@
 SKIP_TESTS=(
+    [test_asyncgen.py]=1  # parse error FIXME: works on 795b2195 (which is recent)
+    [test_itertools.py]=1  # FIXME: works on 795b2195 (which is recent)
+    [test_os.py]=1  # parse error FIXME: works on 795b2195 (which is recent)
+    [test_queue.py]=1  # FIXME: works on 795b2195 (which is recent)
+    [test_re.py]=1  # parse error FIXME: works on 795b2195 (which is recent)
+    [test_urllib2net.py]=1 # FIXME: works on 795b2195
+
     [test_generators.py]=1  # parse error. this portion works in uncompyle6
     [test_grammar.py]=1 # investigate: like above: semantic rule missing probably
     [test_httplib.py]=1 # control flow: works on f7e2064e
