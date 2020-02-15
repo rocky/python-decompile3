@@ -46,6 +46,9 @@ class Python38Parser(Python37Parser):
         stmt               ::= whileTruestmt38
         stmt               ::= call
 
+        # FIXME: "break"" should be isolated to loops
+        stmt  ::= break
+
         break ::= POP_BLOCK BREAK_LOOP
         break ::= POP_BLOCK POP_TOP BREAK_LOOP
         break ::= POP_TOP BREAK_LOOP

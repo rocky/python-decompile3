@@ -67,16 +67,17 @@ class Python37Parser(Python37LambdaParser):
         c_stmts ::= c_stmt+
         c_stmts ::= returns
 
+        c_stmt  ::= stmt
         c_stmt  ::= ifelsestmtc
         c_stmt  ::= ifstmtc
+        c_stmt  ::= break
+        c_stmt  ::= continue
         c_stmt  ::= break
 
         c_stmts_opt ::= c_stmts
         c_stmts_opt ::= pass
 
-        lastc_stmt ::= forelselaststmt
         lastc_stmt ::= forelselaststmtc
-        lastc_stmt ::= iflaststmt
         lastc_stmt ::= iflaststmtc
 
         # FIXME: Do we need these?
@@ -85,6 +86,7 @@ class Python37Parser(Python37LambdaParser):
 
         else_suitec ::= c_stmts
         else_suitec ::= returns
+        else_suitec ::= suite_stmts
         """
 
     def p_stmt(self, args):
@@ -496,10 +498,7 @@ class Python37Parser(Python37LambdaParser):
         returns         ::= _stmts return_if_stmt
 
 
-        # FIXME: "break" and "continue" should be isolated to loops
-        stmt      ::= break
         break     ::= BREAK_LOOP
-        stmt      ::= continue
         continue  ::= CONTINUE
         continues ::= _stmts lastc_stmt continue
         continues ::= lastc_stmt continue
