@@ -822,7 +822,7 @@ class Scanner37Base(Scanner):
             target = self.get_target(offset)
             end = self.restrict_to_parent(target, parent)
             self.fixed_jumps[offset] = end
-        elif op == self.opc.POP_EXCEPT:
+        elif self.version < 3.8 and op == self.opc.POP_EXCEPT:
             next_offset = xdis.next_offset(op, self.opc, offset)
             target = self.get_target(next_offset)
             if target > next_offset:
@@ -833,6 +833,7 @@ class Scanner37Base(Scanner):
                     != code[xdis.next_offset(next_op, self.opc, next_offset)]
                 ):
                     self.fixed_jumps[next_offset] = target
+                    from trepan.api import debug; debug()
                     self.except_targets[target] = next_offset
 
         elif op == self.opc.SETUP_FINALLY:

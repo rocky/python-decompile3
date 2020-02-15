@@ -80,7 +80,8 @@ class Python38Parser(Python37Parser):
                                END_ASYNC_FOR
                                else_suite
 
-        return             ::= ret_expr ROT_TWO POP_TOP RETURN_VALUE
+        return             ::= ret_expr
+                               ROT_TWO POP_TOP RETURN_VALUE
 
         # 3.8 can push a looping JUMP_BACK into into a JUMP_ from a statement that jumps to it
         lastc_stmt         ::= ifpoplaststmtc
@@ -145,6 +146,12 @@ class Python38Parser(Python37Parser):
                                except_stmts END_FINALLY opt_come_from_except
         except_handler38a  ::= COME_FROM_FINALLY POP_TOP POP_TOP POP_TOP
                                POP_EXCEPT POP_TOP stmts END_FINALLY
+
+        except             ::=  POP_TOP POP_TOP POP_TOP c_stmts_opt break POP_EXCEPT JUMP_BACK
+
+        # In 3.8 any POP_EXCEPT comes before the "break" loop.
+        # We should add a rule to check that JUMP_FORWARD is indeed a "break".
+        break              ::=  POP_EXCEPT JUMP_FORWARD
 
         tryfinallystmt     ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
                                BEGIN_FINALLY COME_FROM_FINALLY suite_stmts_opt

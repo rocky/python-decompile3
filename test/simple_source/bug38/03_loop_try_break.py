@@ -25,3 +25,23 @@ for i in range(5):
     except Exception:
         if i == 4:
             raise
+
+# From 3.8.1 _osx_support.py
+# Bug was handling a "break" inside a "try".
+# In 3.8 POP_EXCEPT is moved before "JUMP_ABSOLUTE" of
+# the break.
+def compiler_fixup(compiler_so, cc_args):
+    if stripArch:
+        while True:
+            try:
+                index = 1
+            except:
+                index = 2
+                break
+
+# Bug was returning an IfExp inside "with":
+# the return value is mixed in with the "with"
+# code finalization.
+def _read_output(x, a):
+    with x as fp:
+        return fp if a else None

@@ -1002,6 +1002,16 @@ class Python37BaseParser(PythonParser):
                     """
                 else:
                     rules_str += """
+                     # A return at the end of a withas stmt can be this.
+                     # FIXME: should this be a different kind of return?
+                     return      ::= ret_expr POP_BLOCK
+                                     ROT_TWO
+                                     BEGIN_FINALLY
+                                     WITH_CLEANUP_START
+                                     WITH_CLEANUP_FINISH
+                                     POP_FINALLY
+                                     RETURN_VALUE
+
                       withstmt   ::= expr
                                      SETUP_WITH POP_TOP suite_stmts_opt
                                      POP_BLOCK LOAD_CONST COME_FROM_WITH
@@ -1010,6 +1020,12 @@ class Python37BaseParser(PythonParser):
                       withasstmt ::= expr
                                      SETUP_WITH store suite_stmts_opt
                                      POP_BLOCK LOAD_CONST COME_FROM_WITH
+
+                      # withasstmt ::= expr SETUP_WITH store suite_stmts
+                      #                COME_FROM expr COME_FROM POP_BLOCK ROT_TWO
+                      #                BEGIN_FINALLY WITH_CLEANUP_START WITH_CLEANUP_FINISH
+                      #                POP_FINALLY RETURN_VALUE COME_FROM_WITH
+                      #                WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
                       withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
                                      BEGIN_FINALLY COME_FROM_WITH
