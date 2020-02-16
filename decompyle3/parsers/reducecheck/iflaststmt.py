@@ -46,12 +46,7 @@ def iflaststmt(
                 if jump_target == tokens[last - 1].attr:
                     # if c1 [jump] jumps exactly the end of the iflaststmt...
                     return False
-                # One more weird case to look out for
-                #   if c1:
-                #      if c2:  # Jumps around the *outer* "else"
-                #       ...
-                #   else:
-                return (lhs == "iflaststmtl" and last < n and tokens[last] == "JUMP_FORWARD")
-
+                pass
+            pass
         pass
     return False

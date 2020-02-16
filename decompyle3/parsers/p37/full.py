@@ -400,9 +400,9 @@ class Python37Parser(Python37LambdaParser):
         # while ..
         #     if
         #     ...
-        # the end of the if will jump back to the loop and there will be a COME_FROM
+        # the end of the "if" will jump back to the loop and there will be a COME_FROM
         # after the jump
-        c_stmts ::= lastc_stmt come_froms c_stmts
+        # c_stmts ::= lastc_stmt come_froms c_stmts
 
         inplace_op ::= INPLACE_MATRIX_MULTIPLY
         binary_operator  ::= BINARY_MATRIX_MULTIPLY
@@ -584,8 +584,12 @@ class Python37Parser(Python37LambdaParser):
         ifelsestmt    ::= testexpr stmts_opt JUMP_FORWARD
                           else_suite opt_come_from_except
 
-        ifelsestmtc ::= testexpr c_stmts_opt jump_forward_else else_suitec
-        ifelsestmtc ::= testexpr c_stmts_opt cf_jump_back else_suitec
+        ifelsestmtc ::= testexpr
+                        c_stmts_opt jump_forward_else
+                        else_suitec opt_come_from_except
+        ifelsestmtc ::= testexpr
+                        c_stmts_opt cf_jump_back
+                        else_suitec
 
         # This handles the case where a "JUMP_ABSOLUTE" is part
         # of an inner if in c_stmts_opt

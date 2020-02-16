@@ -27,6 +27,26 @@ IFELSE_STMT_RULES = frozenset(
             ),
         ),
         (
+            "ifelsestmtc",
+            (
+                "testexpr",
+                "c_stmts_opt",
+                "jump_forward_else",
+                "else_suitec",
+                "opt_come_from_except",
+            ),
+        ),
+        (
+            "ifelsestmtc",
+            (
+                "testexpr",
+                "c_stmts_opt",
+                "jump_forward_else",
+                "else_suitec",
+                "\\e_opt_come_from_except",
+            ),
+        ),
+        (
             "ifelsestmt",
             (
                 "testexpr",
@@ -71,8 +91,8 @@ def ifelsestmt(
     #     for t in range(first, last):
     #         print(tokens[t])
     #     print("=" * 40)
-    #     if (first, last) == (6, 16):
-    #         from trepan.api import debug; debug()
+    #     # if (first, last) == (15, 22):
+    #     #     from trepan.api import debug; debug()
 
     if rule not in IFELSE_STMT_RULES:
         return False
@@ -102,7 +122,7 @@ def ifelsestmt(
         else_suite = ast[3]
         assert else_suite in ("else_suite", "else_suitec")
 
-        if else_suite == "else_suitec" and ast[2] in ("jb_elsec", "jb_cfs"):
+        if else_suite == "else_suitec" and ast[2] in ("jb_elsec", "jb_cfs", "jump_forward_else"):
             stmts = ast[1]
             jb_else = ast[2]
             come_from = jb_else[-1]

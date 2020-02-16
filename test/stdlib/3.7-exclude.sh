@@ -1,6 +1,5 @@
 SKIP_TESTS=(
     [test_asyncgen.py]=1  # parse error FIXME: works on 795b2195 (which is recent)
-    [test_itertools.py]=1  # FIXME: works on 795b2195 (which is recent)
     [test_os.py]=1  # parse error FIXME: works on 795b2195 (which is recent)
     [test_queue.py]=1  # FIXME: works on 795b2195 (which is recent)
     [test_re.py]=1  # parse error FIXME: works on 795b2195 (which is recent)
