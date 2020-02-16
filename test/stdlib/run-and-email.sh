@@ -27,14 +27,14 @@ RUNTESTS="runtests3.sh"
 
 USER=${USER:-rocky}
 EMAIL=${EMAIL:-rb@dustyfeet.com}
-SUBJECT_PREFIX="stdlib unit testing for"
+WHAT="decompyle3 ${RUNTESTS}"
 export BATCH=1
 
 typeset -i RUN_STARTTIME=$(date +%s)
 
 actual_versions=""
 DEBUG=""  # -x
-MAILBODY=/tmp/runtests-mailbody-$$.txt
+MAILBODY=/tmp/${RUNTESTS}-mailbody-$$.txt
 
 for VERSION in $PYVERSIONS ; do
     typeset -i rc=0
@@ -46,16 +46,19 @@ for VERSION in $PYVERSIONS ; do
       /bin/bash ./${RUNTESTS}  >$LOGFILE 2>&1
       rc=$?
     fi
+
     typeset -i RUN_ENDTIME=$(date +%s)
     (( time_diff =  RUN_ENDTIME - RUN_STARTTIME))
-    elapsed_time=$(displaytime $time_diff)
-    echo $elaped_time >> $LOGFILE
-    mailbody_line="Python $VERSION ran in $elapsed_time"
+    time_str=$(displaytime $time_diff)
+    echo ${time_str}. >> $LOGFILE
+    echo ${time_str}. >> $LOGFILE
+
+    SUBJECT_PREFIX="$WHAT for"
     if ((rc == 0)); then
-	mailbody_line="$mailbody_line ok"
+	mailbody_line="$WHAT Python $VERSION ok"
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION ok" ${USER}@localhost
     else
-	mailbody_line="$mailbody_line failed"
+	mailbody_line="$WHAT Python $VERSION failed"
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION not ok" ${USER}@localhost
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION not ok" $EMAIL
     fi
@@ -65,5 +68,5 @@ done
 typeset -i RUN_ENDTIME=$(date +%s)
 (( time_diff =  RUN_ENDTIME - RUN_STARTTIME))
 elapsed_time=$(displaytime $time_diff)
-echo "Run complete in $elapsed_time" >> $MAILBODY
+echo "Run complete in ${elapsed_time}." >> $MAILBODY
 cat $MAILBODY | mail -s "$HOST decompyle3 ${RUNTESTS} finished in $elapsed_time" ${EMAIL}
