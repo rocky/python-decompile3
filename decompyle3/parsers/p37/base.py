@@ -2,9 +2,10 @@
 """
 Python 3.7 base code. We keep non-custom-generated grammar rules out of this file.
 """
-from decompyle3.parsers.main import PythonParser, PythonParserSingle, nop_func
+from decompyle3.parsers.main import PythonParser, PythonParserSingle, nop_func, ParserError
 from decompyle3.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+from spark_parser.spark import rule2str
 
 from decompyle3.parsers.reducecheck import (
     and_check,
@@ -1180,8 +1181,14 @@ class Python37BaseParser(PythonParser):
         n = len(tokens)
         last = min(last, n-1)
         fn = self.reduce_check_table.get(lhs, None)
-        if fn:
-            return fn(self, lhs, n, rule, ast, tokens, first, last)
+        try:
+            if fn:
+                return fn(self, lhs, n, rule, ast, tokens, first, last)
+        except AssertionError as e:
+            print(f"Assertion error in {fn.__name__}\n" +
+                  f"rule: {rule2str(rule)}\n" +
+                  f"offsets {tokens[first].offset} .. {tokens[last].offset}")
+            raise ParserError(tokens[last], tokens[last].off2int())
 
         if lhs in ("aug_assign1", "aug_assign2") and ast[0][0] == "and":
             return True

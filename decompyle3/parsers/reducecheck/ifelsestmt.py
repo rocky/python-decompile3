@@ -91,8 +91,8 @@ def ifelsestmt(
     #     for t in range(first, last):
     #         print(tokens[t])
     #     print("=" * 40)
-    #     # if (first, last) == (15, 22):
-    #     #     from trepan.api import debug; debug()
+    #     if (first, last) == (4, 47):
+    #         from trepan.api import debug; debug()
 
     if rule not in IFELSE_STMT_RULES:
         return False
@@ -126,7 +126,7 @@ def ifelsestmt(
             stmts = ast[1]
             jb_else = ast[2]
             come_from = jb_else[-1]
-            if come_from == "come_froms":
+            if come_from in ("come_froms", "_come_froms"):
                 come_from = come_from[-1]
             assert come_from == "COME_FROM"
             if come_from.attr > stmts.first_child().off2int():
