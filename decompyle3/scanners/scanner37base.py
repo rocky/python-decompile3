@@ -484,8 +484,15 @@ class Scanner37Base(Scanner):
                             if tokens[-2].kind == "BREAK_LOOP":
                                 del tokens[-1]
                             else:
-                                # intern is used because we are changing the *previous* token
-                                tokens[-1].kind = sys.intern("CONTINUE")
+                                # intern is used because we are changing the *previous* token.
+                                # A POP_TOP suggests a "break" rather than a "continue"?
+                                if tokens[-2] == "POP_TOP":
+                                   tokens[-1].kind = sys.intern("BREAK_LOOP")
+                                else:
+                                    tokens[-1].kind = sys.intern("CONTINUE")
+                                    pass
+                                pass
+                            pass
                     if last_op_was_break and opname == "CONTINUE":
                         last_op_was_break = False
                         continue

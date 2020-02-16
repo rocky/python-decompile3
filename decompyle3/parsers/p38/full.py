@@ -83,8 +83,12 @@ class Python38Parser(Python37Parser):
                                END_ASYNC_FOR
                                else_suite
 
+        # Seems to be used to discard values before a return in a "for" loop
+        discard_top        ::= ROT_TWO POP_TOP
+        discard_tops       ::= discard_top+
+
         return             ::= ret_expr
-                               ROT_TWO POP_TOP RETURN_VALUE
+                               discard_tops RETURN_VALUE
 
         stmt               ::= pop_return
         pop_return         ::= POP_TOP ret_expr RETURN_VALUE

@@ -972,37 +972,38 @@ class Python37BaseParser(PythonParser):
 
             elif opname == "SETUP_WITH":
                 rules_str = """
-                  stmt       ::= withstmt
-                  stmt       ::= withasstmt
+                  stmt        ::= withstmt
+                  stmt        ::= withasstmt
+                  with_suffix ::= WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
-                  withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt COME_FROM_WITH
-                                 WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
-                  withasstmt ::= expr SETUP_WITH store suite_stmts_opt COME_FROM_WITH
-                                 WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+                  withstmt    ::= expr SETUP_WITH POP_TOP suite_stmts_opt COME_FROM_WITH
+                                  with_suffix
+                  withasstmt  ::= expr SETUP_WITH store suite_stmts_opt COME_FROM_WITH
+                                  with_suffix
 
-                  withstmt   ::= expr
-                                 SETUP_WITH POP_TOP suite_stmts_opt
-                                 POP_BLOCK LOAD_CONST COME_FROM_WITH
-                                 WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
-                  withasstmt ::= expr
-                                 SETUP_WITH store suite_stmts_opt
-                                 POP_BLOCK LOAD_CONST COME_FROM_WITH
-                                 WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+                  withstmt    ::= expr
+                                  SETUP_WITH POP_TOP suite_stmts_opt
+                                  POP_BLOCK LOAD_CONST COME_FROM_WITH
+                                  with_suffix
+                  withasstmt  ::= expr
+                                  SETUP_WITH store suite_stmts_opt
+                                  POP_BLOCK LOAD_CONST COME_FROM_WITH
+                                  with_suffix
 
-                  withstmt   ::= expr
-                                 SETUP_WITH POP_TOP suite_stmts_opt
-                                 POP_BLOCK LOAD_CONST COME_FROM_WITH
-                                 WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
-                  withasstmt ::= expr
-                                 SETUP_WITH store suite_stmts_opt
-                                 POP_BLOCK LOAD_CONST COME_FROM_WITH
-                                 WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+                  withstmt    ::= expr
+                                  SETUP_WITH POP_TOP suite_stmts_opt
+                                  POP_BLOCK LOAD_CONST COME_FROM_WITH
+                                  with_suffix
+                  withasstmt  ::= expr
+                                  SETUP_WITH store suite_stmts_opt
+                                  POP_BLOCK LOAD_CONST COME_FROM_WITH
+                                  with_suffix
                 """
                 if self.version < 3.8:
                     rules_str += """
                     withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
                                    LOAD_CONST
-                                   WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+                                   with_suffix
                     """
                 else:
                     rules_str += """
@@ -1019,11 +1020,17 @@ class Python37BaseParser(PythonParser):
                       withstmt   ::= expr
                                      SETUP_WITH POP_TOP suite_stmts_opt
                                      POP_BLOCK LOAD_CONST COME_FROM_WITH
-                                     WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+                                     with_suffix
+
 
                       withasstmt ::= expr
-                                     SETUP_WITH store suite_stmts_opt
+                                     SETUP_WITH store suite_stmts
                                      POP_BLOCK LOAD_CONST COME_FROM_WITH
+
+                      withasstmt ::= expr
+                                     SETUP_WITH store suite_stmts
+                                     POP_BLOCK BEGIN_FINALLY COME_FROM_WITH
+                                     with_suffix
 
                       # withasstmt ::= expr SETUP_WITH store suite_stmts
                       #                COME_FROM expr COME_FROM POP_BLOCK ROT_TWO
@@ -1033,8 +1040,7 @@ class Python37BaseParser(PythonParser):
 
                       withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
                                      BEGIN_FINALLY COME_FROM_WITH
-                                     WITH_CLEANUP_START WITH_CLEANUP_FINISH
-                                     END_FINALLY
+                                     with_suffix
                     """
                 self.addRule(rules_str, nop_func)
 
