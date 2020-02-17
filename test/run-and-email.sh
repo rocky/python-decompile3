@@ -67,10 +67,10 @@ for VERSION in $PYVERSIONS ; do
 
     SUBJECT_PREFIX="$WHAT (max $MAX_TESTS) for"
     if ((rc == 0)); then
-	mailbody_line="Python $VERSION ok; ran in ${time_str}."
+	mailbody_line="Python $VERSION ok; ${time_str}."
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION ok" ${USER}@localhost
     else
-	mailbody_line="Python $VERSION failed; ran in {$time_str}."
+	mailbody_line="Python $VERSION failed; ${time_str}. Full results in ${LOGFILE}."
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION not ok" ${USER}@localhost
 	tail -v $LOGFILE | mail -s "$HOST $SUBJECT_PREFIX $VERSION not ok" ${EMAIL}
     fi
@@ -82,4 +82,4 @@ typeset -i RUN_ENDTIME=$(date +%s)
 (( time_diff =  RUN_ENDTIME - RUN_STARTTIME))
 elapsed_time=$(displaytime $time_diff)
 echo "Run complete in ${elapsed_time}." >> $MAILBODY
-cat $MAILBODY | mail -s "$HOST $MAIN weak verify in $elapsed_time" ${EMAIL}
+cat $MAILBODY | mail -s "$HOST decompyle3 $MAIN finished; ${elapsed_time}." ${EMAIL}

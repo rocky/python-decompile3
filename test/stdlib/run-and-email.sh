@@ -61,12 +61,12 @@ for VERSION in $PYVERSIONS ; do
 
     SUBJECT_PREFIX="$WHAT for"
     if ((rc == 0)); then
-	mailbody_line="$WHAT Python $VERSION ok"
+	mailbody_line="$WHAT Python $VERSION ok; ${time_str}."
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION ok" ${USER}@localhost
     else
-	mailbody_line="$WHAT Python $VERSION failed"
+	mailbody_line="$WHAT Python $VERSION failed. ${time_str}. Full Results in ${LOGFILE}."
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION not ok" ${USER}@localhost
-	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION not ok" $EMAIL
+	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION not ok" ${EMAIL}
     fi
     echo $mailbody_line >> $MAILBODY
     rm .python-version
@@ -76,4 +76,4 @@ typeset -i RUN_ENDTIME=$(date +%s)
 (( time_diff =  RUN_ENDTIME - RUN_STARTTIME))
 elapsed_time=$(displaytime $time_diff)
 echo "Run complete in ${elapsed_time}." >> $MAILBODY
-cat $MAILBODY | mail -s "$HOST decompyle3 ${RUNTESTS} finished; ${elapsed_time]." ${EMAIL}
+cat $MAILBODY | mail -s "$HOST decompyle3 ${RUNTESTS} finished; ${elapsed_time}." ${EMAIL}
