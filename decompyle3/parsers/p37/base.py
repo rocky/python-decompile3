@@ -1190,8 +1190,9 @@ class Python37BaseParser(PythonParser):
         try:
             if fn:
                 return fn(self, lhs, n, rule, ast, tokens, first, last)
-        except AssertionError as e:
-            print(f"Assertion error in {fn.__name__}\n" +
+        except:
+            import sys
+            print(f"Exception in {fn.__name__} {sys.exc_info()}\n" +
                   f"rule: {rule2str(rule)}\n" +
                   f"offsets {tokens[first].offset} .. {tokens[last].offset}")
             raise ParserError(tokens[last], tokens[last].off2int())

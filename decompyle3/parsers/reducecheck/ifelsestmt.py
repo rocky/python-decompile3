@@ -126,11 +126,11 @@ def ifelsestmt(
             stmts = ast[1]
             jb_else = ast[2]
             come_from = jb_else[-1]
-            if come_from in ("come_froms", "_come_froms"):
+            if come_from in ("come_froms", "_come_froms") and len(come_from):
                 come_from = come_from[-1]
-            assert come_from == "COME_FROM"
-            if come_from.attr > stmts.first_child().off2int():
-                return True
+            if come_from == "COME_FROM":
+                if come_from.attr > stmts.first_child().off2int():
+                    return True
 
         if len(if_condition) > 1 and if_condition[1].kind.startswith("jump_if_"):
             if last == n:
