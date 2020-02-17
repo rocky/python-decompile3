@@ -46,6 +46,9 @@ def customize_for_version38(self, version):
             (0, "expr"), (6, "store"),
             (7, "suite_stmts") ),
 
+        "except_cond1a": (
+            "%|except %c:\n", (1, "expr"),
+            ),
         "except_handler38": (
             "%c", (2, "except_stmts") ),
 
@@ -53,7 +56,7 @@ def customize_for_version38(self, version):
             "%c", (-2, "stmts") ),
 
         "except_handler38c": (
-            "%|except %c:\n%+%c%-",
+            "%c%+%c%-",
             (1, "except_cond1a"),
             (2, "except_stmts"),
         ),
@@ -116,12 +119,12 @@ def customize_for_version38(self, version):
         ),
         "try_except_ret38": (
             "%|try:\n%+%c%-\n%|except:\n%+%|%c%-\n\n",
-            (1, "popb_return"),
+            (1, "returns"),
             (2, "except_ret38a"),
         ),
         "try_except_ret38a": (
             "%|try:\n%+%c%-%c\n\n",
-            (1, "popb_return"),
+            (1, "returns"),
             (2, "except_handler38c"),
         ),
         "tryfinally38rstmt": (

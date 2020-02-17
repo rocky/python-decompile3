@@ -19,6 +19,9 @@ spark grammar differences over Python 3.7 for Python 3.8
 from decompyle3.parsers.main import PythonParserSingle
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from decompyle3.parsers.p37.full import Python37Parser
+from decompyle3.parsers.reducecheck import (
+    break_check
+)
 
 class Python38Parser(Python37Parser):
     def p_38walrus(self, args):
@@ -92,9 +95,10 @@ class Python38Parser(Python37Parser):
         return             ::= ret_expr
                                discard_tops RETURN_VALUE
 
-        stmt               ::= pop_return
-        stmt               ::= popb_return
-        stmt               ::= pop_ex_return
+        return             ::= pop_return
+        return             ::= popb_return
+        return             ::= pop_ex_return
+        except_stmt        ::= pop_ex_return
         pop_return         ::= POP_TOP ret_expr RETURN_VALUE
         popb_return        ::= ret_expr POP_BLOCK RETURN_VALUE
         pop_ex_return      ::= ret_expr ROT_FOUR POP_EXCEPT RETURN_VALUE
@@ -154,8 +158,9 @@ class Python38Parser(Python37Parser):
         try_except38       ::= SETUP_FINALLY POP_BLOCK suite_stmts
                                except_handler38b
 
-        try_except_ret38   ::= SETUP_FINALLY popb_return except_ret38a
-        try_except_ret38a  ::= SETUP_FINALLY popb_return except_handler38c END_FINALLY
+        try_except_ret38   ::= SETUP_FINALLY returns except_ret38a
+        try_except_ret38a  ::= SETUP_FINALLY returns except_handler38c
+                               END_FINALLY come_from_opt
 
         # Note: there is a suite_stmts_opt which seems
         # to be bookkeeping which is not expressed in source code
@@ -173,9 +178,12 @@ class Python38Parser(Python37Parser):
                                POP_EXCEPT POP_TOP stmts END_FINALLY
         except_handler38b  ::= COME_FROM_FINALLY POP_TOP POP_TOP POP_TOP
                                POP_EXCEPT returns END_FINALLY
-        except_handler38c  ::= COME_FROM_FINALLY except_cond1a except_stmts COME_FROM
+        except_handler38c  ::= COME_FROM_FINALLY except_cond1a except_stmts
+                               POP_EXCEPT JUMP_FORWARD COME_FROM
+        except_handler38c  ::= COME_FROM_FINALLY except_cond1a except_stmts
+                               COME_FROM
 
-        except             ::=  POP_TOP POP_TOP POP_TOP c_stmts_opt break POP_EXCEPT JUMP_BACK
+        except             ::= POP_TOP POP_TOP POP_TOP c_stmts_opt break POP_EXCEPT JUMP_BACK
 
         # In 3.8 any POP_EXCEPT comes before the "break" loop.
         # We should add a rule to check that JUMP_FORWARD is indeed a "break".
@@ -295,9 +303,12 @@ class Python38Parser(Python37Parser):
     def customize_grammar_rules(self, tokens, customize):
         super(Python37Parser, self).customize_grammar_rules(tokens, customize)
         self.remove_rules_38()
+        self.check_reduce["break"] = "tokens"
         self.check_reduce["whileTruestmt38"] = "tokens"
         self.check_reduce["whilestmt38"] = "tokens"
         self.check_reduce["try_elsestmtl38"] = "AST"
+
+        self.reduce_check_table["break"] = break_check
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         invalid = super(Python38Parser, self).reduce_is_invalid(

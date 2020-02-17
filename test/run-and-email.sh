@@ -42,7 +42,7 @@ for VERSION in $PYVERSIONS ; do
     if [[ $VERSION == '3.7.6' ]] ; then
 	MAX_TESTS=50 # functools (needs to parse assert)
     elif [[ $VERSION == '3.8.1' ]] ; then
-	MAX_TESTS=3 # Fails on abc.py
+	MAX_TESTS=7 # Fails on _markupbase.py
     fi
 
     if ! pyenv local $VERSION ; then

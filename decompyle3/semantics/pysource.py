@@ -490,7 +490,10 @@ class SourceWalker(GenericASTTraversal, object):
             self.prune()
 
     def n_return(self, node):
-        if self.params["is_lambda"]:
+        if (
+                self.params["is_lambda"]
+                or node[0] in ("pop_return", "popb_return", "pop_ex_return")
+        ):
             self.preorder(node[0])
             self.prune()
         else:

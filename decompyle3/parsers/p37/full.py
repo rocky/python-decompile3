@@ -627,6 +627,7 @@ class Python37Parser(Python37LambdaParser):
         except_stmt    ::= except_cond2 except_suite come_from_opt
         except_stmt    ::= except_cond2 except_suite_finalize
         except_stmt    ::= except
+        except_stmt    ::= stmt
 
         ## FIXME: what's except_pop_except?
         except_stmt    ::= except_pop_except

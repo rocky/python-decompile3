@@ -317,7 +317,10 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
     def n_return(self, node):
         start = len(self.f.getvalue()) + len(self.indent)
-        if self.params["is_lambda"]:
+        if (
+                self.params["is_lambda"]
+                or node[0] in ("pop_return", "popb_return", "pop_ex_return")
+        ):
             self.preorder(node[0])
             if hasattr(node[-1], "offset"):
                 self.set_pos_info(node[-1], start, len(self.f.getvalue()))
