@@ -42,16 +42,22 @@ for VERSION in $PYVERSIONS ; do
 
     if ! pyenv local $VERSION ; then
 	rc=1
+	mailbody_line="pyenv local $VERSION not installed"
+	echo $mailbody_line >> $MAILBODY
     else
-      /bin/bash ./${RUNTESTS}  >$LOGFILE 2>&1
+      typeset -i ALL_FILES_STARTTIME=$(date +%s)
+      cmd="/bin/bash ./${RUNTESTS}"
+      $cmd >>$LOGFILE 2>&1
       rc=$?
-    fi
 
-    typeset -i RUN_ENDTIME=$(date +%s)
-    (( time_diff =  RUN_ENDTIME - RUN_STARTTIME))
-    time_str=$(displaytime $time_diff)
-    echo ${time_str}. >> $LOGFILE
-    echo ${time_str}. >> $LOGFILE
+      echo Python Version $(pyenv local) > $LOGFILE
+      echo "" >> $LOGFILE
+
+      typeset -i ALL_FILES_ENDTIME=$(date +%s)
+      (( time_diff =  ALL_FILES_ENDTIME - ALL_FILES_STARTTIME))
+      time_str=$(displaytime $time_diff)
+      echo $time_str >> $LOGFILE
+    fi
 
     SUBJECT_PREFIX="$WHAT for"
     if ((rc == 0)); then
@@ -63,10 +69,11 @@ for VERSION in $PYVERSIONS ; do
 	tail -v $LOGFILE | mail -s "$SUBJECT_PREFIX $VERSION not ok" $EMAIL
     fi
     echo $mailbody_line >> $MAILBODY
+    rm .python-version
 done
 
 typeset -i RUN_ENDTIME=$(date +%s)
 (( time_diff =  RUN_ENDTIME - RUN_STARTTIME))
 elapsed_time=$(displaytime $time_diff)
 echo "Run complete in ${elapsed_time}." >> $MAILBODY
-cat $MAILBODY | mail -s "$HOST decompyle3 ${RUNTESTS} finished in $elapsed_time" ${EMAIL}
+cat $MAILBODY | mail -s "$HOST decompyle3 ${RUNTESTS} finished; ${elapsed_time]." ${EMAIL}

@@ -52,6 +52,12 @@ def customize_for_version38(self, version):
         "except_handler38a": (
             "%c", (-2, "stmts") ),
 
+        "except_handler38c": (
+            "%|except %c:\n%+%c%-",
+            (1, "except_cond1a"),
+            (2, "except_stmts"),
+        ),
+
         "except_ret38a": (
             "return %c", (4, "expr") ),
 
@@ -84,24 +90,40 @@ def customize_for_version38(self, version):
                             (0, "testexpr"),
                             (2, "c_stmts" ) ),
 
-        "pop_return": ( "%|return %c:\n", (1, "ret_expr") ),
+        "pop_return":  ( "%|return %c\n", (1, "ret_expr") ),
+        "popb_return": ( "%|return %c\n", (0, "ret_expr") ),
+        "pop_ex_return": (
+            "%|return %c\n", (0, "ret_expr")
+        ),
 
         "whilestmt38": ( "%|while %c:\n%+%c%-\n\n",
                          (1, "testexpr"),
-                         2 ), # "c_stmts" or "pass"
+                         2 # "c_stmts" or "pass"
+        ),
         "whileTruestmt38": ( "%|while True:\n%+%c%-\n\n",
-                             1 ), # "c_stmts" or "pass"
+                             1 # "c_stmts" or "pass"
+        ),
         "try_elsestmtl38": (
             "%|try:\n%+%c%-%c%|else:\n%+%c%-",
             (1, "suite_stmts_opt"),
             (3, "except_handler38"),
-            (5, "else_suitec") ),
+            (5, "else_suitec")
+        ),
         "try_except38": (
-            "%|try:\n%+%c\n%-%|except:\n%|%-%c\n\n",
-                   (-2, "suite_stmts_opt"), (-1, "except_handler38a") ),
+            "%|try:\n%+%c\n%-%|except:\n%+%c%-\n\n",
+            -2,  # "suite_stmts_opt", "suite_stmts"
+            -1,  # except-handler38{a,b}
+        ),
         "try_except_ret38": (
-            "%|try:\n%+%|return %c%-\n%|except:\n%+%|%c%-\n\n",
-                   (1, "expr"), (-1, "except_ret38a") ),
+            "%|try:\n%+%c%-\n%|except:\n%+%|%c%-\n\n",
+            (1, "popb_return"),
+            (2, "except_ret38a"),
+        ),
+        "try_except_ret38a": (
+            "%|try:\n%+%c%-%c\n\n",
+            (1, "popb_return"),
+            (2, "except_handler38c"),
+        ),
         "tryfinally38rstmt": (
             "%|try:\n%+%c%-%|finally:\n%+%c%-\n\n",
                    (3, "returns"), 6 ),

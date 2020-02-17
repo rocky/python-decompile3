@@ -41,6 +41,7 @@ class Python38Parser(Python37Parser):
         stmt               ::= tryfinally38astmt
         stmt               ::= try_elsestmtl38
         stmt               ::= try_except_ret38
+        stmt               ::= try_except_ret38a
         stmt               ::= try_except38
         stmt               ::= whilestmt38
         stmt               ::= whileTruestmt38
@@ -56,6 +57,7 @@ class Python38Parser(Python37Parser):
 
         # FIXME: this should be restricted to being inside a try block
         stmt               ::= except_ret38
+        stmt               ::= except_ret38a
 
         # FIXME: this should be added only when seeing GET_AITER or YIELD_FROM
         async_for_stmt38   ::= expr
@@ -91,8 +93,13 @@ class Python38Parser(Python37Parser):
                                discard_tops RETURN_VALUE
 
         stmt               ::= pop_return
+        stmt               ::= popb_return
+        stmt               ::= pop_ex_return
         pop_return         ::= POP_TOP ret_expr RETURN_VALUE
+        popb_return        ::= ret_expr POP_BLOCK RETURN_VALUE
+        pop_ex_return      ::= ret_expr ROT_FOUR POP_EXCEPT RETURN_VALUE
 
+        except_stmt        ::= except_cond1a except_suite come_from_opt
 
         # 3.8 can push a looping JUMP_BACK into into a JUMP_ from a statement that jumps to it
         lastc_stmt         ::= ifpoplaststmtc
@@ -132,6 +139,8 @@ class Python38Parser(Python37Parser):
         except_cond1       ::= DUP_TOP expr COMPARE_OP jump_if_false
                                POP_TOP POP_TOP POP_TOP
                                POP_EXCEPT
+        except_cond1a      ::= DUP_TOP expr COMPARE_OP jump_if_false
+                               POP_TOP POP_TOP POP_TOP
 
         try_elsestmtl38    ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
                                except_handler38 COME_FROM
@@ -140,8 +149,13 @@ class Python38Parser(Python37Parser):
                                except_handler38
         try_except38       ::= SETUP_FINALLY POP_BLOCK POP_TOP suite_stmts_opt
                                except_handler38a
-        try_except_ret38   ::= SETUP_FINALLY expr POP_BLOCK
-                               RETURN_VALUE except_ret38a
+
+        # suite_stmts has a return
+        try_except38       ::= SETUP_FINALLY POP_BLOCK suite_stmts
+                               except_handler38b
+
+        try_except_ret38   ::= SETUP_FINALLY popb_return except_ret38a
+        try_except_ret38a  ::= SETUP_FINALLY popb_return except_handler38c END_FINALLY
 
         # Note: there is a suite_stmts_opt which seems
         # to be bookkeeping which is not expressed in source code
@@ -157,6 +171,9 @@ class Python38Parser(Python37Parser):
                                except_stmts END_FINALLY opt_come_from_except
         except_handler38a  ::= COME_FROM_FINALLY POP_TOP POP_TOP POP_TOP
                                POP_EXCEPT POP_TOP stmts END_FINALLY
+        except_handler38b  ::= COME_FROM_FINALLY POP_TOP POP_TOP POP_TOP
+                               POP_EXCEPT returns END_FINALLY
+        except_handler38c  ::= COME_FROM_FINALLY except_cond1a except_stmts COME_FROM
 
         except             ::=  POP_TOP POP_TOP POP_TOP c_stmts_opt break POP_EXCEPT JUMP_BACK
 
@@ -264,6 +281,7 @@ class Python38Parser(Python37Parser):
 
            try_except         ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                                   except_handler opt_come_from_except
+
            tryfinallystmt     ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
                                   LOAD_CONST COME_FROM_FINALLY suite_stmts_opt
                                   END_FINALLY
