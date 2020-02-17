@@ -20,7 +20,8 @@ from decompyle3.parsers.main import PythonParserSingle
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from decompyle3.parsers.p37.full import Python37Parser
 from decompyle3.parsers.reducecheck import (
-    break_check
+    break_check,
+    pop_return_check
 )
 
 class Python38Parser(Python37Parser):
@@ -304,11 +305,13 @@ class Python38Parser(Python37Parser):
         super(Python37Parser, self).customize_grammar_rules(tokens, customize)
         self.remove_rules_38()
         self.check_reduce["break"] = "tokens"
+        self.check_reduce["pop_return"] = "tokens"
         self.check_reduce["whileTruestmt38"] = "tokens"
         self.check_reduce["whilestmt38"] = "tokens"
         self.check_reduce["try_elsestmtl38"] = "AST"
 
         self.reduce_check_table["break"] = break_check
+        self.reduce_check_table["pop_return"] = pop_return_check
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         invalid = super(Python38Parser, self).reduce_is_invalid(
