@@ -4,3 +4,4 @@ for the both full language and the subset used in lambda expressions.
 """
 from decompyle3.parsers.p38.lambda_expr import *
 from decompyle3.parsers.p38.full import *
+from decompyle3.parsers.p38.base import *

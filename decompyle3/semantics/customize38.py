@@ -89,7 +89,7 @@ def customize_for_version38(self, version):
             (0, "expr"),
             (3, "for_block"), -2 ),
 
-        "ifpoplaststmtl": ( "%|if %c:\n%+%c%-",
+        "ifpoplaststmtc": ( "%|if %c:\n%+%c%-",
                             (0, "testexpr"),
                             (2, "c_stmts" ) ),
 

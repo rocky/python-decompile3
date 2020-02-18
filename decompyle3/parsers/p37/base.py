@@ -1191,10 +1191,11 @@ class Python37BaseParser(PythonParser):
             if fn:
                 return fn(self, lhs, n, rule, ast, tokens, first, last)
         except:
-            import sys
-            print(f"Exception in {fn.__name__} {sys.exc_info()}\n" +
+            import sys, traceback
+            print(f"Exception in {fn.__name__} {sys.exc_info()[1]}\n" +
                   f"rule: {rule2str(rule)}\n" +
                   f"offsets {tokens[first].offset} .. {tokens[last].offset}")
+            print(traceback.print_tb(sys.exc_info()[2],-1))
             raise ParserError(tokens[last], tokens[last].off2int())
 
         if lhs in ("aug_assign1", "aug_assign2") and ast[0][0] == "and":

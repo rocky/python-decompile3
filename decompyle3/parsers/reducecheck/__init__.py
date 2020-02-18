@@ -6,6 +6,7 @@ from decompyle3.parsers.reducecheck.ifelsestmt import *
 from decompyle3.parsers.reducecheck.iflaststmt import *
 from decompyle3.parsers.reducecheck.ifstmt import *
 from decompyle3.parsers.reducecheck.ifstmts_jump import *
+from decompyle3.parsers.reducecheck.for38 import *
 from decompyle3.parsers.reducecheck.lastc_stmt import *
 from decompyle3.parsers.reducecheck.or_check import *
 from decompyle3.parsers.reducecheck.pop_return import *
