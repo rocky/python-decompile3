@@ -19,7 +19,7 @@
 # Python 3.8+ changes
 #######################
 
-from decompyle3.semantics.consts import TABLE_DIRECT
+from decompyle3.semantics.consts import PRECEDENCE, TABLE_DIRECT
 
 def customize_for_version38(self, version):
 
@@ -77,7 +77,7 @@ def customize_for_version38(self, version):
             "%|for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n",
             (2, "store"),
             (0, "expr"),
-            (3, "for_block"), -2 ),
+            (3, "for_block"), -1 ),
         "forelselaststmt38": (
             "%|for %c in %c:\n%+%c%-%|else:\n%+%c%-",
             (2, "store"),
@@ -139,6 +139,6 @@ def customize_for_version38(self, version):
             (2, "suite_stmts_opt"),
             (8, "suite_stmts_opt") ),
         "named_expr": ( # AKA "walrus operator"
-            "%c := %c", (2, "store"), (0, "expr")
+            "%c := %p", (2, "store"), (0, "expr", PRECEDENCE["named_expr"]-1)
             )
     })

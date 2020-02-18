@@ -1,5 +1,6 @@
 SKIP_TESTS=(
     [test_asyncore.py]=1 # FIXME: "break" outside of loop
+    [test_pathlib.py]=1 # FIXME: distinguish "for" from "forelse"
 
     [test_time.py]=1 # FIXME: parser error; works on uncompyle6?
     [test_urllib2.py]=1 # FIXME: test failures works on uncompyle6?
@@ -119,30 +120,20 @@ SKIP_TESTS=(
     [test_multiprocessing_forkserver.py]=1
     [test_multiprocessing_spawn.py]=1 # takes too long to run before decompilation
 
-    [test_named_expressions.py]=1 # parse error
-    [test_netrc.py]=1 # parse error
-    [test_nis.py]=1 # break outside of loop
-    [test_normalization.py]=1 # probably control flow (uninitialized variable)
-    [test_nntplib.py]=1
-    [test_ntpath.py]=1
+    [test_named_expressions.py]=1 # Investigate tests failures. This stress tests named-expression handling
+    [test_normalization.py]=1 # parse error
+    [test_nntplib.py]=1 # takes too long to run before decompilation: 25 seconds
 
-    [test__osx_support.py]=1 # parse error
-    [test_opcodes.py]=1 # parse error
-    [test_operator.py]=1 # parse error
-    [test_optparse.py]=1 # doesn't terminate (killed)
+    [test_opcodes.py]=1 # Test assert failure
+    [test_optparse.py]=1 # parse error
     [test_ordered_dict.py]=1 # parse error
     [test_os.py]=1 # probably control flow (uninitialized variable)
     [test_ossaudiodev.py]=1 # it fails on its own
-    [test_osx_env.py]=1 # parse error
 
-    [test_pathlib.py]=1 # parse error
     [test_pdb.py]=1 # Probably relies on comments
     [test_peepholer.py]=1 # decompile takes a long time; then test assert error
     [test_pickle.py]=1 # Probably relies on comments
-    [test_picklebuffer.py]=1 # parse error
-    [test_pipes.py]=1 # parse error
     [test_pkg.py]=1 # Investigate: lists differ
-    [test_pkgimport.py]=1 # parse error
     [test_pkgutil.py]=1 # Investigate:
     [test_platform.py]=1 # parse error
     [test_plistlib.py]=1 # parse error

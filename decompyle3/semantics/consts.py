@@ -46,6 +46,7 @@ PRECEDENCE = {
     "yield":                 102,
     "yield_from":            102,
 
+    "named_expr":             40, # :=
     "mklambda":               30,
 
     "if_exp":                 28, # IfExp ( a if x else b)
@@ -355,7 +356,10 @@ TABLE_DIRECT = {
     # a format string.
     "string_at_beginning":   ( '%|"%%s" %% %c\n', 0),
 
-    "call_stmt":	    ( "%|%p\n", (0, 200)),
+    "call_stmt":	    ( "%|%p\n",
+                              # When a call statement contains only a named_expr (:=)
+                              # the named_expr should have parenthesis around it.
+                              (0, PRECEDENCE["named_expr"]-1)),
     "break":	            ( "%|break\n", ),
     "continue":	            ( "%|continue\n", ),
 
