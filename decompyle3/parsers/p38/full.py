@@ -123,6 +123,11 @@ class Python38FullParser(Python37Parser):
 
         forelsestmt38      ::= expr get_for_iter store for_block POP_BLOCK else_suite
         forelsestmt38      ::= expr get_for_iter store for_block JUMP_BACK else_suite
+
+        c_stmt             ::= c_forelsestmt38
+        c_forelsestmt38    ::= expr get_for_iter store for_block POP_BLOCK else_suitec
+        c_forelsestmt38    ::= expr get_for_iter store for_block JUMP_BACK else_suitec
+
         forelselaststmt38  ::= expr get_for_iter store for_block POP_BLOCK else_suitec
         forelselaststmtc38 ::= expr get_for_iter store for_block POP_BLOCK else_suitec
 
@@ -153,6 +158,9 @@ class Python38FullParser(Python37Parser):
                                else_suitec opt_come_from_except
         try_except         ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
                                except_handler38
+        c_try_except       ::= SETUP_FINALLY c_suite_stmts POP_BLOCK
+                               except_handler38
+
         try_except38       ::= SETUP_FINALLY POP_BLOCK POP_TOP suite_stmts_opt
                                except_handler38a
 

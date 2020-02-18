@@ -72,7 +72,7 @@ class Python37Parser(Python37LambdaParser):
         c_stmt  ::= ifstmtc
         c_stmt  ::= break
         c_stmt  ::= continue
-        c_stmt  ::= break
+        c_stmt  ::= c_try_except
 
         c_stmts_opt ::= c_stmts
         c_stmts_opt ::= pass
@@ -87,6 +87,11 @@ class Python37Parser(Python37LambdaParser):
         else_suitec ::= c_stmts
         else_suitec ::= returns
         else_suitec ::= suite_stmts
+
+        c_suite_stmts     ::= c_stmts
+        c_suite_stmts     ::= suite_stmts
+        c_suite_stmts_opt ::= c_suite_stmts
+        c_suite_stmts_opt ::= suite_stmts_opt
         """
 
     def p_stmt(self, args):
@@ -243,7 +248,11 @@ class Python37Parser(Python37LambdaParser):
 
     def p_forstmt(self, args):
         """
-        for_block ::= c_stmts_opt _come_froms JUMP_BACK
+        for_block   ::= c_stmts_opt COME_FROM_LOOP JUMP_BACK
+        for_block   ::= c_stmts_opt _come_froms JUMP_BACK
+        for_block   ::= c_stmts_opt come_from_loops JUMP_BACK
+        for_block   ::= c_stmts
+        for_block   ::= c_stmts JUMP_BACK
 
         forelsestmt ::= SETUP_LOOP expr get_for_iter store
                         for_block POP_BLOCK else_suite _come_froms
@@ -362,6 +371,12 @@ class Python37Parser(Python37LambdaParser):
         # Python 3.5+ has jump optimization to remove the redundant
         # jump_excepts. But in 3.3 we need them added
 
+        try_except   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                         except_handler
+                         jump_excepts come_from_except_clauses
+        c_try_except ::= SETUP_EXCEPT c_suite_stmts_opt POP_BLOCK
+                         c_except_handler
+                         jump_excepts come_from_except_clauses
         try_except  ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                         except_handler
                         jump_excepts come_from_except_clauses
@@ -617,6 +632,18 @@ class Python37Parser(Python37LambdaParser):
         except_handler ::= jmp_abs COME_FROM_EXCEPT except_stmts
                            _come_froms END_FINALLY
 
+        c_except_handler ::= jmp_abs COME_FROM c_except_stmts
+                           _come_froms END_FINALLY
+        c_except_handler ::= jmp_abs COME_FROM_EXCEPT c_except_stmts
+                           _come_froms END_FINALLY
+        c_except_handler ::= jmp_abs COME_FROM_EXCEPT c_except_stmts
+
+        try_except   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                         except_handler
+                         jump_excepts come_from_except_clauses
+        c_try_except ::= SETUP_EXCEPT c_suite_stmts_opt POP_BLOCK
+                         c_except_handler
+                         jump_excepts come_from_except_clauses
         # FIXME: remove this
         except_handler ::= JUMP_FORWARD COME_FROM except_stmts
                            come_froms END_FINALLY come_from_opt
@@ -628,6 +655,11 @@ class Python37Parser(Python37LambdaParser):
         except_stmt    ::= except_cond2 except_suite_finalize
         except_stmt    ::= except
         except_stmt    ::= stmt
+
+        c_except_stmts ::= except_stmts
+        c_except_stmts ::= c_except_stmt+
+        c_except_stmt  ::= c_stmt
+        c_except_stmt  ::= stmt
 
         ## FIXME: what's except_pop_except?
         except_stmt    ::= except_pop_except
@@ -673,9 +705,11 @@ class Python37Parser(Python37LambdaParser):
         except_handler ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts
                            come_froms END_FINALLY
 
-        for_block ::= c_stmts_opt COME_FROM_LOOP JUMP_BACK
-        for_block ::= c_stmts
-        for_block ::= c_stmts JUMP_BACK
+        c_except_handler ::= jmp_abs COME_FROM c_except_stmts
+                           _come_froms END_FINALLY
+        c_except_handler ::= jmp_abs COME_FROM_EXCEPT c_except_stmts
+                           _come_froms END_FINALLY
+        c_except_handler ::= jmp_abs COME_FROM_EXCEPT c_except_stmts
         """
 
     def p_come_from3(self, args):
@@ -766,6 +800,7 @@ class Python37Parser(Python37LambdaParser):
         for               ::= setup_loop expr get_for_iter store for_block
                               POP_BLOCK COME_FROM_LOOP
 
+        forelsestmt       ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suitec
         forelsestmt       ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suite
                               COME_FROM_LOOP
 

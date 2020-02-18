@@ -44,8 +44,8 @@ def customize_for_version38(self, version):
         "async_with_as_stmt38":  (
             "%|async with %c as %c:\n%+%|%c%-",
             (0, "expr"), (6, "store"),
-            (7, "suite_stmts") ),
-
+            (7, "suite_stmts")
+        ),
         "except_cond1a": (
             "%|except %c:\n", (1, "expr"),
             ),

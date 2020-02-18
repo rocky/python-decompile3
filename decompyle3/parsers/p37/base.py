@@ -949,8 +949,7 @@ class Python37BaseParser(PythonParser):
                     try_except     ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                                        except_handler opt_come_from_except
                     c_try_except   ::= SETUP_EXCEPT c_suite_stmts POP_BLOCK
-                                       except_handler opt_come_from_except
-
+                                       c_except_handler opt_come_from_except
                     stmt           ::= tryelsestmt3
                     tryelsestmt3   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                                        except_handler COME_FROM else_suite
@@ -964,7 +963,7 @@ class Python37BaseParser(PythonParser):
 
                     c_stmt         ::= c_tryelsestmt
                     c_tryelsestmt  ::= SETUP_EXCEPT c_suite_stmts POP_BLOCK
-                                       except_handler else_suite come_from_except_clauses
+                                       c_except_handler else_suitec come_from_except_clauses
                     """,
                     nop_func,
                 )
