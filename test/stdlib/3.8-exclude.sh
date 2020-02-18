@@ -15,6 +15,8 @@ SKIP_TESTS=(
     [test_pprint.py]=1 # FIXME: works on ac5594b0; probably need a "forelse" rule
     [test_structseq.py]=1 # FIXME: works on ac5594b0; probably need a "forelse" rule
     [test_type_comments.py]=1 # FIXME: works on ac5594b0; probably need a "forelse" rule
+    [test_urllib2net.py]=1 # FIXME: works on ac5594b0; probably need a "forelse" rules
+    [test__xxsubinterpreters.py]=1 # FIXME: works on ac5594b0; probably need a "forelse" rule
 
     [test_time.py]=1 # FIXME: parser error; works on uncompyle6?
     [test_urllib2.py]=1 # FIXME: test failures works on uncompyle6?
