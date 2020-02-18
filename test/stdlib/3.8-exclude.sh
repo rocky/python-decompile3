@@ -77,63 +77,47 @@ SKIP_TESTS=(
     [test_functools.py]=1 # test errors
     [test___future__.py]=1 # test assert failure
 
-    [test_gc.py]=1 # parse error
+    [test_gc.py]=1 # test failures
     [test_gdb.py]=1 # it fails on its own
-    [test_genericpath.py]=1 # parse error
-    [test_generators.py]=1  # improper decompile of assert i < n and (n-i) % 3 == 0
-    [test_getpass.py]=1  # parse error
+    [test_generators.py]=1  # parse error
     [test_gettext.py]=1  # parse error
-    [test_glob.py]=1  #
-    [test_grammar.py]=1
-    [test_grp.py]=1 # Doesn't terminate (killed)
+    [test_glob.py]=1  # test errors
+    [test_grammar.py]=1 # parse error (also takes a while to decompile)
     [test_gzip.py]=1 # parse error
 
-    [test_hashlib.py]=1 # test assert failures
-    [test_heapq.py]=1  # test failure
-    [test_hmac.py]=1  # parse error
+    [test_hashlib.py]=1 # parse error
+    [test_heapq.py]=1  # test failures
     [test_httplib.py]=1 # parse error
-    [test_http_cookiejar.py]=1
-    [test_httpservers.py]=1 # parse error
+    [test_httpservers.py]=1 # test assert failure
 
-    [test_imghdr.py]=1 # parse error
-    [test_imp.py]=1 # parse error
-    [test_int.py]=1 # parse error
     [test_io.py]=1 # test takes too long to run: 37 seconds
-    [test_ioctl.py]=1 # parse error
-    [test_imaplib.py]=1
-    [test_ipaddress.py]=1 # parse error
-    [test_index.py]=1
-    [test_inspect.py]=1
+    [test_imaplib.py]=1 # parse error
+    [test_inspect.py]=1 # parse error
     [test_iter.py]=1 # parse error
     [test_itertools.py]=1 # parse error
 
-    [test_keywordonlyarg.py]=1 # parse error
     [test_kqueue.py]=1 # it fails on its own
 
     [test__locale.py]=1 # parse error
     [test_largefile.py]=1 # parse error
     [test_lib2to3.py]=1 # it fails on its own
-    [test_linecache.py]=1 # parse error
-    [test_lltrace.py]=1 # parse error
     [test_locale.py]=1 # parse error
     [test_logging.py]=1 # test takes too long to run: 20 seconds
-    [test_long.py]=1 # investigate
+    [test_long.py]=1 # test assert failures. Takes a long time to run
     [test_lzma.py]=1 # it fails on its own
 
-    [test_mailbox.py]=1 # parse error
-    [test_mailcap.py]=1 # parse error
-    [test_marshal.py]=1
-    [test_math.py]=1
+    [test_mailbox.py]=1 # test failures
+    [test_mailcap.py]=1 # test failures
+    [test_math.py]=1 # test failures and errors; takes along time to run
     [test_memoryio.py]=1 # test failure
     [test_memoryview.py]=1 # parse error
     [test_minidom.py]=1 # test failure
-    [test_mmap.py]=1 # parse error
-    [test_modulefinder.py]=1
-    [test_msilib.py]=1
+    [test_mmap.py]=1 # test errors
+    [test_modulefinder.py]=1 # test failures
+    [test_msilib.py]=1 # fails on its own
     [test_multiprocessing_fork.py]=1 # test takes too long to run: 62 seconds
     [test_multiprocessing_forkserver.py]=1
-    [test_multiprocessing_main_handling.py]=1 # parse error
-    [test_multiprocessing_spawn.py]=1
+    [test_multiprocessing_spawn.py]=1 # takes too long to run before decompilation
 
     [test_named_expressions.py]=1 # parse error
     [test_netrc.py]=1 # parse error
