@@ -10,6 +10,7 @@ SKIP_TESTS=(
     [test_ipaddress.py]=1 # FIXME: works on ac5594b0; probably need a "forelse" rule
     [test_nis.py]=1 # FIXME: works on ac5594b0; probably need a "forelse" rule
     [test_numeric_tower.py]=1 # FIXME: works on ac5594b0; probably need a "forelse" rule
+    [test__opcode.py]=1 # FIXME: works on ac5594b0; probably need a "forelse" rule
     [test_pow.py]=1 # FIXME: works on ac5594b0; probably need a "forelse" rule
     [test_pprint.py]=1 # FIXME: works on ac5594b0; probably need a "forelse" rule
     [test_structseq.py]=1 # FIXME: works on ac5594b0; probably need a "forelse" rule
@@ -222,50 +223,32 @@ SKIP_TESTS=(
     [test_traceback.py]=1 # Probably uses comment for testing
     [test_tracemalloc.py]=1 #
     [test_ttk_guionly.py]=1  # implementation specfic and test takes too long to run: 19 seconds
-    [test_turtle_import.py]=1 # parse error
     [test_turtle.py]=1 # parse error
     [test_types.py]=1 # parse error
     [test_typing.py]=1 # parse error
 
-    [test_ucn.py]=1 # parse error
     [test_unicode.py]=1 # unicode thing
-    [test_unicode_file_functions.py]=1 # parse faiure
     [test_unicodedata.py]=1 # test faiure
     [test_univnewlines.py]=1 # parse error
-    [test_urllib.py]=1 # parse error
-    [test_urllib2.py]=1 #
+    [test_urllib2.py]=1 # parse error
     [test_urllib_response.py]=1 # parse error
     [test_urllib2_localnet.py]=1 #
-    [test_urllib2net.py]=1 # parse error
-    [test_urllibnet.py]=1 # probably control flow - uninitialized variable
-    [test_urlparse.py]=1 # parse error
-    [test_userdict.py]=1 # test failures
-    [test_userstring.py]=1 # parse error
-    [test_utf8.py]=1 # parse error
-    [test_utf8_mode.py]=1 # parse error
-    [test_uu.py]=1 # parse error
+    [test_urllibnet.py]=1 # test errors. probably control flow - uninitialized variable
+    [test_urlparse.py]=1 # test errors
     [test_uuid.py]=1 # parse error
 
-    [test_venv.py]=1 # parse error
-
-    [test_weakref.py]=1 # probably control flow - uninitialized variable
-    [test_weakset.py]=1 # parse error
-    [test_webbrowser.py]=1 # parse error
-    [test_with.py]=1 # probably control flow - uninitialized variable
+    [test_weakref.py]=1 # test errors probably control flow - uninitialized variable
+    [test_with.py]=1 # parse error
     [test_winconsoleio.py]=1 # it fails on its own
     [test_winreg.py]=1 # it fails on its own
     [test_winsound.py]=1 # it fails on its own
-    [test_wsgiref.py]=1 # parse error
 
     [test_xml_etree.py]=1 # parse error
     [test_xmlrpc.py]=1 # parse error
-    [test__xxsubinterpreters.py]=1 # parse error
 
     [test_yield_from.py]=1 # parse error
 
     [test_zlib.py]=1 # test looping take more than 15 seconds to run
-    [test_zipapp.py]=1 # parse error
-    [test_zipimport_support.py]=1 # parse error
     [test_zipfile.py]=1 # it fails on its own
     [test_zipfile64.py]=1 #
 )
