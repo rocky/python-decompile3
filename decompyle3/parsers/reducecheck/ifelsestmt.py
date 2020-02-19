@@ -26,8 +26,13 @@ IFELSE_STMT_RULES = frozenset(
                 "_come_froms",
             ),
         ),
-        ("ifelsestmtc", ("testexpr", "c_stmts_opt", "jb_elsec", "else_suitec"),),
+        ("ifelsestmtc", ("testexpr", "c_stmts_opt", "jb_cf", "else_suitec"),),
         ("ifelsestmtc", ("testexpr", "c_stmts_opt", "jb_cfs", "else_suitec"),),
+        (
+            "ifelsestmtc",
+            (
+                "testexpr", "c_stmts", "come_froms", "else_suite")
+        ),
         (
             "ifelsestmt",
             (
@@ -97,6 +102,11 @@ def ifelsestmt(
     if (last + 1) < n and tokens[last + 1] == "COME_FROM_LOOP":
         # ifelsestmt jumped outside of loop. No good.
         return True
+    # print("XXX", first, last, rule)
+    # if (first, last) == (6, 23):
+    #     for t in range(first, last): print(tokens[t])
+    #     print("="*40)
+    #     from trepan.api import debug; debug()
 
     # if lhs == "ifelsestmtc":
     #     print("XXX", first, last, rule)
@@ -143,6 +153,8 @@ def ifelsestmt(
             if come_from == "COME_FROM":
                 if come_from.attr > stmts.first_child().off2int():
                     return True
+                pass
+            pass
 
         if len(if_condition) > 1 and if_condition[1].kind.startswith("jump_if_"):
             if last == n:

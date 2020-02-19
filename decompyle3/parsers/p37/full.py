@@ -612,7 +612,7 @@ class Python37Parser(Python37LambdaParser):
         # This handles the case where a "JUMP_ABSOLUTE" is part
         # of an inner if in c_stmts_opt
         ifelsestmtc ::= testexpr c_stmts come_froms
-                        else_suite come_froms
+                        else_suite
 
 
         ifelsestmtr ::= testexpr return_if_stmts returns
