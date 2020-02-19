@@ -1,22 +1,9 @@
 SKIP_TESTS=(
     [test_asyncore.py]=1 # FIXME: "break" outside of loop
-    [test_builtin.py]=1 # FIXME: works on ac5594b0; probably need a "forelse" rule
-    [test_bytes.py]=1 # FIXME: works on ac5594b0; probably need a "forelse" rule
-    [test_call.py]=1 # FIXME: works on ac5594b0; probably need a "forelse" rule
-    [test_copyreg.py]=1 # FIXME: works on ac5594b0; probably need a "forelse" rule
-    [test_codeccallbacks.py]=1 # FIXME: works on ac5594b0; probably need a "forelse" rule
-    [test_embed.py]=1 # FIXME: works on ac5594b0; probably need a "forelse" rule
-    [test_genericpath.py]=1 # FIXME: works on ac5594b0; probably need a "forelse" rule
-    [test_ipaddress.py]=1 # FIXME: works on ac5594b0; probably need a "forelse" rule
-    [test_nis.py]=1 # FIXME: works on ac5594b0; probably need a "forelse" rule
-    [test_numeric_tower.py]=1 # FIXME: works on ac5594b0; probably need a "forelse" rule
-    [test__opcode.py]=1 # FIXME: works on ac5594b0; probably need a "forelse" rule
-    [test_pow.py]=1 # FIXME: works on ac5594b0; probably need a "forelse" rule
-    [test_pprint.py]=1 # FIXME: works on ac5594b0; probably need a "forelse" rule
-    [test_structseq.py]=1 # FIXME: works on ac5594b0; probably need a "forelse" rule
-    [test_type_comments.py]=1 # FIXME: works on ac5594b0; probably need a "forelse" rule
-    [test_urllib2net.py]=1 # FIXME: works on ac5594b0; probably need a "forelse" rules
-    [test__xxsubinterpreters.py]=1 # FIXME: works on ac5594b0; probably need a "forelse" rule
+    [test_ipaddress.py]=1 # FIXME: works on ac5594b0; probably a "for38" reduction check
+    [test_nis.py]=1 # FIXME: works on ac5594b0; probably a "for38" reduction check
+    [test_urllib2net.py]=1 # FIXME: works on ac5594b0; probably a "for38" reduction checkss
+    [test__xxsubinterpreters.py]=1 # FIXME: works on ac5594b0; probably a "for38" reduction checks
 
     [test_time.py]=1 # FIXME: parser error; works on uncompyle6?
     [test_urllib2.py]=1 # FIXME: test failures works on uncompyle6?

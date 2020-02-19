@@ -46,6 +46,8 @@ def for38_check(
             # There can be some slop in "last" as to where the body ends. If the rule
             # end in "JUMP_BACK", then "last" doesn't need adjusting.
             for_body_end_offset = inst.argval if rule[1][-1] == "JUMP_BACK" else inst.argval - 2
+            if self.insts[end].has_extended_arg:
+                last_offset += 2
             if last_offset < for_body_end_offset:
                 # "for" body isn't big enough
                 return True
