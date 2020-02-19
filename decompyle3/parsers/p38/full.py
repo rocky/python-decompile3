@@ -198,6 +198,7 @@ class Python38FullParser(Python37Parser):
         # In 3.8 any POP_EXCEPT comes before the "break" loop.
         # We should add a rule to check that JUMP_FORWARD is indeed a "break".
         break              ::=  POP_EXCEPT JUMP_FORWARD
+        break              ::=  POP_BLOCK POP_TOP JUMP_FORWARD
 
         tryfinallystmt     ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
                                BEGIN_FINALLY COME_FROM_FINALLY suite_stmts_opt
