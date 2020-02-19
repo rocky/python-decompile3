@@ -4,14 +4,14 @@
 def ifstmt(
     self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
 ) -> bool:
-    if lhs == "ifstmtc":
-        if last == n:
-            last -= 1
-            pass
-        if tokens[last].attr and isinstance(tokens[last].attr, int):
-            if tokens[first].offset >= tokens[last].attr:
-                return True
-        pass
+    # if lhs == "ifstmtc":
+    #     if last == n:
+    #         last -= 1
+    #         pass
+    #     if tokens[last].attr and isinstance(tokens[last].attr, int):
+    #         if tokens[first].offset >= tokens[last].attr:
+    #             return True
+    #     pass
 
     # Make sure jumps don't extend beyond the end of the if statement.
     last_offset = tokens[last].off2int()

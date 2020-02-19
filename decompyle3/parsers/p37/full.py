@@ -814,12 +814,13 @@ class Python37Parser(Python37LambdaParser):
         forelselaststmt   ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suitec
                               COME_FROM_LOOP
 
-        whilestmt         ::= setup_loop testexpr c_stmts_opt COME_FROM JUMP_BACK POP_BLOCK
-                              COME_FROM_LOOP
+        whilestmt         ::= setup_loop testexpr c_stmts_opt COME_FROM JUMP_BACK
+                              POP_BLOCK COME_FROM_LOOP
+        whilestmt         ::= setup_loop testexpr c_stmts_opt come_froms
+                              POP_BLOCK COME_FROM_LOOP
 
-
-        whilestmt         ::= setup_loop testexpr c_stmts_opt JUMP_BACK POP_BLOCK
-                              COME_FROM_LOOP
+        whilestmt         ::= setup_loop testexpr c_stmts_opt JUMP_BACK
+                              POP_BLOCK COME_FROM_LOOP
 
         whilestmt         ::= setup_loop testexpr returns          POP_BLOCK
                               COME_FROM_LOOP
