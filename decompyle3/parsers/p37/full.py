@@ -431,15 +431,15 @@ class Python37Parser(Python37LambdaParser):
 
         return_if_stmt ::= ret_expr RETURN_END_IF POP_BLOCK
 
-        jb_elsec     ::= JUMP_BACK COME_FROM
+        jb_cf     ::= JUMP_BACK COME_FROM
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_FORWARD else_suitec
-        ifelsestmtc ::= testexpr c_stmts_opt jb_elsec else_suitec come_from_opt
+        ifelsestmtc ::= testexpr c_stmts_opt jb_cf else_suitec come_from_opt
 
         # We want to keep the positions of the "then" and
         # "else" statements in "ifelstmtl" similar to others of this ilk.
         testexpr_cf ::= testexpr come_froms
 
-        ifelsestmtc ::= testexpr_cf c_stmts_opt jb_elsec else_suitec
+        ifelsestmtc ::= testexpr_cf c_stmts_opt jb_cf else_suitec
         iflaststmt  ::= testexpr stmts_opt JUMP_FORWARD
         """
 
@@ -569,8 +569,11 @@ class Python37Parser(Python37LambdaParser):
         testexpr   ::= testfalse
         testexpr   ::= testtrue
         testfalse  ::= expr jump_if_false
+
         testtrue   ::= expr jump_if_true
+        testtruec  ::= expr jump_if_true
         testtrue   ::= compare_chained37
+
         testfalse  ::= and_not
         testfalse  ::= compare_chained37_false
 
@@ -742,6 +745,8 @@ class Python37Parser(Python37LambdaParser):
         iflaststmtc ::= testexprc c_stmts JUMP_BACK
         iflaststmtc ::= testexprc c_stmts JUMP_BACK COME_FROM_LOOP
         iflaststmtc ::= testexprc c_stmts JUMP_BACK POP_BLOCK
+
+        testexprc   ::= testruec
         testexprc   ::= testfalsec
         testfalsec  ::= expr jump_if_true
 
@@ -769,6 +774,7 @@ class Python37Parser(Python37LambdaParser):
         ifelsestmtc        ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_froms
 
         ifstmtc            ::= testexpr ifstmts_jumpc
+        ifstmtc            ::= testexprc ifstmts_jumpc
 
         ifstmts_jumpc             ::= ifstmts_jump
         ifstmts_jumpc             ::= c_stmts_opt come_froms
