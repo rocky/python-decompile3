@@ -700,6 +700,7 @@ class Python37Parser(Python37LambdaParser):
 
         jmp_abs ::= JUMP_ABSOLUTE
         jmp_abs ::= JUMP_BACK
+        jmp_abs ::= JUMP_FORWARD
 
         """
 
