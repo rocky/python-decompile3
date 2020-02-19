@@ -46,6 +46,11 @@ def customize_for_version38(self, version):
             (0, "expr"), (6, "store"),
             (7, "suite_stmts")
         ),
+        "c_forelsestmt38":    (
+            "%|for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n",
+            (2, "store"),
+            (0, "expr"),
+            (3, "for_block"), -1 ),
         "except_cond1a": (
             "%|except %c:\n", (1, "expr"),
             ),
