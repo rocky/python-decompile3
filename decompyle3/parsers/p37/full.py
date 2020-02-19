@@ -746,7 +746,7 @@ class Python37Parser(Python37LambdaParser):
         iflaststmtc ::= testexprc c_stmts JUMP_BACK COME_FROM_LOOP
         iflaststmtc ::= testexprc c_stmts JUMP_BACK POP_BLOCK
 
-        testexprc   ::= testruec
+        testexprc   ::= testtruec
         testexprc   ::= testfalsec
         testfalsec  ::= expr jump_if_true
 
