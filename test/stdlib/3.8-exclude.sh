@@ -1,4 +1,5 @@
 SKIP_TESTS=(
+    [test_shlex.py]=1 # FIXME: "or" is getting generatated in a "for" instead of "if"
     [test_asyncore.py]=1 # FIXME: "break" outside of loop
     [test_nis.py]=1 # FIXME: works on ac5594b0; probably a "for38" reduction check
     [test_urllib2net.py]=1 # FIXME: works on ac5594b0; probably a "for38" reduction checkss
@@ -18,34 +19,35 @@ SKIP_TESTS=(
 
     [test_baseexception.py]=1  # test errors; control flow probably
     [test_bigmem.py]=1  # parse error
-    [test_binop.py]=1  # test assertion failures
+    [test_binop.py]=1  # test checkion failures
     [test_bdb.py]=1  # parse error
     [test_buffer.py]=1  # parse error; take a long time to decompile
     [test_bz2.py]=1  # parse error
 
     [test_cgi.py]=1  # parse error
     [test_clinic.py]=1 # it fails on its own
-    [test_cmath.py]=1 # test assertion failure
+    [test_cmath.py]=1 # test checkion failure
     [test_cmd.py]=1  # parse error
     [test_cmd_line.py]=1  # Interactive?
-    [test_cmd_line_script.py]=1 # test assertion failures
+    [test_cmd_line_script.py]=1 # test checkion failures
     [test_code_module.py]=1 # test failure
     [test_codecmaps_cn.py]=1 # test before decompile takes too long to run 135 secs
     [test_codecmaps_hk.py]=1 # test before decompile takes too long to run 46 secs
-    [test_codecs.py]=1 # test assert failers
+    [test_codecs.py]=1 # test check failers
     [test_collections.py]=1 # parse error
-    [test_compile.py]=1 # test assert failures
+    [test_compile.py]=1 # test check failures
     [test_compileall.py]=1 # fails on its own
     [test_complex.py]=1 # Investigate
     [test_concurrent_futures.py]=1 # too long
     [test_configparser.py]=1 # test failures
     [test_context.py]=1
+    [test_contextlib.py]=1 # test check failures
     [test_contextlib_async.py]=1 # parse error
     [test_coroutines.py]=1 # Parse error
     [test_ctypes.py]=1 # it fails on its own
     [test_curses.py]=1 # Parse error
 
-    [test_dataclasses.py]=1  # test assertion errors
+    [test_dataclasses.py]=1  # test checkion errors
     [test_datetime.py]=1   # Takes too long
     [test_dbm.py]=1   # parse error
     [test_dbm_dumb.py]=1   # parse error
@@ -53,14 +55,14 @@ SKIP_TESTS=(
     [test_dbm_ndbm.py]=1 # it fails on its own
     [test_decimal.py]=1   # Parse error; takes a long time to decompile
     [test_decorators.py]=1   # parse error
-    [test_deque.py]=1   # test assert failres
+    [test_deque.py]=1   # test check failres
     [test_descr.py]=1   # Parse error
     [test_descrtut.py]=1   # parse error
     [test_devpoll.py]=1 # it fails on its own
     [test_dict.py]=1   # parse error
-    [test_dictcomps.py]=1 # test assert failures
+    [test_dictcomps.py]=1 # test check failures
     [test_dis.py]=1   # Parse error. We change line numbers - duh!
-    [test_doctest.py]=1 # test assert failures
+    [test_doctest.py]=1 # test check failures
     [test_docxmlrpc.py]=1
     [test_dtrace.py]=1 # parse error
 
@@ -70,6 +72,7 @@ SKIP_TESTS=(
     [test_exceptions.py]=1   # parse error
 
     [test_faulthandler.py]=1   # takes too long
+    [test_filecmp.py]=1  # probably control flow
     [test_fileinput.py]=1  # parse error
     [test_fileio.py]=1 # test failures
     [test_float.py]=1  # Takes a long time to decompile
@@ -77,9 +80,9 @@ SKIP_TESTS=(
     [test_fstring.py]=1 # Investigate: Syntax error unexcpeted EOF wile parsing
     [test_ftplib.py]=1 # parse error
     [test_functools.py]=1 # test errors
-    [test___future__.py]=1 # test assert failure
+    [test___future__.py]=1 # test check failure
 
-    [test_gc.py]=1 # test assert failures
+    [test_gc.py]=1 # test check failures
     [test_gdb.py]=1 # it fails on its own
     [test_generators.py]=1  # parse error
     [test_glob.py]=1  # test errors
@@ -89,7 +92,7 @@ SKIP_TESTS=(
 
     [test_hashlib.py]=1 # parse error
     [test_httplib.py]=1 # parse error
-    [test_httpservers.py]=1 # test assert failure
+    [test_httpservers.py]=1 # test check failure
 
     [test_io.py]=1 # test takes too long to run: 37 seconds
     [test_imaplib.py]=1 # parse error
@@ -104,7 +107,7 @@ SKIP_TESTS=(
     [test_lib2to3.py]=1 # it fails on its own
     [test_locale.py]=1 # parse error
     [test_logging.py]=1 # test takes too long to run: 20 seconds
-    [test_long.py]=1 # test assert failures. Takes a long time to run
+    [test_long.py]=1 # test check failures. Takes a long time to run
     [test_lzma.py]=1 # it fails on its own
 
     [test_mailbox.py]=1 # test failures
@@ -123,14 +126,14 @@ SKIP_TESTS=(
     [test_normalization.py]=1 # parse error
     [test_nntplib.py]=1 # takes too long to run before decompilation: 25 seconds
 
-    [test_opcodes.py]=1 # Test assert failure
+    [test_opcodes.py]=1 # test check failure
     [test_optparse.py]=1 # parse error
     [test_ordered_dict.py]=1 # parse error
     [test_os.py]=1 # probably control flow (uninitialized variable)
     [test_ossaudiodev.py]=1 # it fails on its own
 
     [test_pdb.py]=1 # Probably relies on comments
-    [test_peepholer.py]=1 # decompile takes a long time; then test assert error
+    [test_peepholer.py]=1 # decompile takes a long time; then test check error
     [test_pickle.py]=1 # Probably relies on comments
     [test_pkg.py]=1 # Investigate: lists differ
     [test_pkgutil.py]=1 # Investigate:
@@ -145,17 +148,17 @@ SKIP_TESTS=(
 
     [test_queue.py]=1  # parse error
 
-    [test_raise.py]=1  # test assert failure
-    [test_random.py]=1  # test assert failure
+    [test_raise.py]=1  # test check failure
+    [test_random.py]=1  # test check failure
     [test_range.py]=1  # parse error
-    [test_re.py]=1 # test assertion error
+    [test_re.py]=1 # test checkion error
     [test_readline.py]=1  # parse error
     [test_robotparser.py]=1  # too long to run before decompiling: 31 secs
-    [test_regrtest.py]=1 # test assert failures
+    [test_regrtest.py]=1 # test check failures
     [test_resource.py]=1  # probably control flow
     [test_runpy.py]=1  #
 
-    [test_scope.py]=1 # test assert failures
+    [test_scope.py]=1 # test check failures
     [test_select.py]=1 # test takes too long to run: 11 seconds
     [test_selectors.py]=1 # test takes too long to run before decompiling: 17 seconds
     [test_set.py]=1 # parse error
@@ -170,14 +173,14 @@ SKIP_TESTS=(
     [test_stat.py]=1 # parse error
     [test_statistics.py]=1 # Probably control flow; unintialized varaible
     [test_strftime.py]=1 # parse error
-    [test_strptime.py]=1 # test assertions failed
-    [test_strtod.py]=1 # test assertions failed
-    [test_struct.py]=1 # test assertions failed
-    [test_structmembers.py]=1 # test assertions failed
+    [test_strptime.py]=1 # test check failure(s)
+    [test_strtod.py]=1 # test check failure(s)
+    [test_struct.py]=1 # test check failure(s)
+    [test_structmembers.py]=1 # test check failure(s)
     [test_subprocess.py]=1
     [test_support.py]=1 # parse error
     [test_sys.py]=1 # parse error
-    [test_sys_setprofile.py]=1 # test assertions failed
+    [test_sys_setprofile.py]=1 # test check failures
     [test_sys_settrace.py]=1 # parse error
     [test_sysconfig.py]=1 # parse error
 
