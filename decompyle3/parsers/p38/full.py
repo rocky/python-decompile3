@@ -32,6 +32,32 @@ class Python38FullParser(Python37Parser):
         named_expr        ::= expr DUP_TOP store
         """
 
+    def p_38if_ifelse(self, args):
+        """
+        # cf_pt introduced to keep indices the same in ifelsestmtc
+        cf_pt              ::= COME_FROM POP_TOP
+        ifelsestmtc        ::= testexpr c_stmts cf_pt else_suite
+
+        # 3.8 can push a looping JUMP_BACK into into a JUMP_ from a statement that jumps to it
+        lastc_stmt         ::= ifpoplaststmtc
+        ifpoplaststmtc     ::= testexpr POP_TOP c_stmts_opt
+        ifelsestmtc        ::= testexpr c_stmts_opt jb_cfs else_suitec JUMP_BACK come_froms
+
+        # The below ifelsetmtc is a really weird one for the inner if/else in:
+        #  if a:
+        #      while i:
+        #       if c:
+        #         j = j + 1
+        #                 # A JUMP_BACK is here...
+        #       else:
+        #          break
+        #                 # but also a JUMP_BACK is inserted here!
+        #  else:
+        #    j = 10
+
+        ifelsestmtc        ::= testexpr c_stmts_opt JUMP_BACK else_suitec JUMP_BACK
+        """
+
     def p_38misc(self, args):
         """
         stmt               ::= async_for_stmt38
@@ -105,15 +131,6 @@ class Python38FullParser(Python37Parser):
         pop_ex_return      ::= ret_expr ROT_FOUR POP_EXCEPT RETURN_VALUE
 
         except_stmt        ::= except_cond1a except_suite come_from_opt
-
-        # 3.8 can push a looping JUMP_BACK into into a JUMP_ from a statement that jumps to it
-        lastc_stmt         ::= ifpoplaststmtc
-        ifpoplaststmtc     ::= testexpr POP_TOP c_stmts_opt
-        ifelsestmtc        ::= testexpr c_stmts_opt jb_cfs else_suitec JUMP_BACK come_froms
-
-        # Keep indices the same in ifelsestmtc
-        cf_pt              ::= COME_FROM POP_TOP
-        ifelsestmtc        ::= testexpr c_stmts cf_pt else_suite
 
         get_iter           ::= expr GET_ITER
         for38              ::= expr get_iter store for_block JUMP_BACK
@@ -239,3 +256,17 @@ class Python38FullParser(Python37Parser):
                                BEGIN_FINALLY COME_FROM_FINALLY
                                POP_FINALLY POP_TOP suite_stmts_opt END_FINALLY POP_TOP
         """
+
+
+if __name__ == "__main__":
+    # Check grammar
+    from decompyle3.parsers.dump import dump_and_check
+    p = Python38FullParser()
+    modified_tokens = set(
+        """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
+           LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_CLASSNAME
+           LAMBDA_MARKER RETURN_LAST
+        """.split()
+    )
+
+    dump_and_check(p, 3.8, modified_tokens)
