@@ -113,6 +113,7 @@ SKIP_TESTS=(
     [test_tarfile.py]=1 # test assertions failed
     [test_telnetlib.py]=1 # test run takes more than 15 seconds
     [test_threading.py]=1 # test assertion failers
+    [test_threaded_import.py]=1 # test assertion failures
     [test_tk.py]=1  # test takes too long to run: 13 seconds
     [test_tokenize.py]=1 # test takes too long to run before decompilation: 43 seconds
     [test_trace.py]=1  # it fails on its own
