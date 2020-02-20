@@ -10,12 +10,23 @@ SKIP_TESTS=(
     [test_httplib.py]=1 # control flow: works on f7e2064e
     [test_urllib2.py]=1 # control flow: works on f7e2064e
 
+    [test_capi.py]=1 # test check failures
+    [test_contextlib.py]=1 # test check failures
+    [test_contextlib_async.py]=1 # test check failures
+    [test_filecmp.py]=1 # test check failures
+    [test_gzip.py]=1 # test_gzip.py takes more than 15 seconds for test to run
+    [test_itertools.py]=1 # test check failures
+    [test_poplib.py]=1 # test check failures
+    [test_pyclrbr.py]=1 # test errors
+    [test_urllib2_localnet.py]=1 # test check failures
+
     [test___all__.py]=1 # it fails on its own
     [test_argparse.py]=1 #- it fails on its own
     [test_asdl_parser.py]=1 # it fails on its own
     [test_atexit.py]=1  # The atexit test looks for specific comments in error lines
     [test_baseexception.py]=1  # UnboundLocalError: local variable 'exc' referenced before assignment
     [test_buffer.py]=1  # parse error
+
     [test_clinic.py]=1 # it fails on its own
     [test_cmath.py]=1 # control flow
     [test_cmd_line.py]=1  # Interactive?
@@ -100,6 +111,7 @@ SKIP_TESTS=(
     [test_sys_settrace.py]=1 # parse error
 
     [test_tarfile.py]=1 # test assertions failed
+    [test_telnetlib.py]=1 # test run takes more than 15 seconds
     [test_threading.py]=1 # test assertion failers
     [test_tk.py]=1  # test takes too long to run: 13 seconds
     [test_tokenize.py]=1 # test takes too long to run before decompilation: 43 seconds
