@@ -40,7 +40,7 @@ for VERSION in $PYVERSIONS ; do
     LOGFILE=/tmp/pyenvlib-$VERSION-$$.log
 
     if [[ $VERSION == '3.7.6' ]] ; then
-	MAX_TESTS=50 # functools (needs to parse assert)
+	MAX_TESTS=60 # functools (needs to parse assert)
     elif [[ $VERSION == '3.8.1' ]] ; then
 	MAX_TESTS=7 # Fails on _markupbase.py
     fi
