@@ -1,14 +1,14 @@
 SKIP_TESTS=(
     [test_asyncgen.py]=1  # parse error FIXME: works on 795b2195 (which is recent)
     [test_os.py]=1  # parse error FIXME: works on 795b2195 (which is recent)
-    [test_queue.py]=1  # FIXME: works on 795b2195 (which is recent)
+    [test_queue.py]=1  # FIXME: test check failures works on 795b2195 (which is recent)
     [test_re.py]=1  # parse error FIXME: works on 795b2195 (which is recent)
     [test_urllib2net.py]=1 # FIXME: works on 795b2195
 
     [test_generators.py]=1  # parse error. this portion works in uncompyle6
-    [test_grammar.py]=1 # investigate: like above: semantic rule missing probably
-    [test_httplib.py]=1 # control flow: works on f7e2064e
-    [test_urllib2.py]=1 # control flow: works on f7e2064e
+    [test_grammar.py]=1 # parse error. Works on an earlier version?
+    [test_httplib.py]=1 # test runs. kills after 15 seconds. works on f7e2064e
+    [test_urllib2.py]=1 # Test errors. control flow: works on f7e2064e
 
     [test_capi.py]=1 # test check failures
     [test_contextlib.py]=1 # test check failures
@@ -25,7 +25,7 @@ SKIP_TESTS=(
     [test_asdl_parser.py]=1 # it fails on its own
     [test_atexit.py]=1  # The atexit test looks for specific comments in error lines
     [test_baseexception.py]=1  # UnboundLocalError: local variable 'exc' referenced before assignment
-    [test_buffer.py]=1  # parse error
+    [test_buffer.py]=1  # Test run errors; takes long time to decompile
 
     [test_clinic.py]=1 # it fails on its own
     [test_cmath.py]=1 # control flow
@@ -48,7 +48,7 @@ SKIP_TESTS=(
     [test_doctest.py]=1   # test failures
     [test_docxmlrpc.py]=1
 
-    [test_enum.py]=1   # probably bad control flow
+    [test_enum.py]=1   # test run errors; probably bad control flow
 
     [test_faulthandler.py]=1   # test takes too long before decompiling
     [test_fileinput.py]=1 # control flow
@@ -119,7 +119,7 @@ SKIP_TESTS=(
     [test_tokenize.py]=1 # test takes too long to run before decompilation: 43 seconds
     [test_trace.py]=1  # it fails on its own
     [test_traceback.py]=1 # Probably uses comment for testing
-    [test_tracemalloc.py]=1 # test assert failres
+    [test_tracemalloc.py]=1 # test assert failures
     [test_ttk_guionly.py]=1  # implementation specfic and test takes too long to run: 19 seconds
     [test_ttk_guionly.py]=1  # implementation specfic and test takes too long to run: 19 seconds
     [test_typing.py]=1 # parse error

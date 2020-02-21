@@ -435,6 +435,10 @@ TABLE_DIRECT = {
     "except_cond1":	    ( "%|except %c:\n", 1 ),
     "except_suite":     ( "%+%c%-%C", 0, (1, maxint, "") ),
 
+    "c_except":         (
+        "%|except:\n%+%c%-", 3, # c_stmts_opt | c_returns
+    ),
+
     # In Python 3.6+, this is more complicated in the presence of "returns"
     "except_suite_finalize":     ( "%+%c%-%C", 1, (3, maxint, "") ),
 

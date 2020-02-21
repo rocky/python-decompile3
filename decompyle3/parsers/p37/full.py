@@ -57,41 +57,52 @@ class Python37Parser(Python37LambdaParser):
         # a little bit historical. "l" was considered but can
         # be confused with "last".)
         #
-        # Lower-level rules are with looping are mixed with their
-        # non-looping equivalent.
         #########################################################
         c_stmts ::= _stmts
         c_stmts ::= _stmts lastc_stmt
         c_stmts ::= lastc_stmt
         c_stmts ::= continues
         c_stmts ::= c_stmt+
-        c_stmts ::= returns
+        c_stmts ::= c_returns
 
-        c_stmt  ::= stmt
-        c_stmt  ::= ifelsestmtc
-        c_stmt  ::= ifstmtc
+        # Additional statements that *must* be in a loop
         c_stmt  ::= break
         c_stmt  ::= continue
+
+        # If statement inside a loop. The RHS may have looping jumps in them.
+        c_stmt  ::= ifstmtc
+        c_stmt  ::= if_and_elsestmtc
+        c_stmt  ::= ifelsestmtc
+
         c_stmt  ::= c_try_except
+        c_stmt  ::= stmt
 
         c_stmts_opt ::= c_stmts
         c_stmts_opt ::= pass
 
-        lastc_stmt ::= forelselaststmtc
-        lastc_stmt ::= iflaststmtc
-
-        # FIXME: Do we need these?
-        lastc_stmt ::= ifelsestmtc
-        lastc_stmt ::= tryelsestmtc
-
         else_suitec ::= c_stmts
-        else_suitec ::= returns
+        else_suitec ::= c_returns
         else_suitec ::= suite_stmts
 
         c_suite_stmts     ::= c_stmts
         c_suite_stmts     ::= suite_stmts
         c_suite_stmts_opt ::= c_suite_stmts
         c_suite_stmts_opt ::= suite_stmts_opt
+
+        c_returns         ::= c_stmts return
+        c_returns         ::= returns
+
+        c_except  ::=  POP_TOP POP_TOP POP_TOP c_stmts_opt POP_EXCEPT jump
+        c_except  ::=  POP_TOP POP_TOP POP_TOP c_returns
+
+        # FIXME regularize name c_last_stmt, etc.
+        # Do we really need these?
+        lastc_stmt ::= forelselaststmtc
+        lastc_stmt ::= iflaststmtc
+
+        # FIXME: Do we need these?
+        lastc_stmt ::= ifelsestmtc
+        lastc_stmt ::= tryelsestmtc
         """
 
     def p_stmt(self, args):
@@ -377,9 +388,10 @@ class Python37Parser(Python37LambdaParser):
         c_try_except ::= SETUP_EXCEPT c_suite_stmts_opt POP_BLOCK
                          c_except_handler
                          jump_excepts come_from_except_clauses
-        try_except  ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
-                        except_handler
-                        jump_excepts come_from_except_clauses
+        try_except   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                         except_handler
+                         jump_excepts come_from_except_clauses
+
         """
 
     def p_34on(self, args):
@@ -662,6 +674,8 @@ class Python37Parser(Python37LambdaParser):
         c_except_stmts ::= except_stmts
         c_except_stmts ::= c_except_stmt+
         c_except_stmt  ::= c_stmt
+        c_except_stmt  ::= c_except
+        c_except_stmt  ::= except_cond1 c_except_suite come_from_opt
         c_except_stmt  ::= stmt
 
         ## FIXME: what's except_pop_except?
@@ -687,7 +701,8 @@ class Python37Parser(Python37LambdaParser):
         except_var_finalize ::= POP_BLOCK            LOAD_CONST COME_FROM_FINALLY
                                 LOAD_CONST store del_stmt
 
-        except_suite ::= returns
+        except_suite   ::= returns
+        c_except_suite ::= c_returns
 
         except_cond1 ::= DUP_TOP expr COMPARE_OP
                          jump_if_false POP_TOP POP_TOP POP_TOP
@@ -755,11 +770,6 @@ class Python37Parser(Python37LambdaParser):
 
     def p_stmt3(self, args):
         """
-        # If statement inside a loop:
-        c_stmt             ::= ifstmtc
-        c_stmt             ::= if_and_elsestmtc
-        c_stmt             ::= assign
-
         if_exp_lambda      ::= expr jump_if_false expr return_if_lambda
                                return_stmt_lambda
         if_exp_not_lambda
@@ -855,36 +865,8 @@ class Python37Parser(Python37LambdaParser):
                               COME_FROM_LOOP
         """
 
-    def p_36misc(self, args):
+    def p_3try_except(self, args):
         """
-        sstmt ::= sstmt RETURN_LAST
-
-        # 3.6 redoes how return_closure works. FIXME: Isolate to LOAD_CLOSURE
-        return_closure   ::= LOAD_CLOSURE DUP_TOP STORE_NAME RETURN_VALUE RETURN_LAST
-
-        for_block       ::= c_stmts_opt come_from_loops JUMP_BACK
-        come_from_loops ::= COME_FROM_LOOP*
-
-        whilestmt       ::= setup_loop testexpr c_stmts_opt
-                            JUMP_BACK come_froms POP_BLOCK COME_FROM_LOOP
-        whilestmt       ::= setup_loop testexpr c_stmts_opt
-                            come_froms JUMP_BACK come_froms POP_BLOCK COME_FROM_LOOP
-
-        # 3.6 due to jump optimization, we sometimes add RETURN_END_IF where
-        # RETURN_VALUE is meant. Specifcally this can happen in
-        # ifelsestmt -> ...else_suite _. suite_stmts... (last) stmt
-        return ::= ret_expr RETURN_END_IF
-        return ::= ret_expr RETURN_VALUE
-
-        jf_cf        ::= JUMP_FORWARD COME_FROM
-
-        if_exp       ::= expr jump_if_false expr jf_cf expr COME_FROM
-
-        except_suite ::= c_stmts_opt COME_FROM POP_EXCEPT jump_except COME_FROM
-
-        jb_cfs      ::= come_from_opt JUMP_BACK come_froms
-        ifelsestmtc ::= testexpr c_stmts_opt jb_cfs else_suitec
-
         # In 3.6+, A sequence of statements ending in a RETURN can cause
         # JUMP_FORWARD END_FINALLY to be omitted from try middle
 
@@ -920,6 +902,38 @@ class Python37Parser(Python37LambdaParser):
                                     COME_FROM_FINALLY returns
         tryfinally_return_stmt2 ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK LOAD_CONST
                                     COME_FROM_FINALLY
+
+        """
+
+    def p_36misc(self, args):
+        """
+        sstmt ::= sstmt RETURN_LAST
+
+        # 3.6 redoes how return_closure works. FIXME: Isolate to LOAD_CLOSURE
+        return_closure   ::= LOAD_CLOSURE DUP_TOP STORE_NAME RETURN_VALUE RETURN_LAST
+
+        for_block       ::= c_stmts_opt come_from_loops JUMP_BACK
+        come_from_loops ::= COME_FROM_LOOP*
+
+        whilestmt       ::= setup_loop testexpr c_stmts_opt
+                            JUMP_BACK come_froms POP_BLOCK COME_FROM_LOOP
+        whilestmt       ::= setup_loop testexpr c_stmts_opt
+                            come_froms JUMP_BACK come_froms POP_BLOCK COME_FROM_LOOP
+
+        # 3.6 due to jump optimization, we sometimes add RETURN_END_IF where
+        # RETURN_VALUE is meant. Specifcally this can happen in
+        # ifelsestmt -> ...else_suite _. suite_stmts... (last) stmt
+        return ::= ret_expr RETURN_END_IF
+        return ::= ret_expr RETURN_VALUE
+
+        jf_cf        ::= JUMP_FORWARD COME_FROM
+
+        if_exp       ::= expr jump_if_false expr jf_cf expr COME_FROM
+
+        except_suite ::= c_stmts_opt COME_FROM POP_EXCEPT jump_except COME_FROM
+
+        jb_cfs      ::= come_from_opt JUMP_BACK come_froms
+        ifelsestmtc ::= testexpr c_stmts_opt jb_cfs else_suitec
 
         compare_chained2 ::= expr COMPARE_OP come_froms JUMP_FORWARD
         """
