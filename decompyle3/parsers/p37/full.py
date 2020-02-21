@@ -257,8 +257,21 @@ class Python37Parser(Python37LambdaParser):
         await_stmt ::= await_expr POP_TOP
         """
 
-    def p_forstmt(self, args):
+    def p_for_loop(self, args):
         """
+        setup_loop  ::= SETUP_LOOP _come_froms
+        for         ::= setup_loop expr get_for_iter store for_block
+                        POP_BLOCK
+        for         ::= setup_loop expr get_for_iter store for_block
+                        POP_BLOCK COME_FROM_LOOP
+
+        # FIXME: investigate - can code really produce a NOP?
+        for         ::= setup_loop expr get_for_iter store for_block POP_BLOCK NOP
+                        COME_FROM_LOOP
+
+
+        come_from_loops ::= COME_FROM_LOOP*
+
         for_block   ::= c_stmts_opt COME_FROM_LOOP JUMP_BACK
         for_block   ::= c_stmts_opt _come_froms JUMP_BACK
         for_block   ::= c_stmts_opt come_from_loops JUMP_BACK
@@ -268,13 +281,63 @@ class Python37Parser(Python37LambdaParser):
         forelsestmt ::= SETUP_LOOP expr get_for_iter store
                         for_block POP_BLOCK else_suite _come_froms
 
+        forelsestmt ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suitec
+        forelsestmt ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suite
+                        COME_FROM_LOOP
+
+
         forelselaststmt ::= SETUP_LOOP expr get_for_iter store
                 for_block POP_BLOCK else_suitec _come_froms
+
+        forelselaststmt  ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suitec
+                              COME_FROM_LOOP
 
         forelselaststmtc ::= SETUP_LOOP expr get_for_iter store
                 for_block POP_BLOCK else_suitec _come_froms
         """
 
+    def p_whilestmt(self, args):
+        """
+        while1elsestmt ::= setup_loop c_stmts JUMP_BACK POP_BLOCK else_suite COME_FROM_LOOP
+        while1elsestmt ::= setup_loop c_stmts JUMP_BACK _come_froms POP_BLOCK else_suitec COME_FROM_LOOP
+        while1elsestmt ::= setup_loop c_stmts JUMP_BACK else_suite COME_FROM_LOOP
+        while1elsestmt ::= setup_loop c_stmts JUMP_BACK else_suitec
+
+        # FIXME: Python 3.? starts adding branch optimization? Put this starting there.
+
+        while1stmt ::= setup_loop c_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
+        while1stmt ::= setup_loop c_stmts COME_FROM JUMP_BACK POP_BLOCK COME_FROM_LOOP
+        while1stmt ::= setup_loop c_stmts COME_FROM_LOOP
+        while1stmt ::= setup_loop c_stmts COME_FROM_LOOP JUMP_BACK POP_BLOCK COME_FROM_LOOP
+        while1stmt ::= setup_loop c_stmts POP_BLOCK COME_FROM_LOOP
+
+        whileTruestmt ::= SETUP_LOOP c_stmts_opt JUMP_BACK COME_FROM_LOOP
+        whileTruestmt ::= setup_loop c_stmts_opt JUMP_BACK POP_BLOCK _come_froms
+
+        # FIXME the below masks a bug in not detecting COME_FROM_LOOP
+        # grammar rules with COME_FROM -> COME_FROM_LOOP already exist
+        whileelsestmt     ::= setup_loop testexpr c_stmts_opt JUMP_BACK POP_BLOCK
+                              else_suitec COME_FROM
+
+        whileelsestmt     ::= setup_loop testexpr c_stmts_opt JUMP_BACK POP_BLOCK
+                              else_suitec COME_FROM_LOOP
+
+        whilestmt ::= setup_loop testexpr c_stmts_opt COME_FROM JUMP_BACK POP_BLOCK COME_FROM_LOOP
+        whilestmt ::= setup_loop testexpr c_stmts_opt JUMP_BACK POP_BLOCK COME_FROM_LOOP
+
+        # We can be missing a COME_FROM_LOOP if the "while" statement is nested inside an if/else
+        # so after the POP_BLOCK we have a JUMP_FORWARD which forms the "else" portion of the "if"
+        # This is undoubtedly some sort of JUMP optimization going on.
+        # We have a reduction check for this peculiar case.
+
+        whilestmt ::= setup_loop testexpr c_stmts_opt JUMP_BACK come_froms POP_BLOCK
+
+        whilestmt ::= setup_loop testexpr c_stmts_opt JUMP_BACK come_froms POP_BLOCK COME_FROM_LOOP
+        whilestmt ::= setup_loop testexpr c_stmts_opt come_froms JUMP_BACK come_froms POP_BLOCK COME_FROM_LOOP
+        whilestmt ::= setup_loop testexpr c_stmts_opt come_froms POP_BLOCK COME_FROM_LOOP
+        whilestmt ::= setup_loop testexpr returns POP_BLOCK COME_FROM_LOOP
+        whilestmt ::= setup_loop testexpr returns come_froms POP_BLOCK COME_FROM_LOOP
+        """
 
     def p_import20(self, args):
         """
@@ -394,43 +457,8 @@ class Python37Parser(Python37LambdaParser):
 
         """
 
-    def p_34on(self, args):
-        """
-        whilestmt     ::= setup_loop testexpr returns come_froms POP_BLOCK COME_FROM_LOOP
-
-        # Seems to be needed starting 3.4.4 or so
-        while1stmt    ::= setup_loop c_stmts
-                          COME_FROM JUMP_BACK POP_BLOCK COME_FROM_LOOP
-        while1stmt    ::= setup_loop c_stmts
-                          POP_BLOCK COME_FROM_LOOP
-
-        # FIXME the below masks a bug in not detecting COME_FROM_LOOP
-        # grammar rules with COME_FROM -> COME_FROM_LOOP already exist
-        whileelsestmt     ::= setup_loop testexpr c_stmts_opt JUMP_BACK POP_BLOCK
-                              else_suitec COME_FROM
-
-        while1elsestmt    ::= setup_loop c_stmts JUMP_BACK _come_froms POP_BLOCK else_suitec
-                              COME_FROM_LOOP
-
-        # Python 3.4+ optimizes the trailing two JUMPS away
-
-        ifstmts_jump ::= stmts_opt JUMP_FORWARD JUMP_FORWARD _come_froms
-        """
-
     def p_35on(self, args):
         """
-
-        while1elsestmt ::= setup_loop c_stmts JUMP_BACK
-                           POP_BLOCK else_suite COME_FROM_LOOP
-
-        # The following rule is for Python 3.5+ where we can have stuff like
-        # while ..
-        #     if
-        #     ...
-        # the end of the "if" will jump back to the loop and there will be a COME_FROM
-        # after the jump
-        # c_stmts ::= lastc_stmt come_froms c_stmts
-
         inplace_op ::= INPLACE_MATRIX_MULTIPLY
         binary_operator  ::= BINARY_MATRIX_MULTIPLY
 
@@ -592,6 +620,9 @@ class Python37Parser(Python37LambdaParser):
         ifstmts_jump ::= return_if_stmts
         ifstmts_jump ::= stmts_opt come_froms
         ifstmts_jump ::= COME_FROM stmts COME_FROM
+
+        # Python 3.4+ optimizes the trailing two JUMPS away
+        ifstmts_jump ::= stmts_opt JUMP_FORWARD JUMP_FORWARD _come_froms
 
         iflaststmt  ::= testexpr stmts
         iflaststmt  ::= testexpr stmts JUMP_FORWARD
@@ -809,62 +840,6 @@ class Python37Parser(Python37LambdaParser):
 
         """
 
-    def p_loop_stmt3(self, args):
-        """
-        setup_loop        ::= SETUP_LOOP _come_froms
-        for               ::= setup_loop expr get_for_iter store for_block
-                              POP_BLOCK
-        for               ::= setup_loop expr get_for_iter store for_block
-                              POP_BLOCK COME_FROM_LOOP
-
-        forelsestmt       ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suitec
-        forelsestmt       ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suite
-                              COME_FROM_LOOP
-
-        forelselaststmt   ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suitec
-                              COME_FROM_LOOP
-
-        whilestmt         ::= setup_loop testexpr c_stmts_opt COME_FROM JUMP_BACK
-                              POP_BLOCK COME_FROM_LOOP
-        whilestmt         ::= setup_loop testexpr c_stmts_opt come_froms
-                              POP_BLOCK COME_FROM_LOOP
-
-        whilestmt         ::= setup_loop testexpr c_stmts_opt JUMP_BACK
-                              POP_BLOCK COME_FROM_LOOP
-
-        whilestmt         ::= setup_loop testexpr returns          POP_BLOCK
-                              COME_FROM_LOOP
-
-        # We can be missing a COME_FROM_LOOP if the "while" statement is nested inside an if/else
-        # so after the POP_BLOCK we have a JUMP_FORWARD which forms the "else" portion of the "if"
-        # This is undoubtedly some sort of JUMP optimization going on.
-        # We have a reduction check for this peculiar case.
-
-        whilestmt         ::= setup_loop testexpr c_stmts_opt JUMP_BACK come_froms
-                              POP_BLOCK
-
-        while1elsestmt    ::= setup_loop          c_stmts     JUMP_BACK
-                              else_suitec
-
-        whileelsestmt     ::= setup_loop testexpr c_stmts_opt JUMP_BACK POP_BLOCK
-                              else_suitec COME_FROM_LOOP
-
-        whileTruestmt     ::= setup_loop c_stmts_opt          JUMP_BACK POP_BLOCK
-                              _come_froms
-
-        # FIXME: Python 3.? starts adding branch optimization? Put this starting there.
-
-        while1stmt        ::= setup_loop c_stmts COME_FROM_LOOP
-        while1stmt        ::= setup_loop c_stmts COME_FROM_LOOP JUMP_BACK POP_BLOCK COME_FROM_LOOP
-        while1stmt        ::= setup_loop c_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
-
-        while1elsestmt    ::= setup_loop c_stmts JUMP_BACK
-                              else_suite COME_FROM_LOOP
-        # FIXME: investigate - can code really produce a NOP?
-        for               ::= setup_loop expr get_for_iter store for_block POP_BLOCK NOP
-                              COME_FROM_LOOP
-        """
-
     def p_3try_except(self, args):
         """
         # In 3.6+, A sequence of statements ending in a RETURN can cause
@@ -911,14 +886,6 @@ class Python37Parser(Python37LambdaParser):
 
         # 3.6 redoes how return_closure works. FIXME: Isolate to LOAD_CLOSURE
         return_closure   ::= LOAD_CLOSURE DUP_TOP STORE_NAME RETURN_VALUE RETURN_LAST
-
-        for_block       ::= c_stmts_opt come_from_loops JUMP_BACK
-        come_from_loops ::= COME_FROM_LOOP*
-
-        whilestmt       ::= setup_loop testexpr c_stmts_opt
-                            JUMP_BACK come_froms POP_BLOCK COME_FROM_LOOP
-        whilestmt       ::= setup_loop testexpr c_stmts_opt
-                            come_froms JUMP_BACK come_froms POP_BLOCK COME_FROM_LOOP
 
         # 3.6 due to jump optimization, we sometimes add RETURN_END_IF where
         # RETURN_VALUE is meant. Specifcally this can happen in
