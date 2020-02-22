@@ -143,4 +143,4 @@ if __name__ == "__main__":
         )
 
     p.remove_rules_38()
-    dump_and_check(p, 3.7, modified_tokens)
+    dump_and_check(p, 3.8, modified_tokens)

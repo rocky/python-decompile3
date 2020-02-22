@@ -274,10 +274,16 @@ class PythonParser(PythonLambdaParser):
             start_symbol = "lambda_start"
         elif compile_mode == "eval":
             start_symbol = "call_stmt"
+        elif compile_mode == "eval_expr":
+            start_symbol = "eval_expr"
         else:
-            raise f'compile_mode should be either "exec", "single", "lambda", or "eval"; got {compile_mode}'
+            raise BaseException(f'compile_mode should be either "exec", "single", "lambda", or "eval"; got {compile_mode}')
 
-        super(PythonParser, self).__init__(SyntaxTree, start_symbol, debug)
+        if compile_mode in ("eval", "expr"):
+            PythonParserEval.__init__(self, SyntaxTree, start_symbol, debug)
+        else:
+            PythonLambdaParser.__init__(self, SyntaxTree, start_symbol, debug)
+
         # FIXME: customize per python parser version
 
         # These are the non-terminals we should collect into a list.
@@ -383,6 +389,8 @@ def get_python_parser(
             ## If the above gives a parse error, use the below to debug what grammar rule(s)
             ## need to get added
             # p = parse37.Python37ParserSingle(debug_parser, compile_mode=compile_mode)
+        elif compile_mode == "eval":
+            p = parse37.Python37ParserEval(debug_parser, compile_mode="eval_expr")
         else:
             p = parse37.Python37ParserSingle(debug_parser, compile_mode=compile_mode)
     elif version == 3.8:
@@ -395,6 +403,8 @@ def get_python_parser(
             ## If the above gives a parse error, use the below to debug what grammar rule(s)
             ## need to get added
             # p = parse38.Python38ParserSingle(debug_parser, compile_mode=compile_mode)
+        elif compile_mode == "eval":
+            p = parse38.Python38ParserEval(debug_parser, compile_mode="eval_expr")
         else:
             p = parse38.Python38ParserSingle(debug_parser, compile_mode=compile_mode)
 
@@ -405,7 +415,7 @@ def get_python_parser(
 
 class PythonParserSingle(PythonParser):
     # FIXME: Remove rules from parse37, parse38
-    def p_call_stmt_single(self, args):
+    def p_single_start_rule(self, args):
         """
         # single-mode compilation. Eval-mode interactive compilation
         # drops the last rule.
@@ -416,13 +426,14 @@ class PythonParserSingle(PythonParser):
     pass
 
 
-class PythonParserEval(PythonParser):
-    def p_call_stmt_eval(self, args):
+class PythonParserEval(PythonLambdaParser):
+    def p_eval_start_rule(self, args):
         """
-        # eval-mode compilation.  Single-mode interactive compilation
+        # eval-mode compilation.  Eval compilation
         # adds another rule.
-        call_stmt ::= expr POP_TOP
+        eval_expr ::= expr RETURN_VALUE
         """
+        # FIXME: add a suitable __init__
 
 
 def python_parser(

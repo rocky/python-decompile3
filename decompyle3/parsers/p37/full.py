@@ -14,7 +14,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
-from decompyle3.parsers.main import PythonParserSingle
+from decompyle3.parsers.main import PythonParserEval, PythonParserSingle
 from decompyle3.parsers.p37.lambda_expr import Python37LambdaParser
 
 class Python37Parser(Python37LambdaParser):
@@ -931,6 +931,10 @@ def info(args):
 
 
 class Python37ParserSingle(Python37Parser, PythonParserSingle):
+    # FIXME: add a suitable __init__
+    pass
+
+class Python37ParserEval(Python37LambdaParser, PythonParserEval):
     # FIXME: add a suitable __init__
     pass
 

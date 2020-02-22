@@ -2192,13 +2192,18 @@ def code_deparse(
     )
 
     isTopLevel = co.co_name == "<module>"
+    if compile_mode == "eval":
+        deparsed.hide_internal = False
     deparsed.ast = deparsed.build_ast(tokens, customize, isTopLevel=isTopLevel)
 
     #### XXX workaround for profiling
     if deparsed.ast is None:
         return None
 
-    assert deparsed.ast == "stmts", "Should have parsed grammar start"
+    if compile_mode != "eval":
+        assert deparsed.ast == "stmts", "Should have parsed grammar start"
+    else:
+        assert deparsed.ast == "eval_expr", "Should have parsed grammar start"
 
     # save memory
     del tokens

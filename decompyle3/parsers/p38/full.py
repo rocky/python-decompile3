@@ -16,15 +16,17 @@
 spark grammar differences over Python 3.7 for Python 3.8
 """
 
-from decompyle3.parsers.main import PythonParserSingle
+from decompyle3.parsers.main import PythonParserEval, PythonParserSingle
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from decompyle3.parsers.p37.full import Python37Parser
+from decompyle3.parsers.p38.lambda_expr import Python38LambdaParser
+
 from decompyle3.parsers.reducecheck import (
     break_check,
     pop_return_check
 )
 
-class Python38FullParser(Python37Parser):
+class Python38FullParser(Python37Parser, Python38LambdaParser):
     def p_38walrus(self, args):
         """
         # named_expr is also known as the "walrus op" :=
@@ -256,6 +258,10 @@ class Python38FullParser(Python37Parser):
                                BEGIN_FINALLY COME_FROM_FINALLY
                                POP_FINALLY POP_TOP suite_stmts_opt END_FINALLY POP_TOP
         """
+
+
+class Python38ParserEval(Python38LambdaParser, PythonParserEval):
+    pass
 
 
 if __name__ == "__main__":
