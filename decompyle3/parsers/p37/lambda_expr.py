@@ -236,6 +236,7 @@ class Python37LambdaParser(Python37BaseParser):
         # based on whether the POP_IF_JUMP location matches the location of the
         # jump_if_false.
         and_not                    ::= expr jump_if_false expr POP_JUMP_IF_TRUE
+        or_and_not                 ::= expr POP_JUMP_IF_TRUE and_not COME_FROM
 
         expr                       ::= if_exp_37a
         expr                       ::= if_exp_37b

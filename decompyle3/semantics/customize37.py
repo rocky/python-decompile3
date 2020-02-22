@@ -154,6 +154,11 @@ def customize_for_version37(self, version):
                 (0, "expr", 27),
                 (5, "expr", 27),
             ),
+            "ifstmt_bool": (
+                "%|if %c:\n%+%c%-",
+                (0, "or_and_not"),
+                (1, "stmts")
+            ),
             "ifstmtc": ("%|if %c:\n%+%c%-",
                         0, # "testexpr" or "testexprc"
                         (1, "ifstmts_jumpc")
@@ -183,6 +188,11 @@ def customize_for_version37(self, version):
             "import_from37": ("%|from %[2]{pattr} import %c\n", (3, "importlist37")),
             "importattr37": ("%c", (0, "IMPORT_NAME_ATTR")),
             "importlist37": ("%C", (0, maxint, ", ")),
+
+            "or_and_not": (
+                "%c or %c", (0, "expr"), (2, "and_not"),
+            ),
+
             "list_if37": (" if %p%c", (0, 27), 1),
             "list_if37_not": (" if not %p%c", (0, 27), 1),
             "testfalse_not_or": ("not %c or %c", (0, "expr"), (2, "expr")),
