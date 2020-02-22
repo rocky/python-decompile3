@@ -209,6 +209,9 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
         self.write("lambda")
         if len(params):
             self.write(" ", ", ".join(params))
+        elif kwonlyargcount > 0 and not (4 & code.co_flags):
+            assert argc == 0
+            self.write(" ")
 
         # If the last statement is None (which is the
         # same thing as "return None" in a lambda) and the

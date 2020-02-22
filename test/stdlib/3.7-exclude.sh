@@ -64,7 +64,7 @@ SKIP_TESTS=(
     [test_imaplib.py]=1  # test run loops before decompiling? More than 15 seconds to run
     [test_io.py]=1 # test takes too long to run: 37 seconds
     [test_imaplib.py]=1 # test failures
-    [test_inspect.py]=1 # Investigate test failures involving lambda
+    [test_inspect.py]=1 # Investigate test check failures
 
     [test_kqueue.py]=1 # it fails on its own
 

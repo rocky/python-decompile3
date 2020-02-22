@@ -4,8 +4,21 @@ from io import StringIO
 
 out = StringIO()
 
+def run_deparse(expr: str, compile_mode: bool, debug=False) -> object:
+    if debug:
+        debug_opts = {"asm": "both", "tree": True, "grammar": True}
+    else:
+        debug_opts = {"asm": False, "tree": False, "grammar": False}
+
+    if compile_mode == "lambda":
+        compile_mode = "eval"
+    code = compile(expr + "\n", "<string %s>" % expr, compile_mode)
+    deparsed = code_deparse(code, out=out, compile_mode=compile_mode, debug_opts=debug_opts)
+    return deparsed
+
+
 # FIXME: DRY this code
-def test_single_mode():
+def test_single_mode() -> None:
     expressions = (
         "1",
         "I and (j or k)",
@@ -20,12 +33,8 @@ def test_single_mode():
         # "try:\n    i\nexcept Exception:\n    j\nelse:\n    k\n"
     )
 
-    # debug_opts = {"asm": "both", "tree": True, "grammar": True}
-    debug_opts = {"asm": False, "tree": False, "grammar": False}
     for expr in expressions:
-        code = compile(expr + "\n", "<string %s>" % expr, "single")
-        deparsed = code_deparse(code, out=out, compile_mode="single", debug_opts=debug_opts)
-        # print(expr, "vs.", deparsed.text)
+        deparsed = run_deparse(expr, compile_mode="single")
         assert deparsed.text == expr + "\n"
 
 def test_eval_mode():
@@ -35,27 +44,21 @@ def test_eval_mode():
         "i and (j or k)",
     )
 
-    # debug_opts = {"asm": "both", "tree": True, "grammar": True}
-    debug_opts = {"asm": False, "tree": False, "grammar": False}
     for expr in expressions:
-        code = compile(expr + "\n", "<string %s>" % expr, "eval")
-        deparsed = code_deparse(code, out=out, compile_mode="eval", debug_opts=debug_opts)
+        deparsed = run_deparse(expr, compile_mode="eval")
         # print(expr, "vs.", deparsed.text)
         assert deparsed.text == expr
 
 def test_lambda_mode():
     expressions = (
         "lambda d=b'': 5",
-        # "lambda *, d=0: d",  # FIXME
+        "lambda *, d=0: d",
         "lambda x: 1 if x < 2 else 3",
         "lambda y: x * y",
     )
 
-    # debug_opts = {"asm": "both", "tree": True, "grammar": True}
-    debug_opts = {"asm": False, "tree": False, "grammar": False}
     for expr in expressions:
-        code = compile(expr + "\n", "<string %s>" % expr, "eval")
-        deparsed = code_deparse(code, out=out, compile_mode="eval")
+        deparsed = run_deparse(expr, compile_mode="lambda")
         # print(expr, "vs.", deparsed.text)
         assert deparsed.text == expr
 
