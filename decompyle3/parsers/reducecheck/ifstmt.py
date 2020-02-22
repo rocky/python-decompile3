@@ -46,8 +46,8 @@ def ifstmt(
 
     if testexpr[0] in ("testtrue", "testfalse"):
         test = testexpr[0]
-        if len(test) > 1 and test[1].kind.startswith("jump_"):
-            jump_target = test[1][0].attr
+        if len(test) > 1 and test[1].kind.startswith("POP_JUMP_IF_"):
+            jump_target = test[1].attr
             if (
                 tokens[first].off2int(prefer_last=True)
                 <= jump_target

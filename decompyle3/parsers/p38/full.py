@@ -164,10 +164,10 @@ class Python38FullParser(Python37Parser):
 
         for_block          ::= _come_froms c_stmts_opt come_from_loops JUMP_BACK
 
-        except_cond1       ::= DUP_TOP expr COMPARE_OP jump_if_false
+        except_cond1       ::= DUP_TOP expr COMPARE_OP POP_JUMP_IF_FALSE
                                POP_TOP POP_TOP POP_TOP
                                POP_EXCEPT
-        except_cond1a      ::= DUP_TOP expr COMPARE_OP jump_if_false
+        except_cond1a      ::= DUP_TOP expr COMPARE_OP POP_JUMP_IF_FALSE
                                POP_TOP POP_TOP POP_TOP
 
         try_elsestmtl38    ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK

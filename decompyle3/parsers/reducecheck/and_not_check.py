@@ -12,7 +12,7 @@ def and_not_check(
 
         if tokens[first].off2int() <= jump_target < tokens[last].off2int():
             return True
-        if rule == ("and_not", ("expr", "jump_if_false", "expr", "POP_JUMP_IF_TRUE")):
+        if rule == ("and_not", ("expr", "POP_JUMP_IF_FALSE", "expr", "POP_JUMP_IF_TRUE")):
             jmp2_target = ast[3].attr
             return jump_target != jmp2_target
         return jump_target != tokens[last].off2int()

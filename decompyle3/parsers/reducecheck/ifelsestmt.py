@@ -156,12 +156,12 @@ def ifelsestmt(
                 pass
             pass
 
-        if len(if_condition) > 1 and if_condition[1].kind.startswith("jump_if_"):
+        if len(if_condition) > 1 and if_condition[1].kind.startswith("POP_JUMP_IF_"):
             if last == n:
                 last -= 1
 
             jmp = if_condition[1]
-            jump_target = jmp[0].attr
+            jump_target = jmp.attr
 
             # Below we check that jump_target is jumping to a feasible
             # location. It should be to the transition after the "then"

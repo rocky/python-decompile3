@@ -24,10 +24,10 @@ def iflaststmt(
     if testexpr[0] in ("testtrue", "testtruec", "testfalse", "testfalsec"):
 
         test = testexpr[0]
-        if len(test) > 1 and test[1].kind.startswith("jump_if_"):
+        if len(test) > 1 and test[1].kind.startswith("POP_JUMP_IF_"):
             if last == n:
                 last -= 1
-            jump_target = test[1][0].attr
+            jump_target = test[1].attr
             first_offset = tokens[first].off2int()
             if  first_offset <= jump_target < tokens[last].off2int():
                 return True

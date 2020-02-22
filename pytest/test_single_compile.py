@@ -15,7 +15,7 @@ def test_single_mode():
     )
 
     for expr in single_expressions:
-        code = compile(expr + "\n", "<string>", "single")
+        code = compile(expr + "\n", "<string %s>" % expr, "single")
         assert code_deparse(code, compile_mode="single").text == expr + "\n"
 
 if __name__ == "__main__":
