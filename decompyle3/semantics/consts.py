@@ -271,7 +271,7 @@ TABLE_DIRECT = {
     'lc_body':		    ( '', ),	# ignore when recursing
 
     'comp_iter':	    ( '%c', 0 ),
-    'comp_if':		    ( ' if %c%c', 0, 2 ),
+    'comp_if':		    ( ' if %c%c', 0, 1 ),
     'comp_if_not':	    ( ' if not %p%c',
                               (0, 'expr', PRECEDENCE['unary_not']), 2 ),
     'comp_body':	    ( '', ),	# ignore when recusing
@@ -288,16 +288,27 @@ TABLE_DIRECT = {
 
     "aug_assign2":	    ( "%|%c.%[2]{pattr} %c %c\n", 0, -3, -4 ),
     "designList":	    ( "%c = %c", 0, -1 ),
-    "and":          	( "%c and %c", 0, 2 ),
+    "and":          	(
+        "%c and %c",
+        0,  # "expr"-like things: "expr_pjif" | "expr_jifop_cfs"
+        1, # ditto
+    ),
     "ret_and":        	( "%c and %c", 0, 2 ),
     "and2":          	( "%c", 3 ),
     "or":           	( "%c or %c", 0, 2 ),
     "ret_or":           ( "%c or %c", 0, 2 ),
-    "if_exp":           ( "%p if %c else %c",
-                          (2, "expr", 27), 0, 4 ),
-    "if_exp_lambda":    ( "%c if %c else %c",
-                          2, # expr or return_lambda
-                          (0, "expr"), 4 ),
+    "if_exp":           (
+        "%p if %c else %c",
+        (1, 27), # "expr-like thing
+        0,  # expr-like thing
+        3
+    ),
+    "if_exp_lambda":    (
+        "%c if %c else %c",
+        1, # expr | return_lambda
+        (0, "expr_pjif"),
+        -1  # return_lambda | return_if_lambda
+    ),
 
     # The arg2 is dead-code
     'if_expr_true':     ( '%p if 1 else %c', (0, 'expr', 27), 2 ),

@@ -1001,7 +1001,7 @@ class SourceWalker(GenericASTTraversal, object):
                 else:
                     n = n[3]
             elif n == "comp_if":
-                n = n[2]
+                n = n[1]
             elif n == "comp_if_not":
                 n = n[2]
 
@@ -1121,7 +1121,7 @@ class SourceWalker(GenericASTTraversal, object):
                        "list_if37", "list_if37_not",
                        "comp_if", "comp_if_not"):
                 have_not = n in ("list_if_not", "comp_if_not", "list_if37_not")
-                if n in ("list_if37", "list_if37_not"):
+                if n in ("list_if37", "list_if37_not", "comp_if"):
                     n = n[1]
                 else:
                     if_node = n[0]
@@ -1795,6 +1795,16 @@ class SourceWalker(GenericASTTraversal, object):
                     arg,
                     type(index),
                 )
+
+                try:
+                    node[index]
+                except IndexError:
+                    raise RuntimeError(
+                        f"""
+                        Expanding '{node.kind}' in template '{entry}[{arg}]':
+                        {index} is invalid; has only {len(node)} entries
+                        """
+                    )
                 self.preorder(node[index])
 
                 arg += 1

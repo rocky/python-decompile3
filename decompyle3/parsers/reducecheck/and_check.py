@@ -24,13 +24,13 @@ def and_check(
 
         if tokens[first].off2int() <= jump_target < tokens[last].off2int():
             return True
-        if rule == ("and", ("expr", "POP_JUMP_IF_FALSE", "expr", "POP_JUMP_IF_FALSE")):
-            jump2_target = ast[3].attr
+        if rule == ("and", ("expr_pjif", "expr_pjif")):
+            jump2_target = ast[2].attr
             return jump_target != jump2_target
-        elif rule == ("and", ("expr", "POP_JUMP_IF_FALSE", "expr", "POP_JUMP_IF_TRUE")):
-            jump2_target = ast[3].attr
+        elif rule == ("and", ("expr_pjif", "expr", "POP_JUMP_IF_TRUE")):
+            jump2_target = ast[2].attr
             return jump_target == jump2_target
-        elif rule == ("and", ("expr", "POP_JUMP_IF_FALSE", "expr")):
+        elif rule == ("and", ("expr_pjif", "expr")):
             if tokens[last] == "POP_JUMP_IF_FALSE":
                 # Ok if jump_target doesn't jump to last instruction
                 return jump_target != tokens[last].attr
@@ -40,9 +40,9 @@ def and_check(
                 if last + 1 < n and tokens[last + 1] == "COME_FROM":
                     return jump_target != tokens[last + 1].off2int()
                 return jump_target + 2 != tokens[last].attr
-        elif rule == ("and", ("expr", "POP_JUMP_IF_FALSE", "expr", "COME_FROM")):
+        elif rule == ("and", ("expr_pjif", "expr", "COME_FROM")):
             return ast[-1].attr != jump_offset
-        # elif rule == ("and", ("expr", "POP_JUMP_IF_FALSE", "expr", "COME_FROM")):
+        # elif rule == ("and", ("expr_pjif", "expr", "COME_FROM")):
         #     return jump_offset != tokens[first+3].attr
 
         return jump_target != tokens[last].off2int()

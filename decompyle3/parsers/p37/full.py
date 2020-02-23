@@ -595,7 +595,7 @@ class Python37Parser(Python37LambdaParser):
 
         if_or_stmt  ::= expr POP_JUMP_IF_TRUE expr pop_jump come_froms
                         stmts COME_FROM
-        if_and_stmt ::= expr POP_JUMP_IF_FALSE expr COME_FROM
+        if_and_stmt ::= expr_pjif expr COME_FROM
                         stmts _come_froms
 
         if_and_elsestmtc    ::= expr POP_JUMP_IF_FALSE
@@ -804,7 +804,7 @@ class Python37Parser(Python37LambdaParser):
 
     def p_stmt3(self, args):
         """
-        if_exp_lambda      ::= expr POP_JUMP_IF_FALSE expr return_if_lambda
+        if_exp_lambda      ::= expr_pjif expr return_if_lambda
                                return_stmt_lambda
         if_exp_not_lambda
                            ::= expr POP_JUMP_IF_TRUE expr return_if_lambda

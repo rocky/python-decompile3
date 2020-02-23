@@ -42,9 +42,9 @@ class Python37LambdaParser(Python37BaseParser):
         return_if_lambda   ::= RETURN_END_IF_LAMBDA COME_FROM
         return_if_lambda   ::= RETURN_END_IF_LAMBDA
 
-        if_exp_lambda      ::= expr POP_JUMP_IF_FALSE expr return_if_lambda
+        if_exp_lambda      ::= expr_pjif expr return_if_lambda
                                return_lambda LAMBDA_MARKER
-        if_exp_lambda      ::= expr POP_JUMP_IF_FALSE return_lambda COME_FROM return_lambda
+        if_exp_lambda      ::= expr_pjif return_lambda COME_FROM return_lambda
         if_exp_not_lambda  ::= expr POP_JUMP_IF_TRUE expr return_if_lambda
                                return_lambda LAMBDA_MARKER
         if_exp_dead_code   ::= return_lambda return_lambda
@@ -55,17 +55,20 @@ class Python37LambdaParser(Python37BaseParser):
         # Note: reduction-rule checks are needed for many of the below;
         # the rules in of themselves are not sufficient.
 
-        and       ::= expr JUMP_IF_FALSE_OR_POP expr come_from_opt
-        and       ::= expr jifop_come_from expr
+        expr_jifop_cfs ::= expr JUMP_IF_FALSE_OR_POP _come_froms
 
-        and       ::= expr POP_JUMP_IF_FALSE expr POP_JUMP_IF_FALSE
-        and       ::= expr POP_JUMP_IF_FALSE expr POP_JUMP_IF_TRUE
+        # semantic rules for "and" require expr-like things in positions 0 and 1
+        and       ::= expr_jifop_cfs expr come_from_opt
+        and       ::= expr_pjif expr_pjif
+        and       ::= expr_pjif expr POP_JUMP_IF_TRUE
 
         ## A COME_FROM is dropped off because of JUMP-to-JUMP optimization
-        and       ::= expr POP_JUMP_IF_FALSE expr
+        and       ::= expr_pjif expr
 
         ## Note that "POP_JUMP_IF_FALSE" is what we check on in the "and" reduce rule.
-        and       ::= expr POP_JUMP_IF_FALSE expr COME_FROM
+        and       ::= expr_pjif expr COME_FROM
+
+        jump_if_false_cf ::= POP_JUMP_IF_FALSE COME_FROM
 
         or        ::= expr POP_JUMP_IF_TRUE  expr
         or        ::= expr POP_JUMP_IF_TRUE  expr COME_FROM
@@ -100,7 +103,6 @@ class Python37LambdaParser(Python37BaseParser):
         jump_forward_else  ::= come_froms jump COME_FROM
 
         jitop_come_from    ::= JUMP_IF_TRUE_OR_POP come_froms
-        jifop_come_from    ::= JUMP_IF_FALSE_OR_POP come_froms
         """
 
     def p_37chained(self, args):
@@ -221,7 +223,9 @@ class Python37LambdaParser(Python37BaseParser):
     def p_37conditionals(self, args):
         """
         expr                       ::= if_exp37
-        if_exp                     ::= expr POP_JUMP_IF_FALSE expr jump_forward_else expr COME_FROM
+
+        expr_pjif                  ::= expr POP_JUMP_IF_FALSE
+        if_exp                     ::= expr_pjif expr jump_forward_else expr COME_FROM
         if_exp37                   ::= expr expr jf_cfs expr COME_FROM
         jf_cfs                     ::= JUMP_FORWARD _come_froms
         list_iter                  ::= list_if37
@@ -232,15 +236,13 @@ class Python37LambdaParser(Python37BaseParser):
         # A reduction check distinguishes between "and" and "and_not"
         # based on whether the POP_IF_JUMP location matches the location of the
         # POP_JUMP_IF_FALSE.
-        and_not                    ::= expr POP_JUMP_IF_FALSE expr POP_JUMP_IF_TRUE
+        and_not                    ::= expr_pjif expr POP_JUMP_IF_TRUE
         or_and_not                 ::= expr POP_JUMP_IF_TRUE and_not COME_FROM
 
         expr                       ::= if_exp_37a
         expr                       ::= if_exp_37b
         if_exp_37a                 ::= and_not expr JUMP_FORWARD come_froms expr COME_FROM
-        if_exp_37b                 ::= expr POP_JUMP_IF_FALSE expr POP_JUMP_IF_FALSE jump_forward_else expr
-        jump_if_false_cf           ::= POP_JUMP_IF_FALSE COME_FROM
-        comp_if                    ::= or jump_if_false_cf comp_iter
+        if_exp_37b                 ::= expr_pjif expr_pjif jump_forward_else expr
         """
 
 
@@ -267,10 +269,18 @@ class Python37LambdaParser(Python37BaseParser):
 
     def p_dict_comp3(self, args):
         """"
+        or_jump_if_false_cf  ::= or POP_JUMP_IF_FALSE COME_FROM
+
+        # Semantic rules require "comp_if" to have index 0 be some
+        # sort of "expr" and index 1 to be some sort of "comp_iter"
+
+        comp_if       ::= expr_pjif comp_iter
+        comp_if       ::= or_jump_if_false_cf comp_iter
+        comp_if_not   ::= expr POP_JUMP_IF_TRUE comp_iter
+
+        comp_iter     ::= comp_body
         comp_iter     ::= comp_if
         comp_iter     ::= comp_if_not
-        comp_if_not   ::= expr POP_JUMP_IF_TRUE comp_iter
-        comp_iter     ::= comp_body
         """
 
     def p_expr3(self, args):
@@ -280,7 +290,7 @@ class Python37LambdaParser(Python37BaseParser):
 
         # a JUMP_FORWARD to another JUMP_FORWARD can get turned into
         # a JUMP_ABSOLUTE with no COME_FROM
-        if_exp             ::= expr POP_JUMP_IF_FALSE expr jump_forward_else expr
+        if_exp             ::= expr_pjif expr jump_forward_else expr
 
         # if_exp_true are are IfExp which always evaluate true, e.g.:
         #      x = a if 1 else b
@@ -293,11 +303,9 @@ class Python37LambdaParser(Python37BaseParser):
 
     def p_set_comp(self, args):
         """
-        comp_iter ::= comp_for
-        comp_body ::= gen_comp_body
+        comp_iter     ::= comp_for
+        comp_body     ::= gen_comp_body
         gen_comp_body ::= expr YIELD_VALUE POP_TOP
-
-        comp_if  ::= expr POP_JUMP_IF_FALSE comp_iter
         """
 
     def p_store(self, args):

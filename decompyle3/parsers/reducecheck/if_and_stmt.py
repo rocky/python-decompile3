@@ -29,7 +29,7 @@ def if_and_stmt(
     if not ast:
         return False
 
-    if rule[1][:-1] == ("expr", "POP_JUMP_IF_FALSE", "expr", "COME_FROM", "stmts"):
+    if rule[1][:-1] == ("expr_pjif", "expr", "COME_FROM", "stmts"):
         # POP_JUMP_IF_FALSE should go to the COME_FROM
         return ast[3].attr != ast[1].off2int(prefer_last=False)
     else:
