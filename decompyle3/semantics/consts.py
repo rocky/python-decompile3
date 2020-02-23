@@ -274,7 +274,7 @@ TABLE_DIRECT = {
     'comp_if':		    ( ' if %c%c', 0, 1 ),
     'comp_if_not':	    ( ' if not %p%c',
                               (0, 'expr', PRECEDENCE['unary_not']), 2 ),
-    'comp_body':	    ( '', ),	# ignore when recusing
+    'comp_body':	    ( '', ),	# ignore when recursing
     'set_comp_body':        ( '%c', 0 ),
     'gen_comp_body':        ( '%c', 0 ),
     'dict_comp_body':       ( '%c:%c', 1, 0 ),
@@ -290,8 +290,8 @@ TABLE_DIRECT = {
     "designList":	    ( "%c = %c", 0, -1 ),
     "and":          	(
         "%c and %c",
-        0,  # "expr"-like things: "expr_pjif" | "expr_jifop_cfs"
-        1, # ditto
+        (0,  ("expr", "expr_pjif", "expr_jifop_cfs")),
+        (1,  ("expr", "expr_pjif", "expr_jifop_cfs"))
     ),
     "ret_and":        	( "%c and %c", 0, 2 ),
     "and2":          	( "%c", 3 ),
@@ -305,9 +305,9 @@ TABLE_DIRECT = {
     ),
     "if_exp_lambda":    (
         "%c if %c else %c",
-        1, # expr | return_lambda
+        (1, ("expr", "return_lambda")),
         (0, "expr_pjif"),
-        -1  # return_lambda | return_if_lambda
+        (-1,  ("return_lambda", "return_if_lambda")),
     ),
 
     # The arg2 is dead-code
@@ -447,7 +447,8 @@ TABLE_DIRECT = {
     "except_suite":     ( "%+%c%-%C", 0, (1, maxint, "") ),
 
     "c_except":         (
-        "%|except:\n%+%c%-", 3, # c_stmts_opt | c_returns
+        "%|except:\n%+%c%-",
+        (3, ("c_stmts_opt", "c_returns")),
     ),
 
     # In Python 3.6+, this is more complicated in the presence of "returns"

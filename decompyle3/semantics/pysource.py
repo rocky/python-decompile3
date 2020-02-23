@@ -1783,10 +1783,17 @@ class SourceWalker(GenericASTTraversal, object):
             elif typ == "c":
                 index = entry[arg]
                 if isinstance(index, tuple):
-                    assert node[index[0]] == index[1], (
-                        "at %s[%d], expected '%s' node; got '%s'"
-                        % (node.kind, arg, index[1], node[index[0]].kind)
-                    )
+                    if isinstance(index[1], str):
+                        assert node[index[0]] == index[1], (
+                            "at %s[%d], expected '%s' node; got '%s'"
+                            % (node.kind, arg, index[1], node[index[0]].kind)
+                        )
+                    else:
+                        assert node[index[0]] in index[1], (
+                            "at %s[%d], expected to be in '%s' node; got '%s'"
+                            % (node.kind, arg, index[1], node[index[0]].kind)
+                        )
+
                     index = index[0]
                 assert isinstance(
                     index, int

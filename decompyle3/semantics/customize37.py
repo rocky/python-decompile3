@@ -160,7 +160,7 @@ def customize_for_version37(self, version):
                 (1, "stmts")
             ),
             "ifstmtc": ("%|if %c:\n%+%c%-",
-                        0, # "testexpr" or "testexprc"
+                        (0, ("testexpr", "testexprc")),
                         (1, "ifstmts_jumpc")
             ),
             "if_and_elsestmtc": ("%|if %c and %c:\n%+%c%-%|else:\n%+%c%-",

@@ -605,9 +605,9 @@ if __name__ == "__main__":
     from decompyle3.parsers.dump import dump_and_check
     p = Python37LambdaParser()
     modified_tokens = set(
-        """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
+        """JUMP_BACK CONTINUE RETURN_END_IF_LAMBDA COME_FROM
            LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_CLASSNAME
-           LAMBDA_MARKER RETURN_LAST
+           LAMBDA_MARKER RETURN_VALUE_LAMBDA
         """.split()
         )
 
