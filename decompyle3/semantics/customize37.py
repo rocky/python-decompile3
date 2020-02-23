@@ -55,7 +55,7 @@ def customize_for_version37(self, version):
 
     TABLE_DIRECT.update(
         {
-            "and_not": ("%c and not %c", (0, "expr"), (2, "expr")),
+            "and_not": ("%c and not %c", (0, "expr_pjif"), (1, "expr")),
             "ann_assign": ("%|%[2]{attr}: %c\n", 0,),
             "ann_assign_init": ("%|%[2]{attr}: %c = %c\n", 0, 1,),
             "async_for_stmt": (

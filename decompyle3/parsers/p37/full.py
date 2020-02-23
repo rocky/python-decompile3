@@ -898,7 +898,7 @@ class Python37Parser(Python37LambdaParser):
 
         jf_cf        ::= JUMP_FORWARD COME_FROM
 
-        if_exp       ::= expr POP_JUMP_IF_FALSE expr jf_cf expr COME_FROM
+        if_exp       ::= expr_pjif expr jf_cf expr COME_FROM
 
         except_suite ::= c_stmts_opt COME_FROM POP_EXCEPT jump_except COME_FROM
 
