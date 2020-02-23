@@ -15,7 +15,12 @@
 def and_check(
     self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
 ) -> bool:
-    jump = ast[1]
+
+    if ast[0] == "expr_pjif":
+        jump = ast[0][1]
+    else:
+        # Probably not needed: was expr POP_JUMP_IF_FALSE
+        jump = ast[1]
     if jump.kind.startswith("POP_JUMP_IF_"):
         if last == n:
             return True
@@ -25,7 +30,7 @@ def and_check(
         if tokens[first].off2int() <= jump_target < tokens[last].off2int():
             return True
         if rule == ("and", ("expr_pjif", "expr_pjif")):
-            jump2_target = ast[2].attr
+            jump2_target = ast[1][1].attr
             return jump_target != jump2_target
         elif rule == ("and", ("expr_pjif", "expr", "POP_JUMP_IF_TRUE")):
             jump2_target = ast[2].attr

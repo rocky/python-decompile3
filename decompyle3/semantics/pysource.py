@@ -1122,6 +1122,8 @@ class SourceWalker(GenericASTTraversal, object):
                        "comp_if", "comp_if_not"):
                 have_not = n in ("list_if_not", "comp_if_not", "list_if37_not")
                 if n in ("list_if37", "list_if37_not", "comp_if"):
+                    if n == "comp_if":
+                        if_node = n[0]
                     n = n[1]
                 else:
                     if_node = n[0]
@@ -1177,6 +1179,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.write(" if ")
             if have_not:
                 self.write("not ")
+                pass
             self.prec = 27
             self.preorder(if_node)
             pass
@@ -1230,9 +1233,13 @@ class SourceWalker(GenericASTTraversal, object):
                 # FIXME: just a guess
                 if n[0].kind == "expr":
                     list_if = n
+                    n = n[2]
+                elif n[0].kind == "expr_pjif":
+                    list_if = n
+                    n = n[1]
                 else:
                     list_if = n[1]
-                n = n[2]
+                    n = n[2]
                 pass
             pass
 
