@@ -150,9 +150,9 @@ def customize_for_version37(self, version):
             ),
             "if_exp_37b": (
                 "%p if %p else %p",
-                (2, "expr", 27),
-                (0, "expr", 27),
-                (5, "expr", 27),
+                (1, "expr_pjif", 27),
+                (0, "expr_pjif", 27),
+                (3, "expr", 27),
             ),
             "ifstmt_bool": (
                 "%|if %c:\n%+%c%-",
