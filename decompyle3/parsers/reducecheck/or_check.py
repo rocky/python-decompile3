@@ -1,13 +1,21 @@
 #  Copyright (c) 2020 Rocky Bernstein
 
 
-ASSERT_OPS = frozenset(["LOAD_ASSERT", "RAISE_VARARGS_1"])
+# FIXME: we need to distinguish "or" as an expression which doesn't have
+# a "POP" instruction and "or" as a condition which does have the "POP"
+# instruction. Until then we use NOT_POP_FOLLOW_UPS as a hack to distinguish the
+# two
+NOT_POP_FOLLOW_OPS = frozenset("""
+LOAD_ASSERT RAISE_VARARGS_1 STORE_FAST STORE_DEREF STORE_GLOBAL STORE_ATTR STORE_NAME
+""".split())
 
 def or_check(
     self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
 ) -> bool:
+
     if rule == ("or", ("expr", "POP_JUMP_IF_TRUE", "expr")):
-        if tokens[last] in ASSERT_OPS or tokens[last-1] in ASSERT_OPS:
+
+        if tokens[last] in NOT_POP_FOLLOW_OPS or tokens[last-1] in NOT_POP_FOLLOW_OPS:
             return True
 
         # The following test is be the most accurate. It prevents "or" from being

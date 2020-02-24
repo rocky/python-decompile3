@@ -193,6 +193,13 @@ def customize_for_version37(self, version):
                 "%c or %c", (0, "expr"), (2, "and_not"),
             ),
 
+            "or_cond": (
+                "%c and %c or %c",
+                (0, "and_parts"),
+                (1, "expr"),
+                (4, "expr_pjif"),
+            ),
+
             "list_if37": (" if %p%c", (0, 27), 1),
             "list_if37_not": (" if not %p%c", (0, 27), 1),
             "testfalse_not_or": (
@@ -200,6 +207,19 @@ def customize_for_version37(self, version):
                 (0, "expr", PRECEDENCE["and"]-1),
                 (2, "expr")
             ),
+
+            "and_parts": (
+                "%c and %c", (0, ("and_parts", "expr_pjif")), (1, "expr_pjif"),
+            ),
+            "nand": (
+                "not (%c and %c)",
+                (0, "and_parts"), (1, "expr"),
+            ),
+            "nand2": (
+                "not (%c and %c)",
+                (0, "expr_pjif"), (1, "expr")
+            ),
+
             "testfalse_not_and": ("not (%c)", 0),
             "testfalsec": ("not %c", (0, "expr")),
             "try_except36": ("%|try:\n%+%c%-%c\n\n", 1, -2),
@@ -224,6 +244,19 @@ def customize_for_version37(self, version):
             "CALL_FUNCTION_EX_KW": ("%c(**%C)", 0, (2, 3, ",")),
         }
     )
+
+
+    # FIXME: we should be able to compress this into a single template
+    def n_and_parts(node):
+        if len(node) == 1:
+            self.template_engine(("%c", (0, "expr_pjif")), node)
+            self.prune()
+        else:
+            self.default(node)
+            pass
+
+
+    self.n_and_parts = n_and_parts
 
     def n_assert_invert(node):
         testtrue = node[0]

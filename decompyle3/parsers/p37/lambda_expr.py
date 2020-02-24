@@ -55,27 +55,39 @@ class Python37LambdaParser(Python37BaseParser):
         # Note: reduction-rule checks are needed for many of the below;
         # the rules in of themselves are not sufficient.
 
-        expr_jifop_cfs ::= expr JUMP_IF_FALSE_OR_POP _come_froms
+        and_parts  ::= expr_pjif+
 
-        # semantic rules for "and" require expr-like things in positions 0 and 1
-        and       ::= expr_jifop_cfs expr come_from_opt
-        and       ::= expr_pjif expr_pjif
-        and       ::= expr_pjif expr POP_JUMP_IF_TRUE
+        and        ::= and_parts expr_pjif _come_froms
+        nand       ::= and_parts expr POP_JUMP_IF_TRUE come_froms
+
+        # When we alternating and/or's such as:
+        #    a and (b or c) and d
+        # instead of POP_JUMP_IF_TRUE, JUMP_IF_FALSE_OR_POP can be used
+        # The semantic rules for "and" require expr-like things in positions 0 and 1,
+        # thus the use of expr_jifop_cfs below.
+
+        expr_jifop_cfs ::= expr JUMP_IF_FALSE_OR_POP _come_froms
+        and            ::= expr_jifop_cfs expr come_from_opt
+
+        # FIXME: adjust rules so that the below rule is covered by "ands"
+        # and       ::= expr_pjif expr POP_JUMP_IF_TRUE
 
         ## A COME_FROM is dropped off because of JUMP-to-JUMP optimization
-        and       ::= expr_pjif expr
+        # and       ::= expr_pjif expr
 
         ## Note that "POP_JUMP_IF_FALSE" is what we check on in the "and" reduce rule.
-        and       ::= expr_pjif expr COME_FROM
+        # and       ::= expr_pjif expr COME_FROM
 
         jump_if_false_cf ::= POP_JUMP_IF_FALSE COME_FROM
+
+        or_cond   ::= and_parts expr POP_JUMP_IF_TRUE come_froms expr_pjif _come_froms
 
         or        ::= expr POP_JUMP_IF_TRUE  expr
         or        ::= expr POP_JUMP_IF_TRUE  expr COME_FROM
         or        ::= expr POP_JUMP_IF_TRUE  expr jump_if_false_cf
         or        ::= and  jitop_come_from expr COME_FROM
         or        ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
-        or        ::= expr JUMP_IF_TRUE expr COME_FROM
+        or_expr   ::= expr JUMP_IF_TRUE expr COME_FROM
         """
 
     def p_come_froms(self, args):
@@ -170,6 +182,7 @@ class Python37LambdaParser(Python37BaseParser):
         expr ::= call
         expr ::= compare
         expr ::= or
+        expr ::= or_expr
         expr ::= subscript
         expr ::= subscript2
         expr ::= unary_not

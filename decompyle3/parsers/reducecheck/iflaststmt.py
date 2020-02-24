@@ -24,7 +24,12 @@ def iflaststmt(
     if testexpr[0] in ("testtrue", "testtruec", "testfalse", "testfalsec"):
 
         test = testexpr[0]
-        if len(test) > 1 and test[1].kind.startswith("POP_JUMP_IF_"):
+        test_len = len(test)
+        if test_len == 1 and test[0] in ("nand", "and") and rule[1] == ('testexpr', 'stmts'):
+            # (n)and rules have precedence
+            return True
+
+        if test_len > 1 and test[1].kind.startswith("POP_JUMP_IF_"):
             if last == n:
                 last -= 1
             jump_target = test[1].attr

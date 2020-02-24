@@ -187,6 +187,16 @@ class Python37Parser(Python37LambdaParser):
         """
         pass
 
+
+    # A "condition", in contrast to an "expr"ession ,is something that is is used in
+    # tests and pops the condition after testing
+    def p_if_conditions(self, args):
+        """
+        condition ::= or_cond
+        stmt ::= if_cond_elsestmt
+        if_cond_elsestmt ::= condition
+        """
+
     def p_function_def(self, args):
         """
         stmt               ::= function_def
@@ -620,6 +630,7 @@ class Python37Parser(Python37LambdaParser):
 
         testfalse  ::= and_not
         testfalse  ::= compare_chained37_false
+        testfalse  ::= or_cond
 
         ifstmts_jump ::= return_if_stmts
         ifstmts_jump ::= stmts_opt come_froms
@@ -628,6 +639,7 @@ class Python37Parser(Python37LambdaParser):
         # Python 3.4+ optimizes the trailing two JUMPS away
         ifstmts_jump ::= stmts_opt JUMP_FORWARD JUMP_FORWARD _come_froms
 
+        iflaststmt  ::= testexpr returns
         iflaststmt  ::= testexpr stmts
         iflaststmt  ::= testexpr stmts JUMP_FORWARD
 
@@ -785,12 +797,11 @@ class Python37Parser(Python37LambdaParser):
         if_exp_ret ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
 
         testfalse_not_or   ::= expr POP_JUMP_IF_FALSE expr POP_JUMP_IF_FALSE COME_FROM
-        testfalse_not_and  ::= and POP_JUMP_IF_TRUE come_froms
 
-        testfalse_not_and ::= expr POP_JUMP_IF_FALSE expr POP_JUMP_IF_TRUE  COME_FROM
         testfalse ::= testfalse_not_or
-        testfalse ::= testfalse_not_and
         testfalse ::= or POP_JUMP_IF_FALSE COME_FROM
+        testfalse ::= nand
+        testfalse ::= and
 
         iflaststmtc ::= testexprc c_stmts JUMP_BACK
         iflaststmtc ::= testexprc c_stmts JUMP_BACK COME_FROM_LOOP
