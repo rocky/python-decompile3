@@ -77,10 +77,7 @@ class Python37LambdaParser(Python37BaseParser):
         # thus the use of expr_jifop_cfs below.
 
         expr_jifop_cfs ::= expr JUMP_IF_FALSE_OR_POP _come_froms
-        and            ::= expr_jifop_cfs expr come_from_opt
-
-        # FIXME: adjust rules so that the below rule is covered by "ands"
-        # and       ::= expr_pjif expr POP_JUMP_IF_TRUE
+        and            ::= expr_jifop_cfs expr _come_froms
 
         ## A COME_FROM is dropped off because of JUMP-to-JUMP optimization
         # and       ::= expr_pjif expr

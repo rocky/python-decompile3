@@ -470,16 +470,11 @@ class Python37Parser(Python37LambdaParser):
 
     def p_35on(self, args):
         """
-        inplace_op ::= INPLACE_MATRIX_MULTIPLY
+        inplace_op       ::= INPLACE_MATRIX_MULTIPLY
         binary_operator  ::= BINARY_MATRIX_MULTIPLY
 
-        # Python 3.5+ does jump optimization
-        # In <.3.5 the below is a "JUMP_FORWARD" to a "jump".
-
+        # FIXME: do we need these?
         ret_expr ::= expr
-        ret_expr ::= ret_and
-        ret_expr ::= ret_or
-
         return_if_stmt ::= ret_expr RETURN_END_IF POP_BLOCK
 
         jb_cf     ::= JUMP_BACK COME_FROM
@@ -795,11 +790,10 @@ class Python37Parser(Python37LambdaParser):
 
     def p_jump3(self, args):
         """
-        ret_expr_or_cond ::= ret_expr
+        # FIXME: simplify this
         ret_expr_or_cond ::= if_exp_ret
+        ret_expr_or_cond ::= ret_expr
 
-        ret_and    ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
-        ret_or     ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
         if_exp_ret ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
 
         testfalse_not_or   ::= expr POP_JUMP_IF_FALSE expr POP_JUMP_IF_FALSE COME_FROM

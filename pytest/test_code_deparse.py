@@ -22,7 +22,7 @@ def test_single_mode() -> None:
     expressions = (
         "1",
         "i and j or k",
-        # "i and (j or k)", FIXME: reinstate this
+        "i and (j or k)",
         "j % 4",
         "i = 1",
         "i += 1",
@@ -42,7 +42,7 @@ def test_eval_mode():
     expressions = (
         "1",
         "j % 4",
-        # "i and (j or k)", FIXME: reinstate this
+        "i and (j or k)",
         "i and j or k",
     )
 
