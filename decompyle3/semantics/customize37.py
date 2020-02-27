@@ -219,7 +219,7 @@ def customize_for_version37(self, version):
             ),
             "nand": (
                 "not (%c and %c)",
-                (0, "and_parts"), (1, "expr"),
+                (0, "and_parts"), (1, ("expr", "expr_pjit")),
             ),
 
             "or_parts": (

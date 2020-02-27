@@ -188,6 +188,18 @@ class Python37Parser(Python37LambdaParser):
         pass
 
 
+    # # A "condition", in contrast to an "expr"ession ,is something that is is used in
+    # # tests and pops the condition after testing
+    # def p_if_conditions(self, args):
+    #     """
+    #     condition ::= and_or_cond
+    #     condition ::= nor_cond
+    #     condition ::= or_cond
+    #     stmt ::= if_cond_stmt
+    #     if_cond_stmt ::= condition stmt
+    #     if_cond_else_stmt ::= condition
+    #     """
+
     def p_function_def(self, args):
         """
         stmt               ::= function_def
@@ -602,9 +614,9 @@ class Python37Parser(Python37LambdaParser):
         if_and_elsestmtc    ::= expr POP_JUMP_IF_FALSE
                                 expr POP_JUMP_IF_FALSE
                                 c_stmts jb_cfs else_suitec opt_come_from_except
-        # if_or_elsestmt      ::= expr POP_JUMP_IF_TRUE
-        #                         come_from_opt expr POP_JUMP_IF_FALSE come_froms
-        #                         stmts jf_cfs else_suite opt_come_from_except
+        if_or_elsestmt      ::= expr POP_JUMP_IF_TRUE
+                                come_from_opt expr POP_JUMP_IF_FALSE come_froms
+                                stmts jf_cfs else_suite opt_come_from_except
         if_or_not_elsestmt  ::= expr POP_JUMP_IF_TRUE
                                 come_from_opt expr POP_JUMP_IF_TRUE come_froms
                                 stmts jf_cfs else_suite opt_come_from_except

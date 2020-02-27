@@ -60,7 +60,8 @@ class Python37LambdaParser(Python37BaseParser):
         # Note: "and" like "nor" might not have a trailing "come_from".
         #       "nand" and "or", in contrast, *must* have at least one "come_from".
         and        ::= and_parts expr_pjif _come_froms
-        nand       ::= and_parts expr POP_JUMP_IF_TRUE come_froms
+        and        ::= and_parts expr
+        nand       ::= and_parts expr_pjit  come_froms
 
         or_parts  ::= expr_pjit+
 
@@ -91,13 +92,18 @@ class Python37LambdaParser(Python37BaseParser):
 
         and_or_cond ::= and_parts expr POP_JUMP_IF_TRUE come_froms expr_pjif _come_froms
 
+        # For "or", keep index 0 and 1 be the two expressions.
+
         or        ::= expr_jitop expr
         or        ::= or_parts   expr
         or        ::= expr_pjit  expr COME_FROM
         or        ::= expr_pjit  expr jump_if_false_cf
-        or        ::= and  jitop_come_from expr COME_FROM
+
         or        ::= expr_pjit expr COME_FROM
         or_expr   ::= expr JUMP_IF_TRUE expr COME_FROM
+
+        jitop_come_from_expr ::= JUMP_IF_TRUE_OR_POP _come_froms expr
+        or                   ::= and jitop_come_from_expr COME_FROM
         """
 
     def p_come_froms(self, args):
@@ -124,7 +130,6 @@ class Python37LambdaParser(Python37BaseParser):
         jump_forward_else  ::= JUMP_FORWARD _come_froms
         jump_forward_else  ::= come_froms jump COME_FROM
 
-        jitop_come_from    ::= JUMP_IF_TRUE_OR_POP _come_froms
         """
 
     def p_37chained(self, args):
