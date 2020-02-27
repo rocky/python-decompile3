@@ -21,6 +21,38 @@ def iflaststmt(
     if tokens[last] == "RETURN_LAST":
         last -= 1
 
+    if rule == ("iflaststmt", ("testexpr", "stmts")):
+        # If there is a trailing if-jump (forward) at the end of "testexp", it should
+        # to the end of "stmts".
+
+        # If there was backward jump, the LHS would be "iflaststmtc".
+        # Note that there might not be a COME_FROM before "stmts" because there can be a fall
+        # through to it.
+        stmt_offset = ast[1].first_child().off2int(prefer_last=False)
+        inst_offset = self.offset2inst_index[stmt_offset]
+        testexpr_last_inst = self.insts[inst_offset-1]
+        if testexpr_last_inst.optype == "jabs":
+            target_offset = testexpr_last_inst.argval
+            if  target_offset != tokens[last].off2int(prefer_last=False):
+                # There is still this weird case:
+                # if a:
+                #   if b:
+                #     x += 3
+                #     # jumps to same place as "if a then.." end jump.
+                # else:
+                #    ...
+                # we are going to hack this my looking for another jump to the same target. Sigh.
+                i = inst_offset
+                inst = self.insts[i]
+                while inst.offset < target_offset:
+                    if inst.optype in ("jabs", "jrel") and inst.argval == target_offset:
+                        return False
+                    i += 1
+                    inst = self.insts[i]
+                return True
+            pass
+        pass
+
     if testexpr[0] in ("testtrue", "testtruec", "testfalse", "testfalsec"):
 
         test = testexpr[0]

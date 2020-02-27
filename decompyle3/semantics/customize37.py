@@ -194,8 +194,14 @@ def customize_for_version37(self, version):
             ),
 
             "or_cond": (
+                "%c or %c",
+                (0, "or_parts"),
+                (1, "expr_pjif"),
+            ),
+
+            "and_or_cond": (
                 "%c and %c or %c",
-                (0, "and_parts"),
+                (0, ("and_parts", "or_parts")),
                 (1, "expr"),
                 (4, "expr_pjif"),
             ),
@@ -215,9 +221,9 @@ def customize_for_version37(self, version):
                 "not (%c and %c)",
                 (0, "and_parts"), (1, "expr"),
             ),
-            "nand2": (
-                "not (%c and %c)",
-                (0, "expr_pjif"), (1, "expr")
+
+            "or_parts": (
+                "%c or %c", (0, "or_parts", "expr_pjit"), (1, "expr_pjit"),
             ),
 
             "testfalse_not_and": ("not (%c)", 0),
@@ -254,10 +260,22 @@ def customize_for_version37(self, version):
         else:
             self.default(node)
             pass
+        return
+    self.n_and_parts = n_and_parts
+
+    # FIXME: we should be able to compress this into a single template
+    def n_or_parts(node):
+        if len(node) == 1:
+            self.template_engine(("%c", (0, "expr_pjit")), node)
+            self.prune()
+        else:
+            self.default(node)
+            pass
+        return
+    self.n_or_parts = n_or_parts
 
 
     self.n_and_parts = n_and_parts
-
     def n_assert_invert(node):
         testtrue = node[0]
         assert testtrue == "testtrue"

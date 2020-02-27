@@ -295,7 +295,7 @@ TABLE_DIRECT = {
     ),
     "ret_and":        	( "%c and %c", 0, 2 ),
     "and2":          	( "%c", 3 ),
-    "or":           	( "%c or %c", 0, 2 ),
+    "or":           	( "%c or %c", 0, 1 ),
     "or_expr":        	(
         "%c or %c", (0, "expr"), (2, "expr"),
     ),

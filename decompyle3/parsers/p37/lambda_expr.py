@@ -57,8 +57,17 @@ class Python37LambdaParser(Python37BaseParser):
 
         and_parts  ::= expr_pjif+
 
+        # Note: "and" like "nor" might not have a trailing "come_from".
+        #       "nand" and "or", in contrast, *must* have at least one "come_from".
         and        ::= and_parts expr_pjif _come_froms
         nand       ::= and_parts expr POP_JUMP_IF_TRUE come_froms
+
+        or_parts  ::= expr_pjit+
+
+        # Note: "nor" like "and" might not have a trailing "come_from".
+        #       "nand" and "or", in contrast, *must* have at least one "come_from".
+        or_cond     ::= or_parts expr_pjif come_froms
+        nor_cond    ::= or_parts expr_pjit
 
         # When we alternating and/or's such as:
         #    a and (b or c) and d
@@ -80,13 +89,14 @@ class Python37LambdaParser(Python37BaseParser):
 
         jump_if_false_cf ::= POP_JUMP_IF_FALSE COME_FROM
 
-        or_cond   ::= and_parts expr POP_JUMP_IF_TRUE come_froms expr_pjif _come_froms
+        and_or_cond ::= and_parts expr POP_JUMP_IF_TRUE come_froms expr_pjif _come_froms
 
-        or        ::= expr POP_JUMP_IF_TRUE  expr
-        or        ::= expr POP_JUMP_IF_TRUE  expr COME_FROM
-        or        ::= expr POP_JUMP_IF_TRUE  expr jump_if_false_cf
+        or        ::= expr_jitop expr
+        or        ::= or_parts   expr
+        or        ::= expr_pjit  expr COME_FROM
+        or        ::= expr_pjit  expr jump_if_false_cf
         or        ::= and  jitop_come_from expr COME_FROM
-        or        ::= expr JUMP_IF_TRUE_OR_POP expr COME_FROM
+        or        ::= expr_pjit expr COME_FROM
         or_expr   ::= expr JUMP_IF_TRUE expr COME_FROM
         """
 
@@ -114,7 +124,7 @@ class Python37LambdaParser(Python37BaseParser):
         jump_forward_else  ::= JUMP_FORWARD _come_froms
         jump_forward_else  ::= come_froms jump COME_FROM
 
-        jitop_come_from    ::= JUMP_IF_TRUE_OR_POP come_froms
+        jitop_come_from    ::= JUMP_IF_TRUE_OR_POP _come_froms
         """
 
     def p_37chained(self, args):
@@ -238,7 +248,10 @@ class Python37LambdaParser(Python37BaseParser):
         expr                       ::= if_exp37
 
         expr_pjif                  ::= expr POP_JUMP_IF_FALSE
-        if_exp                     ::= expr_pjif expr jump_forward_else expr COME_FROM
+        expr_pjit                  ::= expr POP_JUMP_IF_TRUE
+        expr_jitop                 ::= expr JUMP_IF_TRUE_OR_POP
+
+        if_exp                     ::= expr_pjif expr jump_forward_else expr come_froms
         if_exp37                   ::= expr expr jf_cfs expr COME_FROM
         jf_cfs                     ::= JUMP_FORWARD _come_froms
         list_iter                  ::= list_if37
