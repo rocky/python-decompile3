@@ -91,7 +91,7 @@ class Python37LambdaParser(Python37BaseParser):
 
         # For "or", keep index 0 and 1 be the two expressions.
 
-        or        ::= expr_jitop expr
+        or        ::= expr_jitop expr _come_froms
         or        ::= or_parts   expr
         or        ::= expr_pjit  expr COME_FROM
         or        ::= expr_pjit  expr jump_if_false_cf
