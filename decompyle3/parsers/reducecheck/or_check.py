@@ -1,22 +1,44 @@
 #  Copyright (c) 2020 Rocky Bernstein
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-ASSERT_OPS = frozenset(["LOAD_ASSERT", "RAISE_VARARGS_1"])
+# FIXME: we need to distinguish "or" as an expression which doesn't have
+# a "POP" instruction and "or" as a condition which does have the "POP"
+# instruction. Until then we use NOT_POP_FOLLOW_UPS as a hack to distinguish the
+# two
+NOT_POP_FOLLOW_OPS = frozenset("""
+LOAD_ASSERT RAISE_VARARGS_1 STORE_FAST STORE_DEREF STORE_GLOBAL STORE_ATTR STORE_NAME
+""".split())
 
 def or_check(
     self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
 ) -> bool:
-    if rule == ("or", ("expr", "POP_JUMP_IF_TRUE", "expr")):
-        if tokens[last] in ASSERT_OPS or tokens[last-1] in ASSERT_OPS:
+
+    if rule == ("or", ("expr_pjit", "expr")):
+
+        jump = ast[0][1]
+
+        # See FIXME: above
+        if tokens[last] in NOT_POP_FOLLOW_OPS or tokens[last-1] in NOT_POP_FOLLOW_OPS:
             return True
 
-        # The following test is be the most accurate. It prevents "or" from being
-        # mistake for part of an "assert".
-        # There one might conceivably be "expr or AssertionError" code, but the
-        # likelihood of that is vanishingly small.
+        # The following test needs to prevent "or" from being
+        # mistaken for part of an "assert"t statment.
+
         # The below then is useful until we get better control-flow analysis.
         # Note it is too hard in the scanner right nowto turn the LOAD_GLOBAL into
-        # int LOAD_ASSERT, however in 3.9ish code generation does this by default.
+        # into LOAD_ASSERT. However in 3.9ish code generation does this by default.
         load_global = tokens[last - 1]
         if load_global == "LOAD_GLOBAL" and load_global.attr == "AssertionError":
             return True

@@ -187,6 +187,19 @@ class Python37Parser(Python37LambdaParser):
         """
         pass
 
+
+    # # A "condition", in contrast to an "expr"ession ,is something that is is used in
+    # # tests and pops the condition after testing
+    # def p_if_conditions(self, args):
+    #     """
+    #     condition ::= and_or_cond
+    #     condition ::= nor_cond
+    #     condition ::= or_cond
+    #     stmt ::= if_cond_stmt
+    #     if_cond_stmt ::= condition stmt
+    #     if_cond_else_stmt ::= condition
+    #     """
+
     def p_function_def(self, args):
         """
         stmt               ::= function_def
@@ -457,16 +470,11 @@ class Python37Parser(Python37LambdaParser):
 
     def p_35on(self, args):
         """
-        inplace_op ::= INPLACE_MATRIX_MULTIPLY
+        inplace_op       ::= INPLACE_MATRIX_MULTIPLY
         binary_operator  ::= BINARY_MATRIX_MULTIPLY
 
-        # Python 3.5+ does jump optimization
-        # In <.3.5 the below is a "JUMP_FORWARD" to a "jump".
-
+        # FIXME: do we need these?
         ret_expr ::= expr
-        ret_expr ::= ret_and
-        ret_expr ::= ret_or
-
         return_if_stmt ::= ret_expr RETURN_END_IF POP_BLOCK
 
         jb_cf     ::= JUMP_BACK COME_FROM
@@ -616,10 +624,14 @@ class Python37Parser(Python37LambdaParser):
 
         testtrue   ::= expr POP_JUMP_IF_TRUE
         testtruec  ::= expr POP_JUMP_IF_TRUE
+
         testtrue   ::= compare_chained37
+        testtrue   ::= nor_cond
 
         testfalse  ::= and_not
         testfalse  ::= compare_chained37_false
+        testfalse  ::= or_cond
+        testfalse  ::= and_or_cond
 
         ifstmts_jump ::= return_if_stmts
         ifstmts_jump ::= stmts_opt come_froms
@@ -628,6 +640,7 @@ class Python37Parser(Python37LambdaParser):
         # Python 3.4+ optimizes the trailing two JUMPS away
         ifstmts_jump ::= stmts_opt JUMP_FORWARD JUMP_FORWARD _come_froms
 
+        iflaststmt  ::= testexpr returns
         iflaststmt  ::= testexpr stmts
         iflaststmt  ::= testexpr stmts JUMP_FORWARD
 
@@ -777,20 +790,18 @@ class Python37Parser(Python37LambdaParser):
 
     def p_jump3(self, args):
         """
-        ret_expr_or_cond ::= ret_expr
+        # FIXME: simplify this
         ret_expr_or_cond ::= if_exp_ret
+        ret_expr_or_cond ::= ret_expr
 
-        ret_and    ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
-        ret_or     ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
         if_exp_ret ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
 
         testfalse_not_or   ::= expr POP_JUMP_IF_FALSE expr POP_JUMP_IF_FALSE COME_FROM
-        testfalse_not_and  ::= and POP_JUMP_IF_TRUE come_froms
 
-        testfalse_not_and ::= expr POP_JUMP_IF_FALSE expr POP_JUMP_IF_TRUE  COME_FROM
         testfalse ::= testfalse_not_or
-        testfalse ::= testfalse_not_and
         testfalse ::= or POP_JUMP_IF_FALSE COME_FROM
+        testfalse ::= nand
+        testfalse ::= and
 
         iflaststmtc ::= testexprc c_stmts JUMP_BACK
         iflaststmtc ::= testexprc c_stmts JUMP_BACK COME_FROM_LOOP

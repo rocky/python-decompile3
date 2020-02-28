@@ -12,6 +12,10 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+NOT_POP_FOLLOW_OPS = frozenset("""
+LOAD_ASSERT RAISE_VARARGS_1 STORE_FAST STORE_DEREF STORE_GLOBAL STORE_ATTR STORE_NAME
+""".split())
+
 def and_check(
     self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
 ) -> bool:
@@ -21,6 +25,7 @@ def and_check(
     else:
         # Probably not needed: was expr POP_JUMP_IF_FALSE
         jump = ast[1]
+
     if jump.kind.startswith("POP_JUMP_IF_"):
         if last == n:
             return True

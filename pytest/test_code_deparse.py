@@ -21,7 +21,8 @@ def run_deparse(expr: str, compile_mode: bool, debug=False) -> object:
 def test_single_mode() -> None:
     expressions = (
         "1",
-        "I and (j or k)",
+        "i and j or k",
+        "i and (j or k)",
         "j % 4",
         "i = 1",
         "i += 1",
@@ -42,6 +43,7 @@ def test_eval_mode():
         "1",
         "j % 4",
         "i and (j or k)",
+        "i and j or k",
     )
 
     for expr in expressions:
