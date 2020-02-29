@@ -33,7 +33,10 @@ def iflaststmt(
         testexpr_last_inst = self.insts[inst_offset-1]
         if testexpr_last_inst.optype == "jabs":
             target_offset = testexpr_last_inst.argval
-            if  target_offset != tokens[last].off2int(prefer_last=False):
+            last_offset = tokens[last].off2int(prefer_last=False)
+            if  target_offset != last_offset:
+                if target_offset < last_offset:
+                    return True
                 # There is still this weird case:
                 # if a:
                 #   if b:
