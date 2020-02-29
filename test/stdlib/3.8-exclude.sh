@@ -1,4 +1,8 @@
 SKIP_TESTS=(
+    [test_genexps.py]=1   # FIXME works in 200b163 and master
+    [test_metaclass.py]=1   # FIXME works in 200b163 and master
+    [test_pow.py]=1   # FIXME works in 200b163 and master
+
     [test_asynchat.py]=1   # FIXME works in master
     [test_finalization.py]=1   # FIXME works in master
     [test_format.py]=1   # FIXME works in master

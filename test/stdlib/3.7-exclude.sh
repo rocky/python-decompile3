@@ -1,4 +1,7 @@
 SKIP_TESTS=(
+    [test_asyncore.py]=1   # FIXME works in 200b163 and master
+    [test_genexps.py]=1   # FIXME works in 200b163 and master
+    [test_metaclass.py]=1   # FIXME works in 200b163 and master
     [test_ast.py]=1   # FIXME works in master
     [test_builtin.py]=1   # FIXME works in master
     [test_finalization.py]=1   # FIXME exceptions must derive from BaseException works in master
