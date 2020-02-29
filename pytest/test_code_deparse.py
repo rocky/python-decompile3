@@ -21,7 +21,7 @@ def run_deparse(expr: str, compile_mode: bool, debug=False) -> object:
 def test_single_mode() -> None:
     expressions = (
         "1",
-        # "i and (j or k)", Same as below?
+        "i and (j or k)",
         "i and j or k",
         "j % 4",
         "i = 1",
@@ -36,6 +36,10 @@ def test_single_mode() -> None:
 
     for expr in expressions:
         deparsed = run_deparse(expr, compile_mode="single")
+        if deparsed.text != (expr + "\n"):
+            from decompyle3.show import maybe_show_tree
+            deparsed.showast = {"Full": True}
+            maybe_show_tree(deparsed, deparsed.ast)
         assert deparsed.text == expr + "\n"
 
 def test_eval_mode():
@@ -43,7 +47,7 @@ def test_eval_mode():
         "1",
         "j % 4",
         "k == 1 or k == 2",
-        # "i and (j or k)", # Same as below?
+        "i and (j or k)",
         "i and j or k",
     )
 

@@ -51,8 +51,7 @@ class Python37LambdaParser(Python37BaseParser):
         """
 
     def p_and_or(self, args):
-        """
-        # Note: reduction-rule checks are needed for many of the below;
+        """# Note: reduction-rule checks are needed for many of the below;
         # the rules in of themselves are not sufficient.
 
         and_parts  ::= expr_pjif+
@@ -91,16 +90,29 @@ class Python37LambdaParser(Python37BaseParser):
 
         # For "or", keep index 0 and 1 be the two expressions.
 
-        or        ::= expr_jitop expr _come_froms
         or        ::= or_parts   expr
         or        ::= expr_pjit  expr COME_FROM
         or        ::= expr_pjit  expr jump_if_false_cf
+
+        # Note: in the "or below", if "come_from_opt" becomes
+        # _come_froms, then we will need to write a check to make sure
+        # *all* of the COME_FROMs are associated with the
+        # "or".
+        #
+        # Otherwise, in 3.8 we may turn:
+        #     i and j or k # i == i and (j or k)
+        #  erroneously into:
+        #     i and (j or k)
+
+        or        ::= expr_jitop expr come_from_opt
+
 
         or        ::= expr_pjit expr COME_FROM
         or_expr   ::= expr JUMP_IF_TRUE expr COME_FROM
 
         jitop_come_from_expr ::= JUMP_IF_TRUE_OR_POP _come_froms expr
         or                   ::= and jitop_come_from_expr COME_FROM
+
         """
 
     def p_come_froms(self, args):

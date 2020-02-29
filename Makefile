@@ -18,12 +18,12 @@ TEST_TYPES=check-long check-short
 #: Default target - same as "check"
 all: check
 
-# Run all tests
+#: Run all tests
 check:
 	@PYTHON_VERSION=`$(PYTHON) -V 2>&1 | cut -d ' ' -f 2 | cut -d'.' -f1,2`; \
 	$(MAKE) check-$$PYTHON_VERSION
 
-# Run all quick tests
+#: Run all quick tests
 check-short: pytest
 	$(MAKE) -C test check-short
 
