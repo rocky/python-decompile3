@@ -1,11 +1,6 @@
 SKIP_TESTS=(
-    [test_genexps.py]=1   # FIXME works in 200b163 and master
-    [test_metaclass.py]=1   # FIXME works in 200b163 and master
-    [test_pow.py]=1   # FIXME works in 200b163 and master
-
     [test_asynchat.py]=1   # FIXME works in master
     [test_finalization.py]=1   # FIXME works in master
-    [test_format.py]=1   # FIXME works in master
 
     [test_shlex.py]=1 # FIXME: "or" is getting generatated in a "for" instead of "if"
     [test_asyncore.py]=1 # FIXME: "break" outside of loop
@@ -150,7 +145,7 @@ SKIP_TESTS=(
     [test_positional_only_arg.py]=1 # test failures
     [test_posix.py]=1 # parse error
     [test_pwd.py]=1 # killing - doesn't terminate
-    [test_pulldom.py]=1 # killing - doesn't terminate
+    [test_pulldom.py]=1 # test check failures
     [test_pyclbr.py]=1 # Test errors
     [test_pydoc.py]=1 # it fails on its own
 

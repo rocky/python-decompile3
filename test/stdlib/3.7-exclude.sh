@@ -1,15 +1,7 @@
 SKIP_TESTS=(
-    [test_asyncore.py]=1   # FIXME works in 200b163 and master
-    [test_genexps.py]=1   # FIXME works in 200b163 and master
-    [test_metaclass.py]=1   # FIXME works in 200b163 and master
     [test_ast.py]=1   # FIXME works in master
-    [test_builtin.py]=1   # FIXME works in master
     [test_finalization.py]=1   # FIXME exceptions must derive from BaseException works in master
-    [test_format.py]=1  # FIXME works in master
-    [test___future__.py]=1  # FIXME works in master
     [test_posix.py]=1  # FIXME works in master
-    [test_pow.py]=1  # FIXME works in master
-    [test_pulldom.py]=1  # FIXME works in master
     [test_sys_setprofile.py]=1  # FIXME works in master
 
     [test_asyncgen.py]=1  # parse error FIXME: works on 795b2195 (which is recent)
@@ -34,14 +26,13 @@ SKIP_TESTS=(
     [test_urllib2_localnet.py]=1 # test check failures
 
     [test___all__.py]=1 # it fails on its own
-    [test_argparse.py]=1 #- it fails on its own
     [test_asdl_parser.py]=1 # it fails on its own
     [test_atexit.py]=1  # The atexit test looks for specific comments in error lines
     [test_baseexception.py]=1  # UnboundLocalError: local variable 'exc' referenced before assignment
     [test_buffer.py]=1  # Test run errors; takes long time to decompile
 
     [test_clinic.py]=1 # it fails on its own
-    [test_cmath.py]=1 # control flow
+    [test_cmath.py]=1 # parse error
     [test_cmd_line.py]=1  # Interactive?
     [test_cmd_line_script.py]=1
     [test_compileall.py]=1 # fails on its own
@@ -156,9 +147,7 @@ SKIP_TESTS=(
 if (( BATCH )) ; then
     SKIP_TESTS[test_bdb.py]=1 # fails on POWER
     SKIP_TESTS[test_dbm_gnu.py]=1 # fails on its own on POWER
-    SKIP_TESTS[test_distutils.py]=1
     SKIP_TESTS[test_fileio.py]=1
-    SKIP_TESTS[test_gc.py]=1
     SKIP_TESTS[test_idle.py]=1 # Probably installation specific
     SKIP_TESTS[test_sqlite.py]=1 # fails on its own on POWER
     SKIP_TESTS[test_tempfile.py]=1 # it fails on POWER (no fd attribuet)
