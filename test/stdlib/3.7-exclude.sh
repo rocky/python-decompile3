@@ -154,13 +154,16 @@ SKIP_TESTS=(
 # 284 unit-test files in about 15 minutes
 
 if (( BATCH )) ; then
+    SKIP_TESTS[test_bdb.py]=1 # fails on POWER
     SKIP_TESTS[test_dbm_gnu.py]=1 # fails on its own on POWER
     SKIP_TESTS[test_distutils.py]=1
     SKIP_TESTS[test_fileio.py]=1
     SKIP_TESTS[test_gc.py]=1
     SKIP_TESTS[test_idle.py]=1 # Probably installation specific
     SKIP_TESTS[test_sqlite.py]=1 # fails on its own on POWER
+    SKIP_TESTS[test_tempfile.py]=1 # it fails on POWER (no fd attribuet)
     SKIP_TESTS[test_tix.py]=1 # it fails on its own
+    SKIP_TESTS[test_time.py]=1 # it fails on POWER (supposed to work on linux though)
     SKIP_TESTS[test_ttk_textonly.py]=1 # Installation dependent?
     SKIP_TESTS[test_venv.py]=1 # Too long to run: 11 seconds
     SKIP_TESTS[test_zipimport_support.py]=1
