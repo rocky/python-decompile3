@@ -150,6 +150,7 @@ if (( BATCH )) ; then
     SKIP_TESTS[test_fileio.py]=1
     SKIP_TESTS[test_idle.py]=1 # Probably installation specific
     SKIP_TESTS[test_sqlite.py]=1 # fails on its own on POWER
+    SKIP_TESTS[test_sysconfig.py]=1 # fails on POWER
     SKIP_TESTS[test_tempfile.py]=1 # it fails on POWER (no fd attribuet)
     SKIP_TESTS[test_tix.py]=1 # it fails on its own
     SKIP_TESTS[test_time.py]=1 # it fails on POWER (supposed to work on linux though)
