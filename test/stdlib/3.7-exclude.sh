@@ -1,5 +1,4 @@
 SKIP_TESTS=(
-    [test_ast.py]=1   # FIXME works in master
     [test_builtin.py]=1   # FIXME works in master
     [test_finalization.py]=1   # FIXME exceptions must derive from BaseException works in master
     [test_posix.py]=1  # FIXME works in master
@@ -23,7 +22,7 @@ SKIP_TESTS=(
     [test_gzip.py]=1 # test_gzip.py takes more than 15 seconds for test to run
     [test_itertools.py]=1 # test check failures
     [test_poplib.py]=1 # test check failures
-    [test_pyclrbr.py]=1 # test errors
+    [test_pyclbr.py]=1 # test errors
     [test_urllib2_localnet.py]=1 # test check failures
 
     [test___all__.py]=1 # it fails on its own
@@ -40,7 +39,6 @@ SKIP_TESTS=(
     [test_compile.py]=1  # Code introspects on co_consts in a non-decompilable way
     [test_concurrent_futures.py]=1 # too long
     [test_coroutines.py]=1 # Parse error
-    [test_codecs.py]=1 # test assert failures; encoding/decoding stuff
     [test_ctypes.py]=1 # it fails on its own
     [test_curses.py]=1 # probably byte string not handled properly
     [test_dataclasses.py]=1   # FIXME: control flow probably: AssertionError: unknown result 'exception'

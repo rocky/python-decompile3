@@ -13,6 +13,9 @@ def run_deparse(expr: str, compile_mode: bool, debug=False) -> object:
     if compile_mode == "lambda":
         compile_mode = "eval"
     code = compile(expr + "\n", "<string %s>" % expr, compile_mode)
+    if debug:
+        import dis;
+        print(dis.dis(code))
     deparsed = code_deparse(code, out=out, compile_mode=compile_mode, debug_opts=debug_opts)
     return deparsed
 
@@ -75,12 +78,14 @@ def test_lambda_mode():
         "lambda *, d=0: d",
         "lambda x: 1 if x < 2 else 3",
         "lambda y: x * y",
+        "lambda n: True if n >= 95 and n & 1 else False",
     )
 
     for expr in expressions:
         try:
             deparsed = run_deparse(expr, compile_mode="lambda", debug=False)
         except:
+            assert False, expr
             continue
         if deparsed.text != expr:
             from decompyle3.show import maybe_show_tree

@@ -313,6 +313,13 @@ TABLE_DIRECT = {
         (-1,  ("return_lambda", "return_if_lambda")),
     ),
 
+    "if_exp_lambda2":    (
+        "%c if %c else %c",
+        (1, ("expr", "return_lambda")),
+        (0, "and_parts"),
+        (-2,  "return_lambda"),
+    ),
+
     # The arg2 is dead-code
     'if_expr_true':     ( '%p if 1 else %c', (0, 'expr', 27), 2 ),
 

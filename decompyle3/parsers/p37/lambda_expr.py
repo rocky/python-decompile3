@@ -36,6 +36,7 @@ class Python37LambdaParser(Python37BaseParser):
         lambda_start       ::= return_lambda LAMBDA_MARKER
         return_lambda      ::= expr RETURN_VALUE_LAMBDA
         return_lambda      ::= if_exp_lambda
+        return_lambda      ::= if_exp_lambda2
         return_lambda      ::= if_exp_not_lambda
         return_lambda      ::= if_exp_dead_code
 
@@ -44,21 +45,25 @@ class Python37LambdaParser(Python37BaseParser):
 
         if_exp_lambda      ::= expr_pjif expr return_if_lambda
                                return_lambda LAMBDA_MARKER
-        if_exp_lambda      ::= expr_pjif return_lambda COME_FROM return_lambda
+        if_exp_lambda2     ::= and_parts return_lambda come_froms
+                               return_lambda opt_lambda_marker
         if_exp_not_lambda  ::= expr POP_JUMP_IF_TRUE expr return_if_lambda
                                return_lambda LAMBDA_MARKER
         if_exp_dead_code   ::= return_lambda return_lambda
+        opt_lambda_marker  ::= LAMBDA_MARKER?
         """
 
     def p_and_or(self, args):
-        """# Note: reduction-rule checks are needed for many of the below;
+        """
+        # Note: reduction-rule checks are needed for many of the below;
         # the rules in of themselves are not sufficient.
 
         and_parts  ::= expr_pjif+
 
         # Note: "and" like "nor" might not have a trailing "come_from".
         #       "nand" and "or", in contrast, *must* have at least one "come_from".
-        and        ::= and_parts expr_pjif _come_froms
+        not_or     ::= and_parts expr_pjif _come_froms
+        and_3      ::= and_parts expr_pjif _come_froms
         and        ::= and_parts expr
         nand       ::= and_parts expr_pjit  come_froms
 
@@ -112,7 +117,6 @@ class Python37LambdaParser(Python37BaseParser):
 
         jitop_come_from_expr ::= JUMP_IF_TRUE_OR_POP _come_froms expr
         or                   ::= and jitop_come_from_expr COME_FROM
-
         """
 
     def p_come_froms(self, args):
@@ -260,13 +264,16 @@ class Python37LambdaParser(Python37BaseParser):
     def p_37conditionals(self, args):
         """
         expr                       ::= if_exp37
+        bool_op                    ::= and_3
 
         expr_pjif                  ::= expr POP_JUMP_IF_FALSE
         expr_pjit                  ::= expr POP_JUMP_IF_TRUE
         expr_jitop                 ::= expr JUMP_IF_TRUE_OR_POP
 
         if_exp                     ::= expr_pjif expr jump_forward_else expr come_froms
-        if_exp37                   ::= expr expr jf_cfs expr COME_FROM
+
+        if_exp37                   ::= expr expr    jf_cfs expr COME_FROM
+        if_exp37                   ::= bool_op expr jf_cfs expr COME_FROM
         jf_cfs                     ::= JUMP_FORWARD _come_froms
         list_iter                  ::= list_if37
         list_iter                  ::= list_if37_not

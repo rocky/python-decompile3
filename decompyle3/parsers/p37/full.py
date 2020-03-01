@@ -629,6 +629,7 @@ class Python37Parser(Python37LambdaParser):
         testtrue   ::= nor_cond
 
         testfalse  ::= and_not
+        testfalse  ::= not_or
         testfalse  ::= compare_chained37_false
         testfalse  ::= or_cond
         testfalse  ::= and_or_cond
@@ -796,9 +797,6 @@ class Python37Parser(Python37LambdaParser):
 
         if_exp_ret ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
 
-        testfalse_not_or   ::= expr POP_JUMP_IF_FALSE expr POP_JUMP_IF_FALSE COME_FROM
-
-        testfalse ::= testfalse_not_or
         testfalse ::= or POP_JUMP_IF_FALSE COME_FROM
         testfalse ::= nand
         testfalse ::= and
