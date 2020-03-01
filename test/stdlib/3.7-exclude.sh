@@ -26,7 +26,6 @@ SKIP_TESTS=(
     [test_urllib2_localnet.py]=1 # test check failures
 
     [test___all__.py]=1 # it fails on its own
-    [test_argparse.py]=1 #- it fails on its own
     [test_asdl_parser.py]=1 # it fails on its own
     [test_atexit.py]=1  # The atexit test looks for specific comments in error lines
     [test_baseexception.py]=1  # UnboundLocalError: local variable 'exc' referenced before assignment
@@ -147,9 +146,7 @@ SKIP_TESTS=(
 
 if (( BATCH )) ; then
     SKIP_TESTS[test_dbm_gnu.py]=1 # fails on its own on POWER
-    SKIP_TESTS[test_distutils.py]=1
     SKIP_TESTS[test_fileio.py]=1
-    SKIP_TESTS[test_gc.py]=1
     SKIP_TESTS[test_idle.py]=1 # Probably installation specific
     SKIP_TESTS[test_sqlite.py]=1 # fails on its own on POWER
     SKIP_TESTS[test_tix.py]=1 # it fails on its own
