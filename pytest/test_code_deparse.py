@@ -35,7 +35,12 @@ def test_single_mode() -> None:
     )
 
     for expr in expressions:
-        deparsed = run_deparse(expr, compile_mode="single")
+        try:
+            deparsed = run_deparse(expr, compile_mode="single")
+        except:
+            assert False, expr
+            continue
+
         if deparsed.text != (expr + "\n"):
             from decompyle3.show import maybe_show_tree
             deparsed.showast = {"Full": True}
@@ -52,8 +57,16 @@ def test_eval_mode():
     )
 
     for expr in expressions:
-        deparsed = run_deparse(expr, compile_mode="eval")
-        # print(expr, "vs.", deparsed.text)
+        try:
+            deparsed = run_deparse(expr, compile_mode="eval", debug=False)
+        except:
+            assert False, expr
+            continue
+
+        if deparsed.text != expr:
+            from decompyle3.show import maybe_show_tree
+            deparsed.showast = {"Full": True}
+            maybe_show_tree(deparsed, deparsed.ast)
         assert deparsed.text == expr
 
 def test_lambda_mode():
@@ -65,8 +78,14 @@ def test_lambda_mode():
     )
 
     for expr in expressions:
-        deparsed = run_deparse(expr, compile_mode="lambda")
-        # print(expr, "vs.", deparsed.text)
+        try:
+            deparsed = run_deparse(expr, compile_mode="lambda", debug=False)
+        except:
+            continue
+        if deparsed.text != expr:
+            from decompyle3.show import maybe_show_tree
+            deparsed.showast = {"Full": True}
+            maybe_show_tree(deparsed, deparsed.ast)
         assert deparsed.text == expr
 
 if __name__ == "__main__":

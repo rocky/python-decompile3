@@ -1,15 +1,7 @@
 SKIP_TESTS=(
-    [test_asyncore.py]=1   # FIXME works in 200b163 and master
-    [test_genexps.py]=1   # FIXME works in 200b163 and master
-    [test_metaclass.py]=1   # FIXME works in 200b163 and master
     [test_ast.py]=1   # FIXME works in master
-    [test_builtin.py]=1   # FIXME works in master
     [test_finalization.py]=1   # FIXME exceptions must derive from BaseException works in master
-    [test_format.py]=1  # FIXME works in master
-    [test___future__.py]=1  # FIXME works in master
     [test_posix.py]=1  # FIXME works in master
-    [test_pow.py]=1  # FIXME works in master
-    [test_pulldom.py]=1  # FIXME works in master
     [test_sys_setprofile.py]=1  # FIXME works in master
 
     [test_asyncgen.py]=1  # parse error FIXME: works on 795b2195 (which is recent)
@@ -41,7 +33,7 @@ SKIP_TESTS=(
     [test_buffer.py]=1  # Test run errors; takes long time to decompile
 
     [test_clinic.py]=1 # it fails on its own
-    [test_cmath.py]=1 # control flow
+    [test_cmath.py]=1 # parse error
     [test_cmd_line.py]=1  # Interactive?
     [test_cmd_line_script.py]=1
     [test_compileall.py]=1 # fails on its own
