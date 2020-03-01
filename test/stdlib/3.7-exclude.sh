@@ -1,5 +1,6 @@
 SKIP_TESTS=(
     [test_ast.py]=1   # FIXME works in master
+    [test_builtin.py]=1   # FIXME works in master
     [test_finalization.py]=1   # FIXME exceptions must derive from BaseException works in master
     [test_posix.py]=1  # FIXME works in master
     [test_sys_setprofile.py]=1  # FIXME works in master
