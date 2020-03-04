@@ -686,10 +686,19 @@ class Python37Parser(Python37LambdaParser):
         # one COME_FROM for Python 2.7 seems to associate the
         # COME_FROM targets from the wrong places
 
-        # this is nested inside a try_except
+        # This is nested inside a try_except
         tryfinallystmt ::= SETUP_FINALLY suite_stmts_opt
                            POP_BLOCK LOAD_CONST
                            COME_FROM_FINALLY suite_stmts_opt END_FINALLY
+
+        # This a funny kind of try finally inside a try_except in a loop
+        c_except_suite ::= SETUP_FINALLY c_suite_stmts
+                           POP_BLOCK LOAD_CONST
+                           COME_FROM_FINALLY LOAD_CONST STORE_FAST DELETE_FAST
+                           END_FINALLY
+                           POP_EXCEPT JUMP_BACK COME_FROM
+
+        c_except_suite  ::= except_suite
 
         except_handler ::= jmp_abs COME_FROM except_stmts
                            _come_froms END_FINALLY
@@ -705,9 +714,14 @@ class Python37Parser(Python37LambdaParser):
         try_except   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                          except_handler
                          jump_excepts come_from_except_clauses
+
         c_try_except ::= SETUP_EXCEPT c_suite_stmts_opt POP_BLOCK
                          c_except_handler
                          jump_excepts come_from_except_clauses
+        c_try_except ::= SETUP_EXCEPT c_suite_stmts_opt POP_BLOCK
+                         c_except_handler
+                         opt_come_from_except
+
         # FIXME: remove this
         except_handler ::= JUMP_FORWARD COME_FROM except_stmts
                            come_froms END_FINALLY come_from_opt
@@ -725,6 +739,7 @@ class Python37Parser(Python37LambdaParser):
         c_except_stmt  ::= c_stmt
         c_except_stmt  ::= c_except
         c_except_stmt  ::= except_cond1 c_except_suite come_from_opt
+        c_except_stmt  ::= except_cond2 c_except_suite come_from_opt
         c_except_stmt  ::= stmt
 
         ## FIXME: what's except_pop_except?

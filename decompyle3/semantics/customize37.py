@@ -387,6 +387,20 @@ def customize_for_version37(self, version):
 
     self.n_c_with = n_c_with
 
+    def n_c_except_suite(node):
+        if len(node) == 1 and node[0] == "except_suite":
+            node = node[0]
+            self.default(node)
+        elif node[1] == "c_suite_stmts":
+            node = node[1][0]
+            template = ("%+%c%-", 0)
+            self.template_engine(template, node)
+            self.prune()
+
+    self.n_c_except_suite = n_c_except_suite
+
+    self.n_c_with = n_c_with
+
     def gen_function_parens_adjust(mapping_key, node):
         """If we can avoid the outer parenthesis
         of a generator function, set the node key to
