@@ -801,13 +801,15 @@ class Python37Parser(Python37LambdaParser):
         testfalse ::= nand
         testfalse ::= and
 
-        iflaststmtc ::= testexprc c_stmts JUMP_BACK
+        iflaststmtc ::= testexprc c_stmts
         iflaststmtc ::= testexprc c_stmts JUMP_BACK COME_FROM_LOOP
-        iflaststmtc ::= testexprc c_stmts JUMP_BACK POP_BLOCK
+        iflaststmtc ::= testexprc c_stmts JUMP_BACK opt_pop_block
 
         testexprc   ::= testtruec
         testexprc   ::= testfalsec
         testfalsec  ::= expr POP_JUMP_IF_TRUE
+
+        opt_pop_block ::= POP_BLOCK?
 
         """
 

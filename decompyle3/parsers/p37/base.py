@@ -227,6 +227,11 @@ class Python37BaseParser(PythonParser):
                                               suite_stmts_opt
                                               POP_BLOCK LOAD_CONST
                                               async_with_post
+                      async_with_as_stmt  ::= expr
+                                              async_with_pre
+                                              store
+                                              suite_stmts_opt
+                                              async_with_post
                     """
                 else:
                     rules_str += """
