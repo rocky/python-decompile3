@@ -1237,6 +1237,9 @@ class SourceWalker(GenericASTTraversal, object):
                 elif n[0].kind == "expr_pjif":
                     list_if = n
                     n = n[1]
+                elif n[0].kind == "or_jump_if_false_cf":
+                    list_if = n[1]
+                    n = n[1]
                 else:
                     list_if = n[1]
                     n = n[2]

@@ -378,6 +378,15 @@ def customize_for_version37(self, version):
 
     self.n_build_list_unpack = n_build_list_unpack
 
+    def n_c_with(node):
+        if len(node) == 1 and node[0] == "with":
+            node = node[0]
+        else:
+            node.kind = "with"
+        self.default(node)
+
+    self.n_c_with = n_c_with
+
     def gen_function_parens_adjust(mapping_key, node):
         """If we can avoid the outer parenthesis
         of a generator function, set the node key to
