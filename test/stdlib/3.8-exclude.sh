@@ -1,6 +1,6 @@
 SKIP_TESTS=(
-    [test_asynchat.py]=1   # FIXME works in master
-    [test_finalization.py]=1   # FIXME works in master
+    [test_asynchat.py]=1   # FIXME control flow. works in master
+    [test_finalization.py]=1   # FIXME raise left.right is None or AssertionError works in master
 
     [test_shlex.py]=1 # FIXME: "or" is getting generatated in a "for" instead of "if"
     [test_asyncore.py]=1 # FIXME: "break" outside of loop
@@ -132,7 +132,7 @@ SKIP_TESTS=(
     [test_opcodes.py]=1 # test check failure
     [test_optparse.py]=1 # parse error
     [test_ordered_dict.py]=1 # parse error
-    [test_os.py]=1 # probably control flow (uninitialized variable)
+    [test_os.py]=1 # parse error
     [test_ossaudiodev.py]=1 # it fails on its own
 
     [test_pdb.py]=1 # Probably relies on comments

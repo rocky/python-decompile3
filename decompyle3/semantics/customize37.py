@@ -235,6 +235,7 @@ def customize_for_version37(self, version):
             "testfalse_not_and": ("not (%c)", 0),
             "testfalsec": ("not %c", (0, "expr")),
             "try_except36": ("%|try:\n%+%c%-%c\n\n", 1, -2),
+            "c_try_except36": ("%|try:\n%+%c%-%c\n\n", 1, 2),
             "tryfinally36": ("%|try:\n%+%c%-%|finally:\n%+%c%-\n\n", (1, "returns"), 3),
             "tryfinally_return_stmt1":
                 ("%|try:\n%+%c%-%|finally:\n%+%c%-\n\n",

@@ -1,12 +1,10 @@
 SKIP_TESTS=(
-    [test_builtin.py]=1   # FIXME works in master
+    [test_builtin.py]=1   # FIXME raise left.right is None or AssertionError works in master
     [test_finalization.py]=1   # FIXME exceptions must derive from BaseException works in master
     [test_posix.py]=1  # FIXME works in master
     [test_sys_setprofile.py]=1  # FIXME works in master
 
-    [test_os.py]=1  # parse error FIXME: works on 795b2195 (which is recent)
     [test_queue.py]=1  # FIXME: test check failures works on 795b2195 (which is recent)
-    [test_urllib2net.py]=1 # FIXME: works on 795b2195
 
     [test_generators.py]=1  # parse error. this portion works in uncompyle6
     [test_grammar.py]=1 # parse error. Works on an earlier version?
@@ -30,7 +28,7 @@ SKIP_TESTS=(
     [test_buffer.py]=1  # Test run errors; takes long time to decompile
 
     [test_clinic.py]=1 # it fails on its own
-    [test_cmath.py]=1 # parse error
+    [test_cmath.py]=1 # control-flow error
     [test_cmd_line.py]=1  # Interactive?
     [test_cmd_line_script.py]=1
     [test_compileall.py]=1 # fails on its own
@@ -60,7 +58,7 @@ SKIP_TESTS=(
 
     [test_gdb.py]=1 # it fails on its own
     [test_glob.py]=1  # TypeError: join() argument must be str or bytes, not 'tuple'
-    [test_grp.py]=1 # Runnint test doesn't terminate (killed)
+    [test_grp.py]=1 # Running test doesn't terminate (killed)
 
     [test_imaplib.py]=1  # test run loops before decompiling? More than 15 seconds to run
     [test_io.py]=1 # test takes too long to run: 37 seconds
@@ -106,7 +104,7 @@ SKIP_TESTS=(
     [test_socket.py]=1 # Takes too long to run before decompiling
     [test_ssl.py]=1 # Takes too long to run more than 15 seconds. Probably control flow; unintialized variable
     [test_startfile.py]=1 # it fails on its own
-    [test_strptime.py]=1 # parse error
+    [test_strptime.py]=1 # test check failure
     [test_strtod.py]=1 # test assertions failed
     [test_struct.py]=1 # probably control flow
     [test_subprocess.py]=1 # Takes too long to run before decompile: 25 seconds
@@ -123,14 +121,14 @@ SKIP_TESTS=(
     [test_tracemalloc.py]=1 # test assert failures
     [test_ttk_guionly.py]=1  # implementation specfic and test takes too long to run: 19 seconds
     [test_ttk_guionly.py]=1  # implementation specfic and test takes too long to run: 19 seconds
-    [test_typing.py]=1 # parse error
+    [test_typing.py]=1 # test errors
     [test_types.py]=1 # parse error
 
     [test_unicode.py]=1 # unicode thing
     [test_urllibnet.py]=1 # probably control flow - uninitialized variable
 
     [test_weakref.py]=1 # probably control flow - uninitialized variable
-    [test_with.py]=1 # probably control flow - uninitialized variable
+    [test_with.py]=1 # test errors
 
     [test_winconsoleio.py]=1 # it fails on its own
     [test_winreg.py]=1 # it fails on its own

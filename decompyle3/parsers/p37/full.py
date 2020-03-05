@@ -75,6 +75,8 @@ class Python37Parser(Python37LambdaParser):
         c_stmt  ::= ifelsestmtc
 
         c_stmt  ::= c_try_except
+        c_stmt  ::= c_try_except36
+
         c_stmt  ::= stmt
 
         c_stmts_opt ::= c_stmts
@@ -462,6 +464,7 @@ class Python37Parser(Python37LambdaParser):
         c_try_except ::= SETUP_EXCEPT c_suite_stmts_opt POP_BLOCK
                          c_except_handler
                          jump_excepts come_from_except_clauses
+
         try_except   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                          except_handler
                          jump_excepts come_from_except_clauses
@@ -681,24 +684,26 @@ class Python37Parser(Python37LambdaParser):
 
         cf_jump_back ::= COME_FROM JUMP_BACK
 
-        # FIXME: this feels like a hack. Is it just 1 or two
-        # COME_FROMs?  the parsed tree for this and even with just the
-        # one COME_FROM for Python 2.7 seems to associate the
-        # COME_FROM targets from the wrong places
-
         # This is nested inside a try_except
         tryfinallystmt ::= SETUP_FINALLY suite_stmts_opt
                            POP_BLOCK LOAD_CONST
                            COME_FROM_FINALLY suite_stmts_opt END_FINALLY
 
         # This a funny kind of try finally inside a try_except in a loop
-        c_except_suite ::= SETUP_FINALLY c_suite_stmts
-                           POP_BLOCK LOAD_CONST
-                           COME_FROM_FINALLY LOAD_CONST STORE_FAST DELETE_FAST
-                           END_FINALLY
-                           POP_EXCEPT JUMP_BACK COME_FROM
+        c_except_suite     ::= SETUP_FINALLY c_suite_stmts
+                               POP_BLOCK LOAD_CONST
+                               COME_FROM_FINALLY LOAD_CONST STORE_FAST DELETE_FAST
+                               END_FINALLY
+                               POP_EXCEPT JUMP_BACK COME_FROM
 
-        c_except_suite  ::= except_suite
+        c_except_suite     ::= except_suite
+        c_except_suite     ::= c_stmts POP_EXCEPT JUMP_BACK
+        c_except_handler36 ::= COME_FROM_EXCEPT c_except_stmts END_FINALLY
+        c_try_except36     ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                               c_except_handler36 come_from_opt
+        c_try_except36     ::= SETUP_EXCEPT returns
+                               c_except_handler36 come_from_opt
+
 
         except_handler ::= jmp_abs COME_FROM except_stmts
                            _come_froms END_FINALLY
