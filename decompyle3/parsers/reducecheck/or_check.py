@@ -25,9 +25,15 @@ def or_check(
     self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
 ) -> bool:
 
-    if rule == ("or", ("expr_pjit", "expr")):
+    expr_pjit = ast[0]
+    if expr_pjit in ("expr_pjit", "or_parts"):
 
-        jump = ast[0][1]
+        if expr_pjit == "or_parts":
+            expr_pjit = expr_pjit[0]
+        if expr_pjit != "expr_pjit":
+            return False
+
+        jump = expr_pjit[1]
 
         # See FIXME: above
         if tokens[last] in NOT_POP_FOLLOW_OPS or tokens[last-1] in NOT_POP_FOLLOW_OPS:
@@ -44,7 +50,7 @@ def or_check(
             return True
 
         first_offset = tokens[first].off2int()
-        jump_if_true_target = ast[1].attr
+        jump_if_true_target = expr_pjit[1].attr
         if jump_if_true_target < first_offset:
             return False
 

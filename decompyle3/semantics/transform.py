@@ -121,7 +121,7 @@ class TreeTransform(GenericASTTraversal, object):
                 return node
             stmts = ifstmts_jump[0]
         else:
-            # iflaststmtc works this way
+            # iflaststmt{c,} works this way
             stmts = node[1]
 
         if stmts in ("c_stmts", "stmts", "stmts_opt") and len(stmts) == 1:
@@ -223,7 +223,7 @@ class TreeTransform(GenericASTTraversal, object):
             pass
         return node
 
-    n_ifstmtc = n_iflaststmtc = n_ifstmt
+    n_ifstmtc = n_iflaststmtc = n_iflaststmt = n_ifstmt
 
     # preprocess is used for handling chains of
     # if elif elif
