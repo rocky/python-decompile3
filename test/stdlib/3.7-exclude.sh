@@ -2,12 +2,9 @@ SKIP_TESTS=(
     [test_format.py]=1 # FIXME: works in master? 795b2195? test check failures
     [test_httpservers.py]=1 # FIXME: works in master? 795b2195? test check failures
     [test_platform.py]=1 # FIXME: works in master? 795b2195? test check failures
-    [test_pulldom.py]=1 # FIXME: works in master? 795b2195? test check failures
     [test_site.py]=1 # FIXME: works in master? 795b2195? test check failures
-    [test_set.py]=1 # FIXME: works in master? 795b2195? test check failures
     [test_sort.py]=1 # FIXME: works in master? 795b2195? test check failures
     [test_statistics.py]=1 # FIXME: works in master? 795b2195? test check failures
-    [test_weakset.py]=1 # FIXME: works in master? 795b2195? test check failures
 
     [test_builtin.py]=1   # FIXME raise left.right is None or AssertionError works in master
     [test_posix.py]=1  # FIXME works in master

@@ -16,6 +16,7 @@ from decompyle3.parsers.reducecheck import (
     ifstmt,
     ifstmts_jump,
     lastc_stmt,
+    not_or_check,
     or_check,
     testtrue,
     c_tryelsestmt,
@@ -1089,6 +1090,7 @@ class Python37BaseParser(PythonParser):
             "ifstmt": ifstmt,
             "ifstmtc": ifstmt,
             "lastc_stmt": lastc_stmt,
+            "not_or": not_or_check,
             "or": or_check,
             "testtrue": testtrue,
             "testfalsec": testtrue,
@@ -1100,12 +1102,12 @@ class Python37BaseParser(PythonParser):
 
         self.check_reduce["and"] = "AST"
         self.check_reduce["and_not"] = "AST"
-        self.check_reduce["annotate_tuple"] = "noAST"
+        self.check_reduce["annotate_tuple"] = "tokens"
         self.check_reduce["aug_assign1"] = "AST"
         self.check_reduce["aug_assign2"] = "AST"
-        self.check_reduce["whilestmt"] = "noAST"
-        self.check_reduce["while1stmt"] = "noAST"
-        self.check_reduce["while1elsestmt"] = "noAST"
+        self.check_reduce["whilestmt"] = "tokens"
+        self.check_reduce["while1stmt"] = "tokens"
+        self.check_reduce["while1elsestmt"] = "tokens"
         self.check_reduce["ifstmts_jump"] = "AST"
         self.check_reduce["ifstmts_jumpc"] = "AST"
         self.check_reduce["ifelsestmt"] = "AST"
@@ -1117,6 +1119,7 @@ class Python37BaseParser(PythonParser):
         self.check_reduce["ifstmtc"] = "AST"
         self.check_reduce["import_from37"] = "AST"
         self.check_reduce["lastc_stmt"] = "tokens"
+        self.check_reduce["not_or"] = "tokens"
         self.check_reduce["or"] = "AST"
         self.check_reduce["testtrue"] = "tokens"
         self.check_reduce["testfalsec"] = "tokens"
