@@ -1119,7 +1119,7 @@ class Python37BaseParser(PythonParser):
         self.check_reduce["ifstmtc"] = "AST"
         self.check_reduce["import_from37"] = "AST"
         self.check_reduce["lastc_stmt"] = "tokens"
-        self.check_reduce["not_or"] = "tokens"
+        self.check_reduce["not_or"] = "AST"
         self.check_reduce["or"] = "AST"
         self.check_reduce["testtrue"] = "tokens"
         self.check_reduce["testfalsec"] = "tokens"

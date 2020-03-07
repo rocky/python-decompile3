@@ -1,6 +1,5 @@
 SKIP_TESTS=(
     [test_format.py]=1 # FIXME: works in master? 795b2195? test check failures
-    [test_httpservers.py]=1 # FIXME: works in master? 795b2195? test check failures
     [test_platform.py]=1 # FIXME: works in master? 795b2195? test check failures
     [test_site.py]=1 # FIXME: works in master? 795b2195? test check failures
     [test_sort.py]=1 # FIXME: works in master? 795b2195? test check failures
