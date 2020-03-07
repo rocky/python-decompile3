@@ -18,6 +18,7 @@ from decompyle3.parsers.reducecheck import (
     lastc_stmt,
     not_or_check,
     or_check,
+    or_cond_check,
     testtrue,
     c_tryelsestmt,
     whilestmt,
@@ -1092,6 +1093,7 @@ class Python37BaseParser(PythonParser):
             "lastc_stmt": lastc_stmt,
             "not_or": not_or_check,
             "or": or_check,
+            "or_cond": or_cond_check,
             "testtrue": testtrue,
             "testfalsec": testtrue,
             "while1elsestmt": while1elsestmt,
@@ -1121,6 +1123,7 @@ class Python37BaseParser(PythonParser):
         self.check_reduce["lastc_stmt"] = "tokens"
         self.check_reduce["not_or"] = "AST"
         self.check_reduce["or"] = "AST"
+        self.check_reduce["or_cond"] = "tokens"
         self.check_reduce["testtrue"] = "tokens"
         self.check_reduce["testfalsec"] = "tokens"
         return

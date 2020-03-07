@@ -5,9 +5,7 @@ SKIP_TESTS=(
     [test_sort.py]=1 # FIXME: works in master? 795b2195? test check failures
     [test_statistics.py]=1 # FIXME: works in master? 795b2195? test check failures
 
-    [test_builtin.py]=1   # FIXME raise left.right is None or AssertionError works in master
     [test_posix.py]=1  # FIXME works in master
-    [test_sys_setprofile.py]=1  # FIXME works in master
 
     [test_queue.py]=1  # FIXME: test check failures works on 795b2195 (which is recent)
 
