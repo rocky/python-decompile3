@@ -201,8 +201,14 @@ def customize_for_version37(self, version):
 
             "or_cond": (
                 "%c or %c",
-                (0, "or_parts"),
+                (0, ("or_parts", "and")),
                 (1, "expr_pjif"),
+            ),
+
+            "or_cond1": (
+                "%c or %c",
+                (0, ("or_parts", "and")),
+                (-2, "expr_pjif"),
             ),
 
             "and_or_cond": (
@@ -214,6 +220,10 @@ def customize_for_version37(self, version):
 
             "list_if37": (" if %p%c", (0, 27), 1),
             "list_if37_not": (" if not %p%c", (0, 27), 1),
+            "not": (
+                "not %p",
+                (0, "expr_pjit", PRECEDENCE["not"]),
+            ),
             "not_or": (
                 "not %p or %c",
                 (0, "and_parts", PRECEDENCE["and"]-1),

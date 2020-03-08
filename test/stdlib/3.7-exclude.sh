@@ -5,8 +5,6 @@ SKIP_TESTS=(
     [test_sort.py]=1 # FIXME: works in master? 795b2195? test check failures
     [test_statistics.py]=1 # FIXME: works in master? 795b2195? test check failures
 
-    [test_posix.py]=1  # FIXME works in master
-
     [test_queue.py]=1  # FIXME: test check failures works on 795b2195 (which is recent)
 
     [test_generators.py]=1  # parse error. this portion works in uncompyle6

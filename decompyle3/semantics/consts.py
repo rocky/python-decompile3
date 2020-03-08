@@ -60,6 +60,7 @@ PRECEDENCE = {
     "ret_or":                 26,
 
     "and":                    24, # Boolean AND
+    "not":                    22, # Boolean NOT
     "compare":                20, # in, not in, is, is not, <, <=, >, >=, !=, ==
     "ret_and":                24,
     "unary_not":              22, # Boolean NOT
@@ -290,7 +291,7 @@ TABLE_DIRECT = {
     "designList":	    ( "%c = %c", 0, -1 ),
     "and":          	(
         "%c and %c",
-        (0,  ("and_parts", "expr", "expr_pjif", "expr_jifop_cfs")),
+        (0,  ("and_parts", "expr", "expr_pjif", "expr_jifop_cfs", "not")),
         (1,  ("expr", "expr_pjif", "expr_jifop_cfs"))
     ),
     "ret_and":        	( "%c and %c", 0, 2 ),

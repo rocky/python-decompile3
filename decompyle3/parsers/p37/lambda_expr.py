@@ -53,10 +53,12 @@ class Python37LambdaParser(Python37BaseParser):
         opt_lambda_marker  ::= LAMBDA_MARKER?
         """
 
-    def p_and_or(self, args):
+    def p_and_or_not(self, args):
         """
         # Note: reduction-rule checks are needed for many of the below;
         # the rules in of themselves are not sufficient.
+
+        not        ::= expr_pjit
 
         and_parts  ::= expr_pjif+
 
@@ -64,14 +66,18 @@ class Python37LambdaParser(Python37BaseParser):
         #       "nand" and "or", in contrast, *must* have at least one "come_from".
         not_or     ::= and_parts expr_pjif _come_froms
         and_3      ::= and_parts expr_pjif _come_froms
+
         and        ::= and_parts expr
+        and        ::= not expr
+
         nand       ::= and_parts expr_pjit  come_froms
 
         or_parts  ::= expr_pjit+
 
         # Note: "nor" like "and" might not have a trailing "come_from".
-        #       "nand" and "or", in contrast, *must* have at least one "come_from".
+        #       "nand" and "or_cond", in contrast, *must* have at least one "come_from".
         or_cond     ::= or_parts expr_pjif come_froms
+        or_cond1    ::= and POP_JUMP_IF_TRUE come_froms expr_pjif come_from_opt
         nor_cond    ::= or_parts expr_pjit
 
         # When we alternating and/or's such as:
@@ -215,6 +221,7 @@ class Python37LambdaParser(Python37BaseParser):
         expr ::= subscript2
         expr ::= unary_not
         expr ::= unary_op
+        expr ::= not
         expr ::= yield
         expr ::= attribute37
 
@@ -238,6 +245,7 @@ class Python37LambdaParser(Python37BaseParser):
 
         # unary_op (formerly "unary_expr") is the Python AST UnaryOp
         unary_op          ::= expr unary_operator
+
         unary_operator    ::= UNARY_POSITIVE
         unary_operator    ::= UNARY_NEGATIVE
         unary_operator    ::= UNARY_INVERT
@@ -265,6 +273,7 @@ class Python37LambdaParser(Python37BaseParser):
         """
         expr                       ::= if_exp37
         bool_op                    ::= and_3
+        bool_op                    ::= and POP_JUMP_IF_TRUE expr
 
         expr_pjif                  ::= expr POP_JUMP_IF_FALSE
         expr_pjit                  ::= expr POP_JUMP_IF_TRUE

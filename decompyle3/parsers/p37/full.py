@@ -135,7 +135,6 @@ class Python37Parser(Python37LambdaParser):
         stmt ::= if_or_stmt
         stmt ::= if_and_stmt
         stmt ::= ifelsestmt
-        stmt ::= if_or_elsestmt
         stmt ::= if_or_not_elsestmt
 
         stmt ::= whilestmt
@@ -612,9 +611,6 @@ class Python37Parser(Python37LambdaParser):
         if_and_elsestmtc    ::= expr POP_JUMP_IF_FALSE
                                 expr POP_JUMP_IF_FALSE
                                 c_stmts jb_cfs else_suitec opt_come_from_except
-        if_or_elsestmt      ::= expr POP_JUMP_IF_TRUE
-                                come_from_opt expr POP_JUMP_IF_FALSE come_froms
-                                stmts jf_cfs else_suite opt_come_from_except
         if_or_not_elsestmt  ::= expr POP_JUMP_IF_TRUE
                                 come_from_opt expr POP_JUMP_IF_TRUE come_froms
                                 stmts jf_cfs else_suite opt_come_from_except
@@ -635,6 +631,7 @@ class Python37Parser(Python37LambdaParser):
         testfalse  ::= not_or
         testfalse  ::= compare_chained37_false
         testfalse  ::= or_cond
+        testfalse  ::= or_cond1
         testfalse  ::= and_or_cond
 
         ifstmts_jump ::= return_if_stmts
