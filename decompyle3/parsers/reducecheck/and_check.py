@@ -23,6 +23,13 @@ def and_check(
     self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
 ) -> bool:
 
+    # a LOAD_ASSERT is not an expression and not part of an "and"
+    # FIXME: the below really should have been done in the ingest
+    # phase.
+    ltm1 = tokens[last-1]
+    if ltm1 == "LOAD_GLOBAL" and ltm1.attr == "AssertionError":
+        return True
+
     expr_pjif = ast[0]
     if expr_pjif == "expr_pjif":
         jump = expr_pjif[1]

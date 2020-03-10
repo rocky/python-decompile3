@@ -13,6 +13,12 @@ def ifstmt(
     #             return True
     #     pass
 
+    # Test that the outermost COME_FROM, if it exists, must be *somewhere*
+    # in the range of the if stmt.
+    ltm1 = tokens[last-1]
+    if ltm1 == "COME_FROM" and ltm1.attr < tokens[first].off2int():
+        return True
+
     # Make sure jumps don't extend beyond the end of the if statement.
     last_offset = tokens[last].off2int()
     for i in range(first, last):
