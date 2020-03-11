@@ -58,6 +58,13 @@ class Python37LambdaParser(Python37BaseParser):
         # Note: reduction-rule checks are needed for many of the below;
         # the rules in of themselves are not sufficient.
 
+        # Nonterminals that end in "_cond" are used in "conditions":
+        # used for testing in control structures where the test is important and
+        # the value popped. Conditions also generally have non-local COME_FROMs
+        # that often need to be checked in the control structure. This is for example
+        # how we determine the difference between some "if not (not a or b) versus
+        # "if a and b".
+
         not        ::= expr_pjit
 
         and_parts  ::= expr_pjif+
@@ -65,7 +72,7 @@ class Python37LambdaParser(Python37BaseParser):
         # Note: "and" like "nor" might not have a trailing "come_from".
         #       "nand" and "or", in contrast, *must* have at least one "come_from".
         not_or     ::= and_parts expr_pjif _come_froms
-        and_3      ::= and_parts expr_pjif _come_froms
+        and_cond   ::= and_parts expr_pjif _come_froms
 
         and        ::= and_parts expr
         and        ::= not expr
@@ -272,7 +279,7 @@ class Python37LambdaParser(Python37BaseParser):
     def p_37conditionals(self, args):
         """
         expr                       ::= if_exp37
-        bool_op                    ::= and_3
+        bool_op                    ::= and_cond
         bool_op                    ::= and POP_JUMP_IF_TRUE expr
 
         expr_pjif                  ::= expr POP_JUMP_IF_FALSE
