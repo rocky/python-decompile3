@@ -242,7 +242,6 @@ def customize_for_version37(self, version):
                 "%c or %c", (0, "or_parts", "expr_pjit"), (1, "expr_pjit"),
             ),
 
-            "testfalse_not_and": ("not (%c)", 0),
             "testfalsec": ("not %c", (0, "expr")),
             "try_except36": ("%|try:\n%+%c%-%c\n\n", 1, -2),
             "c_try_except36": ("%|try:\n%+%c%-%c\n\n", 1, 2),

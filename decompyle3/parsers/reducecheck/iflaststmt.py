@@ -12,6 +12,9 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from decompyle3.scanners.tok import Token
+
+
 def iflaststmt(
     self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
 ) -> bool:
@@ -30,11 +33,11 @@ def iflaststmt(
         # through to it.
         stmt_offset = ast[1].first_child().off2int(prefer_last=False)
         inst_offset = self.offset2inst_index[stmt_offset]
-        testexpr_last_inst = self.insts[inst_offset-1]
+        testexpr_last_inst = self.insts[inst_offset - 1]
         if testexpr_last_inst.optype == "jabs":
             target_offset = testexpr_last_inst.argval
             last_offset = tokens[last].off2int(prefer_last=False)
-            if  target_offset != last_offset:
+            if target_offset != last_offset:
                 if target_offset < last_offset:
                     return True
                 # There is still this weird case:
@@ -58,18 +61,39 @@ def iflaststmt(
 
     if testexpr[0] in ("testtrue", "testtruec", "testfalse", "testfalsec"):
 
-        test = testexpr[0]
-        test_len = len(test)
-        if test_len == 1 and test[0] in ("nand", "and") and rule[1] == ('testexpr', 'stmts'):
+        if_condition = testexpr[0]
+        if_condition_len = len(if_condition)
+        if_bool = if_condition[0]
+        if (
+            if_condition_len == 1
+            and if_bool in ("nand", "and")
+            and rule[1] == ("testexpr", "stmts")
+        ):
             # (n)and rules have precedence
             return True
+        elif if_bool == "not_or":
+            then_end = if_bool[-1]
+            if isinstance(then_end, Token):
+                then_end_come_from = then_end
+            else:
+                then_end_come_from = if_bool[-2].last_child()
 
-        if test_len > 1 and test[1].kind.startswith("POP_JUMP_IF_"):
+            # If there jump location is right after then end of this rule, then we have
+            # an "and", not a "not_or"
+
+            if (
+                then_end_come_from == "POP_JUMP_IF_FALSE"
+                and then_end_come_from.attr == tokens[last].off2int()
+            ):
+                return True
+            pass
+
+        if if_condition_len > 1 and if_condition[1].kind.startswith("POP_JUMP_IF_"):
             if last == n:
                 last -= 1
-            jump_target = test[1].attr
+            jump_target = if_condition[1].attr
             first_offset = tokens[first].off2int()
-            if  first_offset <= jump_target < tokens[last].off2int():
+            if first_offset <= jump_target < tokens[last].off2int():
                 return True
             # jump_target less than tokens[first] is okay - is to a loop
             # jump_target equal tokens[last] is also okay: normal non-optimized non-loop jump
@@ -82,7 +106,10 @@ def iflaststmt(
                         # No good. This is probably an if/else instead.
                         return True
                     pass
-                elif tokens[last + 1] == "COME_FROM_LOOP" and tokens[last] != "BREAK_LOOP":
+                elif (
+                    tokens[last + 1] == "COME_FROM_LOOP"
+                    and tokens[last] != "BREAK_LOOP"
+                ):
                     # iflastsmtc is not at the end of a loop, but jumped outside of loop. No good.
                     # FIXME: check that tokens[last] == "POP_BLOCK"? Or allow for it not to appear?
                     return True

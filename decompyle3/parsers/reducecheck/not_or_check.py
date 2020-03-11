@@ -15,12 +15,10 @@ def not_or_check(
 
     # The difference is whether the POP_JUMPs go to the same place or not.
 
-
     expr_pjif = ast[0]
 
     end_token = tokens[last-1]
     if end_token == "POP_JUMP_IF_FALSE":
-        # If test jump is a backwards then, we have an "and", not a "not or".
 
         while expr_pjif == "and_parts":
             expr_pjif = expr_pjif[0]
@@ -29,17 +27,19 @@ def not_or_check(
         if expr_pjif[-1].attr != end_token.attr:
             return True
 
-        # More "and" in a condtion vs "not or":
+        # More "and" in a condition vs. "not or":
         # Intuitively it has to do with where we go with the "and" or
         # "not or". Right now if there are loop jumps involved
         # we are saying this is "and", but this empirical and not on
         # solid ground.
+
+        # If test jump is a backwards then, we have an "and", not a "not or".
         first_offset = tokens[first].off2int()
         if end_token.attr < first_offset:
             return True
-        # Similarly if the test jump goes after a backwards jump it is an "and".
+        # Similarly if the test jump goes to another jump it is (probably?) an "and".
         jump_target_inst_index = self.offset2inst_index[end_token.attr]
         inst = self.insts[jump_target_inst_index-1]
-        return inst.optype == "jabs" and inst.arg < first_offset
+        return inst.optype in ("jabs", "jrel")
         pass
     return False

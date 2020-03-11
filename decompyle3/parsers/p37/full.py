@@ -662,6 +662,9 @@ class Python37Parser(Python37LambdaParser):
                           stmts_opt jf_cfs else_suite opt_come_from_except
         ifelsestmt    ::= testexpr stmts_opt JUMP_FORWARD
                           else_suite opt_come_from_except
+        ifelsestmt    ::= bool_op
+                          stmts_opt jf_cfs else_suite opt_come_from_except
+
 
         ifelsestmtc ::= testexpr
                         c_stmts_opt jump_forward_else

@@ -102,22 +102,15 @@ def ifelsestmt(
     if (last + 1) < n and tokens[last + 1] == "COME_FROM_LOOP":
         # ifelsestmt jumped outside of loop. No good.
         return True
-    # print("XXX", first, last, rule)
-    # if (first, last) == (6, 23):
-    #     for t in range(first, last): print(tokens[t])
-    #     print("="*40)
-    #     from trepan.api import debug; debug()
 
-    # if lhs == "ifelsestmtc":
-    #     print("XXX", first, last, rule)
-    #     for t in range(first, last):
-    #         print(tokens[t])
-    #     print("=" * 40)
-    #     if (first, last) == (4, 47):
-    #         from trepan.api import debug; debug()
+    # print("XXX", first, last, rule)
+    # for t in range(first, last): print(tokens[t])
+    # print("="*40)
 
     if rule not in IFELSE_STMT_RULES:
         return False
+
+    first_offset = tokens[first].off2int()
 
     # Make sure all the offsets from the "come froms" at the
     # end of the "if" come from somewhere inside the "if".
@@ -129,24 +122,48 @@ def ifelsestmt(
         if end_come_froms == "opt_come_from_except" and len(end_come_froms) > 0:
             end_come_froms = end_come_froms[0]
         if not isinstance(end_come_froms, Token):
-            if len(end_come_froms) and tokens[first].offset > end_come_froms[-1].attr:
+            if len(end_come_froms) and first_offset > end_come_froms[-1].attr:
                 return True
-        elif tokens[first].offset > end_come_froms.attr:
+        elif first_offset > end_come_froms.attr:
             return True
 
     testexpr = ast[0]
 
     # Check that the condition portion of the "if"
     # jumps to the "else" part.
-    if testexpr[0] in ("testtrue", "testfalse"):
-        if_condition = testexpr[0]
+    if_condition = testexpr[0]
+    if if_condition in ("testtrue", "testfalse"):
 
+        then_end = ast[2]
         else_suite = ast[3]
         assert else_suite in ("else_suite", "else_suitec")
 
-        if else_suite == "else_suitec" and ast[2] in ("jb_elsec", "jb_cfs", "jump_forward_else"):
+        # We may need this laster:
+
+        # not_or = if_condition[0]
+        # if not_or == "not_or":
+        #     # "if not_or" needs special attention to distinguish it from "if and".
+        #     # If the jump is to the beginning of the "else" part, this is an "and".
+        #     not_or_jump_expr = not_or[-1]
+        #     if not_or_jump_expr == "_come_froms":
+        #         not_or_jump_expr = not_or[-2]
+        #     not_or_jump_offset = not_or_jump_expr.last_child().attr
+        #     if not_or_jump_offset == else_suite.first_child().offset:
+        #         return True
+
+        # If there is a COME_FROM at the end, it (the outermost COME_FROM) needs to come
+        # from within the "if-then" part
+        if isinstance(then_end, Token):
+            then_end_come_from = then_end
+        else:
+            then_end_come_from = then_end.last_child()
+
+        if  then_end_come_from == "COME_FROM" and then_end_come_from.attr < first_offset:
+            return True
+
+        if else_suite == "else_suitec" and then_end in ("jb_elsec", "jb_cfs", "jump_forward_else"):
             stmts = ast[1]
-            jb_else = ast[2]
+            jb_else = then_end
             come_from = jb_else[-1]
             if come_from in ("come_froms", "_come_froms") and len(come_from):
                 come_from = come_from[-1]
@@ -205,7 +222,7 @@ def ifelsestmt(
                 if jump_else_end[-1].off2int() != jump_target:
                     return True
 
-            if tokens[first].off2int() > jump_target:
+            if first_offset > jump_target:
                 return True
 
             return (jump_target > last_offset) and tokens[last] != "JUMP_FORWARD"
