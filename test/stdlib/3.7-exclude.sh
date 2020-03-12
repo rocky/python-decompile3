@@ -1,6 +1,6 @@
 SKIP_TESTS=(
     [test_finalization.py]=1 # FIXME: parse error works in a810b68e ?
-    [test_c_strftime.py]=1 # FIXME: parse error works in a810b68e ?
+    [test_strftime.py]=1 # FIXME: parse error works in a810b68e ?
 
     [test_format.py]=1 # FIXME: works in master? 795b2195? test check failures
 
