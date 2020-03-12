@@ -26,8 +26,8 @@ def and_check(
     # a LOAD_ASSERT is not an expression and not part of an "and"
     # FIXME: the below really should have been done in the ingest
     # phase.
-    ltm1 = tokens[last-1]
-    if ltm1 == "LOAD_GLOBAL" and ltm1.attr == "AssertionError":
+    ltm1 = tokens[last - 1]
+    if ltm1 == "LOAD_ASSERT" or (ltm1 == "LOAD_GLOBAL" and ltm1.attr == "AssertionError"):
         return True
 
     expr_pjif = ast[0]
@@ -67,10 +67,10 @@ def and_check(
         elif rule == ("and", ("expr_pjif", "expr", "COME_FROM")):
             return ast[-1].attr != jump_offset
         elif (
-                rule == ("and", ("and_parts", "expr"))
-                and jump_target > tokens[last].off2int()
-                and tokens[last].kind.startswith("JUMP_IF_")
-                and jump_target < tokens[last].attr
+            rule == ("and", ("and_parts", "expr"))
+            and jump_target > tokens[last].off2int()
+            and tokens[last].kind.startswith("JUMP_IF_")
+            and jump_target < tokens[last].attr
         ):
             # This could be an "(i and j) or k"
             # or:

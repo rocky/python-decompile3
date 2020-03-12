@@ -1,5 +1,4 @@
 SKIP_TESTS=(
-    [test_finalization.py]=1 # FIXME: parse error works in a810b68e ?
     [test_strftime.py]=1 # FIXME: parse error works in a810b68e ?
 
     [test_format.py]=1 # FIXME: works in master? 795b2195? test check failures
@@ -11,7 +10,6 @@ SKIP_TESTS=(
     [test_httplib.py]=1 # test runs. kills after 15 seconds. works on f7e2064e
     [test_urllib2.py]=1 # Test errors. control flow: works on f7e2064e
 
-    [test_capi.py]=1 # test check failures
     [test_contextlib.py]=1 # test check failures
     [test_contextlib_async.py]=1 # test check failures
     [test_filecmp.py]=1 # test check failures
