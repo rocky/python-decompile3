@@ -39,7 +39,7 @@ def test_single_mode() -> None:
 
     for expr in expressions:
         try:
-            deparsed = run_deparse(expr, compile_mode="single")
+            deparsed = run_deparse(expr, compile_mode="single", debug=False)
         except:
             assert False, expr
             continue

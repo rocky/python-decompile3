@@ -825,9 +825,9 @@ class Scanner37Base(Scanner):
             target = inst.argval
             self.fixed_jumps[offset] = target
 
-        # # FIXME: consider removing the test on 3.8.
-        # elif self.version >= 3.8 and inst.optype in ("jabs", "jrel"):
-        #     self.fixed_jumps[offset] = inst.argval
+        # FIXME: consider removing the test on 3.8.
+        elif self.version >= 3.8 and inst.optype in ("jabs", "jrel"):
+            self.fixed_jumps[offset] = inst.argval
 
         elif self.version < 3.8 and op == self.opc.SETUP_EXCEPT:
             target = self.get_target(offset)

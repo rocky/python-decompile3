@@ -1,13 +1,12 @@
 SKIP_TESTS=(
     [test_c_locale_coercion.py]=1 # FIXME: parse error works in a810b68e
-    [test_c_finalization.py]=1 # FIXME: works in a810b68e ?
+    [test_finalization.py]=1 # FIXME: works in a810b68e ?
 
     [test_format.py]=1 # FIXME: works in master? 795b2195? test check failures
     [test_httpservers.py]=1 # FIXME: works in master? 795b2195? test check failures
     [test_pulldom.py]=1 # FIXME: works in master? 795b2195? test check failures
 
     [test_shlex.py]=1 # FIXME: "or" is getting generatated in a "for" instead of "if"
-    [test_asyncore.py]=1 # FIXME: "break" outside of loop
     [test_nis.py]=1 # FIXME: works on ac5594b0; probably a "for38" reduction check
     [test_urllib2net.py]=1 # FIXME: works on ac5594b0; probably a "for38" reduction checkss
     [test__xxsubinterpreters.py]=1 # FIXME: works on ac5594b0; probably a "for38" reduction checks

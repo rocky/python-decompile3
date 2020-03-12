@@ -152,14 +152,14 @@ class Python37Parser(Python37LambdaParser):
 
         for_iter       ::= _come_froms FOR_ITER
         dict_comp_func ::= BUILD_MAP_0 LOAD_FAST for_iter store
-                           comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
+                           comp_iter JUMP_BACK _come_froms RETURN_VALUE RETURN_LAST
 
         stmt ::= set_comp_func
         set_comp_func ::= BUILD_SET_0 LOAD_FAST for_iter store comp_iter
-                          JUMP_BACK RETURN_VALUE RETURN_LAST
+                          JUMP_BACK _come_froms RETURN_VALUE RETURN_LAST
 
         set_comp_func ::= BUILD_SET_0 LOAD_FAST for_iter store comp_iter
-                          COME_FROM JUMP_BACK RETURN_VALUE RETURN_LAST
+                          COME_FROM JUMP_BACK _come_froms RETURN_VALUE RETURN_LAST
 
         # last_stmt is a Python statement for which
         # end is a "return" or raise statement and
@@ -184,7 +184,8 @@ class Python37Parser(Python37LambdaParser):
         returns ::= _stmts return
 
         stmt ::= genexpr_func
-        genexpr_func ::= LOAD_FAST _come_froms FOR_ITER store comp_iter JUMP_BACK
+        genexpr_func ::= LOAD_FAST _come_froms FOR_ITER store comp_iter
+                         JUMP_BACK _come_froms
         """
         pass
 
@@ -412,7 +413,7 @@ class Python37Parser(Python37LambdaParser):
         list_iter ::= lc_body
 
         lc_body   ::= expr LIST_APPEND
-        list_for  ::= expr for_iter store list_iter jb_or_c
+        list_for  ::= expr for_iter store list_iter jb_or_c _come_froms
         list_comp ::= BUILD_LIST_0 list_iter
 
         list_if     ::= expr POP_JUMP_IF_FALSE  list_iter

@@ -150,6 +150,8 @@ class Python37LambdaParser(Python37BaseParser):
         """
         jump               ::= JUMP_FORWARD
         jump               ::= JUMP_BACK
+        jf_or_break        ::= JUMP_FORWARD
+        jf_or_break        ::= BREAK_LOOP
 
         # These are used to keep parse tree indices the same
         # in "if"/"else" like rules.
@@ -202,8 +204,8 @@ class Python37LambdaParser(Python37BaseParser):
         compare_chained2a_37       ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_TRUE JUMP_BACK
         compare_chained2a_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE jf_cfs
 
-        compare_chained2b_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE JUMP_FORWARD COME_FROM
-        compare_chained2b_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE JUMP_FORWARD
+        compare_chained2b_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE jf_or_break COME_FROM
+        compare_chained2b_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE jf_or_break
 
         compare_chained2c_37       ::= expr DUP_TOP ROT_THREE COMPARE_OP come_from_opt POP_JUMP_IF_FALSE
                                        compare_chained2a_false_37
@@ -318,8 +320,8 @@ class Python37LambdaParser(Python37BaseParser):
         # one may be a continue - sometimes classifies a JUMP_BACK
         # as a CONTINUE. The two are kind of the same in a comprehension.
 
-        comp_for       ::= expr get_for_iter store comp_iter CONTINUE
-        comp_for       ::= expr get_for_iter store comp_iter JUMP_BACK
+        comp_for       ::= expr get_for_iter store comp_iter CONTINUE _come_froms
+        comp_for       ::= expr get_for_iter store comp_iter JUMP_BACK _come_froms
         get_for_iter   ::= GET_ITER _come_froms FOR_ITER
 
         comp_body      ::= dict_comp_body

@@ -92,30 +92,20 @@ class Python38FullParser(Python37Parser, Python38LambdaParser):
         stmt               ::= except_ret38a
 
         # FIXME: this should be added only when seeing GET_AITER or YIELD_FROM
-        async_for_stmt38   ::= expr
-                               GET_AITER
-                               SETUP_FINALLY
-                               GET_ANEXT
-                               LOAD_CONST
-                               YIELD_FROM
-                               POP_BLOCK
+        async_for          ::= GET_AITER _come_froms
+                               SETUP_FINALLY GET_ANEXT LOAD_CONST YIELD_FROM POP_BLOCK
+        async_for_stmt38   ::= expr async_for
                                store for_block
                                COME_FROM_FINALLY
                                END_ASYNC_FOR
 
         # FIXME: come froms after the else_suite or END_ASYNC_FOR distinguish which of
         # for / forelse is used. Add come froms and check of add up control-flow detection phase.
-        async_forelse_stmt38 ::= expr
-                               GET_AITER
-                               SETUP_FINALLY
-                               GET_ANEXT
-                               LOAD_CONST
-                               YIELD_FROM
-                               POP_BLOCK
-                               store for_block
-                               COME_FROM_FINALLY
-                               END_ASYNC_FOR
-                               else_suite
+        async_forelse_stmt38 ::= expr async_for
+                                store for_block
+                                COME_FROM_FINALLY
+                                END_ASYNC_FOR
+                                else_suite
 
         # Seems to be used to discard values before a return in a "for" loop
         discard_top        ::= ROT_TWO POP_TOP
@@ -135,17 +125,17 @@ class Python38FullParser(Python37Parser, Python38LambdaParser):
         except_stmt        ::= except_cond1a except_suite come_from_opt
 
         get_iter           ::= expr GET_ITER
-        for38              ::= expr get_iter store for_block JUMP_BACK
-        for38              ::= expr get_for_iter store for_block JUMP_BACK
-        for38              ::= expr get_for_iter store for_block JUMP_BACK POP_BLOCK
+        for38              ::= expr get_iter store for_block JUMP_BACK _come_froms
+        for38              ::= expr get_for_iter store for_block JUMP_BACK _come_froms
+        for38              ::= expr get_for_iter store for_block JUMP_BACK _come_froms POP_BLOCK
         for38              ::= expr get_for_iter store for_block
 
         forelsestmt38      ::= expr get_for_iter store for_block POP_BLOCK else_suite
-        forelsestmt38      ::= expr get_for_iter store for_block JUMP_BACK else_suite
+        forelsestmt38      ::= expr get_for_iter store for_block JUMP_BACK _come_froms else_suite
 
         c_stmt             ::= c_forelsestmt38
         c_forelsestmt38    ::= expr get_for_iter store for_block POP_BLOCK else_suitec
-        c_forelsestmt38    ::= expr get_for_iter store for_block JUMP_BACK else_suitec
+        c_forelsestmt38    ::= expr get_for_iter store for_block JUMP_BACK _come_froms else_suitec
 
         forelselaststmt38  ::= expr get_for_iter store for_block POP_BLOCK else_suitec
         forelselaststmtc38 ::= expr get_for_iter store for_block POP_BLOCK else_suitec
@@ -154,14 +144,14 @@ class Python38FullParser(Python37Parser, Python38LambdaParser):
         whilestmt38        ::= _come_froms testexpr c_stmts_opt JUMP_BACK POP_BLOCK
         whilestmt38        ::= _come_froms testexpr c_stmts_opt JUMP_BACK come_froms
         whilestmt38        ::= _come_froms testexpr returns               POP_BLOCK
-        whilestmt38        ::= _come_froms testexpr c_stmts     JUMP_BACK
+        whilestmt38        ::= _come_froms testexpr c_stmts     JUMP_BACK _come_froms
         whilestmt38        ::= _come_froms testexpr c_stmts     come_froms
 
         # while1elsestmt   ::=          c_stmts     JUMP_BACK
-        whileTruestmt      ::= _come_froms c_stmts              JUMP_BACK POP_BLOCK
+        whileTruestmt      ::= _come_froms c_stmts              JUMP_BACK _come_froms POP_BLOCK
         while1stmt         ::= _come_froms c_stmts COME_FROM_LOOP
         while1stmt         ::= _come_froms c_stmts COME_FROM JUMP_BACK COME_FROM_LOOP
-        whileTruestmt38    ::= _come_froms c_stmts JUMP_BACK
+        whileTruestmt38    ::= _come_froms c_stmts JUMP_BACK _come_froms
         whileTruestmt38    ::= _come_froms c_stmts JUMP_BACK COME_FROM_EXCEPT_CLAUSE
 
         for_block          ::= _come_froms c_stmts_opt come_from_loops JUMP_BACK
