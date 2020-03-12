@@ -1,5 +1,7 @@
 SKIP_TESTS=(
-    [test_strftime.py]=1 # FIXME: parse error works in a810b68e ?
+    [test_asynchat.py]=1 # FIXME: works in a795b2195 ?
+    [test_binascii.py]=1 # FIXME: too long to run in a795b2195 ?
+    [test_strftime.py]=1 # FIXME: parse error works in 795b2195 ?
 
     [test_format.py]=1 # FIXME: works in master? 795b2195? test check failures
 
@@ -10,8 +12,6 @@ SKIP_TESTS=(
     [test_httplib.py]=1 # test runs. kills after 15 seconds. works on f7e2064e
     [test_urllib2.py]=1 # Test errors. control flow: works on f7e2064e
 
-    [test_contextlib.py]=1 # test check failures
-    [test_contextlib_async.py]=1 # test check failures
     [test_filecmp.py]=1 # test check failures
     [test_gzip.py]=1 # test_gzip.py takes more than 15 seconds for test to run
     [test_itertools.py]=1 # test check failures
@@ -22,7 +22,6 @@ SKIP_TESTS=(
     [test___all__.py]=1 # it fails on its own
     [test_asdl_parser.py]=1 # it fails on its own
     [test_atexit.py]=1  # The atexit test looks for specific comments in error lines
-    [test_baseexception.py]=1  # UnboundLocalError: local variable 'exc' referenced before assignment
     [test_buffer.py]=1  # Test run errors; takes long time to decompile
 
     [test_clinic.py]=1 # it fails on its own
@@ -35,13 +34,12 @@ SKIP_TESTS=(
     [test_coroutines.py]=1 # Parse error
     [test_ctypes.py]=1 # it fails on its own
     [test_curses.py]=1 # probably byte string not handled properly
-    [test_dataclasses.py]=1   # FIXME: control flow probably: AssertionError: unknown result 'exception'
     [test_datetime.py]=1   # Takes too long
     [test_dbm_ndbm.py]=1 # it fails on its own
     [test_decimal.py]=1   # parse error
     [test_descr.py]=1   # test assertion failures
     [test_devpoll.py]=1 # it fails on its own
-    [test_dis.py]=1   # Investigate async out of place. Then We change line numbers - duh!
+    [test_dis.py]=1   # Investigate parser error of place. Then We change line numbers - duh!
     [test_doctest.py]=1   # test failures
     [test_docxmlrpc.py]=1
 
