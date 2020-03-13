@@ -1,8 +1,4 @@
 SKIP_TESTS=(
-    [test_asynchat.py]=1 # FIXME: works in a795b2195 ?
-    [test_binascii.py]=1 # FIXME: too long to run in a795b2195 ?
-    [test_strftime.py]=1 # FIXME: parse error works in 795b2195 ?
-
     [test_format.py]=1 # FIXME: works in master? 795b2195? test check failures
 
     [test_queue.py]=1  # FIXME: test check failures works on 795b2195 (which is recent)

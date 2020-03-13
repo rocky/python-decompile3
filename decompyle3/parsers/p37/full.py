@@ -653,7 +653,7 @@ class Python37Parser(Python37LambdaParser):
 
         # c_stmts might terminate, or have "continue" so no JUMP_BACK.
         # But if that's true, the "testexpr" needs still to jump to the "COME_FROM'
-        iflaststmtc ::= testexpr c_stmts COME_FROM
+        iflaststmtc ::= testexpr c_stmts come_froms
 
         # Note: in if/else kinds of statements, we err on the side
         # of missing "else" clauses. Therefore we include grammar

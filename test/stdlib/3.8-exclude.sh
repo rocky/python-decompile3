@@ -1,4 +1,5 @@
 SKIP_TESTS=(
+    [test_asynchat.py]=1 # FIXME: takes more than 15 seconds to run works in a795b2195 ?
     [test_codeccallbacks.py]=1 # FIXME: parse error works in c28a3d1c
     [test_csv.py]=1 # FIXME: parse error works in c28a3d1c
     [test_embed.py]=1 # FIXME: parse error works in c28a3d1c
