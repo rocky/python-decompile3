@@ -1,5 +1,5 @@
 SKIP_TESTS=(
-    [test_format.py]=1 # FIXME: works in master? 795b2195? test check failures
+    [test_format.py]=1 # FIXME: works in master? 795b2195? test check failures if/and logic
 
     [test_queue.py]=1  # FIXME: test check failures works on 795b2195 (which is recent)
 

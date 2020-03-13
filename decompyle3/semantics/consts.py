@@ -453,6 +453,11 @@ TABLE_DIRECT = {
     "tf_tryelsestmt":	( "%c%-%c%|else:\n%+%c", 1, 3, 4 ),
 
     "tryfinallystmt":	( "%|try:\n%+%c%-%|finally:\n%+%c%-\n\n", 1, 5 ),
+    "c_tryfinallystmt":	(
+        "%|try:\n%+%c%-%|finally:\n%+%c%-\n\n",
+        (1, "c_suite_stmts_opt"),
+        (5, "c_suite_stmts_opt")
+    ),
     "except":           ( "%|except:\n%+%c%-", 3 ),
     "except_cond1":	    ( "%|except %c:\n", 1 ),
     "except_suite":     ( "%+%c%-%C", 0, (1, maxint, "") ),

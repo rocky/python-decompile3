@@ -5,19 +5,42 @@
 # The 2nd try/finally has an END_FINALLY although still
 # no "COME_FROM".
 
-def getvalue(self):
+# RUNNABLE!
+def getvalue():
     try:
         return 3
     finally:
         return 1
 
+assert getvalue() == 1
 
-def getvalue1(self):
+def getvalue1():
     try:
         return 4
     finally:
         pass
     return 2
+
+assert getvalue1() == 4
+
+def getvalue1():
+    try:
+        return 4
+    finally:
+        pass
+    return 2
+
+assert getvalue1() == 4
+
+# from 3.7.6 test_grammar.py
+def g1():
+    try:
+        pass
+    finally:
+        return 1
+    return 2
+
+assert g1() == 1
 
 # From Python 3.6 asynchat.py
 # Bug is handling as why in the face of a return.

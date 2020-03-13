@@ -73,6 +73,7 @@ class Python37Parser(Python37LambdaParser):
         c_stmt  ::= ifstmtc
         c_stmt  ::= if_and_elsestmtc
         c_stmt  ::= ifelsestmtc
+        c_stmt  ::= c_tryfinallystmt
 
         c_stmt  ::= c_try_except
         c_stmt  ::= c_try_except36
@@ -686,9 +687,13 @@ class Python37Parser(Python37LambdaParser):
         cf_jump_back ::= COME_FROM JUMP_BACK
 
         # This is nested inside a try_except
-        tryfinallystmt ::= SETUP_FINALLY suite_stmts_opt
-                           POP_BLOCK LOAD_CONST
-                           COME_FROM_FINALLY suite_stmts_opt END_FINALLY
+        tryfinallystmt   ::= SETUP_FINALLY suite_stmts_opt
+                             POP_BLOCK LOAD_CONST
+                             COME_FROM_FINALLY suite_stmts_opt END_FINALLY
+
+        c_tryfinallystmt ::= SETUP_FINALLY c_suite_stmts_opt
+                             POP_BLOCK LOAD_CONST COME_FROM_FINALLY
+                             c_suite_stmts_opt END_FINALLY
 
         # This a funny kind of try finally inside a try_except in a loop
         c_except_suite     ::= SETUP_FINALLY c_suite_stmts

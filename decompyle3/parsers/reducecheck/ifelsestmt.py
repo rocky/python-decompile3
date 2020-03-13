@@ -138,7 +138,7 @@ def ifelsestmt(
         else_suite = ast[3]
         assert else_suite in ("else_suite", "else_suitec")
 
-        # We may need this laster:
+        # We may need this later:
 
         # not_or = if_condition[0]
         # if not_or == "not_or":
