@@ -77,7 +77,6 @@ class Python37Parser(Python37LambdaParser):
 
         c_stmt  ::= c_try_except
         c_stmt  ::= c_try_except36
-
         c_stmt  ::= stmt
 
         c_stmts_opt ::= c_stmts
