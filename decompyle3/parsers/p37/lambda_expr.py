@@ -344,6 +344,7 @@ class Python37LambdaParser(Python37BaseParser):
         # sort of "expr" and index 1 to be some sort of "comp_iter"
 
         comp_if       ::= expr_pjif comp_iter
+        comp_if       ::= compare comp_iter
         comp_if       ::= or_jump_if_false_cf comp_iter
         comp_if_not   ::= expr POP_JUMP_IF_TRUE comp_iter
 

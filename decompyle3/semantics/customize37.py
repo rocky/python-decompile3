@@ -726,7 +726,7 @@ def customize_for_version37(self, version):
     self.n_classdef36 = n_classdef36
 
     def n_compare_chained(node):
-        if node[0] == "compare_chained37":
+        if node[0] in ("compare_chained37", "compare_chained37_false"):
             self.default(node[0])
         else:
             self.default(node)
