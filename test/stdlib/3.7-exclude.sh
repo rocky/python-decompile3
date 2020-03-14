@@ -3,12 +3,11 @@ SKIP_TESTS=(
 
     [test_queue.py]=1  # FIXME: test check failures works on 795b2195 (which is recent)
 
-    [test_generators.py]=1  # parse error. this portion works in uncompyle6
-    [test_grammar.py]=1 # test errors. Works on an earlier version?
     [test_httplib.py]=1 # test runs. kills after 15 seconds. works on f7e2064e
     [test_urllib2.py]=1 # Test errors. control flow: works on f7e2064e
+    [test_grammar.py]=1 # test errors; works on master?
 
-    [test_pyclbr.py]=1 # test errors
+    [test_pyclbr.py]=1 # test errors if/else nesting in checkModule. Works on uncompyle6
 
     [test___all__.py]=1 # it fails on its own
     [test_asdl_parser.py]=1 # it fails on its own
@@ -43,6 +42,7 @@ SKIP_TESTS=(
     [test_fstring.py]=1 # need to disambiguate leading fstrings from docstrings
     [test_functools.py]=1 # parse error
 
+    [test_generators.py]=1  # Works if you run via Python. So possibly some test-framework problem
     [test_gdb.py]=1 # it fails on its own
     [test_glob.py]=1  # TypeError: join() argument must be str or bytes, not 'tuple'
     [test_grp.py]=1 # Running test doesn't terminate (killed)
