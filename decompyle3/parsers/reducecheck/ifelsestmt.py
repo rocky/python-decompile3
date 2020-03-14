@@ -161,6 +161,19 @@ def ifelsestmt(
         if  then_end_come_from == "COME_FROM" and then_end_come_from.attr < first_offset:
             return True
 
+        # If there any instructions in the "then" part that jump to the beginning of the
+        # "else" then this is not a proper if/else. Note that we might generalize this
+        # to jump *anywhere* in the else body instead of the first instruction.
+        else_start_offset = else_suite.first_child().off2int(prefer_last=False)
+        then_start_offset = ast[1].first_child().off2int(prefer_last=False)
+        i = self.offset2inst_index[then_start_offset]
+        inst = self.insts[i]
+        while inst.offset < else_start_offset:
+            if inst.optype in ("jabs", "jrel") and inst.argval == else_start_offset:
+                return True
+            i += 1
+            inst = self.insts[i]
+
         if else_suite == "else_suitec" and then_end in ("jb_elsec", "jb_cfs", "jump_forward_else"):
             stmts = ast[1]
             jb_else = then_end

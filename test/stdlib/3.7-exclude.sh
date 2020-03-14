@@ -8,12 +8,7 @@ SKIP_TESTS=(
     [test_httplib.py]=1 # test runs. kills after 15 seconds. works on f7e2064e
     [test_urllib2.py]=1 # Test errors. control flow: works on f7e2064e
 
-    [test_filecmp.py]=1 # test check failures
-    [test_gzip.py]=1 # test_gzip.py takes more than 15 seconds for test to run
-    [test_itertools.py]=1 # test check failures
-    [test_poplib.py]=1 # test check failures
     [test_pyclbr.py]=1 # test errors
-    [test_urllib2_localnet.py]=1 # test check failures
 
     [test___all__.py]=1 # it fails on its own
     [test_asdl_parser.py]=1 # it fails on its own
@@ -26,11 +21,11 @@ SKIP_TESTS=(
     [test_cmd_line_script.py]=1
     [test_compileall.py]=1 # fails on its own
     [test_compile.py]=1  # Code introspects on co_consts in a non-decompilable way
-    [test_concurrent_futures.py]=1 # too long
+    [test_concurrent_futures.py]=1 # Takes too long *before* decompiling
     [test_coroutines.py]=1 # Parse error
     [test_ctypes.py]=1 # it fails on its own
     [test_curses.py]=1 # probably byte string not handled properly
-    [test_datetime.py]=1   # Takes too long
+    [test_datetime.py]=1   # Takes too long *before* decompiling
     [test_dbm_ndbm.py]=1 # it fails on its own
     [test_decimal.py]=1   # parse error
     [test_descr.py]=1   # test assertion failures
@@ -42,7 +37,7 @@ SKIP_TESTS=(
     [test_enum.py]=1   # test run errors; probably bad control flow
 
     [test_faulthandler.py]=1   # test takes too long before decompiling
-    [test_fileinput.py]=1 # control flow
+    [test_fileinput.py]=1 # too long to run - control flow?
     [test_frame.py]=1 # test assertion errors
     [test_ftplib.py]=1 # parse error
     [test_fstring.py]=1 # need to disambiguate leading fstrings from docstrings
@@ -52,9 +47,8 @@ SKIP_TESTS=(
     [test_glob.py]=1  # TypeError: join() argument must be str or bytes, not 'tuple'
     [test_grp.py]=1 # Running test doesn't terminate (killed)
 
-    [test_imaplib.py]=1  # test run loops before decompiling? More than 15 seconds to run
+    [test_imaplib.py]=1 # test errors; control-flow?
     [test_io.py]=1 # test takes too long to run: 37 seconds
-    [test_imaplib.py]=1 # test failures
     [test_inspect.py]=1 # Investigate test check failures
 
     [test_kqueue.py]=1 # it fails on its own
@@ -72,7 +66,6 @@ SKIP_TESTS=(
 
     [test_nntplib.py]=1 # Too long in running before decomplation takes 25 seconds
 
-    [test_optparse.py]=1 # doesn't terminate at test_consume_separator_stop_at_option
     [test_ossaudiodev.py]=1 # it fails on its own
 
     [test_pdb.py]=1 # Probably relies on comments
@@ -98,7 +91,6 @@ SKIP_TESTS=(
     [test_startfile.py]=1 # it fails on its own
     [test_strptime.py]=1 # test check failure
     [test_strtod.py]=1 # test assertions failed
-    [test_struct.py]=1 # probably control flow
     [test_subprocess.py]=1 # Takes too long to run before decompile: 25 seconds
     [test_sys_settrace.py]=1 # parse error
 
