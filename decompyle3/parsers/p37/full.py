@@ -452,10 +452,6 @@ class Python37Parser(Python37LambdaParser):
 
     def p_33on(self, args):
         """
-        # Python 3.3+ adds yield from.
-        expr          ::= yield_from
-        yield_from    ::= expr GET_YIELD_FROM_ITER LOAD_CONST YIELD_FROM
-
         # Python 3.5+ has jump optimization to remove the redundant
         # jump_excepts. But in 3.3 we need them added
 

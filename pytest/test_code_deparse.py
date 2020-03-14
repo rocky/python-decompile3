@@ -79,6 +79,7 @@ def test_lambda_mode():
         "lambda x: 1 if x < 2 else 3",
         "lambda y: x * y",
         "lambda n: True if n >= 95 and n & 1 else False",
+        "lambda: (yield from f())",
     )
 
     for expr in expressions:

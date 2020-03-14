@@ -234,6 +234,10 @@ class Python37LambdaParser(Python37BaseParser):
         expr ::= yield
         expr ::= attribute37
 
+        # Python 3.3+ adds yield from.
+        expr          ::= yield_from
+        yield_from    ::= expr GET_YIELD_FROM_ITER LOAD_CONST YIELD_FROM
+
         attribute37       ::= expr LOAD_METHOD
 
         # bin_op (formerly "binary_expr") is the Python AST BinOp
