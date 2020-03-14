@@ -4,7 +4,7 @@ SKIP_TESTS=(
     [test_queue.py]=1  # FIXME: test check failures works on 795b2195 (which is recent)
 
     [test_generators.py]=1  # parse error. this portion works in uncompyle6
-    [test_grammar.py]=1 # parse error. Works on an earlier version?
+    [test_grammar.py]=1 # test errors. Works on an earlier version?
     [test_httplib.py]=1 # test runs. kills after 15 seconds. works on f7e2064e
     [test_urllib2.py]=1 # Test errors. control flow: works on f7e2064e
 
@@ -78,7 +78,6 @@ SKIP_TESTS=(
     [test_pyclbr.py]=1 # test errors
 
     [test_regrtest.py]=1 # lists differ
-    [test_richcmp.py]=1 # parse error
     [test_runpy.py]=1  # Too long to run before decompiling
 
     [test_select.py]=1 # test takes too long to run: 11 seconds

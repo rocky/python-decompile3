@@ -150,8 +150,8 @@ class Python37LambdaParser(Python37BaseParser):
         """
         jump               ::= JUMP_FORWARD
         jump               ::= JUMP_BACK
-        jf_or_break        ::= JUMP_FORWARD
-        jf_or_break        ::= BREAK_LOOP
+        jump_or_break      ::= jump
+        jump_or_break      ::= BREAK_LOOP
 
         # These are used to keep parse tree indices the same
         # in "if"/"else" like rules.
@@ -181,9 +181,9 @@ class Python37LambdaParser(Python37BaseParser):
 
         compare_chained1a_37      ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
         compare_chained1a_37      ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
-                                      compare_chained2a_37 COME_FROM POP_TOP COME_FROM
+                                      compare_chained2a_37 COME_FROM POP_TOP come_from_opt
         compare_chained1b_false_37 ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
-                                       compare_chained2b_false_37 POP_TOP jump COME_FROM
+                                       compare_chained2b_false_37 POP_TOP jump come_from_opt
 
         compare_chained1c_37      ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
                                       compare_chained2a_37 POP_TOP
@@ -204,8 +204,8 @@ class Python37LambdaParser(Python37BaseParser):
         compare_chained2a_37       ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_TRUE JUMP_BACK
         compare_chained2a_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE jf_cfs
 
-        compare_chained2b_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE jf_or_break COME_FROM
-        compare_chained2b_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE jf_or_break
+        compare_chained2b_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE jump_or_break COME_FROM
+        compare_chained2b_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE jump_or_break
 
         compare_chained2c_37       ::= expr DUP_TOP ROT_THREE COMPARE_OP come_from_opt POP_JUMP_IF_FALSE
                                        compare_chained2a_false_37
