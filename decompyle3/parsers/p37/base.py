@@ -617,14 +617,14 @@ class Python37BaseParser(PythonParser):
                                             JUMP_BACK COME_FROM
                                             POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
 
-                    expr                ::= listcomp_async
-                    listcomp_async      ::= LOAD_LISTCOMP LOAD_STR MAKE_FUNCTION_0
+                    expr                ::= list_comp_async
+                    list_comp_async     ::= LOAD_LISTCOMP LOAD_STR MAKE_FUNCTION_0
                                             expr GET_AITER CALL_FUNCTION_1
                                             GET_AWAITABLE LOAD_CONST
                                             YIELD_FROM
 
-                    expr                 ::= listcomp_async
-                    listcomp_async       ::= BUILD_LIST_0 LOAD_FAST func_async_prefix
+                    expr                ::= list_comp_async
+                    list_comp_async     ::= BUILD_LIST_0 LOAD_FAST func_async_prefix
                                             store func_async_middle list_iter
                                             JUMP_BACK COME_FROM
                                             POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
@@ -680,7 +680,7 @@ class Python37BaseParser(PythonParser):
                 )
                 custom_ops_processed.add(opname)
             elif opname == "LOAD_LISTCOMP":
-                self.add_unique_rule("expr ::= listcomp", opname, token.attr, customize)
+                self.add_unique_rule("expr ::= list_comp", opname, token.attr, customize)
                 custom_ops_processed.add(opname)
             elif opname == "LOAD_NAME":
                 if (
@@ -759,7 +759,7 @@ class Python37BaseParser(PythonParser):
                             #   and have GET_ITER CALL_FUNCTION_1
                             # Todo: For Pypy we need to modify this slightly
                             rule_pat = (
-                                "listcomp ::= %sload_closure LOAD_LISTCOMP %%s%s expr "
+                                "list_comp ::= %sload_closure LOAD_LISTCOMP %%s%s expr "
                                 "GET_ITER CALL_FUNCTION_1"
                                 % ("expr " * args_pos, opname)
                             )
@@ -866,14 +866,14 @@ class Python37BaseParser(PythonParser):
                         # 'exprs' in the rule above into a
                         # tuple.
                         rule_pat = (
-                            "listcomp ::= load_closure LOAD_LISTCOMP %%s%s "
+                            "list_comp ::= load_closure LOAD_LISTCOMP %%s%s "
                             "expr GET_ITER CALL_FUNCTION_1" % (opname,)
                         )
                         self.add_make_function_rule(
                             rule_pat, opname, token.attr, customize
                         )
                         rule_pat = (
-                            "listcomp ::= %sLOAD_LISTCOMP %%s%s expr "
+                            "list_comp ::= %sLOAD_LISTCOMP %%s%s expr "
                             "GET_ITER CALL_FUNCTION_1" % ("expr " * args_pos, opname)
                         )
                         self.add_make_function_rule(
@@ -910,7 +910,7 @@ class Python37BaseParser(PythonParser):
                         #   and have GET_ITER CALL_FUNCTION_1
                         # Todo: For Pypy we need to modify this slightly
                         rule_pat = (
-                            "listcomp ::= %sLOAD_LISTCOMP %%s%s expr "
+                            "list_comp ::= %sLOAD_LISTCOMP %%s%s expr "
                             "GET_ITER CALL_FUNCTION_1" % ("expr " * args_pos, opname)
                         )
                         self.add_make_function_rule(

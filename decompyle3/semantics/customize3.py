@@ -165,7 +165,10 @@ def customize_for_version3(self, version):
             self.preorder(n[0])
 
         # FIXME: add indentation around "for"'s and "in"'s
+        n_colls = len(collections)
         for i, store in enumerate(stores):
+            if i >= n_colls:
+                break
             self.write(" for ")
             self.preorder(store)
             self.write(" in ")
