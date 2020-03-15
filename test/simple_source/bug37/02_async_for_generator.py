@@ -6,3 +6,10 @@ def make_arange(n):
 
 async def run(m):
     return [i async for i in m]
+
+# From 3.7.6 test_coroutines.py
+async def run_list(pair, f):
+    return [i for pair in p async for i in f]
+
+async def run_gen():
+    return (i async for i in f if 0 < i < 4)

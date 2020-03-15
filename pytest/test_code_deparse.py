@@ -35,7 +35,8 @@ def test_single_mode() -> None:
         "for i in range(10):\n    i\n",
         "for i in range(10):\n    for j in range(10):\n        i + j\n",
         "(i for i in f if 0 < i < 4)",
-        # Inconsquential differences in spaces.
+        "[i for pair in p if pair for i in f]",
+        # Inconsequential differences in spaces.
         # "try:\n    i\nexcept Exception:\n    j\nelse:\n    k",
     )
 

@@ -624,11 +624,14 @@ class Python37BaseParser(PythonParser):
                                             YIELD_FROM
 
                     expr                ::= list_comp_async
-                    list_comp_async     ::= BUILD_LIST_0 LOAD_FAST func_async_prefix
+                    list_afor2          ::= func_async_prefix
                                             store func_async_middle list_iter
                                             JUMP_BACK COME_FROM
                                             POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
-
+                    list_comp_async     ::= BUILD_LIST_0 LOAD_FAST list_afor2
+                    get_aiter           ::= LOAD_DEREF GET_AITER
+                    list_afor           ::= get_aiter list_afor2
+                    list_iter           ::= list_afor
                    """,
                     nop_func,
                 )

@@ -1073,7 +1073,11 @@ class SourceWalker(GenericASTTraversal, object):
         # * the results we accumulate: "n"
 
         store = None
-        n = ast[iter_index]
+        if node == "list_comp_async":
+            n = ast[2][1]
+        else:
+            n = ast[iter_index]
+
         if ast in (
             "set_comp_func",
             "dict_comp_func",
@@ -1089,7 +1093,7 @@ class SourceWalker(GenericASTTraversal, object):
                 pass
             pass
         elif ast == "list_comp_async":
-            store = ast[3]
+            store = ast[2][1]
         else:
             assert n == "list_iter", n
 
