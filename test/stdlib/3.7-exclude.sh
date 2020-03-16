@@ -38,7 +38,6 @@ SKIP_TESTS=(
     [test_faulthandler.py]=1   # test takes too long before decompiling
     [test_fileinput.py]=1 # too long to run - control flow?
     [test_frame.py]=1 # test assertion errors
-    [test_ftplib.py]=1 # parse error
     [test_fstring.py]=1 # need to disambiguate leading fstrings from docstrings
     [test_functools.py]=1 # parse error
 

@@ -125,6 +125,9 @@ class Python37Parser(Python37LambdaParser):
         # passtmt is needed for semantic actions to add "pass"
         suite_stmts_opt ::= pass
 
+        else_suite_opt ::= else_suite
+        else_suite_opt ::= pass
+
         else_suite ::= suite_stmts
         else_suite ::= returns
 
@@ -656,11 +659,11 @@ class Python37Parser(Python37LambdaParser):
         # rules with and without ELSE.
 
         ifelsestmt    ::= testexpr
-                          stmts_opt jf_cfs else_suite opt_come_from_except
+                          stmts_opt jf_cfs else_suite_opt opt_come_from_except
         ifelsestmt    ::= testexpr stmts_opt JUMP_FORWARD
-                          else_suite opt_come_from_except
+                          else_suite_opt opt_come_from_except
         ifelsestmt    ::= bool_op
-                          stmts_opt jf_cfs else_suite opt_come_from_except
+                          stmts_opt jf_cfs else_suite_opt opt_come_from_except
 
 
         ifelsestmtc ::= testexpr
