@@ -134,6 +134,7 @@ class Python37BaseParser(PythonParser):
                 "RAISE",
                 "SETUP",
                 "UNPACK",
+                "WITH",
             )
         )
 
@@ -1028,13 +1029,18 @@ class Python37BaseParser(PythonParser):
                 )
                 custom_ops_processed.add(opname)
 
+            elif opname == "WITH_CLEANUP_START":
+                rules_str = """
+                  stmt        ::= with_null
+                  with_null   ::= with_suffix
+                  with_suffix ::= WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+                """
+                self.addRule(rules_str, nop_func)
             elif opname == "SETUP_WITH":
                 rules_str = """
                   stmt        ::= with
-                  stmt        ::= c_with
                   stmt        ::= withasstmt
 
-                  c_with      ::= with
                   c_with      ::= expr SETUP_WITH POP_TOP
                                   c_suite_stmts_opt
                                   COME_FROM_WITH
@@ -1043,8 +1049,6 @@ class Python37BaseParser(PythonParser):
                                   c_suite_stmts_opt
                                   POP_BLOCK LOAD_CONST COME_FROM_WITH
                                   with_suffix
-
-                  with_suffix ::= WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
                   with        ::= expr SETUP_WITH POP_TOP
                                   suite_stmts_opt

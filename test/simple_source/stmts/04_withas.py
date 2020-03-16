@@ -16,3 +16,10 @@ def withas_bug(self, nested, a, b):
     with self.assertRaises(ZeroDivisionError):
         with nested(a(), b()) as (x, y):
                 1 // 0
+
+# From 3.7.6 test_functools.py
+# Bug is a unreachable code after "return"
+def test_invalid_registrations(x):
+    return
+    with x:
+        x = 1
