@@ -334,11 +334,18 @@ class Python37Parser(Python37LambdaParser):
 
         # FIXME the below masks a bug in not detecting COME_FROM_LOOP
         # grammar rules with COME_FROM -> COME_FROM_LOOP already exist
-        whileelsestmt     ::= setup_loop testexpr c_stmts_opt JUMP_BACK POP_BLOCK
-                              else_suitec COME_FROM
+        whileelsestmt     ::= setup_loop testexpr c_stmts_opt
+                              JUMP_BACK POP_BLOCK
+                              else_suite COME_FROM
 
-        whileelsestmt     ::= setup_loop testexpr c_stmts_opt JUMP_BACK POP_BLOCK
-                              else_suitec COME_FROM_LOOP
+        whileelsestmt     ::= setup_loop testexpr c_stmts_opt
+                              JUMP_BACK POP_BLOCK
+                              else_suite COME_FROM_LOOP
+
+        # There is no JUMP_BACK here because c_stmts contineus, returns, or breaks
+        whileelsestmt     ::= setup_loop testexpr
+                              c_stmts come_froms POP_BLOCK
+                              else_suite COME_FROM_LOOP
 
         whilestmt ::= setup_loop testexpr c_stmts_opt COME_FROM JUMP_BACK POP_BLOCK COME_FROM_LOOP
         whilestmt ::= setup_loop testexpr c_stmts_opt JUMP_BACK POP_BLOCK COME_FROM_LOOP
