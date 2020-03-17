@@ -504,6 +504,7 @@ class Python37Parser(Python37LambdaParser):
         stmt     ::= async_for_stmt
         stmt     ::= async_forelse_stmt
 
+        # FIXME: DRY this with rules.
         async_for_stmt     ::= setup_loop expr
                                GET_AITER
                                SETUP_EXCEPT GET_ANEXT LOAD_CONST
@@ -515,7 +516,7 @@ class Python37Parser(Python37LambdaParser):
                                for_block
                                COME_FROM
                                POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP POP_BLOCK
-                               COME_FROM_LOOP
+                               opt_come_from_loop
 
         async_for_stmt     ::= setup_loop expr
                                GET_AITER
@@ -527,7 +528,7 @@ class Python37Parser(Python37LambdaParser):
                                POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
                                JUMP_ABSOLUTE END_FINALLY COME_FROM
                                for_block POP_BLOCK
-                               COME_FROM_LOOP
+                               opt_come_from_loop
 
         # Order of LOAD_CONST YIELD_FROM is switched from 3.6 to save a LOAD_CONST
         async_for_stmt37   ::= setup_loop expr
@@ -554,6 +555,7 @@ class Python37Parser(Python37LambdaParser):
                                COME_FROM
                                POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP POP_BLOCK
                                else_suite COME_FROM_LOOP
+
         """
 
     def p_grammar(self, args):
@@ -813,9 +815,24 @@ class Python37Parser(Python37LambdaParser):
 
     def p_come_from3(self, args):
         """
+        # In 3.7+ it looks like SETUP_LOOP to a JUMP_FORWARD will
+        # get replaced by the JUMP_FORWARD addressd. Therefore come froms may
+        # appear out of nesting order. For example
+        #   if x
+        #     for ... jump forward endif
+        #        ...
+        #        jump forward endif
+        #     end for
+        #
+        #   else:
+        #       ...
+        #   endif
+        opt_come_from_except ::= COME_FROM_LOOP
         opt_come_from_except ::= COME_FROM_EXCEPT
         opt_come_from_except ::= _come_froms
         opt_come_from_except ::= come_from_except_clauses
+
+        opt_come_from_loop   ::= COME_FROM_LOOP?
 
         come_from_except_clauses ::= COME_FROM_EXCEPT_CLAUSE+
         """

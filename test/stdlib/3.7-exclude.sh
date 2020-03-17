@@ -89,7 +89,7 @@ SKIP_TESTS=(
     [test_strptime.py]=1 # test check failure
     [test_strtod.py]=1 # test assertions failed
     [test_subprocess.py]=1 # Takes too long to run before decompile: 25 seconds
-    [test_sys_settrace.py]=1 # parse error
+    [test_sys_settrace.py]=1 # running the tests loops forever. Control flow?
 
     [test_tarfile.py]=1 # test assertions failed
     [test_telnetlib.py]=1 # test run takes more than 15 seconds
