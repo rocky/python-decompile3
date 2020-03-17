@@ -39,7 +39,6 @@ SKIP_TESTS=(
     [test_fileinput.py]=1 # too long to run - control flow?
     [test_frame.py]=1 # test assertion errors
     [test_fstring.py]=1 # need to disambiguate leading fstrings from docstrings
-    [test_functools.py]=1 # parse error
 
     [test_generators.py]=1  # Works if you run via Python. So possibly some test-framework problem
     [test_gdb.py]=1 # it fails on its own
