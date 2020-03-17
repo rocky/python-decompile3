@@ -39,3 +39,9 @@ assert reduce_is_invalid(False, 1, True) == 5
 assert reduce_is_invalid(True, 1, True) == 2
 assert reduce_is_invalid(True, 10, True) is None
 assert reduce_is_invalid(True, -1, True) is None
+
+# Bug is chained comparison of more than two operators
+if 0 < 1 <= 1 == 1 >= 1 > 0 != 1:
+    pass
+else:
+    assert False

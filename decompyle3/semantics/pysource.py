@@ -1831,6 +1831,7 @@ class SourceWalker(GenericASTTraversal, object):
                 arg += 1
             elif typ == "p":
                 p = self.prec
+                # entry[arg]
                 tup = entry[arg]
                 assert isinstance(tup, tuple)
                 if len(tup) == 3:

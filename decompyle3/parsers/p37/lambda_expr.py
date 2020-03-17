@@ -167,6 +167,7 @@ class Python37LambdaParser(Python37BaseParser):
         compare_chained     ::= compare_chained37
         compare_chained     ::= compare_chained37_false
 
+        compare_chained37   ::= expr chained_parts
         compare_chained37   ::= expr compare_chained1a_37
         compare_chained37   ::= expr compare_chained1c_37
 
@@ -174,30 +175,33 @@ class Python37LambdaParser(Python37BaseParser):
         compare_chained37_false   ::= expr compare_chained1b_false_37
         compare_chained37_false   ::= expr compare_chained2_false_37
 
-        compare_chained1          ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
-                                      compare_chained1 COME_FROM
-        compare_chained1          ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
+        compare_chained1           ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
+                                       compare_chained1 COME_FROM
+        compare_chained1           ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
                                       compare_chained2 COME_FROM
 
-        compare_chained1a_37      ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
-        compare_chained1a_37      ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
-                                      compare_chained2a_37 COME_FROM POP_TOP come_from_opt
-        compare_chained1b_false_37 ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
-                                       compare_chained2b_false_37 POP_TOP jump come_from_opt
+        chained_parts              ::= chained_part+
+        chained_part               ::= expr DUP_TOP ROT_THREE COMPARE_OP come_from_opt POP_JUMP_IF_FALSE
 
-        compare_chained1c_37      ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
-                                      compare_chained2a_37 POP_TOP
+        compare_chained1a_37       ::= chained_parts
+                                       compare_chained2a_37 COME_FROM POP_TOP come_from_opt
+        compare_chained1b_false_37 ::= chained_parts
+                                       compare_chained2b_false_37 POP_TOP jump _come_froms
 
-        compare_chained1_false_37 ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
-                                      compare_chained2c_37 POP_TOP JUMP_FORWARD COME_FROM
-        compare_chained1_false_37 ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
-                                      compare_chained2b_false_37 POP_TOP jump COME_FROM
+        compare_chained1c_37       ::= chained_parts
+                                       compare_chained2a_37 POP_TOP
 
+        compare_chained1_false_37  ::= chained_parts
+                                       compare_chained2c_37 POP_TOP JUMP_FORWARD come_from_opt
+        compare_chained1_false_37  ::= chained_parts
+                                       compare_chained2b_false_37 POP_TOP jump COME_FROM
+
+        compare_chained2           ::= expr COMPARE_OP JUMP_FORWARD
         compare_chained2           ::= expr COMPARE_OP JUMP_FORWARD
         compare_chained2           ::= expr COMPARE_OP RETURN_VALUE
         compare_chained2           ::= expr COMPARE_OP RETURN_VALUE_LAMBDA
 
-        compare_chained2_false_37 ::= expr DUP_TOP ROT_THREE COMPARE_OP POP_JUMP_IF_FALSE
+        compare_chained2_false_37  ::= chained_parts
                                       compare_chained2a_false_37 POP_TOP JUMP_BACK COME_FROM
 
         compare_chained2a_37       ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_TRUE JUMP_FORWARD
@@ -205,10 +209,8 @@ class Python37LambdaParser(Python37BaseParser):
         compare_chained2a_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE jf_cfs
 
         compare_chained2b_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE jump_or_break COME_FROM
-        compare_chained2b_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE jump_or_break
 
-        compare_chained2c_37       ::= expr DUP_TOP ROT_THREE COMPARE_OP come_from_opt POP_JUMP_IF_FALSE
-                                       compare_chained2a_false_37
+        compare_chained2c_37       ::= chained_parts compare_chained2a_false_37
         """
 
     def p_expr(self, args):

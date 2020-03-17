@@ -60,10 +60,10 @@ PRECEDENCE = {
     "ret_or":                 26,
 
     "and":                    24, # Boolean AND
-    "not":                    22, # Boolean NOT
-    "compare":                20, # in, not in, is, is not, <, <=, >, >=, !=, ==
     "ret_and":                24,
+    "not":                    22, # Boolean NOT
     "unary_not":              22, # Boolean NOT
+    "compare":                20, # in, not in, is, is not, <, <=, >, >=, !=, ==
 
     "BINARY_AND":             14, # Bitwise AND
     "BINARY_OR":              18, # Bitwise OR

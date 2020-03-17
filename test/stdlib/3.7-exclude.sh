@@ -103,7 +103,6 @@ SKIP_TESTS=(
     [test_ttk_guionly.py]=1  # implementation specfic and test takes too long to run: 19 seconds
     [test_ttk_guionly.py]=1  # implementation specfic and test takes too long to run: 19 seconds
     [test_typing.py]=1 # test errors
-    [test_types.py]=1 # parse error
 
     [test_unicode.py]=1 # unicode thing
     [test_urllibnet.py]=1 # probably control flow - uninitialized variable
