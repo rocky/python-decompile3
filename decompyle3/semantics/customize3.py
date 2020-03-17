@@ -18,6 +18,7 @@
 
 from decompyle3.scanner import Code
 from decompyle3.semantics.consts import TABLE_DIRECT
+from decompyle3.semantics.helper import co_flags_is_async
 
 from xdis.code import iscode
 from decompyle3.semantics.customize37 import customize_for_version37
@@ -78,7 +79,9 @@ def customize_for_version3(self, version):
         p = self.prec
         self.prec = 27
 
-        code = Code(node[1].attr, self.scanner, self.currentclass)
+        code_obj = node[1].attr
+        assert iscode(code_obj)
+        code = Code(code_obj, self.scanner, self.currentclass)
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
 
@@ -177,7 +180,7 @@ def customize_for_version3(self, version):
         for i, store in enumerate(stores):
             if i >= n_colls:
                 break
-            if collections[i] == "LOAD_DEREF":
+            if collections[i] == "LOAD_DEREF"  and co_flags_is_async(code_obj.co_flags):
                 self.write(" async")
                 pass
             self.write(" for ")

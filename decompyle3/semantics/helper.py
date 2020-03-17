@@ -1,6 +1,7 @@
 import sys
 
 from xdis.code import iscode
+from xdis.util import COMPILER_FLAG_BIT
 from decompyle3.parsers.treenode import SyntaxTree
 
 minint = -sys.maxsize - 1
@@ -12,6 +13,17 @@ read_global_ops = frozenset(("STORE_GLOBAL", "DELETE_GLOBAL"))
 # NOTE: we also need to check that the variable name is a free variable, not a cell variable.
 nonglobal_ops = frozenset(("STORE_DEREF", "DELETE_DEREF"))
 
+
+# FIXME: remove when is in xdis (the release after 4.2.3)
+def co_flags_is_async(co_flags):
+    """
+    Return True iff co_flags indicates an async function.
+    """
+    return co_flags & (
+        COMPILER_FLAG_BIT["COROUTINE"]
+        | COMPILER_FLAG_BIT["ITERABLE_COROUTINE"]
+        | COMPILER_FLAG_BIT["ASYNC_GENERATOR"]
+    )
 
 def escape_string(s: str, quotes=('"', "'", '"""', "'''")):
     quote = None

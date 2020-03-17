@@ -18,7 +18,6 @@
 import re
 from spark_parser.ast import GenericASTTraversalPruningException
 from xdis.code import iscode
-from xdis.util import COMPILER_FLAG_BIT
 from decompyle3.scanners.tok import Token
 from decompyle3.semantics.consts import (
     PRECEDENCE,
@@ -27,7 +26,7 @@ from decompyle3.semantics.consts import (
     INDENT_PER_LEVEL,
     maxint,
 )
-from decompyle3.semantics.helper import flatten_list, escape_string, strip_quotes
+from decompyle3.semantics.helper import co_flags_is_async, flatten_list, escape_string, strip_quotes
 
 
 def escape_format(s):
@@ -794,14 +793,7 @@ def customize_for_version37(self, version):
         pass
 
         is_code = hasattr(code_node, "attr") and iscode(code_node.attr)
-        return is_code and (
-            code_node.attr.co_flags
-            & (
-                COMPILER_FLAG_BIT["COROUTINE"]
-                | COMPILER_FLAG_BIT["ITERABLE_COROUTINE"]
-                | COMPILER_FLAG_BIT["ASYNC_GENERATOR"]
-            )
-        )
+        return is_code and co_flags_is_async(code_node.attr.co_flags)
 
     def n_function_def(node):
         if is_async_fn(node):

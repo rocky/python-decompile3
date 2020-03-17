@@ -5,7 +5,7 @@ SKIP_TESTS=(
 
     [test_httplib.py]=1 # test runs. kills after 15 seconds. works on f7e2064e
     [test_urllib2.py]=1 # Test errors. control flow: works on f7e2064e
-    [test_grammar.py]=1 # async comprehention outside of an async function
+    [test_grammar.py]=1 # Test errors. probably control flow.
 
     [test_pyclbr.py]=1 # test errors if/else nesting in checkModule. Works on uncompyle6
 
