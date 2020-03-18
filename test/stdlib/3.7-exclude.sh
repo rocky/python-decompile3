@@ -26,12 +26,10 @@ SKIP_TESTS=(
     [test_curses.py]=1 # probably byte string not handled properly
     [test_datetime.py]=1   # Takes too long *before* decompiling
     [test_dbm_ndbm.py]=1 # it fails on its own
-    [test_decimal.py]=1   # parse error
+    [test_decimal.py]=1   # test assertion failures
     [test_descr.py]=1   # test assertion failures
     [test_devpoll.py]=1 # it fails on its own
     [test_dis.py]=1   # Introspects on line numbers; line numbers don't match in disassembly - duh!
-    [test_doctest.py]=1   # test failures
-    [test_docxmlrpc.py]=1
 
     [test_enum.py]=1   # test run errors; probably bad control flow
 
@@ -58,9 +56,9 @@ SKIP_TESTS=(
     [test_mailbox.py]=1 # probably control flow
     [test_math.py]=1  # test assert failures
     [test_msilib.py]=1 # it fails on its own
-    [test_multiprocessing_fork.py]=1 # test takes too long to run: 62 seconds
-    [test_multiprocessing_forkserver.py]=1
-    [test_multiprocessing_spawn.py]=1
+    [test_multiprocessing_fork.py]=1 # test takes too long to run before decompile: 62 seconds
+    [test_multiprocessing_forkserver.py]=1 # test takes too long to run before decompile: 62 seconds
+    [test_multiprocessing_spawn.py]=1  # test takes too long to run before decompile: 62 seconds
 
     [test_nntplib.py]=1 # Too long in running before decomplation takes 25 seconds
 
@@ -93,7 +91,7 @@ SKIP_TESTS=(
 
     [test_tarfile.py]=1 # test assertions failed
     [test_telnetlib.py]=1 # test run takes more than 15 seconds
-    [test_threading.py]=1 # test assertion failers
+    [test_threading.py]=1 # test assertion failures
     [test_threaded_import.py]=1 # test assertion failures
     [test_tk.py]=1  # test takes too long to run: 13 seconds
     [test_tokenize.py]=1 # test takes too long to run before decompilation: 43 seconds
@@ -108,7 +106,7 @@ SKIP_TESTS=(
     [test_urllibnet.py]=1 # probably control flow - uninitialized variable
 
     [test_weakref.py]=1 # probably control flow - uninitialized variable
-    [test_with.py]=1 # test errors
+    [test_with.py]=1 # parse errors
 
     [test_winconsoleio.py]=1 # it fails on its own
     [test_winreg.py]=1 # it fails on its own

@@ -16,6 +16,7 @@ from decompyle3.parsers.reducecheck import (
     ifstmt,
     ifstmts_jump,
     lastc_stmt,
+    list_if_not,
     not_or_check,
     or_check,
     or_cond_check,
@@ -1147,6 +1148,7 @@ class Python37BaseParser(PythonParser):
             "ifstmt": ifstmt,
             "ifstmtc": ifstmt,
             "lastc_stmt": lastc_stmt,
+            "list_if_not": list_if_not,
             "not_or": not_or_check,
             "or": or_check,
             "or_cond": or_cond_check,
@@ -1177,6 +1179,7 @@ class Python37BaseParser(PythonParser):
         self.check_reduce["ifstmtc"] = "AST"
         self.check_reduce["import_from37"] = "AST"
         self.check_reduce["lastc_stmt"] = "tokens"
+        self.check_reduce["list_if_not"] = "AST"
         self.check_reduce["not_or"] = "AST"
         self.check_reduce["or"] = "AST"
         self.check_reduce["or_cond"] = "tokens"

@@ -99,81 +99,49 @@ def customize_for_version3(self, version):
         collections = [node[-3]]
         list_ifs = []
 
-        if self.version == 3.0 and n != "list_iter":
-            # FIXME 3.0 is a snowflake here. We need
-            # special code for this. Not sure if this is totally
-            # correct.
-            stores = [ast[3]]
-            assert ast[4] == "comp_iter"
-            n = ast[4]
-            # Find the list comprehension body. It is the inner-most
-            # node that is not comp_.. .
-            while n == "comp_iter":
-                if n[0] == "comp_for":
-                    n = n[0]
-                    stores.append(n[2])
-                    n = n[3]
-                elif n[0] in ("comp_if", "comp_if_not"):
-                    n = n[0]
-                    # FIXME: just a guess
-                    if n[0].kind == "expr":
-                        list_ifs.append(n)
-                    else:
-                        list_ifs.append([1])
-                    n = n[2]
+        assert n == "list_iter"
+        stores = []
+        # Find the list comprehension body. It is the inner-most
+        # node that is not list_.. .
+        while n == "list_iter":
+
+            # recurse one step
+            n = n[0]
+
+            if n == "list_for":
+                stores.append(n[2])
+                n = n[3]
+                if n[0] == "list_for":
+                    # Dog-paddle down largely singleton reductions
+                    # to find the collection (expr)
+                    c = n[0][0]
+                    if c == "expr":
+                        c = c[0]
+                    # FIXME: grammar is wonky here? Is this really an attribute?
+                    if c == "attribute":
+                        c = c[0]
+                    collections.append(c)
                     pass
-                else:
-                    break
-                pass
-
-            # Skip over n[0] which is something like: _[1]
-            self.preorder(n[1])
-
-        else:
-            assert n == "list_iter"
-            stores = []
-            # Find the list comprehension body. It is the inner-most
-            # node that is not list_.. .
-            while n == "list_iter":
-
-                # recurse one step
-                n = n[0]
-
-                if n == "list_for":
-                    stores.append(n[2])
-                    n = n[3]
-                    if n[0] == "list_for":
-                        # Dog-paddle down largely singleton reductions
-                        # to find the collection (expr)
-                        c = n[0][0]
-                        if c == "expr":
-                            c = c[0]
-                        # FIXME: grammar is wonky here? Is this really an attribute?
-                        if c == "attribute":
-                            c = c[0]
-                        collections.append(c)
-                        pass
-                elif n in ("list_if", "list_if_not"):
-                    # FIXME: just a guess
-                    if n[0].kind == "expr":
-                        list_ifs.append(n)
-                    else:
-                        list_ifs.append([1])
-                    n = n[-1]
-                    pass
-                elif n == "list_if37":
+            elif n in ("list_if", "list_if_not", "list_if_or_not"):
+                if n[0].kind == "expr":
                     list_ifs.append(n)
-                    n = n[-1]
-                    pass
-                elif n == "list_afor":
-                    collections.append(n[0][0])
-                    n = n[1]
-                    stores.append(n[1][0])
-                    n = n[3]
+                else:
+                    list_ifs.append([1])
+                n = n[-2] if n[-1] == "come_from_opt" else n[-1]
                 pass
+            elif n == "list_if37":
+                list_ifs.append(n)
+                n = n[-1]
+                pass
+            elif n == "list_afor":
+                collections.append(n[0][0])
+                n = n[1]
+                stores.append(n[1][0])
+                n = n[3]
+            pass
 
-            assert n == "lc_body", ast
-            self.preorder(n[0])
+        assert n == "lc_body", ast
+        self.preorder(n[0])
 
         # FIXME: add indentation around "for"'s and "in"'s
         n_colls = len(collections)

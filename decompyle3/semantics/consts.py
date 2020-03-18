@@ -266,9 +266,16 @@ TABLE_DIRECT = {
     'list_for':		    ( ' for %c in %c%c', 2, 0, 3 ),
     'list_if':		    ( ' if %p%c',
                               (0, 'expr', 27), 2 ),
-    'list_if_not':	    ( ' if not %p%c',
-                              (0, 'expr', PRECEDENCE['unary_not']),
-                              2 ),
+    'list_if_not':	    (
+        ' if not %p%c',
+        (0, 'expr', PRECEDENCE['unary_not']),
+        2 ),
+    'list_if_or_not':	    (
+        ' if %c or not %c %c',
+        (0, 'expr_pjit'),
+        (1, 'expr_pjit'),
+        (3, "list_iter"),
+        ),
     'lc_body':		    ( '', ),	# ignore when recursing
 
     'comp_iter':	    ( '%c', 0 ),
