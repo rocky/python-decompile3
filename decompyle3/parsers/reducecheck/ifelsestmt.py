@@ -205,14 +205,17 @@ def ifelsestmt(
             if jump_else_end == "jf_cf_pop":
                 jump_else_end = jump_else_end[0]
 
+            last_offset = tokens[last].off2int(prefer_last=False)
+            if last_offset == -1:
+                last_offset = tokens[last-1].off2int(prefer_last=False)
+
             jump_to_jump = False
             if jump_else_end == "JUMP_FORWARD":
                 jump_to_jump = True
                 endif_target = int(jump_else_end.pattr)
-                last_offset = tokens[last].off2int()
                 if endif_target != last_offset:
                     return True
-            last_offset = tokens[last].off2int(prefer_last=False)
+
             if jump_target == last_offset:
                 # jump_target should be jumping to the end of the if/then/else
                 # but is it jumping to the beginning of the "else"
@@ -234,6 +237,17 @@ def ifelsestmt(
             ):
                 if jump_else_end[-1].off2int() != jump_target:
                     return True
+
+                # If the end of the "then" jumps to back to a loop,
+                # then the end of the "else" must jump somewhere too
+                # and not fall through.
+                if jump_else_end == "jb_cfs":
+                    i = self.offset2inst_index[last_offset]
+                    inst = self.insts[i]
+                    if inst.optype not in ("jabs", "jrel"):
+                        return True
+                    pass
+                pass
 
             if first_offset > jump_target:
                 return True
