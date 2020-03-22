@@ -1044,6 +1044,7 @@ class Python37BaseParser(PythonParser):
                 rules_str = """
                   stmt        ::= with
                   stmt        ::= withasstmt
+                  c_stmt      ::= c_with
 
                   c_with      ::= expr SETUP_WITH POP_TOP
                                   c_suite_stmts_opt
