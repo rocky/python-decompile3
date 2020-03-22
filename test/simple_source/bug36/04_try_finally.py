@@ -32,7 +32,7 @@ def getvalue1():
 
 assert getvalue1() == 4
 
-# from 3.7.6 test_grammar.py
+# from 3.7.7 test_grammar.py
 def g1():
     try:
         pass
@@ -43,7 +43,7 @@ def g1():
 assert g1() == 1
 
 # From Python 3.6 asynchat.py
-# Bug is handling as why in the face of a return.
+# Bug is handling "as" in the face of a return.
 # decompyle3 shows removal of "why" after the return.
 def handle_read(self):
     try:
@@ -69,3 +69,39 @@ def __exit__(self, type, value, traceback):
     except RuntimeError as exc:
         return exc
     return
+
+# From 3.7.7 test_queue.py
+# Bug was distinguishing try/else from try
+def consume_nonblock(val):
+    i = 0
+    while True:
+        while True:
+            i += 1
+            try:
+                4/val
+            except:
+                val = 2
+            else:
+                break
+        return i
+
+assert consume_nonblock(4) == 1
+assert consume_nonblock(0) == 2
+
+
+def consume_nonblock1(val):
+    i = 0
+    while True:
+        while True:
+            i += 1
+            try:
+                4/val
+            except:
+                val = 2
+
+            break
+
+        return i
+
+assert consume_nonblock1(4) == 1
+assert consume_nonblock1(0) == 1

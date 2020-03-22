@@ -471,7 +471,7 @@ TABLE_DIRECT = {
 
     "c_except":         (
         "%|except:\n%+%c%-",
-        (3, ("c_stmts_opt", "c_returns")),
+        (3, ("c_stmts_opt", "c_returns", "c_stmts")),
     ),
 
     # In Python 3.6+, this is more complicated in the presence of "returns"

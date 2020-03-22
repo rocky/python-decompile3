@@ -121,11 +121,14 @@ def ifelsestmt(
         end_come_froms = ast[-1]
         if end_come_froms == "opt_come_from_except" and len(end_come_froms) > 0:
             end_come_froms = end_come_froms[0]
-        if not isinstance(end_come_froms, Token):
-            if len(end_come_froms) and first_offset > end_come_froms[-1].attr:
+            pass
+        while not isinstance(end_come_froms, Token) and len(end_come_froms):
+            end_come_froms = end_come_froms[-1]
+        if isinstance(end_come_froms, Token):
+            if first_offset > end_come_froms.attr:
+                    return True
+            elif first_offset > end_come_froms.attr:
                 return True
-        elif first_offset > end_come_froms.attr:
-            return True
 
     testexpr = ast[0]
 

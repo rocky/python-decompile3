@@ -143,7 +143,7 @@ class Python37LambdaParser(Python37BaseParser):
 
         # Zero or more COME_FROMs - loops can have this
         _come_froms   ::= COME_FROM*
-        _come_froms   ::= _come_froms COME_FROM_LOOP
+        _come_froms   ::= COME_FROM_LOOP
         """
 
     def p_jump(self, args):

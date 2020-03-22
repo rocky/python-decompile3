@@ -1,10 +1,8 @@
 SKIP_TESTS=(
     [test_format.py]=1 # FIXME: works in master? 795b2195? test check failures if/and logic
 
-    [test_queue.py]=1  # FIXME: test check failures works on 795b2195 (which is recent)
-
     [test_httplib.py]=1 # test runs. kills after 15 seconds. works on f7e2064e
-    [test_grammar.py]=1 # Test errors. probably control flow.
+    [test_grammar.py]=1 # parse error. Probably try ...
 
     [test___all__.py]=1 # it fails on its own
     [test_asdl_parser.py]=1 # it fails on its own
@@ -12,7 +10,7 @@ SKIP_TESTS=(
     [test_buffer.py]=1  # Test run errors; takes long time to decompile
 
     [test_clinic.py]=1 # it fails on its own
-    [test_cmath.py]=1 # control-flow error
+    [test_cmath.py]=1 # test errors: control-flow error
     [test_cmd_line.py]=1  # Interactive?
     [test_cmd_line_script.py]=1
     [test_compileall.py]=1 # fails on its own
@@ -37,11 +35,11 @@ SKIP_TESTS=(
 
     [test_generators.py]=1  # Works if you run via Python. So possibly some test-framework problem
     [test_gdb.py]=1 # it fails on its own
-    [test_glob.py]=1  # TypeError: join() argument must be str or bytes, not 'tuple'
+    [test_glob.py]=1  # test errors, TypeError: join() argument must be str or bytes, not 'tuple'
     [test_grp.py]=1 # Running test doesn't terminate (killed)
 
     [test_imaplib.py]=1 # test errors; control-flow?
-    [test_io.py]=1 # test takes too long to run: 37 seconds
+    [test_io.py]=1 # test takes too long to run before decompilation: 37 seconds
     [test_inspect.py]=1 # Investigate test check failures
 
     [test_kqueue.py]=1 # it fails on its own
@@ -77,7 +75,7 @@ SKIP_TESTS=(
     [test_selectors.py]=1 # Takes too long to run before decompling: 17 seconds
     [test_shutil.py]=1 # fails on its own
     [test_signal.py]=1 # Takes too long to run before decompiling: 22 seconds
-    [test_smtplib.py]=1 # test failures
+    [test_smtplib.py]=1 # test errors
     [test_socket.py]=1 # Takes too long to run before decompiling
     [test_ssl.py]=1 # Takes too long to run more than 15 seconds. Probably control flow; unintialized variable
     [test_startfile.py]=1 # it fails on its own

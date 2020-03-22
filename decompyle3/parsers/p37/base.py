@@ -10,6 +10,7 @@ from spark_parser.spark import rule2str
 from decompyle3.parsers.reducecheck import (
     and_check,
     and_not_check,
+    c_tryelsestmt,
     if_and_stmt,
     ifelsestmt,
     iflaststmt,
@@ -21,7 +22,7 @@ from decompyle3.parsers.reducecheck import (
     or_check,
     or_cond_check,
     testtrue,
-    c_tryelsestmt,
+    tryexcept,
     whilestmt,
     while1stmt,
     while1elsestmt,
@@ -1024,7 +1025,9 @@ class Python37BaseParser(PythonParser):
 
                     c_stmt         ::= c_tryelsestmt
                     c_tryelsestmt  ::= SETUP_EXCEPT c_suite_stmts POP_BLOCK
-                                       c_except_handler else_suitec come_from_except_clauses
+                                       c_except_handler
+                                       come_any_froms else_suitec
+                                       come_from_except_clauses
                     """,
                     nop_func,
                 )
@@ -1157,7 +1160,8 @@ class Python37BaseParser(PythonParser):
             "while1elsestmt": while1elsestmt,
             "while1stmt": while1stmt,
             "whilestmt": whilestmt,
-            "c_try_elsestmtc": c_tryelsestmt,
+            "c_tryelsestmt": c_tryelsestmt,
+            "c_try_except": tryexcept,
         }
 
         self.check_reduce["and"] = "AST"
@@ -1165,6 +1169,8 @@ class Python37BaseParser(PythonParser):
         self.check_reduce["annotate_tuple"] = "tokens"
         self.check_reduce["aug_assign1"] = "AST"
         self.check_reduce["aug_assign2"] = "AST"
+        self.check_reduce["c_try_except"] = "AST"
+        self.check_reduce["c_tryelsestmt"] = "AST"
         self.check_reduce["whilestmt"] = "tokens"
         self.check_reduce["while1stmt"] = "tokens"
         self.check_reduce["while1elsestmt"] = "tokens"

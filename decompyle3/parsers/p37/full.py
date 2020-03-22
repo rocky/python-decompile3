@@ -735,9 +735,6 @@ class Python37Parser(Python37LambdaParser):
         c_try_except ::= SETUP_EXCEPT c_suite_stmts_opt POP_BLOCK
                          c_except_handler
                          jump_excepts come_from_except_clauses
-        c_try_except ::= SETUP_EXCEPT c_suite_stmts_opt POP_BLOCK
-                         c_except_handler
-                         opt_come_from_except
 
         # FIXME: remove this
         except_handler ::= JUMP_FORWARD COME_FROM except_stmts
@@ -791,7 +788,7 @@ class Python37Parser(Python37LambdaParser):
         except_cond2 ::= DUP_TOP expr COMPARE_OP
                          POP_JUMP_IF_FALSE POP_TOP store POP_TOP come_from_opt
 
-        except  ::=  POP_TOP POP_TOP POP_TOP c_stmts_opt POP_EXCEPT jump
+        except  ::=  POP_TOP POP_TOP POP_TOP c_stmts_opt POP_EXCEPT JUMP_FORWARD
         except  ::=  POP_TOP POP_TOP POP_TOP returns
 
         jmp_abs ::= JUMP_ABSOLUTE
@@ -826,14 +823,16 @@ class Python37Parser(Python37LambdaParser):
         #   else:
         #       ...
         #   endif
-        opt_come_from_except ::= COME_FROM_LOOP
-        opt_come_from_except ::= COME_FROM_EXCEPT
-        opt_come_from_except ::= _come_froms
-        opt_come_from_except ::= come_from_except_clauses
+
+        come_any_froms ::= come_any_froms COME_FROM_LOOP
+        come_any_froms ::= come_any_froms COME_FROM_EXCEPT
+        come_any_froms ::= come_froms
+
+        opt_come_from_except ::= come_any_froms?
 
         opt_come_from_loop   ::= COME_FROM_LOOP?
 
-        come_from_except_clauses ::= COME_FROM_EXCEPT_CLAUSE+
+        come_from_except_clauses ::= COME_FROM_EXCEPT_CLAUSE*
         """
 
     def p_jump3(self, args):

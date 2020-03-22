@@ -166,8 +166,8 @@ def customize_for_version3(self, version):
         {
             "c_tryelsestmt": (
                 "%|try:\n%+%c%-%c%|else:\n%+%c%-",
-                (1, "suite_stmts_opt"),
-                (3, "except_handler"),
+                (1, "c_suite_stmts"),
+                (3, "c_except_handler"),
                 (5, "else_suitec"),
             ),
             "LOAD_CLASSDEREF": ("%{pattr}",),
