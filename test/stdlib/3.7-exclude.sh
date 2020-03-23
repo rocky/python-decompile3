@@ -1,16 +1,16 @@
 SKIP_TESTS=(
-    [test_test_codeccallbacks.py]=1 # FIXME: works in 6c9ecd83 HEAD~
-    [test_codecs.py]=1 # FIXME: works in 6c9ecd83 HEAD~
-    [test_cgi.py]=1 # FIXME: works in 6c9ecd83 HEAD~
-    [test_decorators.py]=1 # FIXME: works in 6c9ecd83 HEAD~
-    [test_marshal.py]=1 # FIXME: works in 6c9ecd83 HEAD~
-    [test_os.py]=1 # FIXME: works in 6c9ecd83 HEAD~
-    [test_platform.py]=1 # FIXME: works in 6c9ecd83 HEAD~
-    [test_plistlib.py]=1 # FIXME: works in 6c9ecd83 HEAD~
-    [test_poplib.py]=1 # FIXME: works in 6c9ecd83 HEAD~
-    [test_strftime.py]=1 # FIXME: works in 6c9ecd83 HEAD~
-    [test_struct.py]=1 # FIXME: works in 6c9ecd83 HEAD~
-    [test_tcl.py]=1 # FIXME: parse error works in 6c9ecd83 HEAD~
+    [test_codeccallbacks.py]=1 # FIXME: works in HEAD~10 or so
+    [test_codecs.py]=1 # FIXME: works in HEAD~10 or so
+    [test_cgi.py]=1 # FIXME: works in HEAD~10 or so
+    [test_decorators.py]=1 # FIXME: works in HEAD~10 or so
+    [test_marshal.py]=1 # FIXME: parse error; works in HEAD~10 or so
+    [test_os.py]=1 # FIXME: works in HEAD~10 or so
+    [test_platform.py]=1 # FIXME: test errors; works in HEAD~10 or so
+    [test_plistlib.py]=1 # FIXME: works in HEAD~10 or so
+    [test_poplib.py]=1 # FIXME: works in HEAD~10 or so
+    [test_strftime.py]=1 # FIXME: works in HEAD~10 or so
+    [test_struct.py]=1 # FIXME: works in HEAD~10 or so
+    [test_tcl.py]=1 # FIXME: works in HEAD~10 or so
 
     [test_format.py]=1 # FIXME: works in master? 795b2195? test check failures if/and logic
 

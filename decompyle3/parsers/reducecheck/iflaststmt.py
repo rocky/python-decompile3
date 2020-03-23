@@ -24,6 +24,14 @@ def iflaststmt(
     if tokens[last] == "RETURN_LAST":
         last -= 1
 
+    # If there is a fall-through it shouldn't be somewhere
+    # inside iflaststmt, since the point of this is to handle
+    # if statments that *don't* fall trough.
+    if tokens[last] == "COME_FROM":
+        come_from_offset = tokens[last].attr
+        if tokens[first].off2int() <= come_from_offset <= tokens[last].off2int():
+            return True
+
     if rule == ("iflaststmt", ("testexpr", "stmts")):
         # If there is a trailing if-jump (forward) at the end of "testexp", it should
         # to the end of "stmts".

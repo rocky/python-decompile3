@@ -62,8 +62,8 @@ def ifstmt(
         # iflastsmtl jumped outside of loop. No good.
         return True
 
-    if testexpr[0] in ("testtrue", "testfalse"):
-        test = testexpr[0]
+    test = testexpr[0]
+    if test in ("testtrue", "testfalse"):
         if len(test) > 1 and test[1].kind.startswith("POP_JUMP_IF_"):
             jump_target = test[1].attr
             if (
