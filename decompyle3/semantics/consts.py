@@ -401,7 +401,7 @@ TABLE_DIRECT = {
 
     "ifstmt":		( "%|if %c:\n%+%c%-",
                             (0, "testexpr"),
-                            (1, "ifstmts_jump") ),
+                            (1, ("ifstmts_jump", "stmts")) ),
 
     "iflaststmt":	( "%|if %c:\n%+%c%-", 0, 1 ),
     "iflaststmtc":	( "%|if %c:\n%+%c%-", 0, 1 ),

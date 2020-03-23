@@ -58,10 +58,6 @@ def ifstmt(
 
     testexpr = ast[0]
 
-    if (last + 1) < n and tokens[last + 1] == "COME_FROM_LOOP":
-        # iflastsmtl jumped outside of loop. No good.
-        return True
-
     test = testexpr[0]
     if test in ("testtrue", "testfalse"):
         if len(test) > 1 and test[1].kind.startswith("POP_JUMP_IF_"):

@@ -607,6 +607,7 @@ class Python37Parser(Python37LambdaParser):
         pop_jump    ::= POP_JUMP_IF_FALSE
 
         ifstmt      ::= testexpr ifstmts_jump _come_froms
+        ifstmt      ::= testexpr stmts come_froms
 
         stmt        ::= ifstmt_bool
         ifstmt_bool ::= or_and_not stmts come_froms
