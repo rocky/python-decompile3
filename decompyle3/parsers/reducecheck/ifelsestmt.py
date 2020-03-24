@@ -252,6 +252,17 @@ def ifelsestmt(
                     pass
                 pass
 
+            # If we have a jump_back, i.e a then then end of the else
+            # can't be a fallthrough kind of instruction. In other
+            # words, tokens[last] should have be a
+            # COME_FROM. Otherwise the "else" suite should be extended
+            # to cover the next instruction at tokens[last].
+            if (
+                jump_else_end in ("jb_elsec", "jb_cfs")
+                and tokens[last].kind not in ("COME_FROM", "JUMP_BACK", "COME_FROM_LOOP")
+            ):
+                return True
+
             if first_offset > jump_target:
                 return True
 
