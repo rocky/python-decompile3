@@ -28,7 +28,7 @@ def break_check(
     # FIXME: put jump_back classifcation in a subroutine. Preferably in xdis.
     jump_target_prev = self.insts[self.offset2inst_index[tokens[first+1].attr]-1]
     is_jump_back = (
-        jump_target_prev.optype == "jabs"
+        jump_target_prev.is_jump()
         and jump_target_prev.arg < jump_target_prev.offset
         )
     return not is_jump_back

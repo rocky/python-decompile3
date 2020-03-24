@@ -52,7 +52,7 @@ def for38_check(
                 # "for" body isn't big enough
                 return True
             continue
-        if for_body_end_offset and inst.optype == "jabs" and inst.argval > for_body_end_offset:
+        if for_body_end_offset and inst.is_jump() and inst.argval > for_body_end_offset:
             # Another weird case. Guard against misclassifying things like:
             #   if a:
             #     for n in l:
@@ -65,5 +65,5 @@ def for38_check(
             # starts with a jump (the start of the encompassing if/else. The "else" part
             # of a "for/else" never starts with a jump.
             body_end_next_inst = self.insts[self.offset2inst_index[for_body_end_offset + 2]]
-            return body_end_next_inst.optype not in ("jabs", "jrel")
+            return not body_end_next_inst.is_jump()
     return False

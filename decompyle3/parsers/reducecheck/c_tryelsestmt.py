@@ -67,7 +67,7 @@ def c_tryelsestmt(self, lhs, n, rule, ast, tokens, first, last):
         else_offset = leading_jump.attr
         inst = self.insts[i]
         while inst.offset < else_offset:
-            if inst.optype in ("jabs", "jrel") and inst.argval == else_offset:
+            if inst.is_jump() and inst.argval == else_offset:
                 return True
             i += 1
             inst = self.insts[i]

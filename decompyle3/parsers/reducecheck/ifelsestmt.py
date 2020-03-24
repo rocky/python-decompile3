@@ -172,7 +172,7 @@ def ifelsestmt(
         i = self.offset2inst_index[then_start_offset]
         inst = self.insts[i]
         while inst.offset < else_start_offset:
-            if inst.optype in ("jabs", "jrel") and inst.argval == else_start_offset:
+            if inst.is_jump() and inst.argval == else_start_offset:
                 return True
             i += 1
             inst = self.insts[i]
@@ -247,10 +247,21 @@ def ifelsestmt(
                 if jump_else_end == "jb_cfs":
                     i = self.offset2inst_index[last_offset]
                     inst = self.insts[i]
-                    if inst.optype not in ("jabs", "jrel"):
+                    if not inst.is_jump():
                         return True
                     pass
                 pass
+
+            # If we have a jump_back, i.e a then then end of the else
+            # can't be a fallthrough kind of instruction. In other
+            # words, tokens[last] should have be a
+            # COME_FROM. Otherwise the "else" suite should be extended
+            # to cover the next instruction at tokens[last].
+            if (
+                jump_else_end in ("jb_elsec", "jb_cfs")
+                and tokens[last].kind not in ("COME_FROM", "JUMP_BACK", "COME_FROM_LOOP")
+            ):
+                return True
 
             if first_offset > jump_target:
                 return True

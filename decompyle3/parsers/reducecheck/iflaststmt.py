@@ -42,7 +42,7 @@ def iflaststmt(
         stmt_offset = ast[1].first_child().off2int(prefer_last=False)
         inst_offset = self.offset2inst_index[stmt_offset]
         testexpr_last_inst = self.insts[inst_offset - 1]
-        if testexpr_last_inst.optype == "jabs":
+        if testexpr_last_inst.is_jump():
             target_offset = testexpr_last_inst.argval
             last_offset = tokens[last].off2int(prefer_last=False)
             if target_offset != last_offset:
@@ -59,7 +59,7 @@ def iflaststmt(
                 i = inst_offset
                 inst = self.insts[i]
                 while inst.offset < target_offset:
-                    if inst.optype in ("jabs", "jrel") and inst.argval == target_offset:
+                    if inst.is_jump() and inst.argval == target_offset:
                         return False
                     i += 1
                     inst = self.insts[i]
