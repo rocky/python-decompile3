@@ -20,6 +20,10 @@ def iflaststmt(
 ) -> bool:
     testexpr = ast[0]
 
+    # print("XXX", first, last, rule)
+    # for t in range(first, last): print(tokens[t])
+    # print("="*40)
+
     # FIXME: should this be done in the caller?
     if tokens[last] == "RETURN_LAST":
         last -= 1
@@ -67,6 +71,8 @@ def iflaststmt(
             pass
         pass
 
+    if testexpr[0] == "testexpr":
+        testexpr = testexpr[0]
     if testexpr[0] in ("testtrue", "testtruec", "testfalse", "testfalsec"):
 
         if_condition = testexpr[0]

@@ -130,6 +130,9 @@ class TreeTransform(GenericASTTraversal, object):
                 raise_stmt = raise_stmt[0]
 
             testtrue_or_false = testexpr[0]
+            if testtrue_or_false == "testexpr":
+                testtrue_or_false = testtrue_or_false[0]
+
             if (
                 raise_stmt == "raise_stmt1"
                 and 1 <= len(testtrue_or_false) <= 2
@@ -141,7 +144,7 @@ class TreeTransform(GenericASTTraversal, object):
                     assert_expr = testtrue_or_false[0]
                     jump_cond = NoneToken
                 else:
-                    assert testtrue_or_false in ("testfalse", "testfalsec")
+                    assert testtrue_or_false in ("testfalse", "testfalsec"), testtrue_or_false
                     assert_expr = testtrue_or_false[0]
                     if assert_expr in ("and_not", "nand", "not_or"):
                         # FIXME: come back to stuff like this
@@ -252,6 +255,8 @@ class TreeTransform(GenericASTTraversal, object):
         n = else_suite[0]
         old_stmts = None
         else_suite_index = 1
+        if len(n) and n[0] == "suite_stmts":
+            n = n[0]
 
         len_n = len(n)
         if len_n == 1 == len(n[0]) and n[0] in ("stmt", "stmts"):

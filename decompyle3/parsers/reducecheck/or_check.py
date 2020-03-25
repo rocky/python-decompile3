@@ -56,9 +56,9 @@ def or_check(
 
         jump_if_false = tokens[last]
         # If the jmp is backwards
-        if jump_if_false == "POP_JUMP_IF_FALSE":
+        if jump_if_false.kind.startswith("POP_JUMP_IF_FALSE"):
             jump_if_false_offset = jump_if_false.off2int()
-            if jump_if_false.attr < jump_if_false_offset:
+            if jump_if_false == "POP_JUMP_IF_FALSE_BACK":
                 # For a backwards loop, well compare to the instruction *after*
                 # then POP_JUMP...
                 jump_if_false = tokens[last + 1]

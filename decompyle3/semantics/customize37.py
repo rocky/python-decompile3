@@ -18,6 +18,7 @@
 import re
 from spark_parser.ast import GenericASTTraversalPruningException
 from xdis.code import iscode
+from xdis.util import co_flags_is_async
 from decompyle3.scanners.tok import Token
 from decompyle3.semantics.consts import (
     PRECEDENCE,
@@ -26,7 +27,7 @@ from decompyle3.semantics.consts import (
     INDENT_PER_LEVEL,
     maxint,
 )
-from decompyle3.semantics.helper import co_flags_is_async, flatten_list, escape_string, strip_quotes
+from decompyle3.semantics.helper import flatten_list, escape_string, strip_quotes
 
 
 def escape_format(s):
@@ -131,7 +132,9 @@ def customize_for_version37(self, version):
             ),
             "compare_chained2a_37": ('%[1]{pattr.replace("-", " ")} %p', (0, PRECEDENCE["compare"]-1)),
             "compare_chained2b_false_37": ('%[1]{pattr.replace("-", " ")} %p', (0, PRECEDENCE["compare"]-1)),
+            "c_compare_chained2b_false_37": (' %[1]{pattr.replace("-", " ")} %p', (0, PRECEDENCE["compare"]-1)),
             "compare_chained2a_false_37": ('%[1]{pattr.replace("-", " ")} %p', (0, PRECEDENCE["compare"]-1)),
+            "c_compare_chained2a_false_37": (' %[1]{pattr.replace("-", " ")} %p', (0, PRECEDENCE["compare"]-1)),
             "compare_chained2c_37": (
                 "%p %p",
                 (0, PRECEDENCE["compare"]-1),
@@ -725,11 +728,13 @@ def customize_for_version37(self, version):
     self.n_classdef36 = n_classdef36
 
     def n_compare_chained(node):
-        if node[0] in ("compare_chained37", "compare_chained37_false"):
+        if node[0] in ("c_compare_chained37",
+                       "c_compare_chained37_false",
+                       "compare_chained37", "compare_chained37_false"):
             self.default(node[0])
         else:
             self.default(node)
-    self.n_compare_chained = n_compare_chained
+    self.n_compare_chained = self.n_c_compare_chained = n_compare_chained
 
     def n_importlist37(node):
         if len(node) == 1:

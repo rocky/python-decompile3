@@ -158,6 +158,14 @@ class Python37LambdaParser(Python37BaseParser):
         jump_forward_else  ::= JUMP_FORWARD _come_froms
         jump_forward_else  ::= come_froms jump COME_FROM
 
+        pjump_ift          ::= POP_JUMP_IF_TRUE
+        pjump_ift          ::= POP_JUMP_IF_TRUE_BACK
+
+        pjump_iff          ::= POP_JUMP_IF_FALSE
+        pjump_iff          ::= POP_JUMP_IF_FALSE_BACK
+
+        # pjump              ::= pjump_iff
+        # pjump              ::= pjump_ift
         """
 
     def p_37chained(self, args):
@@ -167,6 +175,8 @@ class Python37LambdaParser(Python37BaseParser):
         compare_chained     ::= compare_chained37
         compare_chained     ::= compare_chained37_false
 
+        c_compare_chained   ::= c_compare_chained37_false
+
         compare_chained37   ::= expr chained_parts
         compare_chained37   ::= expr compare_chained1a_37
         compare_chained37   ::= expr compare_chained1c_37
@@ -174,6 +184,10 @@ class Python37LambdaParser(Python37BaseParser):
         compare_chained37_false   ::= expr compare_chained1_false_37
         compare_chained37_false   ::= expr compare_chained1b_false_37
         compare_chained37_false   ::= expr compare_chained2_false_37
+
+        c_compare_chained37_false ::= expr c_compare_chained2_false_37
+        c_compare_chained37_false ::= expr c_compare_chained1b_false_37
+        c_compare_chained37_false ::= compare_chained37_false
 
         compare_chained1           ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
                                        compare_chained1 COME_FROM
@@ -187,6 +201,9 @@ class Python37LambdaParser(Python37BaseParser):
                                        compare_chained2a_37 COME_FROM POP_TOP come_from_opt
         compare_chained1b_false_37 ::= chained_parts
                                        compare_chained2b_false_37 POP_TOP jump _come_froms
+
+        c_compare_chained1b_false_37 ::= chained_parts
+                                         c_compare_chained2b_false_37 POP_TOP jump _come_froms
 
         compare_chained1c_37       ::= chained_parts
                                        compare_chained2a_37 POP_TOP
@@ -203,12 +220,20 @@ class Python37LambdaParser(Python37BaseParser):
 
         compare_chained2_false_37  ::= chained_parts
                                       compare_chained2a_false_37 POP_TOP JUMP_BACK COME_FROM
+        c_compare_chained2_false_37  ::= chained_parts
+                                         c_compare_chained2a_false_37 POP_TOP JUMP_BACK COME_FROM
 
         compare_chained2a_37       ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_TRUE JUMP_FORWARD
         compare_chained2a_37       ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_TRUE JUMP_BACK
         compare_chained2a_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE jf_cfs
 
-        compare_chained2b_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE jump_or_break COME_FROM
+
+        compare_chained2b_false_37   ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE
+                                         jump_or_break COME_FROM
+        c_compare_chained2b_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE_BACK
+                                         jump_or_break COME_FROM
+        c_compare_chained2a_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE_BACK
+                                         jf_cfs
 
         compare_chained2c_37       ::= chained_parts compare_chained2a_false_37
         """
@@ -277,11 +302,37 @@ class Python37LambdaParser(Python37BaseParser):
         compare           ::= compare_chained
         compare           ::= compare_single
         compare_single    ::= expr expr COMPARE_OP
+        c_compare         ::= c_compare_chained
 
 
         # FIXME: the below is to work around test_grammar expecting a "call" to be
         # on the LHS because it is also somewhere on in a rule.
         call           ::= expr CALL_METHOD_0
+        """
+
+    def p_list_comprehension(self, args):
+        """
+        expr ::= list_comp
+
+        list_iter ::= list_for
+        list_iter ::= list_if
+        list_iter ::= list_if_not
+        list_iter ::= list_if_or_not
+        list_iter ::= lc_body
+
+        lc_body   ::= expr LIST_APPEND
+        list_for  ::= expr for_iter store list_iter jb_or_c _come_froms
+        list_comp ::= BUILD_LIST_0 list_iter
+
+        list_if     ::= expr pjump_iff list_iter come_from_opt
+        list_if_not ::= expr pjump_ift list_iter come_from_opt
+        list_if     ::= expr jump_if_false_cf   list_iter
+        list_if_or_not ::= expr_pjit expr_pjit COME_FROM list_iter
+
+        jb_or_c ::= JUMP_BACK
+        jb_or_c ::= CONTINUE
+
+
         """
 
     def p_37conditionals(self, args):
@@ -301,7 +352,7 @@ class Python37LambdaParser(Python37BaseParser):
         jf_cfs                     ::= JUMP_FORWARD _come_froms
         list_iter                  ::= list_if37
         list_iter                  ::= list_if37_not
-        list_if37                  ::= compare_chained37_false list_iter
+        list_if37                  ::= c_compare_chained37_false list_iter
         list_if37_not              ::= compare_chained37 list_iter
 
         # A reduction check distinguishes between "and" and "and_not"
@@ -344,9 +395,10 @@ class Python37LambdaParser(Python37BaseParser):
 
         # Semantic rules require "comp_if" to have index 0 be some
         # sort of "expr" and index 1 to be some sort of "comp_iter"
+        c_compare     ::= compare
 
         comp_if       ::= expr_pjif comp_iter
-        comp_if       ::= compare comp_iter
+        comp_if       ::= c_compare comp_iter
         comp_if       ::= or_jump_if_false_cf comp_iter
         comp_if_not   ::= expr POP_JUMP_IF_TRUE comp_iter
 

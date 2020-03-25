@@ -413,31 +413,6 @@ class Python37Parser(Python37LambdaParser):
 
         """
 
-    def p_list_comprehension(self, args):
-        """
-        expr ::= list_comp
-
-        list_iter ::= list_for
-        list_iter ::= list_if
-        list_iter ::= list_if_not
-        list_iter ::= list_if_or_not
-        list_iter ::= lc_body
-
-        lc_body   ::= expr LIST_APPEND
-        list_for  ::= expr for_iter store list_iter jb_or_c _come_froms
-        list_comp ::= BUILD_LIST_0 list_iter
-
-        list_if     ::= expr POP_JUMP_IF_FALSE  list_iter come_from_opt
-        list_if_not ::= expr POP_JUMP_IF_TRUE   list_iter come_from_opt
-        list_if     ::= expr jump_if_false_cf   list_iter
-        list_if_or_not ::= expr_pjit expr_pjit COME_FROM list_iter
-
-        jb_or_c ::= JUMP_BACK
-        jb_or_c ::= CONTINUE
-
-
-        """
-
     def p_32on(self, args):
         """
         # Python < 3.5 no POP BLOCK
@@ -631,7 +606,6 @@ class Python37Parser(Python37LambdaParser):
         testfalse  ::= expr POP_JUMP_IF_FALSE
 
         testtrue   ::= expr POP_JUMP_IF_TRUE
-        testtruec  ::= expr POP_JUMP_IF_TRUE
 
         testtrue   ::= compare_chained37
         testtrue   ::= nor_cond
@@ -848,13 +822,10 @@ class Python37Parser(Python37LambdaParser):
         testfalse ::= nand
         testfalse ::= and
 
+        testexprc   ::= testexpr
         iflaststmtc ::= testexprc c_stmts
         iflaststmtc ::= testexprc c_stmts JUMP_BACK COME_FROM_LOOP
         iflaststmtc ::= testexprc c_stmts JUMP_BACK opt_pop_block
-
-        testexprc   ::= testtruec
-        testexprc   ::= testfalsec
-        testfalsec  ::= expr POP_JUMP_IF_TRUE
 
         opt_pop_block ::= POP_BLOCK?
 

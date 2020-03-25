@@ -25,6 +25,10 @@ def ifstmt(
     #             return True
     #     pass
 
+    # print("XXX", first, last, rule)
+    # for t in range(first, last): print(tokens[t])
+    # print("="*40)
+
     # Test that the outermost COME_FROM, if it exists, must be *somewhere*
     # in the range of the if stmt.
     ltm1 = tokens[last-1]
@@ -36,19 +40,19 @@ def ifstmt(
     for i in range(first, last):
         t = tokens[i]
         # instead of POP_JUMP_IF, should we use op attributes?
-        if t.kind in ("POP_JUMP_IF_FALSE", "POP_JUMP_IF_TRUE"):
+        if t.kind.startswith("POP_JUMP_IF_"):
             pjif_target = t.attr
             if pjif_target > last_offset:
-                # In come cases, where we have long bytecode, a
+                # In some cases, where we have long bytecode, a
                 # "POP_JUMP_IF_TRUE/FALSE" offset might be too
                 # large for the instruction; so instead it
                 # jumps to a JUMP_FORWARD. Allow that here.
                 if tokens[last] == "JUMP_FORWARD":
                     return tokens[last].attr != pjif_target
                 return True
-            elif lhs == "ifstmtc" and tokens[first].off2int() > pjif_target:
-                # A conditional JUMP to the loop is expected for "ifstmtc"
-                return False
+            # elif lhs == "ifstmtc" and tokens[first].off2int() > pjif_target:
+            #     # A conditional JUMP to the loop is expected for "ifstmtc"
+            #     return True
             pass
         pass
     pass
@@ -59,6 +63,9 @@ def ifstmt(
     testexpr = ast[0]
 
     test = testexpr[0]
+    if test == "testexpr":
+        test = test[0]
+
     if test in ("testtrue", "testfalse"):
         if len(test) > 1 and test[1].kind.startswith("POP_JUMP_IF_"):
             jump_target = test[1].attr

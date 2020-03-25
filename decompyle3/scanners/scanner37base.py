@@ -243,7 +243,6 @@ class Scanner37Base(Scanner):
             # else we have an "assert" statement.
             assert_can_follow = (
                 inst.opname == "POP_JUMP_IF_TRUE"
-                and inst.jumps_forward()
                 and i + 1 < n
             )
             if assert_can_follow:
@@ -503,6 +502,8 @@ class Scanner37Base(Scanner):
                 else:
                     opname = "JUMP_FORWARD"
 
+            # elif opname.startswith("POP_JUMP_IF_") and not inst.jumps_forward():
+            #     opname += "_BACK"
             elif inst.offset in self.load_asserts:
                 opname = "LOAD_ASSERT"
 

@@ -18,7 +18,7 @@ def not_or_check(
     expr_pjif = ast[0]
 
     end_token = tokens[last-1]
-    if end_token == "POP_JUMP_IF_FALSE":
+    if end_token.kind.startswith("POP_JUMP_IF_FALSE"):
 
         while expr_pjif == "and_parts":
             expr_pjif = expr_pjif[0]

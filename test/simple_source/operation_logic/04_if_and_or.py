@@ -68,3 +68,21 @@ for i, t in enumerate(bool4):
     # print(got)
     expect = expects[i]
     assert got == expect, f"got {got}, expect: {expect}"
+
+
+# From 3.7.7 test_modulefinder.py
+# Bug was detecting not turning "or" into nested "if"s
+# inside a loop. nested "ifs" can't handle the "else"
+# properly.
+def create_package(source, a, b):
+    for line in source:
+        if a or b:
+            x = 1
+        else:
+            x = 2
+    return x
+
+assert create_package([2], True, True)  == 1
+assert create_package([2], True, False)  == 1
+assert create_package([2], False, True)  == 1
+assert create_package([2], False, False)  == 2
