@@ -40,6 +40,6 @@ def not_or_check(
         # Similarly if the test jump goes to another jump it is (probably?) an "and".
         jump_target_inst_index = self.offset2inst_index[end_token.attr]
         inst = self.insts[jump_target_inst_index-1]
-        return inst.optype in ("jabs", "jrel")
+        return inst.is_jump()
         pass
     return False

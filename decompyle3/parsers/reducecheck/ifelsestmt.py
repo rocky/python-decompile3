@@ -172,7 +172,7 @@ def ifelsestmt(
         i = self.offset2inst_index[then_start_offset]
         inst = self.insts[i]
         while inst.offset < else_start_offset:
-            if inst.optype in ("jabs", "jrel") and inst.argval == else_start_offset:
+            if inst.is_jump() and inst.argval == else_start_offset:
                 return True
             i += 1
             inst = self.insts[i]
@@ -247,7 +247,7 @@ def ifelsestmt(
                 if jump_else_end == "jb_cfs":
                     i = self.offset2inst_index[last_offset]
                     inst = self.insts[i]
-                    if inst.optype not in ("jabs", "jrel"):
+                    if not inst.is_jump():
                         return True
                     pass
                 pass
