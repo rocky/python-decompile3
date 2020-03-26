@@ -604,8 +604,10 @@ class Python37Parser(Python37LambdaParser):
         testexpr   ::= or_and_not
 
         testfalse  ::= expr POP_JUMP_IF_FALSE
+        testfalsec ::= expr POP_JUMP_IF_TRUE_BACK
 
         testtrue   ::= expr POP_JUMP_IF_TRUE
+        testtruec  ::= expr POP_JUMP_IF_FALSE_BACK
 
         testtrue   ::= compare_chained37
         testtrue   ::= nor_cond
@@ -823,6 +825,8 @@ class Python37Parser(Python37LambdaParser):
         testfalse ::= and
 
         testexprc   ::= testexpr
+        testexprc   ::= testfalsec
+        testexprc   ::= testtruec
         iflaststmtc ::= testexprc c_stmts
         iflaststmtc ::= testexprc c_stmts JUMP_BACK COME_FROM_LOOP
         iflaststmtc ::= testexprc c_stmts JUMP_BACK opt_pop_block

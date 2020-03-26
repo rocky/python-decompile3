@@ -502,8 +502,8 @@ class Scanner37Base(Scanner):
                 else:
                     opname = "JUMP_FORWARD"
 
-            # elif opname.startswith("POP_JUMP_IF_") and not inst.jumps_forward():
-            #     opname += "_BACK"
+            elif opname.startswith("POP_JUMP_IF_") and not inst.jumps_forward():
+                opname += "_BACK"
             elif inst.offset in self.load_asserts:
                 opname = "LOAD_ASSERT"
 
