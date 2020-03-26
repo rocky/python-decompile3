@@ -1,5 +1,5 @@
 SKIP_TESTS=(
-    [test_codeccallbacks.py]=1 # FIXME: works in HEAD~10 or so
+    [test_capi.py]=1 # FIXME: parse error works in HEAD~3 or so
     [test_codecs.py]=1 # FIXME: works in HEAD~10 or so
     [test_poplib.py]=1 # FIXME: works in HEAD~10 or so
 
@@ -71,9 +71,8 @@ SKIP_TESTS=(
     [test_poll.py]=1 # Takes too long to run before decompiling 11 seconds
     [test_pwd.py]=1 # killing - doesn't terminate
     [test_pydoc.py]=1 # it fails on its own
-    [test_pyclbr.py]=1 # test errors
 
-    [test_regrtest.py]=1 # lists differ
+    [test_regrtest.py]=1 # takes too long to run before decompiling
     [test_runpy.py]=1  # Too long to run before decompiling
 
     [test_select.py]=1 # test takes too long to run: 11 seconds
@@ -89,7 +88,7 @@ SKIP_TESTS=(
     [test_subprocess.py]=1 # Takes too long to run before decompile: 25 seconds
     [test_sys_settrace.py]=1 # running the tests loops forever. Control flow?
 
-    [test_tarfile.py]=1 # test assertions failed
+    [test_tarfile.py]=1 # test takes too long to run before decompiling
     [test_telnetlib.py]=1 # test run takes more than 15 seconds
     [test_threading.py]=1 # test assertion failures
     [test_threaded_import.py]=1 # test assertion failures
@@ -100,12 +99,12 @@ SKIP_TESTS=(
     [test_tracemalloc.py]=1 # test assert failures
     [test_ttk_guionly.py]=1  # implementation specfic and test takes too long to run: 19 seconds
     [test_ttk_guionly.py]=1  # implementation specfic and test takes too long to run: 19 seconds
-    [test_typing.py]=1 # test errors
+    [test_typing.py]=1 # parse errors involving POP_JUMP_IF_{TRUE,FALSE}_BACK
 
     [test_unicode.py]=1 # unicode thing
-    [test_urllibnet.py]=1 # probably control flow - uninitialized variable
+    [test_urllibnet.py]=1 # test erors
 
-    [test_weakref.py]=1 # probably control flow - uninitialized variable
+    [test_weakref.py]=1 # takes too long to run
     [test_with.py]=1 # test errors.
 
     [test_winconsoleio.py]=1 # it fails on its own
