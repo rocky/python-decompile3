@@ -14,87 +14,6 @@
 
 from decompyle3.scanners.tok import Token
 
-IFELSE_STMT_RULES = frozenset(
-    [
-        (
-            "ifelsestmt",
-            (
-                "testexpr",
-                "stmts_opt",
-                "jump_forward_else",
-                "else_suite",
-                "_come_froms",
-            ),
-        ),
-        ("ifelsestmtc", ("testexpr", "c_stmts_opt", "jb_cf", "else_suitec"),),
-        ("ifelsestmtc", ("testexpr", "c_stmts_opt", "jb_cfs", "else_suitec"),),
-        (
-            "ifelsestmtc",
-            (
-                "testexpr", "c_stmts", "come_froms", "else_suite")
-        ),
-        (
-            "ifelsestmt",
-            (
-                "testexpr",
-                "stmts_opt",
-                "jump_forward_else",
-                "else_suite",
-                "\\e__come_froms",
-            ),
-        ),
-        (
-            "ifelsestmtc",
-            (
-                "testexpr",
-                "c_stmts_opt",
-                "jump_forward_else",
-                "else_suitec",
-                "opt_come_from_except",
-            ),
-        ),
-        (
-            "ifelsestmtc",
-            (
-                "testexpr",
-                "c_stmts_opt",
-                "jump_forward_else",
-                "else_suitec",
-                "\\e_opt_come_from_except",
-            ),
-        ),
-        (
-            "ifelsestmt",
-            (
-                "testexpr",
-                "stmts_opt",
-                "jf_cfs",
-                "else_suite",
-                "\\e_opt_come_from_except",
-            ),
-        ),
-        (
-            "ifelsestmt",
-            ("testexpr", "stmts", "come_froms", "else_suite", "come_froms",),
-        ),
-        (
-            "ifelsestmt",
-            ("testexpr", "stmts_opt", "jf_cfs", "else_suite", "opt_come_from_except",),
-        ),
-        (
-            "ifelsestmt",
-            (
-                "testexpr",
-                "stmts_opt",
-                "jump_forward_else",
-                "else_suite",
-                "\\e__come_froms",
-            ),
-        ),
-    ]
-)
-
-
 def ifelsestmt(
     self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
 ) -> bool:
@@ -106,9 +25,6 @@ def ifelsestmt(
     # print("XXX", first, last, rule)
     # for t in range(first, last): print(tokens[t])
     # print("="*40)
-
-    if rule not in IFELSE_STMT_RULES:
-        return False
 
     first_offset = tokens[first].off2int()
 
@@ -135,11 +51,17 @@ def ifelsestmt(
     # Check that the condition portion of the "if"
     # jumps to the "else" part.
     if_condition = testexpr[0]
-    if if_condition in ("testtrue", "testfalse"):
+
+    if if_condition in ("testtrue", "testfalse", "and_cond"):
 
         then_end = ast[2]
         else_suite = ast[3]
-        assert else_suite in ("else_suite", "else_suitec")
+        if else_suite == "else_suite_opt" and len(else_suite):
+            else_suite = else_suite[0]
+
+        if else_suite not in ("else_suite", "else_suitec"):
+            # May need to handle later.
+            return False
 
         # We may need this later:
 
@@ -168,7 +90,13 @@ def ifelsestmt(
         # "else" then this is not a proper if/else. Note that we might generalize this
         # to jump *anywhere* in the else body instead of the first instruction.
         else_start_offset = else_suite.first_child().off2int(prefer_last=False)
+
+        then_start = ast[1].first_child()
+        if then_start is None:
+            return False
+
         then_start_offset = ast[1].first_child().off2int(prefer_last=False)
+
         i = self.offset2inst_index[then_start_offset]
         inst = self.insts[i]
         while inst.offset < else_start_offset:
@@ -189,6 +117,8 @@ def ifelsestmt(
                 pass
             pass
 
+        if if_condition == "and_cond" and if_condition[1] == "expr_pjif":
+            if_condition = if_condition[1]
         if len(if_condition) > 1 and if_condition[1].kind.startswith("POP_JUMP_IF_"):
             if last == n:
                 last -= 1

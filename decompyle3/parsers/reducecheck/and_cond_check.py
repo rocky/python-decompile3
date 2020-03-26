@@ -12,10 +12,19 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-def or_cond_check(
+def and_cond_check(
     self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
 ) -> bool:
-    if rule == ("or_cond", ("or_parts", "expr_pjif", "come_froms")):
-        if tokens[last-1] == "COME_FROM":
-            return tokens[last-1].attr < tokens[first].offset
+    if rule[1][0:2] == ("and_parts", "expr_pjif"):
+        and_parts = ast[0]
+        last_expr_pjif = ast[1]
+        test_jump_target = last_expr_pjif[-1].attr
+        expr_pjif = and_parts[0]
+        while expr_pjif == "and_parts":
+            expr_pjif = expr_pjif[0]
+            if expr_pjif == "expr_pjif" and test_jump_target != expr_pjif[-1].attr:
+                return True
+            pass
+        if expr_pjif == "expr_pjif":
+            return test_jump_target != expr_pjif[-1].attr
     return False

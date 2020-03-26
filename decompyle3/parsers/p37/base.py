@@ -9,6 +9,7 @@ from spark_parser.spark import rule2str
 
 from decompyle3.parsers.reducecheck import (
     and_check,
+    and_cond_check,
     and_not_check,
     c_tryelsestmt,
     if_and_stmt,
@@ -1143,6 +1144,7 @@ class Python37BaseParser(PythonParser):
         self.reduce_check_table = {
             "ifstmts_jump": ifstmts_jump,
             "and": and_check,
+            "and_cond": and_cond_check,
             "and_not": and_not_check,
             "if_and_stmt": if_and_stmt,
             "ifelsestmt": ifelsestmt,
@@ -1166,6 +1168,7 @@ class Python37BaseParser(PythonParser):
         }
 
         self.check_reduce["and"] = "AST"
+        self.check_reduce["and_cond"] = "AST"
         self.check_reduce["and_not"] = "AST"
         self.check_reduce["annotate_tuple"] = "tokens"
         self.check_reduce["aug_assign1"] = "AST"
