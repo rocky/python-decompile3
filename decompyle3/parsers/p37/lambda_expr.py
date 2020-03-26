@@ -16,7 +16,7 @@
 Python 3.7 lambda grammar for the spark Earley-algorithm parser.
 """
 
-from decompyle3.parsers.main import PythonParserSingle, nop_func
+from decompyle3.parsers.main import nop_func
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from decompyle3.parsers.p37.base import Python37BaseParser
 from decompyle3.scanners.tok import Token
@@ -78,6 +78,7 @@ class Python37LambdaParser(Python37BaseParser):
         and        ::= not expr
 
         nand       ::= and_parts expr_pjit  come_froms
+        c_nand     ::= and_parts expr_pjitt come_froms
 
         or_parts  ::= expr_pjit+
 
@@ -197,13 +198,22 @@ class Python37LambdaParser(Python37BaseParser):
         chained_parts              ::= chained_part+
         chained_part               ::= expr DUP_TOP ROT_THREE COMPARE_OP come_from_opt POP_JUMP_IF_FALSE
 
+        # c_chained_parts            ::= c_chained_part+
+        # c_chained_part             ::= expr DUP_TOP ROT_THREE COMPARE_OP come_from_opt POP_JUMP_IF_FALSE_BACK
+        # c_chained_parts            ::= chained_parts
+
+
         compare_chained1a_37       ::= chained_parts
-                                       compare_chained2a_37 COME_FROM POP_TOP come_from_opt
+                                       compare_chained2a_37 COME_FROM
+                                       POP_TOP come_from_opt
         compare_chained1b_false_37 ::= chained_parts
-                                       compare_chained2b_false_37 POP_TOP jump _come_froms
+                                       compare_chained2b_false_37
+                                       POP_TOP jump _come_froms
 
         c_compare_chained1b_false_37 ::= chained_parts
                                          c_compare_chained2b_false_37 POP_TOP jump _come_froms
+        c_compare_chained1b_false_37 ::= chained_parts
+                                         compare_chained2b_false_37 POP_TOP jump _come_froms
 
         compare_chained1c_37       ::= chained_parts
                                        compare_chained2a_37 POP_TOP
@@ -234,6 +244,9 @@ class Python37LambdaParser(Python37BaseParser):
                                          jump_or_break COME_FROM
         c_compare_chained2a_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE_BACK
                                          jf_cfs
+        c_compare_chained2a_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE_BACK
+        c_compare_chained2b_false_37 ::= expr COMPARE_OP come_from_opt JUMP_FORWARD COME_FROM
+
 
         compare_chained2c_37       ::= chained_parts compare_chained2a_false_37
         """
@@ -343,7 +356,9 @@ class Python37LambdaParser(Python37BaseParser):
 
         expr_pjif                  ::= expr POP_JUMP_IF_FALSE
         expr_pjit                  ::= expr POP_JUMP_IF_TRUE
+        expr_pjitt                 ::= expr pjump_ift
         expr_jitop                 ::= expr JUMP_IF_TRUE_OR_POP
+        expr_pjiff                 ::= expr pjump_iff
 
         if_exp                     ::= expr_pjif expr jump_forward_else expr come_froms
 
@@ -391,16 +406,19 @@ class Python37LambdaParser(Python37BaseParser):
 
     def p_dict_comp3(self, args):
         """"
-        or_jump_if_false_cf  ::= or POP_JUMP_IF_FALSE COME_FROM
+        or_jump_if_false_cf   ::= or POP_JUMP_IF_FALSE COME_FROM
+        c_or_jump_if_false_cf  ::= or POP_JUMP_IF_FALSE_BACK COME_FROM
 
         # Semantic rules require "comp_if" to have index 0 be some
         # sort of "expr" and index 1 to be some sort of "comp_iter"
         c_compare     ::= compare
 
         comp_if       ::= expr_pjif comp_iter
+        comp_if       ::= expr_pjiff comp_iter
         comp_if       ::= c_compare comp_iter
         comp_if       ::= or_jump_if_false_cf comp_iter
-        comp_if_not   ::= expr POP_JUMP_IF_TRUE comp_iter
+        comp_if       ::= c_or_jump_if_false_cf comp_iter
+        comp_if_not   ::= expr pjump_ift comp_iter
 
         comp_iter     ::= comp_body
         comp_iter     ::= comp_if

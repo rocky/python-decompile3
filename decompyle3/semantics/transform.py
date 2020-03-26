@@ -213,7 +213,7 @@ class TreeTransform(GenericASTTraversal, object):
                     if jump_cond in ("POP_JUMP_IF_TRUE", NoneToken):
                         kind = "assert"
                     else:
-                        assert jump_cond == "POP_JUMP_IF_FALSE"
+                        assert jump_cond.kind.startswith("POP_JUMP_IF_")
                         kind = "assertnot"
 
                     LOAD_ASSERT = expr[0]

@@ -244,11 +244,19 @@ def customize_for_version37(self, version):
                 (0, "and_parts"), (1, ("expr", "expr_pjit")),
             ),
 
+            "c_nand": (
+                "not (%c and %c)",
+                (0, "and_parts"), (1, "expr_pjitt"),
+            ),
+
             "or_parts": (
                 "%c or %c", (0, "or_parts", "expr_pjit"), (1, "expr_pjit"),
             ),
 
-            "testfalsec": ("not %c", (0, "expr")),
+            "testfalsec": (
+                "not %c",
+                (0, ("expr", "c_compare_chained37_false", "c_nand"))
+                ),
             "try_except36": ("%|try:\n%+%c%-%c\n\n", 1, -2),
             "c_try_except36": ("%|try:\n%+%c%-%c\n\n", 1, 2),
             "tryfinally36": ("%|try:\n%+%c%-%|finally:\n%+%c%-\n\n", (1, "returns"), 3),
