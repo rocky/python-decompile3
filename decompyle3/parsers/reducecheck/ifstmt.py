@@ -83,7 +83,12 @@ def ifstmt(
                 endif_offset = tokens[last - 2].off2int(prefer_last=False)
 
             if first_offset <= jump_target < endif_offset:
-                return True
+                # FIXME: investigate why this happens for "if"s with EXTENDED_ARG POP_JUMP_IF_FALSE.
+                # An example is decompyle3/semantics/transform.py n_ifelsestmt.py
+                if not (
+                        jump_target != endif_offset or
+                        rule == ('ifstmt', ('testexpr', 'stmts', 'come_froms'))):
+                    return True
 
             # jump_target equal tokens[last] is also okay: normal non-optimized non-loop jump
             # HACK Alert: +2 refers to instruction offset after endif
