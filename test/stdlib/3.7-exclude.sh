@@ -1,5 +1,4 @@
 SKIP_TESTS=(
-    [test_capi.py]=1 # FIXME: parse error works in HEAD~3 or so
     [test_codecs.py]=1 # FIXME: works in HEAD~10 or so
     [test_poplib.py]=1 # FIXME: works in HEAD~10 or so
 
