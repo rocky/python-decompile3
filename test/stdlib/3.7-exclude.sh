@@ -1,5 +1,4 @@
 SKIP_TESTS=(
-    [test_codecs.py]=1 # FIXME: works in HEAD~10 or so
     [test_poplib.py]=1 # FIXME: works in HEAD~10 or so
 
     [test_format.py]=1 # FIXME: works in master? 795b2195? test check failures if/and logic
@@ -98,7 +97,7 @@ SKIP_TESTS=(
     [test_tracemalloc.py]=1 # test assert failures
     [test_ttk_guionly.py]=1  # implementation specfic and test takes too long to run: 19 seconds
     [test_ttk_guionly.py]=1  # implementation specfic and test takes too long to run: 19 seconds
-    [test_typing.py]=1 # parse errors involving POP_JUMP_IF_{TRUE,FALSE}_BACK
+    [test_typing.py]=1 # run errors
 
     [test_unicode.py]=1 # unicode thing
     [test_urllibnet.py]=1 # test erors

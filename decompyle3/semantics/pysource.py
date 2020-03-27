@@ -1238,10 +1238,10 @@ class SourceWalker(GenericASTTraversal, object):
                 if n[0].kind == "expr":
                     list_if = n
                     n = n[2]
-                elif n[0].kind == "expr_pjif":
+                elif n[0].kind in ("expr_pjif", "expr_pjiff"):
                     list_if = n
                     n = n[1]
-                elif n[0].kind == "or_jump_if_false_cf":
+                elif n[0].kind in ("or_jump_if_false_cf", "c_or_jump_if_false_cf"):
                     list_if = n[1]
                     n = n[1]
                 else:

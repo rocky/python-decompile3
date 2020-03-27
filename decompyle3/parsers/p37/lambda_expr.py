@@ -359,6 +359,7 @@ class Python37LambdaParser(Python37BaseParser):
         expr_pjitt                 ::= expr pjump_ift
         expr_jitop                 ::= expr JUMP_IF_TRUE_OR_POP
         expr_pjiff                 ::= expr pjump_iff
+        expr_pjift                 ::= expr pjump_ift
 
         if_exp                     ::= expr_pjif expr jump_forward_else expr come_froms
 
@@ -406,8 +407,12 @@ class Python37LambdaParser(Python37BaseParser):
 
     def p_dict_comp3(self, args):
         """"
-        or_jump_if_false_cf   ::= or POP_JUMP_IF_FALSE COME_FROM
-        c_or_jump_if_false_cf  ::= or POP_JUMP_IF_FALSE_BACK COME_FROM
+        or_jump_if_false_cf    ::= or POP_JUMP_IF_FALSE COME_FROM
+        c_or_jump_if_false_cf  ::= c_or POP_JUMP_IF_FALSE_BACK COME_FROM
+
+        c_or       ::= or
+        c_or       ::= c_or_parts expr
+        c_or_parts ::= expr_pjift+
 
         # Semantic rules require "comp_if" to have index 0 be some
         # sort of "expr" and index 1 to be some sort of "comp_iter"
