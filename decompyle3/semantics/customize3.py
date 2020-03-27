@@ -20,6 +20,7 @@ from decompyle3.scanner import Code
 from decompyle3.semantics.consts import TABLE_DIRECT
 
 from xdis.code import iscode
+from xdis.util import co_flags_is_async
 from decompyle3.semantics.customize37 import customize_for_version37
 from decompyle3.semantics.customize38 import customize_for_version38
 
@@ -44,7 +45,7 @@ def customize_for_version3(self, version):
             "raise_stmt2": ("%|raise %c from %c\n", 0, 1),
             "tf_tryelsestmtc3": ( '%c%-%c%|else:\n%+%c', 1, 3, 5 ),
             "store_locals": ("%|# inspect.currentframe().f_locals = __locals__\n",),
-            "withstmt": ("%|with %c:\n%+%c%-", 0, 3),
+             "with":      ("%|with %c:\n%+%c%-", 0, 3),
             "withasstmt": ("%|with %c as %c:\n%+%c%-", 0, 2, 3),
         }
     )
@@ -78,7 +79,9 @@ def customize_for_version3(self, version):
         p = self.prec
         self.prec = 27
 
-        code = Code(node[1].attr, self.scanner, self.currentclass)
+        code_obj = node[1].attr
+        assert iscode(code_obj)
+        code = Code(code_obj, self.scanner, self.currentclass)
         ast = self.build_ast(code._tokens, code._customize)
         self.customize(code._customize)
 
@@ -96,76 +99,58 @@ def customize_for_version3(self, version):
         collections = [node[-3]]
         list_ifs = []
 
-        if self.version == 3.0 and n != "list_iter":
-            # FIXME 3.0 is a snowflake here. We need
-            # special code for this. Not sure if this is totally
-            # correct.
-            stores = [ast[3]]
-            assert ast[4] == "comp_iter"
-            n = ast[4]
-            # Find the list comprehension body. It is the inner-most
-            # node that is not comp_.. .
-            while n == "comp_iter":
-                if n[0] == "comp_for":
-                    n = n[0]
-                    stores.append(n[2])
-                    n = n[3]
-                elif n[0] in ("comp_if", "comp_if_not"):
-                    n = n[0]
-                    # FIXME: just a guess
-                    if n[0].kind == "expr":
-                        list_ifs.append(n)
-                    else:
-                        list_ifs.append([1])
-                    n = n[2]
-                    pass
-                else:
-                    break
-                pass
+        assert n == "list_iter"
+        stores = []
+        # Find the list comprehension body. It is the inner-most
+        # node that is not list_.. .
+        while n == "list_iter":
 
-            # Skip over n[0] which is something like: _[1]
-            self.preorder(n[1])
+            # recurse one step
+            n = n[0]
 
-        else:
-            assert n == "list_iter"
-            stores = []
-            # Find the list comprehension body. It is the inner-most
-            # node that is not list_.. .
-            while n == "list_iter":
-                n = n[0]  # recurse one step
-                if n == "list_for":
-                    stores.append(n[2])
-                    n = n[3]
-                    if n[0] == "list_for":
-                        # Dog-paddle down largely singleton reductions
-                        # to find the collection (expr)
-                        c = n[0][0]
-                        if c == "expr":
-                            c = c[0]
-                        # FIXME: grammar is wonky here? Is this really an attribute?
-                        if c == "attribute":
-                            c = c[0]
-                        collections.append(c)
-                        pass
-                elif n in ("list_if", "list_if_not"):
-                    # FIXME: just a guess
-                    if n[0].kind == "expr":
-                        list_ifs.append(n)
-                    else:
-                        list_ifs.append([1])
-                    n = n[-1]
+            if n == "list_for":
+                stores.append(n[2])
+                n = n[3]
+                if n[0] == "list_for":
+                    # Dog-paddle down largely singleton reductions
+                    # to find the collection (expr)
+                    c = n[0][0]
+                    if c == "expr":
+                        c = c[0]
+                    # FIXME: grammar is wonky here? Is this really an attribute?
+                    if c == "attribute":
+                        c = c[0]
+                    collections.append(c)
                     pass
-                elif n == "list_if37":
+            elif n in ("list_if", "list_if_not", "list_if_or_not"):
+                if n[0].kind == "expr":
                     list_ifs.append(n)
-                    n = n[-1]
-                    pass
+                else:
+                    list_ifs.append([1])
+                n = n[-2] if n[-1] == "come_from_opt" else n[-1]
                 pass
+            elif n == "list_if37":
+                list_ifs.append(n)
+                n = n[-1]
+                pass
+            elif n == "list_afor":
+                collections.append(n[0][0])
+                n = n[1]
+                stores.append(n[1][0])
+                n = n[3]
+            pass
 
-            assert n == "lc_body", ast
-            self.preorder(n[0])
+        assert n == "lc_body", ast
+        self.preorder(n[0])
 
         # FIXME: add indentation around "for"'s and "in"'s
+        n_colls = len(collections)
         for i, store in enumerate(stores):
+            if i >= n_colls:
+                break
+            if collections[i] == "LOAD_DEREF"  and co_flags_is_async(code_obj.co_flags):
+                self.write(" async")
+                pass
             self.write(" for ")
             self.preorder(store)
             self.write(" in ")
@@ -181,8 +166,8 @@ def customize_for_version3(self, version):
         {
             "c_tryelsestmt": (
                 "%|try:\n%+%c%-%c%|else:\n%+%c%-",
-                (1, "suite_stmts_opt"),
-                (3, "except_handler"),
+                (1, "c_suite_stmts"),
+                (3, "c_except_handler"),
                 (5, "else_suitec"),
             ),
             "LOAD_CLASSDEREF": ("%{pattr}",),

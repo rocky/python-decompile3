@@ -20,6 +20,10 @@ def c_tryelsestmt(self, lhs, n, rule, ast, tokens, first, last):
     # then this is a "try" with no "else".
     except_handler = ast[3]
 
+    # print("XXX", first, last, rule)
+    # for t in range(first, last): print(tokens[t])
+    # print("="*40)
+
     if except_handler == "except_handler_else":
         except_handler = except_handler[0]
 
@@ -30,7 +34,7 @@ def c_tryelsestmt(self, lhs, n, rule, ast, tokens, first, last):
     if come_from == "COME_FROM":
         first_come_from = except_handler[-1]
     elif come_from == "END_FINALLY":
-        return False
+        first_come_from = None
     elif come_from == "except_return":
         return False
     else:
@@ -41,15 +45,33 @@ def c_tryelsestmt(self, lhs, n, rule, ast, tokens, first, last):
             return False
 
     leading_jump = except_handler[0]
-    if not hasattr(leading_jump, "offset"):
-        return False
 
     # We really don't care that this is a jump per-se. But
     # we could also check that this jumps to the end of the except if
     # desired.
     if isinstance(leading_jump, SyntaxTree):
-        except_handler_first_offset = leading_jump.first_child().off2int()
-    else:
-        except_handler_first_offset = leading_jump.off2int()
+        leading_jump = leading_jump.first_child()
 
-    return first_come_from.attr > except_handler_first_offset
+    leading_jump_offset = leading_jump.off2int()
+
+    if first_come_from and first_come_from.attr > except_handler_first_offset:
+        return True
+
+    # If there is a jump in the except that goes to the same place as
+    # except_handler_first_offset, then this is a "try" without an else.
+    except_stmt = except_handler[2]
+    if except_stmt in ("c_except_stmts", "except_stmts"):
+        first_except = except_stmt[0]
+        first_except_offset = first_except.first_child().off2int(prefer_last=False)
+        i = self.offset2inst_index[first_except_offset]
+        else_offset = leading_jump.attr
+        inst = self.insts[i]
+        while inst.offset < else_offset:
+            if inst.is_jump() and inst.argval == else_offset:
+                return True
+            i += 1
+            inst = self.insts[i]
+            pass
+        pass
+
+    return False

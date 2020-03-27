@@ -2,23 +2,28 @@
 """
 Python 3.7 base code. We keep non-custom-generated grammar rules out of this file.
 """
-from decompyle3.parsers.main import PythonParser, PythonParserSingle, nop_func, ParserError
+from decompyle3.parsers.main import PythonParser, nop_func, ParserError
 from decompyle3.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from spark_parser.spark import rule2str
 
 from decompyle3.parsers.reducecheck import (
     and_check,
+    and_cond_check,
     and_not_check,
+    c_tryelsestmt,
     if_and_stmt,
     ifelsestmt,
     iflaststmt,
     ifstmt,
     ifstmts_jump,
     lastc_stmt,
+    list_if_not,
+    not_or_check,
     or_check,
+    or_cond_check,
     testtrue,
-    c_tryelsestmt,
+    tryexcept,
     whilestmt,
     while1stmt,
     while1elsestmt,
@@ -132,6 +137,7 @@ class Python37BaseParser(PythonParser):
                 "RAISE",
                 "SETUP",
                 "UNPACK",
+                "WITH",
             )
         )
 
@@ -209,41 +215,86 @@ class Python37BaseParser(PythonParser):
 
                 if self.version < 3.8:
                     rules_str += """
-                      stmt                ::= async_with_stmt SETUP_ASYNC_WITH
-                      async_with_stmt     ::= expr
+                      stmt                 ::= async_with_stmt SETUP_ASYNC_WITH
+                      c_stmt               ::= c_async_with_stmt SETUP_ASYNC_WITH
+                      async_with_stmt      ::= expr
+                                               async_with_pre
+                                               POP_TOP
+                                               suite_stmts_opt
+                                               POP_BLOCK LOAD_CONST
+                                               async_with_post
+                      c_async_with_stmt    ::= expr
+                                               async_with_pre
+                                               POP_TOP
+                                               c_suite_stmts_opt
+                                               POP_BLOCK LOAD_CONST
+                                               async_with_post
+                      async_with_stmt      ::= expr
+                                               async_with_pre
+                                               POP_TOP
+                                               suite_stmts_opt
+                                               async_with_post
+                      c_async_with_stmt    ::= expr
+                                               async_with_pre
+                                               POP_TOP
+                                               c_suite_stmts_opt
+                                               async_with_post
+                      async_with_as_stmt   ::= expr
+                                               async_with_pre
+                                               store
+                                               suite_stmts_opt
+                                               POP_BLOCK LOAD_CONST
+                                               async_with_post
+                      c_async_with_as_stmt ::= expr
                                               async_with_pre
-                                              POP_TOP
-                                              suite_stmts_opt
+                                              store
+                                              c_suite_stmts_opt
                                               POP_BLOCK LOAD_CONST
                                               async_with_post
-                      async_with_stmt     ::= expr
-                                              async_with_pre
-                                              POP_TOP
-                                              suite_stmts_opt
-                                              async_with_post
-                      async_with_as_stmt  ::= expr
+                      async_with_as_stmt   ::= expr
                                               async_with_pre
                                               store
                                               suite_stmts_opt
-                                              POP_BLOCK LOAD_CONST
+                                              async_with_post
+                      c_async_with_as_stmt ::= expr
+                                              async_with_pre
+                                              store
+                                              suite_stmts_opt
                                               async_with_post
                     """
                 else:
                     rules_str += """
-                      async_with_pre      ::= BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM SETUP_ASYNC_WITH
-                      async_with_post     ::= BEGIN_FINALLY COME_FROM_ASYNC_WITH
-                                              WITH_CLEANUP_START GET_AWAITABLE LOAD_CONST YIELD_FROM
-                                              WITH_CLEANUP_FINISH END_FINALLY
-                      async_with_stmt     ::= expr
+                      async_with_pre       ::= BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM SETUP_ASYNC_WITH
+                      async_with_post      ::= BEGIN_FINALLY COME_FROM_ASYNC_WITH
+                                               WITH_CLEANUP_START GET_AWAITABLE LOAD_CONST YIELD_FROM
+                                               WITH_CLEANUP_FINISH END_FINALLY
+                      async_with_stmt      ::= expr
+                                               async_with_pre
+                                               POP_TOP
+                                               suite_stmts
+                                               POP_TOP POP_BLOCK
+                                               async_with_post
+                      c_async_with_stmt    ::= expr
+                                               async_with_pre
+                                               POP_TOP
+                                               c_suite_stmts
+                                               POP_TOP POP_BLOCK
+                                               async_with_post
+                      async_with_stmt      ::= expr
+                                               async_with_pre
+                                               POP_TOP
+                                               suite_stmts
+                                               POP_BLOCK
+                                               BEGIN_FINALLY
+                                               WITH_CLEANUP_START GET_AWAITABLE LOAD_CONST YIELD_FROM
+                                               WITH_CLEANUP_FINISH POP_FINALLY LOAD_CONST RETURN_VALUE
+                                               COME_FROM_ASYNC_WITH
+                                               WITH_CLEANUP_START GET_AWAITABLE LOAD_CONST YIELD_FROM
+                                               WITH_CLEANUP_FINISH END_FINALLY
+                      c_async_with_stmt   ::= expr
                                               async_with_pre
                                               POP_TOP
-                                              suite_stmts
-                                              POP_TOP POP_BLOCK
-                                              async_with_post
-                      async_with_stmt     ::= expr
-                                              async_with_pre
-                                              POP_TOP
-                                              suite_stmts
+                                              c_suite_stmts
                                               POP_BLOCK
                                               BEGIN_FINALLY
                                               WITH_CLEANUP_START GET_AWAITABLE LOAD_CONST YIELD_FROM
@@ -251,15 +302,24 @@ class Python37BaseParser(PythonParser):
                                               COME_FROM_ASYNC_WITH
                                               WITH_CLEANUP_START GET_AWAITABLE LOAD_CONST YIELD_FROM
                                               WITH_CLEANUP_FINISH END_FINALLY
-                      async_with_as_stmt  ::= expr
-                                              async_with_pre
-                                              store suite_stmts
-                                              POP_TOP POP_BLOCK
-                                              async_with_post
-                      async_with_as_stmt  ::= expr
-                                              async_with_pre
-                                              store suite_stmts
-                                              POP_BLOCK async_with_post
+                      async_with_as_stmt   ::= expr
+                                               async_with_pre
+                                               store suite_stmts
+                                               POP_TOP POP_BLOCK
+                                               async_with_post
+                      c_async_with_as_stmt ::= expr
+                                               async_with_pre
+                                               store suite_stmts
+                                               POP_TOP POP_BLOCK
+                                               async_with_post
+                      async_with_as_stmt   ::= expr
+                                               async_with_pre
+                                               store suite_stmts
+                                               POP_BLOCK async_with_post
+                      c_async_with_as_stmt ::= expr
+                                               async_with_pre
+                                               store suite_stmts
+                                               POP_BLOCK async_with_post
                     """
                 self.addRule(rules_str, nop_func)
 
@@ -552,7 +612,7 @@ class Python37BaseParser(PythonParser):
 
                     stmt                ::= genexpr_func_async
 
-                    func_async_prefix   ::= SETUP_EXCEPT GET_ANEXT LOAD_CONST YIELD_FROM
+                    func_async_prefix   ::= _come_froms SETUP_EXCEPT GET_ANEXT LOAD_CONST YIELD_FROM
                     func_async_middle   ::= POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT
                                             DUP_TOP LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
                                             END_FINALLY COME_FROM
@@ -561,18 +621,21 @@ class Python37BaseParser(PythonParser):
                                             JUMP_BACK COME_FROM
                                             POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
 
-                    expr                ::= listcomp_async
-                    listcomp_async      ::= LOAD_LISTCOMP LOAD_STR MAKE_FUNCTION_0
+                    expr                ::= list_comp_async
+                    list_comp_async     ::= LOAD_LISTCOMP LOAD_STR MAKE_FUNCTION_0
                                             expr GET_AITER CALL_FUNCTION_1
                                             GET_AWAITABLE LOAD_CONST
                                             YIELD_FROM
 
-                    expr                 ::= listcomp_async
-                    listcomp_async       ::= BUILD_LIST_0 LOAD_FAST func_async_prefix
+                    expr                ::= list_comp_async
+                    list_afor2          ::= func_async_prefix
                                             store func_async_middle list_iter
                                             JUMP_BACK COME_FROM
                                             POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
-
+                    list_comp_async     ::= BUILD_LIST_0 LOAD_FAST list_afor2
+                    get_aiter           ::= LOAD_DEREF GET_AITER
+                    list_afor           ::= get_aiter list_afor2
+                    list_iter           ::= list_afor
                    """,
                     nop_func,
                 )
@@ -624,7 +687,7 @@ class Python37BaseParser(PythonParser):
                 )
                 custom_ops_processed.add(opname)
             elif opname == "LOAD_LISTCOMP":
-                self.add_unique_rule("expr ::= listcomp", opname, token.attr, customize)
+                self.add_unique_rule("expr ::= list_comp", opname, token.attr, customize)
                 custom_ops_processed.add(opname)
             elif opname == "LOAD_NAME":
                 if (
@@ -703,7 +766,7 @@ class Python37BaseParser(PythonParser):
                             #   and have GET_ITER CALL_FUNCTION_1
                             # Todo: For Pypy we need to modify this slightly
                             rule_pat = (
-                                "listcomp ::= %sload_closure LOAD_LISTCOMP %%s%s expr "
+                                "list_comp ::= %sload_closure LOAD_LISTCOMP %%s%s expr "
                                 "GET_ITER CALL_FUNCTION_1"
                                 % ("expr " * args_pos, opname)
                             )
@@ -810,14 +873,14 @@ class Python37BaseParser(PythonParser):
                         # 'exprs' in the rule above into a
                         # tuple.
                         rule_pat = (
-                            "listcomp ::= load_closure LOAD_LISTCOMP %%s%s "
+                            "list_comp ::= load_closure LOAD_LISTCOMP %%s%s "
                             "expr GET_ITER CALL_FUNCTION_1" % (opname,)
                         )
                         self.add_make_function_rule(
                             rule_pat, opname, token.attr, customize
                         )
                         rule_pat = (
-                            "listcomp ::= %sLOAD_LISTCOMP %%s%s expr "
+                            "list_comp ::= %sLOAD_LISTCOMP %%s%s expr "
                             "GET_ITER CALL_FUNCTION_1" % ("expr " * args_pos, opname)
                         )
                         self.add_make_function_rule(
@@ -854,7 +917,7 @@ class Python37BaseParser(PythonParser):
                         #   and have GET_ITER CALL_FUNCTION_1
                         # Todo: For Pypy we need to modify this slightly
                         rule_pat = (
-                            "listcomp ::= %sLOAD_LISTCOMP %%s%s expr "
+                            "list_comp ::= %sLOAD_LISTCOMP %%s%s expr "
                             "GET_ITER CALL_FUNCTION_1" % ("expr " * args_pos, opname)
                         )
                         self.add_make_function_rule(
@@ -963,24 +1026,45 @@ class Python37BaseParser(PythonParser):
 
                     c_stmt         ::= c_tryelsestmt
                     c_tryelsestmt  ::= SETUP_EXCEPT c_suite_stmts POP_BLOCK
-                                       c_except_handler else_suitec come_from_except_clauses
+                                       c_except_handler
+                                       come_any_froms else_suitec
+                                       come_from_except_clauses
                     """,
                     nop_func,
                 )
                 custom_ops_processed.add(opname)
 
+            elif opname == "WITH_CLEANUP_START":
+                rules_str = """
+                  stmt        ::= with_null
+                  with_null   ::= with_suffix
+                  with_suffix ::= WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+                """
+                self.addRule(rules_str, nop_func)
             elif opname == "SETUP_WITH":
                 rules_str = """
-                  stmt        ::= withstmt
+                  stmt        ::= with
                   stmt        ::= withasstmt
-                  with_suffix ::= WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+                  c_stmt      ::= c_with
 
-                  withstmt    ::= expr SETUP_WITH POP_TOP suite_stmts_opt COME_FROM_WITH
+                  c_with      ::= expr SETUP_WITH POP_TOP
+                                  c_suite_stmts_opt
+                                  COME_FROM_WITH
                                   with_suffix
+                  c_with      ::= expr SETUP_WITH POP_TOP
+                                  c_suite_stmts_opt
+                                  POP_BLOCK LOAD_CONST COME_FROM_WITH
+                                  with_suffix
+
+                  with        ::= expr SETUP_WITH POP_TOP
+                                  suite_stmts_opt
+                                  COME_FROM_WITH
+                                  with_suffix
+
                   withasstmt  ::= expr SETUP_WITH store suite_stmts_opt COME_FROM_WITH
                                   with_suffix
 
-                  withstmt    ::= expr
+                  with        ::= expr
                                   SETUP_WITH POP_TOP suite_stmts_opt
                                   POP_BLOCK LOAD_CONST COME_FROM_WITH
                                   with_suffix
@@ -989,7 +1073,7 @@ class Python37BaseParser(PythonParser):
                                   POP_BLOCK LOAD_CONST COME_FROM_WITH
                                   with_suffix
 
-                  withstmt    ::= expr
+                  with        ::= expr
                                   SETUP_WITH POP_TOP suite_stmts_opt
                                   POP_BLOCK LOAD_CONST COME_FROM_WITH
                                   with_suffix
@@ -1000,7 +1084,7 @@ class Python37BaseParser(PythonParser):
                 """
                 if self.version < 3.8:
                     rules_str += """
-                    withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
+                    with      ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
                                    LOAD_CONST
                                    with_suffix
                     """
@@ -1016,7 +1100,7 @@ class Python37BaseParser(PythonParser):
                                      POP_FINALLY
                                      RETURN_VALUE
 
-                      withstmt   ::= expr
+                      with       ::= expr
                                      SETUP_WITH POP_TOP suite_stmts_opt
                                      POP_BLOCK LOAD_CONST COME_FROM_WITH
                                      with_suffix
@@ -1037,9 +1121,9 @@ class Python37BaseParser(PythonParser):
                       #                POP_FINALLY RETURN_VALUE COME_FROM_WITH
                       #                WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
-                      withstmt   ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
-                                     BEGIN_FINALLY COME_FROM_WITH
-                                     with_suffix
+                      with         ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
+                                       BEGIN_FINALLY COME_FROM_WITH
+                                       with_suffix
                     """
                 self.addRule(rules_str, nop_func)
 
@@ -1060,6 +1144,7 @@ class Python37BaseParser(PythonParser):
         self.reduce_check_table = {
             "ifstmts_jump": ifstmts_jump,
             "and": and_check,
+            "and_cond": and_cond_check,
             "and_not": and_not_check,
             "if_and_stmt": if_and_stmt,
             "ifelsestmt": ifelsestmt,
@@ -1069,23 +1154,30 @@ class Python37BaseParser(PythonParser):
             "ifstmt": ifstmt,
             "ifstmtc": ifstmt,
             "lastc_stmt": lastc_stmt,
+            "list_if_not": list_if_not,
+            "not_or": not_or_check,
             "or": or_check,
+            "or_cond": or_cond_check,
             "testtrue": testtrue,
             "testfalsec": testtrue,
             "while1elsestmt": while1elsestmt,
             "while1stmt": while1stmt,
             "whilestmt": whilestmt,
-            "c_try_elsestmtc": c_tryelsestmt,
+            "c_tryelsestmt": c_tryelsestmt,
+            "c_try_except": tryexcept,
         }
 
         self.check_reduce["and"] = "AST"
+        self.check_reduce["and_cond"] = "AST"
         self.check_reduce["and_not"] = "AST"
-        self.check_reduce["annotate_tuple"] = "noAST"
+        self.check_reduce["annotate_tuple"] = "tokens"
         self.check_reduce["aug_assign1"] = "AST"
         self.check_reduce["aug_assign2"] = "AST"
-        self.check_reduce["whilestmt"] = "noAST"
-        self.check_reduce["while1stmt"] = "noAST"
-        self.check_reduce["while1elsestmt"] = "noAST"
+        self.check_reduce["c_try_except"] = "AST"
+        self.check_reduce["c_tryelsestmt"] = "AST"
+        self.check_reduce["whilestmt"] = "tokens"
+        self.check_reduce["while1stmt"] = "tokens"
+        self.check_reduce["while1elsestmt"] = "tokens"
         self.check_reduce["ifstmts_jump"] = "AST"
         self.check_reduce["ifstmts_jumpc"] = "AST"
         self.check_reduce["ifelsestmt"] = "AST"
@@ -1097,7 +1189,10 @@ class Python37BaseParser(PythonParser):
         self.check_reduce["ifstmtc"] = "AST"
         self.check_reduce["import_from37"] = "AST"
         self.check_reduce["lastc_stmt"] = "tokens"
+        self.check_reduce["list_if_not"] = "AST"
+        self.check_reduce["not_or"] = "AST"
         self.check_reduce["or"] = "AST"
+        self.check_reduce["or_cond"] = "tokens"
         self.check_reduce["testtrue"] = "tokens"
         self.check_reduce["testfalsec"] = "tokens"
         return

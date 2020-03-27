@@ -20,7 +20,7 @@ def if_and_stmt(
     for i in range(first, last):
         t = tokens[i]
         # instead of POP_JUMP_IF, should we use op attributes?
-        if t.kind in ("POP_JUMP_IF_FALSE", "POP_JUMP_IF_TRUE"):
+        if t.kind.startswith("POP_JUMP_IF_"):
             pjif_target = t.attr
             if pjif_target > last_offset:
                 # In come cases, where we have long bytecode, a

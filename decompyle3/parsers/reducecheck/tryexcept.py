@@ -2,18 +2,30 @@
 
 def tryexcept(self, lhs, n, rule, ast, tokens, first, last):
     come_from_except = ast[-1]
-    if rule == (
-            "try_except",
+    if rule in (
             (
-                "SETUP_EXCEPT",
-                "suite_stmts_opt",
-                "POP_BLOCK",
-                "except_handler",
-                "opt_come_from_except",
+                "try_except",
+                (
+                    "SETUP_EXCEPT",
+                    "suite_stmts_opt",
+                    "POP_BLOCK",
+                    "except_handler",
+                    "opt_come_from_except",
+                )
             ),
+            (
+                "c_try_except",
+                (
+                    "SETUP_EXCEPT",
+                    "c_suite_stmts",
+                    "POP_BLOCK",
+                    "c_except_handler",
+                    "opt_come_from_except",
+                ),
+            )
     ):
         if come_from_except[0] == "COME_FROM":
-            # There should be at last two COME_FROMs, one from an
+            # There should be at least two COME_FROMs, one from an
             # exception handler and one from the try. Otherwise
             # we have a try/else.
             return True

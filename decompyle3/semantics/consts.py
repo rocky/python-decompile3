@@ -60,9 +60,10 @@ PRECEDENCE = {
     "ret_or":                 26,
 
     "and":                    24, # Boolean AND
-    "compare":                20, # in, not in, is, is not, <, <=, >, >=, !=, ==
     "ret_and":                24,
+    "not":                    22, # Boolean NOT
     "unary_not":              22, # Boolean NOT
+    "compare":                20, # in, not in, is, is not, <, <=, >, >=, !=, ==
 
     "BINARY_AND":             14, # Bitwise AND
     "BINARY_OR":              18, # Bitwise OR
@@ -265,9 +266,16 @@ TABLE_DIRECT = {
     'list_for':		    ( ' for %c in %c%c', 2, 0, 3 ),
     'list_if':		    ( ' if %p%c',
                               (0, 'expr', 27), 2 ),
-    'list_if_not':	    ( ' if not %p%c',
-                              (0, 'expr', PRECEDENCE['unary_not']),
-                              2 ),
+    'list_if_not':	    (
+        ' if not %p%c',
+        (0, 'expr', PRECEDENCE['unary_not']),
+        2 ),
+    'list_if_or_not':	    (
+        ' if %c or not %c %c',
+        (0, 'expr_pjit'),
+        (1, 'expr_pjit'),
+        (3, "list_iter"),
+        ),
     'lc_body':		    ( '', ),	# ignore when recursing
 
     'comp_iter':	    ( '%c', 0 ),
@@ -290,12 +298,15 @@ TABLE_DIRECT = {
     "designList":	    ( "%c = %c", 0, -1 ),
     "and":          	(
         "%c and %c",
-        (0,  ("expr", "expr_pjif", "expr_jifop_cfs")),
+        (0,  ("and_parts", "expr", "expr_pjif", "expr_jifop_cfs", "not")),
         (1,  ("expr", "expr_pjif", "expr_jifop_cfs"))
     ),
     "ret_and":        	( "%c and %c", 0, 2 ),
     "and2":          	( "%c", 3 ),
-    "or":           	( "%c or %c", 0, 2 ),
+    "or":           	( "%c or %c", 0, 1 ),
+    "or_expr":        	(
+        "%c or %c", (0, "expr"), (2, "expr"),
+    ),
     "ret_or":           ( "%c or %c", 0, 2 ),
     "if_exp":           (
         "%p if %c else %c",
@@ -308,6 +319,13 @@ TABLE_DIRECT = {
         (1, ("expr", "return_lambda")),
         (0, "expr_pjif"),
         (-1,  ("return_lambda", "return_if_lambda")),
+    ),
+
+    "if_exp_lambda2":    (
+        "%c if %c else %c",
+        (1, ("expr", "return_lambda")),
+        (0, "and_parts"),
+        (-2,  "return_lambda"),
     ),
 
     # The arg2 is dead-code
@@ -329,9 +347,11 @@ TABLE_DIRECT = {
                           (2, "expr", 27), 0, 4 ),
 
     "compare_single":	    ( '%p %[-1]{pattr.replace("-", " ")} %p', (0, 19), (1, 19) ),
-    "compare_chained":	    ( '%p %p', (0, 29), (1, 30)),
+    "compare_chained":	    ( "%p %p", (0, 29), (1, 30)),
     "compare_chained1":	    ( '%[3]{pattr.replace("-", " ")} %p %p', (0, 19), (-2, 19)),
     "compare_chained2":	    ( '%[1]{pattr.replace("-", " ")} %p', (0, 19)),
+
+    "c_compare_chained":    ( "%p %p", (0, 29), (1, 30)),
 
 #   "classdef": 	(), # handled by n_classdef()
 
@@ -383,7 +403,7 @@ TABLE_DIRECT = {
 
     "ifstmt":		( "%|if %c:\n%+%c%-",
                             (0, "testexpr"),
-                            (1, "ifstmts_jump") ),
+                            (1, ("ifstmts_jump", "stmts")) ),
 
     "iflaststmt":	( "%|if %c:\n%+%c%-", 0, 1 ),
     "iflaststmtc":	( "%|if %c:\n%+%c%-", 0, 1 ),
@@ -442,13 +462,18 @@ TABLE_DIRECT = {
     "tf_tryelsestmt":	( "%c%-%c%|else:\n%+%c", 1, 3, 4 ),
 
     "tryfinallystmt":	( "%|try:\n%+%c%-%|finally:\n%+%c%-\n\n", 1, 5 ),
+    "c_tryfinallystmt":	(
+        "%|try:\n%+%c%-%|finally:\n%+%c%-\n\n",
+        (1, "c_suite_stmts_opt"),
+        (5, "c_suite_stmts_opt")
+    ),
     "except":           ( "%|except:\n%+%c%-", 3 ),
     "except_cond1":	    ( "%|except %c:\n", 1 ),
     "except_suite":     ( "%+%c%-%C", 0, (1, maxint, "") ),
 
     "c_except":         (
         "%|except:\n%+%c%-",
-        (3, ("c_stmts_opt", "c_returns")),
+        (3, ("c_stmts_opt", "c_returns", "c_stmts", "pass")),
     ),
 
     # In Python 3.6+, this is more complicated in the presence of "returns"
@@ -471,6 +496,7 @@ MAP_R = (TABLE_R, -1)
 
 MAP = {
     "stmt":		MAP_R,
+    "c_stmt":		MAP_R,
     "call":	        MAP_R,
     "del_stmt":		MAP_R,
     "store":	        MAP_R,

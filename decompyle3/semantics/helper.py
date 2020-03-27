@@ -1,6 +1,7 @@
 import sys
 
 from xdis.code import iscode
+from xdis.util import COMPILER_FLAG_BIT
 from decompyle3.parsers.treenode import SyntaxTree
 
 minint = -sys.maxsize - 1

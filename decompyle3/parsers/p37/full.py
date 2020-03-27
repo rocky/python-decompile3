@@ -73,8 +73,10 @@ class Python37Parser(Python37LambdaParser):
         c_stmt  ::= ifstmtc
         c_stmt  ::= if_and_elsestmtc
         c_stmt  ::= ifelsestmtc
+        c_stmt  ::= c_tryfinallystmt
 
         c_stmt  ::= c_try_except
+        c_stmt  ::= c_try_except36
         c_stmt  ::= stmt
 
         c_stmts_opt ::= c_stmts
@@ -123,6 +125,9 @@ class Python37Parser(Python37LambdaParser):
         # passtmt is needed for semantic actions to add "pass"
         suite_stmts_opt ::= pass
 
+        else_suite_opt ::= else_suite
+        else_suite_opt ::= pass
+
         else_suite ::= suite_stmts
         else_suite ::= returns
 
@@ -133,7 +138,6 @@ class Python37Parser(Python37LambdaParser):
         stmt ::= if_or_stmt
         stmt ::= if_and_stmt
         stmt ::= ifelsestmt
-        stmt ::= if_or_elsestmt
         stmt ::= if_or_not_elsestmt
 
         stmt ::= whilestmt
@@ -151,14 +155,14 @@ class Python37Parser(Python37LambdaParser):
 
         for_iter       ::= _come_froms FOR_ITER
         dict_comp_func ::= BUILD_MAP_0 LOAD_FAST for_iter store
-                           comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST
+                           comp_iter JUMP_BACK _come_froms RETURN_VALUE RETURN_LAST
 
         stmt ::= set_comp_func
         set_comp_func ::= BUILD_SET_0 LOAD_FAST for_iter store comp_iter
-                          JUMP_BACK RETURN_VALUE RETURN_LAST
+                          JUMP_BACK _come_froms RETURN_VALUE RETURN_LAST
 
         set_comp_func ::= BUILD_SET_0 LOAD_FAST for_iter store comp_iter
-                          COME_FROM JUMP_BACK RETURN_VALUE RETURN_LAST
+                          COME_FROM JUMP_BACK _come_froms RETURN_VALUE RETURN_LAST
 
         # last_stmt is a Python statement for which
         # end is a "return" or raise statement and
@@ -183,9 +187,23 @@ class Python37Parser(Python37LambdaParser):
         returns ::= _stmts return
 
         stmt ::= genexpr_func
-        genexpr_func ::= LOAD_FAST _come_froms FOR_ITER store comp_iter JUMP_BACK
+        genexpr_func ::= LOAD_FAST _come_froms FOR_ITER store comp_iter
+                         JUMP_BACK _come_froms
         """
         pass
+
+
+    # # A "condition", in contrast to an "expr"ession ,is something that is is used in
+    # # tests and pops the condition after testing
+    # def p_if_conditions(self, args):
+    #     """
+    #     condition ::= and_or_cond
+    #     condition ::= nor_cond
+    #     condition ::= or_cond
+    #     stmt ::= if_cond_stmt
+    #     if_cond_stmt ::= condition stmt
+    #     if_cond_else_stmt ::= condition
+    #     """
 
     def p_function_def(self, args):
         """
@@ -316,14 +334,21 @@ class Python37Parser(Python37LambdaParser):
 
         # FIXME the below masks a bug in not detecting COME_FROM_LOOP
         # grammar rules with COME_FROM -> COME_FROM_LOOP already exist
-        whileelsestmt     ::= setup_loop testexpr c_stmts_opt JUMP_BACK POP_BLOCK
-                              else_suitec COME_FROM
+        whileelsestmt     ::= setup_loop testexpr c_stmts_opt
+                              JUMP_BACK POP_BLOCK
+                              else_suite COME_FROM
 
-        whileelsestmt     ::= setup_loop testexpr c_stmts_opt JUMP_BACK POP_BLOCK
-                              else_suitec COME_FROM_LOOP
+        whileelsestmt     ::= setup_loop testexpr c_stmts_opt
+                              JUMP_BACK POP_BLOCK
+                              else_suite COME_FROM_LOOP
 
-        whilestmt ::= setup_loop testexpr c_stmts_opt COME_FROM JUMP_BACK POP_BLOCK COME_FROM_LOOP
-        whilestmt ::= setup_loop testexpr c_stmts_opt JUMP_BACK POP_BLOCK COME_FROM_LOOP
+        # There is no JUMP_BACK here because c_stmts contineus, returns, or breaks
+        whileelsestmt     ::= setup_loop testexpr
+                              c_stmts come_froms POP_BLOCK
+                              else_suite COME_FROM_LOOP
+
+        whilestmt ::= setup_loop testexprc c_stmts_opt COME_FROM JUMP_BACK POP_BLOCK COME_FROM_LOOP
+        whilestmt ::= setup_loop testexprc c_stmts_opt JUMP_BACK POP_BLOCK COME_FROM_LOOP
 
         # We can be missing a COME_FROM_LOOP if the "while" statement is nested inside an if/else
         # so after the POP_BLOCK we have a JUMP_FORWARD which forms the "else" portion of the "if"
@@ -388,31 +413,6 @@ class Python37Parser(Python37LambdaParser):
 
         """
 
-    def p_list_comprehension(self, args):
-        """
-        expr ::= list_comp
-
-        list_iter ::= list_for
-        list_iter ::= list_if
-        list_iter ::= list_if_not
-        list_iter ::= lc_body
-
-        lc_body   ::= expr LIST_APPEND
-        list_for  ::= expr for_iter store list_iter jb_or_c
-        list_comp ::= BUILD_LIST_0 list_iter
-
-        list_if     ::= expr POP_JUMP_IF_FALSE  list_iter
-        list_if_not ::= expr POP_JUMP_IF_TRUE   list_iter
-        list_if     ::= expr jump_if_false_cf   list_iter
-        list_if     ::= expr POP_JUMP_IF_FALSE  list_iter COME_FROM
-        list_if_not ::= expr POP_JUMP_IF_TRUE   list_iter COME_FROM
-
-        jb_or_c ::= JUMP_BACK
-        jb_or_c ::= CONTINUE
-
-
-        """
-
     def p_32on(self, args):
         """
         # Python < 3.5 no POP BLOCK
@@ -436,10 +436,6 @@ class Python37Parser(Python37LambdaParser):
 
     def p_33on(self, args):
         """
-        # Python 3.3+ adds yield from.
-        expr          ::= yield_from
-        yield_from    ::= expr GET_YIELD_FROM_ITER LOAD_CONST YIELD_FROM
-
         # Python 3.5+ has jump optimization to remove the redundant
         # jump_excepts. But in 3.3 we need them added
 
@@ -449,6 +445,7 @@ class Python37Parser(Python37LambdaParser):
         c_try_except ::= SETUP_EXCEPT c_suite_stmts_opt POP_BLOCK
                          c_except_handler
                          jump_excepts come_from_except_clauses
+
         try_except   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                          except_handler
                          jump_excepts come_from_except_clauses
@@ -457,21 +454,15 @@ class Python37Parser(Python37LambdaParser):
 
     def p_35on(self, args):
         """
-        inplace_op ::= INPLACE_MATRIX_MULTIPLY
+        inplace_op       ::= INPLACE_MATRIX_MULTIPLY
         binary_operator  ::= BINARY_MATRIX_MULTIPLY
 
-        # Python 3.5+ does jump optimization
-        # In <.3.5 the below is a "JUMP_FORWARD" to a "jump".
-
+        # FIXME: do we need these?
         ret_expr ::= expr
-        ret_expr ::= ret_and
-        ret_expr ::= ret_or
-
         return_if_stmt ::= ret_expr RETURN_END_IF POP_BLOCK
 
         jb_cf     ::= JUMP_BACK COME_FROM
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_FORWARD else_suitec
-        ifelsestmtc ::= testexpr c_stmts_opt jb_cf else_suitec come_from_opt
 
         # We want to keep the positions of the "then" and
         # "else" statements in "ifelstmtl" similar to others of this ilk.
@@ -487,6 +478,7 @@ class Python37Parser(Python37LambdaParser):
         stmt     ::= async_for_stmt
         stmt     ::= async_forelse_stmt
 
+        # FIXME: DRY this with rules.
         async_for_stmt     ::= setup_loop expr
                                GET_AITER
                                SETUP_EXCEPT GET_ANEXT LOAD_CONST
@@ -498,7 +490,7 @@ class Python37Parser(Python37LambdaParser):
                                for_block
                                COME_FROM
                                POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP POP_BLOCK
-                               COME_FROM_LOOP
+                               opt_come_from_loop
 
         async_for_stmt     ::= setup_loop expr
                                GET_AITER
@@ -510,7 +502,7 @@ class Python37Parser(Python37LambdaParser):
                                POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
                                JUMP_ABSOLUTE END_FINALLY COME_FROM
                                for_block POP_BLOCK
-                               COME_FROM_LOOP
+                               opt_come_from_loop
 
         # Order of LOAD_CONST YIELD_FROM is switched from 3.6 to save a LOAD_CONST
         async_for_stmt37   ::= setup_loop expr
@@ -537,6 +529,7 @@ class Python37Parser(Python37LambdaParser):
                                COME_FROM
                                POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP POP_BLOCK
                                else_suite COME_FROM_LOOP
+
         """
 
     def p_grammar(self, args):
@@ -589,6 +582,7 @@ class Python37Parser(Python37LambdaParser):
         pop_jump    ::= POP_JUMP_IF_FALSE
 
         ifstmt      ::= testexpr ifstmts_jump _come_froms
+        ifstmt      ::= testexpr stmts come_froms
 
         stmt        ::= ifstmt_bool
         ifstmt_bool ::= or_and_not stmts come_froms
@@ -601,9 +595,6 @@ class Python37Parser(Python37LambdaParser):
         if_and_elsestmtc    ::= expr POP_JUMP_IF_FALSE
                                 expr POP_JUMP_IF_FALSE
                                 c_stmts jb_cfs else_suitec opt_come_from_except
-        if_or_elsestmt      ::= expr POP_JUMP_IF_TRUE
-                                come_from_opt expr POP_JUMP_IF_FALSE come_froms
-                                stmts jf_cfs else_suite opt_come_from_except
         if_or_not_elsestmt  ::= expr POP_JUMP_IF_TRUE
                                 come_from_opt expr POP_JUMP_IF_TRUE come_froms
                                 stmts jf_cfs else_suite opt_come_from_except
@@ -613,13 +604,24 @@ class Python37Parser(Python37LambdaParser):
         testexpr   ::= or_and_not
 
         testfalse  ::= expr POP_JUMP_IF_FALSE
+        testfalsec ::= expr POP_JUMP_IF_TRUE_BACK
+        testfalsec ::= c_compare_chained1b_false_37
 
         testtrue   ::= expr POP_JUMP_IF_TRUE
-        testtruec  ::= expr POP_JUMP_IF_TRUE
+        testtruec  ::= expr POP_JUMP_IF_FALSE_BACK
+        # Do we have to check the c_compare_chained37 ends in a POP_JUMP_IF_FALSE_BACK?
+        testtruec  ::= c_compare_chained37_false
+        testtruec  ::= c_nand
+
         testtrue   ::= compare_chained37
+        testtrue   ::= nor_cond
 
         testfalse  ::= and_not
+        testfalse  ::= not_or
         testfalse  ::= compare_chained37_false
+        testfalse  ::= or_cond
+        testfalse  ::= or_cond1
+        testfalse  ::= and_or_cond
 
         ifstmts_jump ::= return_if_stmts
         ifstmts_jump ::= stmts_opt come_froms
@@ -628,6 +630,7 @@ class Python37Parser(Python37LambdaParser):
         # Python 3.4+ optimizes the trailing two JUMPS away
         ifstmts_jump ::= stmts_opt JUMP_FORWARD JUMP_FORWARD _come_froms
 
+        iflaststmt  ::= testexpr returns
         iflaststmt  ::= testexpr stmts
         iflaststmt  ::= testexpr stmts JUMP_FORWARD
 
@@ -638,16 +641,19 @@ class Python37Parser(Python37LambdaParser):
 
         # c_stmts might terminate, or have "continue" so no JUMP_BACK.
         # But if that's true, the "testexpr" needs still to jump to the "COME_FROM'
-        iflaststmtc ::= testexpr c_stmts COME_FROM
+        iflaststmtc ::= testexpr c_stmts come_froms
 
         # Note: in if/else kinds of statements, we err on the side
         # of missing "else" clauses. Therefore we include grammar
         # rules with and without ELSE.
 
         ifelsestmt    ::= testexpr
-                          stmts_opt jf_cfs else_suite opt_come_from_except
+                          stmts_opt jf_cfs else_suite_opt opt_come_from_except
         ifelsestmt    ::= testexpr stmts_opt JUMP_FORWARD
-                          else_suite opt_come_from_except
+                          else_suite_opt opt_come_from_except
+        ifelsestmt    ::= bool_op
+                          stmts_opt jf_cfs else_suite_opt opt_come_from_except
+
 
         ifelsestmtc ::= testexpr
                         c_stmts_opt jump_forward_else
@@ -667,15 +673,30 @@ class Python37Parser(Python37LambdaParser):
 
         cf_jump_back ::= COME_FROM JUMP_BACK
 
-        # FIXME: this feels like a hack. Is it just 1 or two
-        # COME_FROMs?  the parsed tree for this and even with just the
-        # one COME_FROM for Python 2.7 seems to associate the
-        # COME_FROM targets from the wrong places
+        # This is nested inside a try_except
+        tryfinallystmt   ::= SETUP_FINALLY suite_stmts_opt
+                             POP_BLOCK LOAD_CONST
+                             COME_FROM_FINALLY suite_stmts_opt END_FINALLY
 
-        # this is nested inside a try_except
-        tryfinallystmt ::= SETUP_FINALLY suite_stmts_opt
-                           POP_BLOCK LOAD_CONST
-                           COME_FROM_FINALLY suite_stmts_opt END_FINALLY
+        c_tryfinallystmt ::= SETUP_FINALLY c_suite_stmts_opt
+                             POP_BLOCK LOAD_CONST COME_FROM_FINALLY
+                             c_suite_stmts_opt END_FINALLY
+
+        # This a funny kind of try finally inside a try_except in a loop
+        c_except_suite     ::= SETUP_FINALLY c_suite_stmts
+                               POP_BLOCK LOAD_CONST
+                               COME_FROM_FINALLY LOAD_CONST STORE_FAST DELETE_FAST
+                               END_FINALLY
+                               POP_EXCEPT JUMP_BACK COME_FROM
+
+        c_except_suite     ::= except_suite
+        c_except_suite     ::= c_stmts POP_EXCEPT JUMP_BACK
+        c_except_handler36 ::= COME_FROM_EXCEPT c_except_stmts END_FINALLY
+        c_try_except36     ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
+                               c_except_handler36 come_from_opt
+        c_try_except36     ::= SETUP_EXCEPT returns
+                               c_except_handler36 come_from_opt
+
 
         except_handler ::= jmp_abs COME_FROM except_stmts
                            _come_froms END_FINALLY
@@ -691,9 +712,11 @@ class Python37Parser(Python37LambdaParser):
         try_except   ::= SETUP_EXCEPT suite_stmts_opt POP_BLOCK
                          except_handler
                          jump_excepts come_from_except_clauses
+
         c_try_except ::= SETUP_EXCEPT c_suite_stmts_opt POP_BLOCK
                          c_except_handler
                          jump_excepts come_from_except_clauses
+
         # FIXME: remove this
         except_handler ::= JUMP_FORWARD COME_FROM except_stmts
                            come_froms END_FINALLY come_from_opt
@@ -711,6 +734,7 @@ class Python37Parser(Python37LambdaParser):
         c_except_stmt  ::= c_stmt
         c_except_stmt  ::= c_except
         c_except_stmt  ::= except_cond1 c_except_suite come_from_opt
+        c_except_stmt  ::= except_cond2 c_except_suite come_from_opt
         c_except_stmt  ::= stmt
 
         ## FIXME: what's except_pop_except?
@@ -745,7 +769,7 @@ class Python37Parser(Python37LambdaParser):
         except_cond2 ::= DUP_TOP expr COMPARE_OP
                          POP_JUMP_IF_FALSE POP_TOP store POP_TOP come_from_opt
 
-        except  ::=  POP_TOP POP_TOP POP_TOP c_stmts_opt POP_EXCEPT jump
+        except  ::=  POP_TOP POP_TOP POP_TOP c_stmts_opt POP_EXCEPT JUMP_FORWARD
         except  ::=  POP_TOP POP_TOP POP_TOP returns
 
         jmp_abs ::= JUMP_ABSOLUTE
@@ -768,37 +792,50 @@ class Python37Parser(Python37LambdaParser):
 
     def p_come_from3(self, args):
         """
-        opt_come_from_except ::= COME_FROM_EXCEPT
-        opt_come_from_except ::= _come_froms
-        opt_come_from_except ::= come_from_except_clauses
+        # In 3.7+ it looks like SETUP_LOOP to a JUMP_FORWARD will
+        # get replaced by the JUMP_FORWARD addressd. Therefore come froms may
+        # appear out of nesting order. For example
+        #   if x
+        #     for ... jump forward endif
+        #        ...
+        #        jump forward endif
+        #     end for
+        #
+        #   else:
+        #       ...
+        #   endif
 
-        come_from_except_clauses ::= COME_FROM_EXCEPT_CLAUSE+
+        come_any_froms ::= come_any_froms COME_FROM_LOOP
+        come_any_froms ::= come_any_froms COME_FROM_EXCEPT
+        come_any_froms ::= come_froms
+
+        opt_come_from_except ::= come_any_froms?
+
+        opt_come_from_loop   ::= COME_FROM_LOOP?
+
+        come_from_except_clauses ::= COME_FROM_EXCEPT_CLAUSE*
         """
 
     def p_jump3(self, args):
         """
-        ret_expr_or_cond ::= ret_expr
+        # FIXME: simplify this
         ret_expr_or_cond ::= if_exp_ret
+        ret_expr_or_cond ::= ret_expr
 
-        ret_and    ::= expr JUMP_IF_FALSE_OR_POP ret_expr_or_cond COME_FROM
-        ret_or     ::= expr JUMP_IF_TRUE_OR_POP ret_expr_or_cond COME_FROM
         if_exp_ret ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
 
-        testfalse_not_or   ::= expr POP_JUMP_IF_FALSE expr POP_JUMP_IF_FALSE COME_FROM
-        testfalse_not_and  ::= and POP_JUMP_IF_TRUE come_froms
-
-        testfalse_not_and ::= expr POP_JUMP_IF_FALSE expr POP_JUMP_IF_TRUE  COME_FROM
-        testfalse ::= testfalse_not_or
-        testfalse ::= testfalse_not_and
         testfalse ::= or POP_JUMP_IF_FALSE COME_FROM
+        testfalse ::= nand
+        testfalse ::= and
 
-        iflaststmtc ::= testexprc c_stmts JUMP_BACK
-        iflaststmtc ::= testexprc c_stmts JUMP_BACK COME_FROM_LOOP
-        iflaststmtc ::= testexprc c_stmts JUMP_BACK POP_BLOCK
-
-        testexprc   ::= testtruec
+        testexprc   ::= testexpr
         testexprc   ::= testfalsec
-        testfalsec  ::= expr POP_JUMP_IF_TRUE
+        testexprc   ::= testtruec
+        iflaststmtc ::= testexprc c_stmts
+        iflaststmtc ::= testexprc c_stmts JUMP_BACK COME_FROM_LOOP
+        iflaststmtc ::= testexprc c_stmts JUMP_BACK opt_pop_block
+
+        opt_pop_block ::= POP_BLOCK?
 
         """
 

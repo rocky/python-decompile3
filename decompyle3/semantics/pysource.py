@@ -1073,7 +1073,11 @@ class SourceWalker(GenericASTTraversal, object):
         # * the results we accumulate: "n"
 
         store = None
-        n = ast[iter_index]
+        if node == "list_comp_async":
+            n = ast[2][1]
+        else:
+            n = ast[iter_index]
+
         if ast in (
             "set_comp_func",
             "dict_comp_func",
@@ -1088,8 +1092,8 @@ class SourceWalker(GenericASTTraversal, object):
                     pass
                 pass
             pass
-        elif ast == "listcomp_async":
-            store = ast[3]
+        elif ast == "list_comp_async":
+            store = ast[2][1]
         else:
             assert n == "list_iter", n
 
@@ -1147,7 +1151,7 @@ class SourceWalker(GenericASTTraversal, object):
         # for the dummy argument.
 
         self.preorder(n[0])
-        if node == "listcomp_async":
+        if node == "list_comp_async":
             self.write(" async")
             in_node_index = 3
         else:
@@ -1185,19 +1189,19 @@ class SourceWalker(GenericASTTraversal, object):
             pass
         self.prec = p
 
-    def n_listcomp(self, node):
+    def n_list_comp(self, node):
         self.write("[")
         if node[0].kind == "load_closure":
             self.listcomp_closure3(node)
         else:
-            if node == "listcomp_async":
+            if node == "list_comp_async":
                 list_iter_index = 5
             else:
                 list_iter_index = 1
             self.comprehension_walk_newer(node, list_iter_index, 0)
         self.write("]")
         self.prune()
-    n_listcomp_async = n_listcomp
+    n_list_comp_async = n_list_comp
 
     def setcomprehension_walk3(self, node, collection_index: int):
         """Set comprehensions the way they are done in Python3.
@@ -1234,8 +1238,11 @@ class SourceWalker(GenericASTTraversal, object):
                 if n[0].kind == "expr":
                     list_if = n
                     n = n[2]
-                elif n[0].kind == "expr_pjif":
+                elif n[0].kind in ("expr_pjif", "expr_pjiff"):
                     list_if = n
+                    n = n[1]
+                elif n[0].kind in ("or_jump_if_false_cf", "c_or_jump_if_false_cf"):
+                    list_if = n[1]
                     n = n[1]
                 else:
                     list_if = n[1]
@@ -1824,6 +1831,7 @@ class SourceWalker(GenericASTTraversal, object):
                 arg += 1
             elif typ == "p":
                 p = self.prec
+                # entry[arg]
                 tup = entry[arg]
                 assert isinstance(tup, tuple)
                 if len(tup) == 3:

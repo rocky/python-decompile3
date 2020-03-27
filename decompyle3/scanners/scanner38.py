@@ -106,6 +106,9 @@ class Scanner38(Scanner37):
                         pass
                     pass
                 jump_back_token = tokens[jump_back_index]
+                while jump_back_token == "COME_FROM":
+                    jump_back_index -= 1
+                    jump_back_token = tokens[jump_back_index]
 
                 # Is this a forward jump not next to a JUMP_BACK ? ...
                 break_loop = (

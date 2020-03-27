@@ -11,19 +11,19 @@ RM      ?= rm
 LINT    = flake8
 
 #EXTRA_DIST=ipython/ipy_trepan.py trepan
-PHONY=all check clean distcheck pytest check-long dist distclean lint flake8 test rmChangeLog clean_pyc
+PHONY=all test check clean distcheck pytest check-long dist distclean lint flake8 test rmChangeLog clean_pyc
 
 TEST_TYPES=check-long check-short
 
 #: Default target - same as "check"
 all: check
 
-# Run all tests
-check:
+#: Run all tests
+test check:
 	@PYTHON_VERSION=`$(PYTHON) -V 2>&1 | cut -d ' ' -f 2 | cut -d'.' -f1,2`; \
 	$(MAKE) check-$$PYTHON_VERSION
 
-# Run all quick tests
+#: Run all quick tests
 check-short: pytest
 	$(MAKE) -C test check-short
 

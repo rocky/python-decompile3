@@ -241,13 +241,15 @@ class Scanner37Base(Scanner):
             # If we have a JUMP_FORWARD after the
             # RAISE_VARARGS then we have a "raise" statement
             # else we have an "assert" statement.
-            assert_can_follow = inst.opname == "POP_JUMP_IF_TRUE" and i + 1 < n
+            assert_can_follow = (
+                inst.opname == "POP_JUMP_IF_TRUE"
+                and i + 1 < n
+            )
             if assert_can_follow:
                 next_inst = self.insts[i + 1]
                 if (
                     next_inst.opname == "LOAD_GLOBAL"
                     and next_inst.argval == "AssertionError"
-                    and inst.argval
                 ):
                     raise_idx = self.offset2inst_index[self.prev_op[inst.argval]]
                     raise_inst = self.insts[raise_idx]
@@ -500,6 +502,8 @@ class Scanner37Base(Scanner):
                 else:
                     opname = "JUMP_FORWARD"
 
+            elif opname.startswith("POP_JUMP_IF_") and not inst.jumps_forward():
+                opname += "_BACK"
             elif inst.offset in self.load_asserts:
                 opname = "LOAD_ASSERT"
 
@@ -825,6 +829,10 @@ class Scanner37Base(Scanner):
             target = inst.argval
             self.fixed_jumps[offset] = target
 
+        # FIXME: consider removing the test on 3.8.
+        elif self.version >= 3.8 and inst.is_jump():
+            self.fixed_jumps[offset] = inst.argval
+
         elif self.version < 3.8 and op == self.opc.SETUP_EXCEPT:
             target = self.get_target(offset)
             end = self.restrict_to_parent(target, parent)
@@ -890,16 +898,6 @@ class Scanner37Base(Scanner):
                     self.return_end_ifs.remove(rtarget_prev)
                 pass
         return
-
-    def is_jump_back(self, offset, extended_arg):
-        """
-        Return True if the code at offset is some sort of jump back.
-        That is, it is ether "JUMP_FORWARD" or an absolute jump that
-        goes forward.
-        """
-        if self.code[offset] != self.opc.JUMP_ABSOLUTE:
-            return False
-        return offset > self.get_target(offset, extended_arg)
 
     def next_except_jump(self, start):
         """

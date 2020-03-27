@@ -39,3 +39,31 @@ assert reduce_is_invalid(False, 1, True) == 5
 assert reduce_is_invalid(True, 1, True) == 2
 assert reduce_is_invalid(True, 10, True) is None
 assert reduce_is_invalid(True, -1, True) is None
+
+# Bug is chained comparison of more than two operators
+if 0 < 1 <= 1 == 1 >= 1 > 0 != 1:
+    pass
+else:
+    assert False
+
+# From 3.7 test_tcl.py
+# Bug was "or" with a chained compare. We needed
+# to limit the scope of iflaststmt because that
+# reduction was hiding the possibility of chained-compare
+# reductions. Reductions in grammar rules can prevent
+# others from occurring that might have triggered
+# otherwise.
+def get_integers(a, b):
+    integers = 1
+    if (a or
+        8 <=
+        b
+        < 10):
+        integers = 2
+    return integers
+
+assert get_integers(True, 0) == 2
+assert get_integers(False, 0) == 1
+assert get_integers(False, 20) == 1
+assert get_integers(False, 8) == 2
+assert get_integers(False, 9) == 2

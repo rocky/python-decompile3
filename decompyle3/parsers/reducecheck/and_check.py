@@ -12,15 +12,34 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+NOT_POP_FOLLOW_OPS = frozenset(
+    """
+LOAD_ASSERT RAISE_VARARGS_1 STORE_FAST STORE_DEREF STORE_GLOBAL STORE_ATTR STORE_NAME
+""".split()
+)
+
+
 def and_check(
     self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
 ) -> bool:
 
-    if ast[0] == "expr_pjif":
-        jump = ast[0][1]
+    # a LOAD_ASSERT is not an expression and not part of an "and"
+    # FIXME: the below really should have been done in the ingest
+    # phase.
+    ltm1 = tokens[last - 1]
+    if ltm1 == "LOAD_ASSERT" or (ltm1 == "LOAD_GLOBAL" and ltm1.attr == "AssertionError"):
+        return True
+
+    expr_pjif = ast[0]
+    if expr_pjif == "expr_pjif":
+        jump = expr_pjif[1]
+    elif rule == ("and", ("and_parts", "expr")) and expr_pjif[0] == "expr_pjif":
+        expr_pjif = expr_pjif[0]
+        jump = expr_pjif[1]
     else:
         # Probably not needed: was expr POP_JUMP_IF_FALSE
         jump = ast[1]
+
     if jump.kind.startswith("POP_JUMP_IF_"):
         if last == n:
             return True
@@ -47,8 +66,19 @@ def and_check(
                 return jump_target + 2 != tokens[last].attr
         elif rule == ("and", ("expr_pjif", "expr", "COME_FROM")):
             return ast[-1].attr != jump_offset
-        # elif rule == ("and", ("expr_pjif", "expr", "COME_FROM")):
-        #     return jump_offset != tokens[first+3].attr
+        elif (
+            rule == ("and", ("and_parts", "expr"))
+            and jump_target > tokens[last].off2int()
+            and tokens[last].kind.startswith("JUMP_IF_")
+            and jump_target < tokens[last].attr
+        ):
+            # This could be an "(i and j) or k"
+            # or:
+            #    - and: expr, POP_JUMP_IF_FALSE jump_target, expr
+            #    - JUMP_IF_TRUE_OR_POP end_or
+            #    - jump_target: expr
+            # end_or:
+            return False
 
         return jump_target != tokens[last].off2int()
     return False

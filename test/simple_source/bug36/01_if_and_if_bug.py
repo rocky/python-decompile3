@@ -1,4 +1,4 @@
-# Bug in 3.6 was not taking "else" branch after compond "if"
+# Bug in 3.6 was not taking "else" branch after compound "if"
 # In earlier versions we had else detection needed here.
 
 # RUNNABLE!

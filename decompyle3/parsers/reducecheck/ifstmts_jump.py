@@ -21,19 +21,26 @@ def ifstmts_jump(
     ):
         pop_jump_index -= 1
 
+    if pop_jump_index == 0:
+        return True
+
+    jump_token = tokens[pop_jump_index]
+    if jump_token.op not in self.opc.JUMP_OPS:
+        return False
+
     # FIXME: something is fishy when and EXTENDED ARG is needed before the
     # pop_jump_index instruction to get the argment. In this case, the
     # _ifsmtst_jump can jump to a spot beyond the come_froms.
     # That is going on in the non-EXTENDED_ARG case is that the POP_JUMP_IF
     # jumps to a JUMP_(FORWARD) which is changed into an EXTENDED_ARG POP_JUMP_IF
     # to the jumped forwarded address
-    if tokens[pop_jump_index].attr > 256:
+    if jump_token.attr > 256:
         return False
 
-    pop_jump_offset = tokens[pop_jump_index].off2int(prefer_last=False)
+    pop_jump_offset = jump_token.off2int(prefer_last=False)
     if isinstance(come_froms, Token):
         if (
-            tokens[pop_jump_index].attr < pop_jump_offset and ast[0] != "pass"
+            jump_token.attr < pop_jump_offset and ast[0] != "pass"
         ):
             # This is a jump backwards to a loop. All bets are off here when there the
             # unless statement is "pass" which has no instructions associated with it.

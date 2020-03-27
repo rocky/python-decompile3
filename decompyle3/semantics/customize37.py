@@ -18,7 +18,7 @@
 import re
 from spark_parser.ast import GenericASTTraversalPruningException
 from xdis.code import iscode
-from xdis.util import COMPILER_FLAG_BIT
+from xdis.util import co_flags_is_async
 from decompyle3.scanners.tok import Token
 from decompyle3.semantics.consts import (
     PRECEDENCE,
@@ -55,7 +55,12 @@ def customize_for_version37(self, version):
 
     TABLE_DIRECT.update(
         {
-            "and_not": ("%c and not %c", (0, "expr_pjif"), (1, "expr")),
+            "and_not":  ("%c and not %c", (0, "expr_pjif"), (1, "expr")),
+            "and_cond": (
+                "%c and %c",
+                (0, "and_parts"),
+                (1, ("expr_pjif", "expr")),
+            ),
             "ann_assign": ("%|%[2]{attr}: %c\n", 0,),
             "ann_assign_init": ("%|%[2]{attr}: %c = %c\n", 0, 1,),
             "async_for_stmt": (
@@ -105,42 +110,49 @@ def customize_for_version37(self, version):
             "await_stmt": ("%|%c\n", 0),
             "call_ex": ("%c(%p)", (0, "expr"), (1, 100)),
             "compare_chained1a_37": (
-                ' %[3]{pattr.replace("-", " ")} %p %p',
-                (0, 19),
-                (-4, 19),
+                "%p %p",
+                (0, PRECEDENCE["compare"]-1),
+                (1, PRECEDENCE["compare"]-1),
             ),
             "compare_chained1_false_37": (
-                ' %[3]{pattr.replace("-", " ")} %p %p',
-                (0, 19),
-                (-4, 19),
+                "%p%p", (0, "chained_parts", PRECEDENCE["compare"]-1), (1, PRECEDENCE["compare"]-1),
             ),
             "compare_chained2_false_37": (
-                ' %[3]{pattr.replace("-", " ")} %p %p',
-                (0, 19),
-                (-5, 19),
+                (0, "chained_part", PRECEDENCE["compare"]-1), (1, PRECEDENCE["compare"]-1),
             ),
             "compare_chained1b_false_37": (
-                ' %[3]{pattr.replace("-", " ")} %p %p',
-                (0, 19),
-                (-4, 19),
+                "%p %p",
+                (0, PRECEDENCE["compare"]-1),
+                (1, PRECEDENCE["compare"]-1),
+            ),
+            "chained_part": (
+                ' %[3]{pattr.replace("-", " ")} %p',
+                (0, "expr", PRECEDENCE["compare"]-1),
             ),
             "compare_chained1c_37": (
-                ' %[3]{pattr.replace("-", " ")} %p %p',
-                (0, 19),
-                (-2, 19),
+                "%p %p",
+                (0, PRECEDENCE["compare"]-1),
+                (1, PRECEDENCE["compare"]-1),
             ),
-            "compare_chained2a_37": ('%[1]{pattr.replace("-", " ")} %p', (0, 19)),
-            "compare_chained2b_false_37": ('%[1]{pattr.replace("-", " ")} %p', (0, 19)),
-            "compare_chained2a_false_37": ('%[1]{pattr.replace("-", " ")} %p', (0, 19)),
+            "compare_chained2a_37": ('%[1]{pattr.replace("-", " ")} %p', (0, PRECEDENCE["compare"]-1)),
+            "compare_chained2b_false_37": ('%[1]{pattr.replace("-", " ")} %p', (0, PRECEDENCE["compare"]-1)),
+            "c_compare_chained2b_false_37": (' %[1]{pattr.replace("-", " ")} %p', (0, PRECEDENCE["compare"]-1)),
+            "compare_chained2a_false_37": ('%[1]{pattr.replace("-", " ")} %p', (0, PRECEDENCE["compare"]-1)),
+            "c_compare_chained2a_false_37": (' %[1]{pattr.replace("-", " ")} %p', (0, PRECEDENCE["compare"]-1)),
             "compare_chained2c_37": (
-                '%[3]{pattr.replace("-", " ")} %p %p',
-                (0, 19),
-                (6, 19),
+                "%p %p",
+                (0, PRECEDENCE["compare"]-1),
+                (1, PRECEDENCE["compare"]-1),
             ),
             "c_try_except": (
                 "%|try:\n%+%c%-%c\n\n", 1, (3, "c_except_handler" )
             ),
-            "if_exp37": ("%p if %c else %c", (1, "expr", 27), 0, 3),
+            "if_exp37": (
+                "%p if %c else %c",
+                (1, "expr", 27),
+                0,
+                -2 # Must be from end since beginnings might not match
+            ),
             "except_return": ("%|except:\n%+%c%-", 3),
             "if_exp_37a": (
                 "%p if %p else %p",
@@ -193,24 +205,69 @@ def customize_for_version37(self, version):
                 "%c or %c", (0, "expr"), (2, "and_not"),
             ),
 
+            "or_cond": (
+                "%c or %c",
+                (0, ("or_parts", "and")),
+                (1, "expr_pjif"),
+            ),
+
+            "or_cond1": (
+                "%c or %c",
+                (0, ("or_parts", "and")),
+                (-2, "expr_pjif"),
+            ),
+
+            "and_or_cond": (
+                "%c and %c or %c",
+                (0, ("and_parts", "or_parts")),
+                (1, "expr"),
+                (4, "expr_pjif"),
+            ),
+
             "list_if37": (" if %p%c", (0, 27), 1),
             "list_if37_not": (" if not %p%c", (0, 27), 1),
-            "testfalse_not_or": (
-                "not %p or %c",
-                (0, "expr", PRECEDENCE["and"]-1),
-                (2, "expr")
+            "not": (
+                "not %p",
+                (0, "expr_pjit", PRECEDENCE["not"]),
             ),
-            "testfalse_not_and": ("not (%c)", 0),
-            "testfalsec": ("not %c", (0, "expr")),
+            "not_or": (
+                "not %p or %c",
+                (0, "and_parts", PRECEDENCE["and"]-1),
+                (1, "expr_pjif")
+            ),
+
+            "and_parts": (
+                "%c and %c", (0, ("and_parts", "expr_pjif")), (1, "expr_pjif"),
+            ),
+            "nand": (
+                "not (%c and %c)",
+                (0, "and_parts"), (1, ("expr", "expr_pjit")),
+            ),
+
+            "c_nand": (
+                "not (%c and %c)",
+                (0, "and_parts"), (1, "expr_pjitt"),
+            ),
+
+            "or_parts": (
+                "%c or %c", (0, "or_parts", "expr_pjit"), (1, "expr_pjit"),
+            ),
+
+            "testfalsec": (
+                "not %c",
+                (0, ("expr", "c_compare_chained37_false", "c_nand"))
+                ),
             "try_except36": ("%|try:\n%+%c%-%c\n\n", 1, -2),
+            "c_try_except36": ("%|try:\n%+%c%-%c\n\n", 1, 2),
             "tryfinally36": ("%|try:\n%+%c%-%|finally:\n%+%c%-\n\n", (1, "returns"), 3),
             "tryfinally_return_stmt1":
                 ("%|try:\n%+%c%-%|finally:\n%+%c%-\n\n",
                  (1, "suite_stmts_opt"),
                  (-1, "returns")),
             "tryfinally_return_stmt2":
-                ("%|try:\n%+%c%-%|finally:\n%+return%-\n\n",
-                 (1, "suite_stmts_opt")),
+                ("%|try:\n%+%c%-%|finally:\n%+%|return %c%-\n\n",
+                 (1, "suite_stmts_opt"), 3
+                ),
             "unmap_dict": ("{**%C}", (0, -1, ", **")),
             "unpack_list": ("*%c", (0, "list")),
             "yield_from": ("yield from %c", (0, "expr")),
@@ -225,6 +282,31 @@ def customize_for_version37(self, version):
         }
     )
 
+
+    # FIXME: we should be able to compress this into a single template
+    def n_and_parts(node):
+        if len(node) == 1:
+            self.template_engine(("%c", (0, "expr_pjif")), node)
+            self.prune()
+        else:
+            self.default(node)
+            pass
+        return
+    self.n_and_parts = n_and_parts
+
+    # FIXME: we should be able to compress this into a single template
+    def n_or_parts(node):
+        if len(node) == 1:
+            self.template_engine(("%c", (0, "expr_pjit")), node)
+            self.prune()
+        else:
+            self.default(node)
+            pass
+        return
+    self.n_or_parts = n_or_parts
+
+
+    self.n_and_parts = n_and_parts
     def n_assert_invert(node):
         testtrue = node[0]
         assert testtrue == "testtrue"
@@ -321,6 +403,29 @@ def customize_for_version37(self, version):
 
     self.n_build_list_unpack = n_build_list_unpack
 
+    def n_c_with(node):
+        if len(node) == 1 and node[0] == "with":
+            node = node[0]
+        else:
+            node.kind = "with"
+        self.default(node)
+
+    self.n_c_with = n_c_with
+
+    def n_c_except_suite(node):
+        if len(node) == 1 and node[0] == "except_suite":
+            node = node[0]
+            self.default(node)
+        elif node[1] == "c_suite_stmts":
+            node = node[1][0]
+            template = ("%+%c%-", 0)
+            self.template_engine(template, node)
+            self.prune()
+
+    self.n_c_except_suite = n_c_except_suite
+
+    self.n_c_with = n_c_with
+
     def gen_function_parens_adjust(mapping_key, node):
         """If we can avoid the outer parenthesis
         of a generator function, set the node key to
@@ -405,7 +510,7 @@ def customize_for_version37(self, version):
         elif (
             opname.startswith("CALL_FUNCTION_1")
             and opname == "CALL_FUNCTION_1"
-            or not re.match("\d", opname[-1])
+            or not re.match(r"\d", opname[-1])
         ):
             self.template_engine(("%c(%c)", (0, "expr"), 1), node)
             self.prec = p
@@ -635,11 +740,13 @@ def customize_for_version37(self, version):
     self.n_classdef36 = n_classdef36
 
     def n_compare_chained(node):
-        if node[0] == "compare_chained37":
+        if node[0] in ("c_compare_chained37",
+                       "c_compare_chained37_false",
+                       "compare_chained37", "compare_chained37_false"):
             self.default(node[0])
         else:
             self.default(node)
-    self.n_compare_chained = n_compare_chained
+    self.n_compare_chained = self.n_c_compare_chained = n_compare_chained
 
     def n_importlist37(node):
         if len(node) == 1:
@@ -703,14 +810,7 @@ def customize_for_version37(self, version):
         pass
 
         is_code = hasattr(code_node, "attr") and iscode(code_node.attr)
-        return is_code and (
-            code_node.attr.co_flags
-            & (
-                COMPILER_FLAG_BIT["COROUTINE"]
-                | COMPILER_FLAG_BIT["ITERABLE_COROUTINE"]
-                | COMPILER_FLAG_BIT["ASYNC_GENERATOR"]
-            )
-        )
+        return is_code and co_flags_is_async(code_node.attr.co_flags)
 
     def n_function_def(node):
         if is_async_fn(node):

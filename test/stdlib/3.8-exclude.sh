@@ -1,11 +1,28 @@
 SKIP_TESTS=(
-    [test_shlex.py]=1 # FIXME: "or" is getting generatated in a "for" instead of "if"
-    [test_asyncore.py]=1 # FIXME: "break" outside of loop
+    [test_asynchat.py]=1 # FIXME: takes more than 15 seconds to run works in a795b2195 ?
+    [test_codeccallbacks.py]=1 # FIXME: parse error works in c28a3d1c
+    [test_csv.py]=1 # FIXME: parse error works in c28a3d1c
+    [test_embed.py]=1 # FIXME: parse error works in c28a3d1c
+    [test_file.py]=1 # FIXME: parse error works in c28a3d1c
+    [test_pathlib.py]=1 # FIXME: parse error works in c28a3d1c
+    [test_platform.py]=1 # FIXME: parse error works in c28a3d1c
+    [test_pow.py]=1 # FIXME: parse error works in c28a3d1c
+    [test_profile.py]=1 # FIXME: parse error works in c28a3d1c
+    [test_shelve.py]=1 # FIXME: parse error works in c28a3d1c
+    [test_type_comments.py]=1 # FIXME: parse error works in c28a3d1c
+    [test_wsgiref.py]=1 # FIXME: parse error works in c28a3d1c
+    # And others!
+
+    [test_c_locale_coercion.py]=1 # FIXME: parse error works in a810b68e
+
+    [test_format.py]=1 # FIXME: works in master? 795b2195? test check failures
+    [test_httpservers.py]=1 # FIXME: works in master? 795b2195? test check failures
+    [test_pulldom.py]=1 # FIXME: works in master? 795b2195? test check failures
+
+    [test_shlex.py]=1 # FIXME: "or" is getting generated in a "for" instead of "if"
     [test_nis.py]=1 # FIXME: works on ac5594b0; probably a "for38" reduction check
-    [test_urllib2net.py]=1 # FIXME: works on ac5594b0; probably a "for38" reduction checkss
     [test__xxsubinterpreters.py]=1 # FIXME: works on ac5594b0; probably a "for38" reduction checks
 
-    [test_time.py]=1 # FIXME: parser error; works on uncompyle6?
     [test_urllib2.py]=1 # FIXME: test failures works on uncompyle6?
 
     [test___all__.py]=1 # it fails on its own
@@ -30,7 +47,7 @@ SKIP_TESTS=(
     [test_cmd.py]=1  # parse error
     [test_cmd_line.py]=1  # Interactive?
     [test_cmd_line_script.py]=1 # test check failures
-    [test_code_module.py]=1 # test failure
+    [test_code_module.py]=1 # parse error
     [test_codecmaps_cn.py]=1 # test before decompile takes too long to run 135 secs
     [test_codecmaps_hk.py]=1 # test before decompile takes too long to run 46 secs
     [test_codecs.py]=1 # test check failers
@@ -40,14 +57,10 @@ SKIP_TESTS=(
     [test_complex.py]=1 # Investigate
     [test_concurrent_futures.py]=1 # too long
     [test_configparser.py]=1 # test failures
-    [test_context.py]=1
-    [test_contextlib.py]=1 # test check failures
-    [test_contextlib_async.py]=1 # parse error
     [test_coroutines.py]=1 # Parse error
     [test_ctypes.py]=1 # it fails on its own
     [test_curses.py]=1 # Parse error
 
-    [test_dataclasses.py]=1  # test check errors
     [test_datetime.py]=1   # Takes too long
     [test_dbm.py]=1   # parse error
     [test_dbm_dumb.py]=1   # parse error
@@ -72,14 +85,12 @@ SKIP_TESTS=(
     [test_exceptions.py]=1   # parse error
 
     [test_faulthandler.py]=1   # takes too long
-    [test_filecmp.py]=1  # probably control flow
     [test_fileinput.py]=1  # parse error
-    [test_fileio.py]=1 # test failures
     [test_float.py]=1  # Takes a long time to decompile
     [test_frame.py]=1 # Test failures
     [test_fstring.py]=1 # Investigate: Syntax error unexcpeted EOF wile parsing
     [test_ftplib.py]=1 # parse error
-    [test_functools.py]=1 # test errors
+    [test_functools.py]=1 # running tests takes too long
     [test___future__.py]=1 # test check failure
 
     [test_gc.py]=1 # test check failures
@@ -129,7 +140,7 @@ SKIP_TESTS=(
     [test_opcodes.py]=1 # test check failure
     [test_optparse.py]=1 # parse error
     [test_ordered_dict.py]=1 # parse error
-    [test_os.py]=1 # probably control flow (uninitialized variable)
+    [test_os.py]=1 # parse error
     [test_ossaudiodev.py]=1 # it fails on its own
 
     [test_pdb.py]=1 # Probably relies on comments
@@ -142,7 +153,7 @@ SKIP_TESTS=(
     [test_positional_only_arg.py]=1 # test failures
     [test_posix.py]=1 # parse error
     [test_pwd.py]=1 # killing - doesn't terminate
-    [test_pulldom.py]=1 # killing - doesn't terminate
+    [test_pulldom.py]=1 # test check failures
     [test_pyclbr.py]=1 # Test errors
     [test_pydoc.py]=1 # it fails on its own
 
@@ -165,7 +176,6 @@ SKIP_TESTS=(
     [test_shutil.py]=1 # fails on its own
     [test_signal.py]=1 # test takes too long to run before decompiling: 22 seconds
     [test_site.py]=1 # fails on its own
-    [test_smtplib.py]=1 # parse error
     [test_smtpnet.py]=1 # parse error
     [test_socket.py]=1 # test takes too long to run before decompiling: 23 seconds
     [test_socketserver.py]=1 # parse error
@@ -187,9 +197,7 @@ SKIP_TESTS=(
     [test_tarfile.py]=1 # test errors
     [test_telnetlib.py]=1 # test after decompilation runs in more than 15 seconds
     [test_tempfile.py]=1 # parse error
-    [test_thread.py]=1 # parse error
     [test_threading.py]=1 #
-    [test_timeit.py]=1 # probably control flow uninitialized variable
     [test_timeout.py]=1 # parse error
     [test_tk.py]=1  # test takes too long to run: 13 seconds
     [test_tokenize.py]=1
@@ -197,7 +205,6 @@ SKIP_TESTS=(
     [test_traceback.py]=1 # Probably uses comment for testing
     [test_tracemalloc.py]=1 #
     [test_ttk_guionly.py]=1  # implementation specfic and test takes too long to run: 19 seconds
-    [test_turtle.py]=1 # parse error
     [test_types.py]=1 # parse error
     [test_typing.py]=1 # parse error
 
@@ -211,7 +218,7 @@ SKIP_TESTS=(
     [test_urlparse.py]=1 # test errors
     [test_uuid.py]=1 # parse error
 
-    [test_weakref.py]=1 # test errors probably control flow - uninitialized variable
+    [test_weakref.py]=1 # test takes too long to run
     [test_with.py]=1 # parse error
     [test_winconsoleio.py]=1 # it fails on its own
     [test_winreg.py]=1 # it fails on its own

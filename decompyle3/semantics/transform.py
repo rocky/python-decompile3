@@ -121,7 +121,7 @@ class TreeTransform(GenericASTTraversal, object):
                 return node
             stmts = ifstmts_jump[0]
         else:
-            # iflaststmtc works this way
+            # iflaststmt{c,} works this way
             stmts = node[1]
 
         if stmts in ("c_stmts", "stmts", "stmts_opt") and len(stmts) == 1:
@@ -130,6 +130,9 @@ class TreeTransform(GenericASTTraversal, object):
                 raise_stmt = raise_stmt[0]
 
             testtrue_or_false = testexpr[0]
+            if testtrue_or_false == "testexpr":
+                testtrue_or_false = testtrue_or_false[0]
+
             if (
                 raise_stmt == "raise_stmt1"
                 and 1 <= len(testtrue_or_false) <= 2
@@ -141,9 +144,9 @@ class TreeTransform(GenericASTTraversal, object):
                     assert_expr = testtrue_or_false[0]
                     jump_cond = NoneToken
                 else:
-                    assert testtrue_or_false in ("testfalse", "testfalsec")
+                    assert testtrue_or_false in ("testfalse", "testfalsec"), testtrue_or_false
                     assert_expr = testtrue_or_false[0]
-                    if assert_expr in ("testfalse_not_and", "and_not"):
+                    if assert_expr in ("and_not", "nand", "not_or", "and"):
                         # FIXME: come back to stuff like this
                         return node
 
@@ -210,7 +213,7 @@ class TreeTransform(GenericASTTraversal, object):
                     if jump_cond in ("POP_JUMP_IF_TRUE", NoneToken):
                         kind = "assert"
                     else:
-                        assert jump_cond == "POP_JUMP_IF_FALSE"
+                        assert jump_cond.kind.startswith("POP_JUMP_IF_")
                         kind = "assertnot"
 
                     LOAD_ASSERT = expr[0]
@@ -223,7 +226,7 @@ class TreeTransform(GenericASTTraversal, object):
             pass
         return node
 
-    n_ifstmtc = n_iflaststmtc = n_ifstmt
+    n_ifstmtc = n_iflaststmtc = n_iflaststmt = n_ifstmt
 
     # preprocess is used for handling chains of
     # if elif elif
@@ -252,9 +255,14 @@ class TreeTransform(GenericASTTraversal, object):
         n = else_suite[0]
         old_stmts = None
         else_suite_index = 1
+        if len(n) and n[0] == "suite_stmts":
+            n = n[0]
 
-        if len(n) == 1 == len(n[0]) and n[0] in ("stmt", "stmts"):
+        len_n = len(n)
+        if len_n == 1 == len(n[0]) and n[0] in ("stmt", "stmts"):
             n = n[0][0]
+        elif len_n == 0:
+            return node
         elif n[0].kind in ("lastc_stmt",):
             n = n[0]
             if n[0].kind in (
@@ -272,14 +280,14 @@ class TreeTransform(GenericASTTraversal, object):
             pass
         else:
             if (
-                len(n) > 1
+                len_n > 1
                 and isinstance(n[0], SyntaxTree)
                 and 1 == len(n[0])
                 and n[0] == "stmt"
                 and n[1].kind == "stmt"
             ):
                 else_suite_stmts = n[0]
-            elif len(n) == 1:
+            elif len_n == 1:
                 else_suite_stmts = n
             else:
                 return node

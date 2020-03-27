@@ -6,8 +6,8 @@
 [ x for x in range(10) if x % 2 if x % 3 ]
 list(x for x in range(10) if x % 2 if x % 3)
 
-# expresion which evaluates True unconditionally,
-# but leave dead code or junk around that we have to match on.
+# An expression which evaluates True unconditionally,
+# but leaves dead code or junk around that we have to match on.
 # Tests "if_expr_true" rule
 5 if 1 else 2
 

@@ -31,11 +31,11 @@ def customize_for_version38(self, version):
     TABLE_DIRECT.update({
         "async_for_stmt38":  (
             "%|async for %c in %c:\n%+%c%-%-\n\n",
-            (7, "store"), (0, "expr"), (8, "for_block") ),
+            (2, "store"), (0, "expr"), (3, "for_block") ),
 
         "async_forelse_stmt38":  (
             "%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n",
-            (7, "store"), (0, "expr"), (8, "for_block"), (-1, "else_suite") ),
+            (2, "store"), (0, "expr"), (3, "for_block"), (-1, "else_suite") ),
 
         "async_with_stmt38": (
             "%|async with %c:\n%+%|%c%-",
