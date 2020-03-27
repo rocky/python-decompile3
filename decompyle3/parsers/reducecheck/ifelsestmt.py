@@ -142,9 +142,9 @@ def ifelsestmt(
             if last_offset == -1:
                 last_offset = tokens[last-1].off2int(prefer_last=False)
 
-            jump_to_jump = False
+            # jump_to_jump = False
             if jump_else_end == "JUMP_FORWARD":
-                jump_to_jump = True
+                # jump_to_jump = True
                 endif_target = int(jump_else_end.pattr)
                 if endif_target != last_offset:
                     return True
@@ -182,16 +182,26 @@ def ifelsestmt(
                     pass
                 pass
 
-            # If we have a jump_back, i.e a then then end of the else
-            # can't be a fallthrough kind of instruction. In other
-            # words, tokens[last] should have be a
-            # COME_FROM. Otherwise the "else" suite should be extended
-            # to cover the next instruction at tokens[last].
+            # If we have a jump_back, i.e we are in a loop, then a "end_then" of
+            # the "else" can't be a fallthrough kind of instruction. In other
+            # words, tokens[last] should have be a COME_FROM. Otherwise the
+            # "else" suite should be extended to cover the next instruction at
+            # tokens[last].
             if (
                 jump_else_end in ("jb_elsec", "jb_cfs")
                 and tokens[last].kind not in ("COME_FROM", "JUMP_BACK", "COME_FROM_LOOP")
             ):
                 return True
+
+            # If the part before the "else" statement doesn't have a JUMP in it,
+            # i.e. is a "COME_FROM", then the statement before he COME_FROM should
+            # not fallthrough. Otherwise we have an "if" statement, not "if/else".
+            if jump_else_end == "COME_FROM":
+                come_from_offset = jump_else_end.off2int(prefer_last=False)
+                before_come_from = self.insts[self.offset2inst_index[come_from_offset]-1]
+                # FIXME: When xdis next changes, this will be a field in the instruction
+                no_follow = before_come_from.opcode in self.opc.nofollow
+                return not (before_come_from.is_jump() or no_follow)
 
             if first_offset > jump_target:
                 return True

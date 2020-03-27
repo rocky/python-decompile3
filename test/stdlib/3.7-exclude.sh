@@ -1,6 +1,4 @@
 SKIP_TESTS=(
-    [test_poplib.py]=1 # FIXME: works in HEAD~10 or so
-
     [test_format.py]=1 # FIXME: works in master? 795b2195? test check failures if/and logic
 
     [test_httplib.py]=1 # test runs. kills after 15 seconds. works on f7e2064e
@@ -89,13 +87,11 @@ SKIP_TESTS=(
     [test_tarfile.py]=1 # test takes too long to run before decompiling
     [test_telnetlib.py]=1 # test run takes more than 15 seconds
     [test_threading.py]=1 # test assertion failures
-    [test_threaded_import.py]=1 # test assertion failures
     [test_tk.py]=1  # test takes too long to run: 13 seconds
     [test_tokenize.py]=1 # test takes too long to run before decompilation: 43 seconds
     [test_trace.py]=1  # it fails on its own
     [test_traceback.py]=1 # Probably uses comment for testing
     [test_tracemalloc.py]=1 # test assert failures
-    [test_ttk_guionly.py]=1  # implementation specfic and test takes too long to run: 19 seconds
     [test_ttk_guionly.py]=1  # implementation specfic and test takes too long to run: 19 seconds
     [test_typing.py]=1 # run errors
 
