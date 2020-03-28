@@ -14,6 +14,7 @@
 
 from decompyle3.scanners.tok import Token
 
+
 def ifelsestmt(
     self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
 ) -> bool:
@@ -42,7 +43,7 @@ def ifelsestmt(
             end_come_froms = end_come_froms[-1]
         if isinstance(end_come_froms, Token):
             if first_offset > end_come_froms.attr:
-                    return True
+                return True
             elif first_offset > end_come_froms.attr:
                 return True
 
@@ -83,7 +84,7 @@ def ifelsestmt(
         else:
             then_end_come_from = then_end.last_child()
 
-        if  then_end_come_from == "COME_FROM" and then_end_come_from.attr < first_offset:
+        if then_end_come_from == "COME_FROM" and then_end_come_from.attr < first_offset:
             return True
 
         # If there any instructions in the "then" part that jump to the beginning of the
@@ -105,7 +106,11 @@ def ifelsestmt(
             i += 1
             inst = self.insts[i]
 
-        if else_suite == "else_suitec" and then_end in ("jb_elsec", "jb_cfs", "jump_forward_else"):
+        if else_suite == "else_suitec" and then_end in (
+            "jb_elsec",
+            "jb_cfs",
+            "jump_forward_else",
+        ):
             stmts = ast[1]
             jb_else = then_end
             come_from = jb_else[-1]
@@ -140,7 +145,7 @@ def ifelsestmt(
 
             last_offset = tokens[last].off2int(prefer_last=False)
             if last_offset == -1:
-                last_offset = tokens[last-1].off2int(prefer_last=False)
+                last_offset = tokens[last - 1].off2int(prefer_last=False)
 
             # jump_to_jump = False
             if jump_else_end == "JUMP_FORWARD":
@@ -164,10 +169,7 @@ def ifelsestmt(
                 if jump_else_forward_target < last_offset:
                     return True
                 pass
-            if (
-                jump_else_end == "jf_cfs"
-                and jump_else_end[-1] == "COME_FROM"
-            ):
+            if jump_else_end == "jf_cfs" and jump_else_end[-1] == "COME_FROM":
                 if jump_else_end[-1].off2int() != jump_target:
                     return True
 
@@ -187,9 +189,10 @@ def ifelsestmt(
             # words, tokens[last] should have be a COME_FROM. Otherwise the
             # "else" suite should be extended to cover the next instruction at
             # tokens[last].
-            if (
-                jump_else_end in ("jb_elsec", "jb_cfs")
-                and tokens[last].kind not in ("COME_FROM", "JUMP_BACK", "COME_FROM_LOOP")
+            if jump_else_end in ("jb_elsec", "jb_cfs") and tokens[last].kind not in (
+                "COME_FROM",
+                "JUMP_BACK",
+                "COME_FROM_LOOP",
             ):
                 return True
 
@@ -198,7 +201,9 @@ def ifelsestmt(
             # not fallthrough. Otherwise we have an "if" statement, not "if/else".
             if jump_else_end == "COME_FROM":
                 come_from_offset = jump_else_end.off2int(prefer_last=False)
-                before_come_from = self.insts[self.offset2inst_index[come_from_offset]-1]
+                before_come_from = self.insts[
+                    self.offset2inst_index[come_from_offset] - 1
+                ]
                 # FIXME: When xdis next changes, this will be a field in the instruction
                 no_follow = before_come_from.opcode in self.opc.nofollow
                 return not (before_come_from.is_jump() or no_follow)

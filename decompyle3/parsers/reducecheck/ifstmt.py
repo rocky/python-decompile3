@@ -86,8 +86,9 @@ def ifstmt(
                 # FIXME: investigate why this happens for "if"s with EXTENDED_ARG POP_JUMP_IF_FALSE.
                 # An example is decompyle3/semantics/transform.py n_ifelsestmt.py
                 if not (
-                        jump_target != endif_offset or
-                        rule == ('ifstmt', ('testexpr', 'stmts', 'come_froms'))):
+                    jump_target != endif_offset
+                    or rule == ("ifstmt", ("testexpr", "stmts", "come_froms"))
+                ):
                     return True
 
             # jump_target equal tokens[last] is also okay: normal non-optimized non-loop jump
@@ -111,7 +112,9 @@ def ifstmt(
                 # instruction that does "not' fall through, like a jump
                 # return, or raise.
                 if ltm1 == "COME_FROM":
-                    before_come_from = self.insts[self.offset2inst_index[endif_offset]-1]
+                    before_come_from = self.insts[
+                        self.offset2inst_index[endif_offset] - 1
+                    ]
                     # FIXME: When xdis next changes, this will be a field in the instruction
                     no_follow = before_come_from.opcode in self.opc.nofollow
                     return not (before_come_from.is_jump() or no_follow)

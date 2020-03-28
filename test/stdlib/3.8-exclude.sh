@@ -15,7 +15,6 @@ SKIP_TESTS=(
 
     [test_c_locale_coercion.py]=1 # FIXME: parse error works in a810b68e
 
-    [test_format.py]=1 # FIXME: works in master? 795b2195? test check failures
     [test_httpservers.py]=1 # FIXME: works in master? 795b2195? test check failures
     [test_pulldom.py]=1 # FIXME: works in master? 795b2195? test check failures
 
@@ -50,11 +49,9 @@ SKIP_TESTS=(
     [test_code_module.py]=1 # parse error
     [test_codecmaps_cn.py]=1 # test before decompile takes too long to run 135 secs
     [test_codecmaps_hk.py]=1 # test before decompile takes too long to run 46 secs
-    [test_codecs.py]=1 # test check failers
     [test_collections.py]=1 # parse error
     [test_compile.py]=1 # test check failures
     [test_compileall.py]=1 # fails on its own
-    [test_complex.py]=1 # Investigate
     [test_concurrent_futures.py]=1 # too long
     [test_configparser.py]=1 # test failures
     [test_coroutines.py]=1 # Parse error
@@ -91,7 +88,6 @@ SKIP_TESTS=(
     [test_fstring.py]=1 # Investigate: Syntax error unexcpeted EOF wile parsing
     [test_ftplib.py]=1 # parse error
     [test_functools.py]=1 # running tests takes too long
-    [test___future__.py]=1 # test check failure
 
     [test_gc.py]=1 # test check failures
     [test_gdb.py]=1 # it fails on its own

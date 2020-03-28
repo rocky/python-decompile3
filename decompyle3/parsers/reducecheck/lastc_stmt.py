@@ -12,8 +12,6 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from decompyle3.scanners.tok import Token
-
 
 def lastc_stmt(
     self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
@@ -32,10 +30,12 @@ def lastc_stmt(
     if tokens[last] == "COME_FROM":
         last -= 1
 
+    # FIXME: use instruction properties.
     return tokens[last] not in (
-        "POP_BLOCK",
-        "JUMP_BACK",
+        "BREAK_LOOP",
         "COME_FROM_LOOP",
         "CONTINUE",
-        "BREAK_LOOP",
+        "JUMP_BACK",
+        "POP_BLOCK",
+        "RETURN_VALUE",
     )
