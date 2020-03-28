@@ -24,9 +24,18 @@ def lastc_stmt(
     # Otherwise this kind of stmt should flow through to the next.
     # However that larger, set of stmts could be a lastc_stmt, but come back
     # here with that larger set of stmts.
+
+    # print("XXX", first, last, rule)
+    # for t in range(first, last): print(tokens[t])
+    # print("="*40)
+
+    if tokens[last] == "COME_FROM":
+        last -= 1
+
     return tokens[last] not in (
         "POP_BLOCK",
         "JUMP_BACK",
         "COME_FROM_LOOP",
+        "CONTINUE",
         "BREAK_LOOP",
-    ) and tokens[last - 1] not in ("CONTINUE", "BREAK_LOOP")
+    )
