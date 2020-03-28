@@ -1,6 +1,4 @@
 SKIP_TESTS=(
-    [test_format.py]=1 # FIXME: works in master? 795b2195? test check failures if/and logic
-
     [test_httplib.py]=1 # test runs. kills after 15 seconds. works on f7e2064e
     [test_grammar.py]=1 # parse error. Probably "try"
 
