@@ -793,25 +793,28 @@ class Python37Parser(Python37LambdaParser):
 
     def p_come_from3(self, args):
         """
-        # In 3.7+ it looks like SETUP_LOOP to a JUMP_FORWARD will
-        # get replaced by the JUMP_FORWARD addressd. Therefore come froms may
-        # appear out of nesting order. For example
+        # In 3.7+ a SETUP_LOOP to a JUMP_FORWARD can
+        # get replaced by the JUMP_FORWARD addressed. Therefore come froms may
+        # appear out of nesting order. For example:
         #   if x
-        #     for ... jump forward endif
+        #     for ... jump forward endif (1)
         #        ...
-        #        jump forward endif
+        #        break - jump forward endif (2)
         #     end for
-        #
+        #     optional jump forward endif (1)
         #   else:
         #       ...
         #   endif
+        #   come from loop 2 - note not strictly nested
+        #   come from if-then 1
 
-        come_any_froms ::= come_any_froms COME_FROM_LOOP
-        come_any_froms ::= come_any_froms COME_FROM_EXCEPT
-        come_any_froms ::= come_froms
+        come_any_froms ::= come_any_froms come_any_from
+        come_any_froms ::= come_any_from
+        come_any_from  ::= COME_FROM_LOOP
+        come_any_from  ::= COME_FROM_EXCEPT
+        come_any_from  ::= COME_FROM
 
         opt_come_from_except ::= come_any_froms?
-
         opt_come_from_loop   ::= COME_FROM_LOOP?
 
         come_from_except_clauses ::= COME_FROM_EXCEPT_CLAUSE*
