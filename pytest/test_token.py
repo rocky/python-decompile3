@@ -4,7 +4,7 @@ from decompyle3.scanners.tok import Token
 def test_token():
     # Test token formatting of: LOAD_CONST None
     t = Token("LOAD_CONST", offset=0, attr=None, pattr=None, has_arg=True)
-    expect = "             0  LOAD_CONST               None"
+    expect = "                0  LOAD_CONST               None"
     # print(t.format())
     assert t
     assert t.format() == expect
@@ -16,8 +16,12 @@ def test_token():
     # Make sure formatting of: LOAD_CONST False. We assume False is the 0th index
     # of co_consts.
     t = Token("LOAD_CONST", offset=1, attr=False, pattr=False, has_arg=True)
-    expect = "             1  LOAD_CONST               False"
+    expect = "                1  LOAD_CONST               False"
     assert t.format() == expect, t.format()
+
+    # Make sure formatting of: LOAD_CONST False. We assume False is the 0th index
+    expect = "(005)                1  LOAD_CONST               False"
+    assert t.format(token_num=5) == expect, t.format(token_num=5)
 
 
 if __name__ == "__main__":

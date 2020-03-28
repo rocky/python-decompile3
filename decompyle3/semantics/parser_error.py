@@ -13,13 +13,15 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import decompyle3.parsers.main as python_parser
+
+
 class ParserError(python_parser.ParserError):
     def __init__(self, error, tokens):
-        self.error = error # previous exception
+        self.error = error  # previous exception
         self.tokens = tokens
 
     def __str__(self):
-        lines = ['--- This code section failed: ---']
-        lines.extend([str(i) for i in self.tokens])
-        lines.extend( ['', str(self.error)] )
-        return '\n'.join(lines)
+        lines = ["--- This code section failed: ---"]
+        lines.extend([t.format(token_num=i + 1) for i, t in enumerate(self.tokens)])
+        lines.extend(["", str(self.error)])
+        return "\n".join(lines)
