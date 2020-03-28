@@ -165,7 +165,7 @@ def ifelsestmt(
                     return True
                 pass
             if (
-                jump_else_end in ("jb_elsec", "jf_cfs", "jb_cfs")
+                jump_else_end == "jf_cfs"
                 and jump_else_end[-1] == "COME_FROM"
             ):
                 if jump_else_end[-1].off2int() != jump_target:

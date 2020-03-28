@@ -320,6 +320,11 @@ class Scanner37Base(Scanner):
                 # "loop" tag last so the grammar rule matches that properly.
                 for jump_offset in sorted(jump_targets[inst.offset], reverse=True):
                     come_from_name = "COME_FROM"
+
+                    # FIXME: fix grammar so come_froms of SETUP_EXCEPT are okay
+                    if inst.opname == "SETUP_EXCEPT":
+                        continue
+
                     opname = self.opname_for_offset(jump_offset)
                     if opname == "EXTENDED_ARG":
                         k = xdis.next_offset(op, self.opc, jump_offset)
@@ -570,21 +575,12 @@ class Scanner37Base(Scanner):
             self.detect_control_flow(offset, targets, i)
 
             if inst.has_arg:
-                label = self.fixed_jumps.get(offset)
                 oparg = inst.arg
-                if self.code[offset] == self.opc.EXTENDED_ARG:
-                    j = xdis.next_offset(op, self.opc, offset)
-                    next_offset = xdis.next_offset(op, self.opc, j)
+                # FIXME: fix grammar so we don't have to exclude FOR_ITER
+                if inst.is_jump() and op != self.opc.FOR_ITER:
+                    label = inst.argval
                 else:
-                    next_offset = xdis.next_offset(op, self.opc, offset)
-
-                if label is None:
-                    if op in self.opc.hasjrel and op != self.opc.FOR_ITER:
-                        label = next_offset + oparg
-                    elif op in self.opc.hasjabs:
-                        if op in self.jump_if_pop:
-                            if oparg > offset:
-                                label = oparg
+                    label = self.fixed_jumps.get(offset)
 
                 if label is not None and label != -1:
                     targets[label] = targets.get(label, []) + [offset]
