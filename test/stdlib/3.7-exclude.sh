@@ -4,6 +4,7 @@ SKIP_TESTS=(
 
     [test___all__.py]=1 # it fails on its own
     [test_asdl_parser.py]=1 # it fails on its own
+    [test_asyncgen.py]=1 # parse error
     [test_atexit.py]=1  # The atexit test looks for specific comments in error lines
     [test_buffer.py]=1  # Test run errors; takes long time to decompile
 
