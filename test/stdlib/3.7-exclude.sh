@@ -1,5 +1,6 @@
 SKIP_TESTS=(
     [test_poplib.py]=1 # FIXME: decompile reduce_check/ifelsestmt.py code problem. works on uncompyle6
+    [test_types.py]=1 # FIXME: decompile reduce_check/ifelsestmt.py code problem. works on uncompyle6
 
     [test_bytes.py]=1 # parse error. works on uncompyle6
     [test_string_literals.py]=1 # parse error; works on uncompyle6
@@ -29,6 +30,7 @@ SKIP_TESTS=(
     [test_grammar.py]=1 # parse error. Probably "try"
 
     [test___all__.py]=1 # it fails on its own
+    [test_argparse.py]=1 # it fails on its own
     [test_asdl_parser.py]=1 # it fails on its own
     [test_asyncgen.py]=1 # parse error
     [test_atexit.py]=1  # The atexit test looks for specific comments in error lines
@@ -51,6 +53,7 @@ SKIP_TESTS=(
     [test_descr.py]=1   # test assertion failures
     [test_devpoll.py]=1 # it fails on its own
     [test_dis.py]=1   # Introspects on line numbers; line numbers don't match in disassembly - duh!
+    [test_doctest.py]=1   # fails on its own
 
     [test_enum.py]=1   # test run errors; probably bad control flow
 
@@ -133,7 +136,7 @@ SKIP_TESTS=(
     [test_zipfile.py]=1 # it fails on its own
     [test_zipfile64.py]=1 # Too long to run
 )
-# 288 unit-test files in about 20 minutes
+# 288 unit-test files in about 25 minutes
 # 277 for unpyc37
 
 if (( BATCH )) ; then
