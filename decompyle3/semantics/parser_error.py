@@ -16,12 +16,16 @@ import decompyle3.parsers.main as python_parser
 
 
 class ParserError(python_parser.ParserError):
-    def __init__(self, error, tokens):
+    def __init__(self, error, tokens, debug):
         self.error = error  # previous exception
         self.tokens = tokens
+        self.debug = debug
 
     def __str__(self):
         lines = ["--- This code section failed: ---"]
-        lines.extend([t.format(token_num=i + 1) for i, t in enumerate(self.tokens)])
+        if self.debug:
+            lines.extend([t.format(token_num=i + 1) for i, t in enumerate(self.tokens)])
+        else:
+            lines.extend([t.format() for t in self.tokens])
         lines.extend(["", str(self.error)])
         return "\n".join(lines)

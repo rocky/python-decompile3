@@ -36,11 +36,12 @@ from decompyle3.show import maybe_show_asm
 
 
 class ParserError(Exception):
-    def __init__(self, token, offset: int):
+    def __init__(self, token, offset: int, debug: bool):
         self.token = token
         self.offset = offset
+        self.debug = debug
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "Parse error at or near `%r' instruction at offset %s\n" % (
             self.token,
             self.offset,
@@ -202,9 +203,9 @@ class PythonLambdaParser(GenericASTBuilder):
                 else:
                     indent = "-> "
                 print("%s%s" % (indent, instructions[i]))
-            raise ParserError(err_token, err_token.offset)
+            raise ParserError(err_token, err_token.offset, self.debug["reduce"])
         else:
-            raise ParserError(None, -1)
+            raise ParserError(None, -1, self.debug["reduce"])
 
     def get_pos_kw(self, token):
         """Return then the number of positional parameters and
