@@ -1290,7 +1290,7 @@ class Python37BaseParser(PythonParser):
                   f"rule: {rule2str(rule)}\n" +
                   f"offsets {tokens[first].offset} .. {tokens[last].offset}")
             print(traceback.print_tb(sys.exc_info()[2],-1))
-            raise ParserError(tokens[last], tokens[last].off2int())
+            raise ParserError(tokens[last], tokens[last].off2int(), self.debug["rules"])
 
         if lhs in ("aug_assign1", "aug_assign2") and ast[0][0] == "and":
             return True

@@ -150,7 +150,7 @@ def ifelsestmt(
             # jump_to_jump = False
             if jump_else_end == "JUMP_FORWARD":
                 # jump_to_jump = True
-                endif_target = int(jump_else_end.pattr)
+                endif_target = int(jump_else_end.attr)
                 if endif_target != last_offset:
                     return True
 

@@ -1,7 +1,4 @@
 SKIP_TESTS=(
-    [test_poplib.py]=1 # FIXME: decompile reduce_check/ifelsestmt.py code problem. works on uncompyle6
-    [test_types.py]=1 # FIXME: decompile reduce_check/ifelsestmt.py code problem. works on uncompyle6
-
     [test_bytes.py]=1 # parse error. works on uncompyle6
     [test_string_literals.py]=1 # parse error; works on uncompyle6
     [test_fileio.py]=1 # parse error; works on uncompyle6
@@ -22,9 +19,11 @@ SKIP_TESTS=(
     [test_normalization.py]=1 # test errors (1). works on uncompyle6
     [test_opcodes.py]=1 # test errors; control flow. works on uncompyle6
     [test_plistlib.py]=1 # test errors; control flow. works on uncompyle6
+    [test_poplib.py]=1 # test failures. works on uncompyle6
     [test_posix.py]=1 # test errors; control flow. works on uncompyle6
     [test_queue.py]=1 # test failures (3); works on uncompyle6
     [test_readline.py]=1 # test errors (1); works on uncompyle6
+    [test_types.py]=1 # test failure (1) works on uncompyle6
 
     [test_httplib.py]=1 # test runs. kills after 15 seconds. works on f7e2064e
     [test_grammar.py]=1 # parse error. Probably "try"
