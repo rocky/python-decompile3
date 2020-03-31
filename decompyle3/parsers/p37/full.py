@@ -612,6 +612,7 @@ class Python37Parser(Python37LambdaParser):
         testtruec  ::= expr POP_JUMP_IF_FALSE_BACK
         # Do we have to check the c_compare_chained37 ends in a POP_JUMP_IF_FALSE_BACK?
         testtruec  ::= c_compare_chained37_false
+        testtruec  ::= c_compare_chained37
         testtruec  ::= c_nand
 
         testtrue   ::= compare_chained37

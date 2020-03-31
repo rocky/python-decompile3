@@ -1,13 +1,11 @@
 SKIP_TESTS=(
     [test_bytes.py]=1 # parse error. works on uncompyle6
-    [test_string_literals.py]=1 # parse error; works on uncompyle6
     [test_fileio.py]=1 # parse error; works on uncompyle6
     [test_fork1.py]=1 # parse error; works on uncompyle6
     [test_http_cookiejar.py]=1 # parse error; works on uncompyle6
     [test_imp.py]=1 # parse error; works on uncompyle6
     [test_os.py]=1 # parse error; works on uncompyle6
     [test_strftime.py]=1 # parse error; works on uncompyle6
-    [test_string_literals.py]=1 # parse error; works on uncompyle6
     [test_urllib.py]=1 # parse error; works on uncompyle6
 
     [test_ast.py]=1 # test error. works on uncompyle6

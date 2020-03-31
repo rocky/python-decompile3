@@ -181,6 +181,8 @@ class Python37LambdaParser(Python37BaseParser):
         compare_chained37   ::= expr chained_parts
         compare_chained37   ::= expr compare_chained1a_37
         compare_chained37   ::= expr compare_chained1c_37
+        c_compare_chained37   ::= expr c_compare_chained1a_37
+        # c_compare_chained37   ::= expr c_compare_chained1c_37
 
         compare_chained37_false   ::= expr compare_chained1_false_37
         compare_chained37_false   ::= expr compare_chained1b_false_37
@@ -206,6 +208,10 @@ class Python37LambdaParser(Python37BaseParser):
         compare_chained1a_37       ::= chained_parts
                                        compare_chained2a_37 COME_FROM
                                        POP_TOP come_from_opt
+        c_compare_chained1a_37     ::= chained_parts
+                                       c_compare_chained2a_37 COME_FROM
+                                       POP_TOP come_from_opt
+
         compare_chained1b_false_37 ::= chained_parts
                                        compare_chained2b_false_37
                                        POP_TOP jump _come_froms
@@ -234,6 +240,9 @@ class Python37LambdaParser(Python37BaseParser):
                                          c_compare_chained2a_false_37 POP_TOP JUMP_BACK COME_FROM
 
         compare_chained2a_37       ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_TRUE JUMP_FORWARD
+        c_compare_chained2a_37     ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_TRUE_BACK JUMP_FORWARD
+
+
         compare_chained2a_37       ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_TRUE JUMP_BACK
         compare_chained2a_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE jf_cfs
 

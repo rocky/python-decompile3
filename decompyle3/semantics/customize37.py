@@ -114,6 +114,11 @@ def customize_for_version37(self, version):
                 (0, PRECEDENCE["compare"]-1),
                 (1, PRECEDENCE["compare"]-1),
             ),
+            "c_compare_chained1a_37": (
+                "%p %p",
+                (0, PRECEDENCE["compare"]-1),
+                (1, PRECEDENCE["compare"]-1),
+            ),
             "compare_chained1_false_37": (
                 "%p%p", (0, "chained_parts", PRECEDENCE["compare"]-1), (1, PRECEDENCE["compare"]-1),
             ),
@@ -135,6 +140,7 @@ def customize_for_version37(self, version):
                 (1, PRECEDENCE["compare"]-1),
             ),
             "compare_chained2a_37": ('%[1]{pattr.replace("-", " ")} %p', (0, PRECEDENCE["compare"]-1)),
+            "c_compare_chained2a_37": ('%[1]{pattr.replace("-", " ")} %p', (0, PRECEDENCE["compare"]-1)),
             "compare_chained2b_false_37": ('%[1]{pattr.replace("-", " ")} %p', (0, PRECEDENCE["compare"]-1)),
             "c_compare_chained2b_false_37": (' %[1]{pattr.replace("-", " ")} %p', (0, PRECEDENCE["compare"]-1)),
             "compare_chained2a_false_37": ('%[1]{pattr.replace("-", " ")} %p', (0, PRECEDENCE["compare"]-1)),
