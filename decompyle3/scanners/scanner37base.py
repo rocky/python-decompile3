@@ -321,10 +321,6 @@ class Scanner37Base(Scanner):
                 for jump_offset in sorted(jump_targets[inst.offset], reverse=True):
                     come_from_name = "COME_FROM"
 
-                    # FIXME: fix grammar so come_froms of SETUP_EXCEPT are okay
-                    if inst.opname == "SETUP_EXCEPT":
-                        continue
-
                     opname = self.opname_for_offset(jump_offset)
                     if opname == "EXTENDED_ARG":
                         k = xdis.next_offset(op, self.opc, jump_offset)
