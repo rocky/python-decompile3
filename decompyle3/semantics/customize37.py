@@ -65,9 +65,15 @@ def customize_for_version37(self, version):
             "ann_assign_init": ("%|%[2]{attr}: %c = %c\n", 0, 1,),
             "async_for_stmt": (
                 "%|async for %c in %c:\n%+%c%-\n\n",
-                (7, "store"),
+                (8, "store"),
                 (1, "expr"),
-                (17, "for_block"),
+                (-9, "for_block"),
+            ),
+            "async_for_stmt2": (
+                "%|async for %c in %c:\n%+%c%-\n\n",
+                (10, "store"),
+                (1, "expr"),
+                (-3, "for_block"),
             ),
             "async_for_stmt36": (
                 "%|async for %c in %c:\n%+%c%-\n\n",
@@ -77,9 +83,9 @@ def customize_for_version37(self, version):
             ),
             "async_for_stmt37": (
                 "%|async for %c in %c:\n%+%c%-\n\n",
-                (7, "store"),
+                (8, "store"),
                 (1, "expr"),
-                (16, "for_block"),
+                (17, "for_block"),
             ),
             "async_with_stmt": ("%|async with %c:\n%+%c%-", (0, "expr"), 3),
             "async_with_as_stmt": (
@@ -90,10 +96,10 @@ def customize_for_version37(self, version):
             ),
             "async_forelse_stmt": (
                 "%|async for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n",
-                (7, "store"),
+                (8, "store"),
                 (1, "expr"),
-                (17, "for_block"),
-                (25, "else_suite"),
+                (-10, "for_block"),
+                (-2, "else_suite"),
             ),
             "attribute37": ("%c.%[1]{pattr}", (0, "expr")),
             "attributes37": (
