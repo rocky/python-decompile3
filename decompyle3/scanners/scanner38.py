@@ -93,34 +93,30 @@ class Scanner38(Scanner37):
                 # We also want to avoid confusing BREAK_LOOPS with parts of the
                 # grammar rules for loops. (Perhaps we should change the grammar.)
                 # Try to find an adjacent JUMP_BACK which is part of the normal loop end.
+                jump_back_index = self.offset2inst_index[off2int(offset, prefer_last=False)]
 
-                if i + 1 < len(tokens) and tokens[i + 1] == "JUMP_BACK":
+                if jump_back_index + 1 < len(self.insts) and self.insts[jump_back_index+1].opname == "JUMP_BACK":
                     # Sometimes the jump back is after the "break" instruction..
-                    jump_back_index = i + 1
+                    jump_back_index += 1
                 else:
                     # and sometimes, because of jump-to-jump optimization, it is before the
                     # jump target instruction.
-                    jump_back_index = self.offset2tok_index[jump_target] - 1
-                    while tokens[jump_back_index].kind.startswith("COME_FROM_"):
-                        jump_back_index -= 1
-                        pass
-                    pass
-                jump_back_token = tokens[jump_back_index]
-                while jump_back_token == "COME_FROM":
                     jump_back_index -= 1
-                    jump_back_token = tokens[jump_back_index]
+                    pass
+
+                jump_back_inst = self.insts[jump_back_index]
 
                 # Is this a forward jump not next to a JUMP_BACK ? ...
                 break_loop = (
-                    token.linestart
-                    and jump_back_token != "JUMP_BACK"
+                    jump_back_inst.starts_line
+                    and jump_back_inst.opname != "JUMP_BACK"
                 )
 
                 # or if there is looping jump back, then that loop
                 # should start before where the "break" instruction sits.
                 if break_loop or (
-                    jump_back_token == "JUMP_BACK"
-                    and jump_back_token.attr < token.off2int()
+                    jump_back_inst.opname == "JUMP_BACK"
+                    and jump_back_inst.argval < token.off2int()
                 ):
                     token.kind = "BREAK_LOOP"
                 pass
