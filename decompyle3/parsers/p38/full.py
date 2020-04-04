@@ -128,7 +128,7 @@ class Python38FullParser(Python37Parser, Python38LambdaParser):
         for38              ::= expr get_iter store for_block JUMP_BACK _come_froms
         for38              ::= expr get_for_iter store for_block JUMP_BACK _come_froms
         for38              ::= expr get_for_iter store for_block JUMP_BACK _come_froms POP_BLOCK
-        for38              ::= expr get_for_iter store for_block
+        for38              ::= expr get_for_iter store for_block _come_froms
 
         forelsestmt38      ::= expr get_for_iter store for_block POP_BLOCK else_suite
         forelsestmt38      ::= expr get_for_iter store for_block JUMP_BACK _come_froms else_suite

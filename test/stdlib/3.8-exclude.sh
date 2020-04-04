@@ -19,9 +19,7 @@ SKIP_TESTS=(
     [test_venv.py]=1 # works on uncompyle6
     [test_zipimport.py]=1 # works on uncompyle6
 
-    [test_csv.py]=1 # FIXME: parse error works in c28a3d1c
     [test_embed.py]=1 # FIXME: parse error works in c28a3d1c
-    [test_file.py]=1 # FIXME: parse error works in c28a3d1c
     [test_pathlib.py]=1 # FIXME: parse error works in c28a3d1c
     [test_platform.py]=1 # FIXME: parse error works in c28a3d1c
     [test_profile.py]=1 # FIXME: parse error works in c28a3d1c
@@ -92,7 +90,7 @@ SKIP_TESTS=(
     [test_dis.py]=1   # Parse error. We change line numbers - duh!
     [test_doctest.py]=1 # test check failures
     [test_docxmlrpc.py]=1
-    [test_dtrace.py]=1 # parse error
+    [test_dtrace.py]=1 # test failures
 
     [test_enum.py]=1   # Test errors
     [test_enumerate.py]=1   # parse error
@@ -204,7 +202,6 @@ SKIP_TESTS=(
     [test_sys.py]=1 # parse error
     [test_sys_setprofile.py]=1 # test check failures
     [test_sys_settrace.py]=1 # parse error
-    [test_sysconfig.py]=1 # parse error
 
     [test_tarfile.py]=1 # test errors
     [test_telnetlib.py]=1 # test after decompilation runs in more than 15 seconds
@@ -222,11 +219,11 @@ SKIP_TESTS=(
 
     [test_unicode.py]=1 # unicode thing
     [test_unicodedata.py]=1 # test faiure
-    [test_univnewlines.py]=1 # parse error
-    [test_urllib2.py]=1 # parse error
+    [test_univnewlines.py]=1 # test takes too long to run
+    [test_urllib2.py]=1 # test failure (1)
     [test_urllib_response.py]=1 # parse error
     [test_urllib2_localnet.py]=1 #
-    [test_urllibnet.py]=1 # test errors. probably control flow - uninitialized variable
+    [test_urllibnet.py]=1 # test takes too long to run
     [test_urlparse.py]=1 # test errors
     [test_uuid.py]=1 # parse error
 
@@ -239,7 +236,7 @@ SKIP_TESTS=(
     [test_xml_etree.py]=1 # parse error
     [test_xmlrpc.py]=1 # parse error
 
-    [test_yield_from.py]=1 # parse error
+    [test_yield_from.py]=1 # test failures (2)
 
     [test_zlib.py]=1 # test looping take more than 15 seconds to run
     [test_zipfile.py]=1 # it fails on its own
