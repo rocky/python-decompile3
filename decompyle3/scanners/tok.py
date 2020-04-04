@@ -190,7 +190,19 @@ class Token:
         raise IndexError
 
     def off2int(self, prefer_last=True) -> int:
+        """
+        Return an offset for this token. Note that the
+        token type can sometimes be a string when the token
+        encompasses one or more EXTENDED_ARG instructions.
+        """
         return off2int(self.offset, prefer_last)
+
+    def off2inst(self):
+        """
+        Return the corresponding instruction for this token
+        """
+        offset = off2int(self.offset, prefer_last=False)
+        return self.insts[self.offset2inst_index]
 
 
 NoneToken = Token("LOAD_CONST", offset=-1, attr=None, pattr=None)
