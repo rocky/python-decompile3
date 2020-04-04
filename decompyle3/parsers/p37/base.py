@@ -13,6 +13,7 @@ from decompyle3.parsers.reducecheck import (
     and_not_check,
     c_tryelsestmt,
     if_and_stmt,
+    if_and_elsestmt,
     ifelsestmt,
     iflaststmt,
     ifstmt,
@@ -1147,6 +1148,7 @@ class Python37BaseParser(PythonParser):
             "and_cond": and_cond_check,
             "and_not": and_not_check,
             "if_and_stmt": if_and_stmt,
+            "if_and_elsestmtc": if_and_elsestmt,
             "ifelsestmt": ifelsestmt,
             "ifelsestmtc": ifelsestmt,
             "iflaststmt": iflaststmt,
@@ -1175,21 +1177,22 @@ class Python37BaseParser(PythonParser):
         self.check_reduce["aug_assign2"] = "AST"
         self.check_reduce["c_try_except"] = "AST"
         self.check_reduce["c_tryelsestmt"] = "AST"
-        self.check_reduce["whilestmt"] = "tokens"
-        self.check_reduce["while1stmt"] = "tokens"
-        self.check_reduce["while1elsestmt"] = "tokens"
-        self.check_reduce["ifstmts_jump"] = "AST"
-        self.check_reduce["ifstmts_jumpc"] = "AST"
+        self.check_reduce["if_and_stmt"] = "AST"
+        self.check_reduce["if_and_elsestmtc"] = "AST"
         self.check_reduce["ifelsestmt"] = "AST"
         self.check_reduce["ifelsestmtc"] = "AST"
         self.check_reduce["iflaststmt"] = "AST"
         self.check_reduce["iflaststmtc"] = "AST"
         self.check_reduce["ifstmt"] = "AST"
-        self.check_reduce["if_and_stmt"] = "AST"
         self.check_reduce["ifstmtc"] = "AST"
+        self.check_reduce["ifstmts_jump"] = "AST"
+        self.check_reduce["ifstmts_jumpc"] = "AST"
         self.check_reduce["import_from37"] = "AST"
         self.check_reduce["lastc_stmt"] = "tokens"
         self.check_reduce["list_if_not"] = "AST"
+        self.check_reduce["while1elsestmt"] = "tokens"
+        self.check_reduce["while1stmt"] = "tokens"
+        self.check_reduce["whilestmt"] = "tokens"
         self.check_reduce["not_or"] = "AST"
         self.check_reduce["or"] = "AST"
         self.check_reduce["or_cond"] = "tokens"

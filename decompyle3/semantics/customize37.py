@@ -188,9 +188,9 @@ def customize_for_version37(self, version):
                         (1, "ifstmts_jumpc")
             ),
             "if_and_elsestmtc": ("%|if %c and %c:\n%+%c%-%|else:\n%+%c%-",
-                               (0, "expr"),
-                               (2, "expr"),
-                               (4, "c_stmts"),
+                               (0, "expr_pjif"),
+                               (1, "expr_pjif"),
+                               (2, "c_stmts"),
                                (-2, "else_suitec")),
             "if_and_stmt": ("%|if %c and %c:\n%+%c%-",
                            (0, "expr_pjif"), (1, "expr"),

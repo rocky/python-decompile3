@@ -1,12 +1,8 @@
 SKIP_TESTS=(
-    [test_strftime.py]=1 # parse error; works on uncompyle6
-
     [test_ast.py]=1 # test error. works on uncompyle6
     [test_deque.py]=1 # test assert. works on uncompyle6
-    [test_format.py]=1 # test errors. works on uncompyle6
     [test_modulefinder.py]=1 # test failures. works on uncompyle6
     [test_plistlib.py]=1 # test errors; control flow. works on uncompyle6
-    [test_poplib.py]=1 # test failures. works on uncompyle6
     [test_posix.py]=1 # test errors; control flow. works on uncompyle6
     [test_socketserver.py]=1 # test times out; works on uncompyle6
     [test_types.py]=1 # test failure (1) works on uncompyle6
@@ -76,7 +72,7 @@ SKIP_TESTS=(
     [test_ossaudiodev.py]=1 # it fails on its own
 
     [test_pdb.py]=1 # Probably relies on comments
-    [test_peepholer.py]=1 # test assert error
+    [test_peepholer.py]=1 # test assert error (1)
     [test_pkg.py]=1 # Investigate: lists differ
     [test_pkgutil.py]=1 # Investigate:
     [test_poll.py]=1 # Takes too long to run before decompiling 11 seconds

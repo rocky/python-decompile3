@@ -599,8 +599,8 @@ class Python37Parser(Python37LambdaParser):
         if_and_stmt ::= expr_pjif expr COME_FROM
                         stmts _come_froms
 
-        if_and_elsestmtc    ::= expr POP_JUMP_IF_FALSE
-                                expr POP_JUMP_IF_FALSE
+        if_and_elsestmtc    ::= expr_pjif
+                                expr_pjif
                                 c_stmts jb_cfs else_suitec opt_come_from_except
         if_or_not_elsestmt  ::= expr POP_JUMP_IF_TRUE
                                 come_from_opt expr POP_JUMP_IF_TRUE come_froms
@@ -872,6 +872,7 @@ class Python37Parser(Python37LambdaParser):
         ifstmts_jumpc             ::= ifstmts_jump
         ifstmts_jumpc             ::= c_stmts_opt come_froms
         ifstmts_jumpc             ::= COME_FROM c_stmts come_froms
+        ifstmts_jumpc             ::= c_stmts
         ifstmts_jumpc             ::= c_stmts JUMP_BACK
 
         ifstmts_jump              ::= stmts come_froms
