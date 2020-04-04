@@ -40,9 +40,10 @@ for VERSION in $PYVERSIONS ; do
     LOGFILE=/tmp/pyenvlib-$VERSION-$$.log
 
     if [[ $VERSION == '3.7.7' ]] ; then
-	# _markupbase.py.cpython-38.pyc fails
+	# .pyenv/versions/3.7.7/lib/python3.7/__pycache__/compileall.cpython-37.pyc
+	# is the first to fail
 	# functools fails (needs to parse assert)
-	MAX_TESTS=7 #
+	MAX_TESTS=39
     elif [[ $VERSION == '3.8.2' ]] ; then
 	# _compression.cpython-38.pyc fails
 	# _markupbase.py.cpython-38.pyc fails

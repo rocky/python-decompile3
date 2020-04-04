@@ -78,9 +78,9 @@ def ifstmt(
                 last -= 1
 
             # Get reasonable offset end_if offset
-            endif_offset = ltm1.off2int(prefer_last=False)
+            endif_offset = ltm1.off2int(prefer_last=True)
             if endif_offset == -1:
-                endif_offset = tokens[last - 2].off2int(prefer_last=False)
+                endif_offset = tokens[last - 2].off2int(prefer_last=True)
 
             if first_offset <= jump_target < endif_offset:
                 # FIXME: investigate why this happens for "if"s with EXTENDED_ARG POP_JUMP_IF_FALSE.
