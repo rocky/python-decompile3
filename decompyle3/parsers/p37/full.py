@@ -614,7 +614,7 @@ class Python37Parser(Python37LambdaParser):
         testfalsec ::= expr POP_JUMP_IF_TRUE_BACK
         testfalsec ::= c_compare_chained1b_false_37
 
-        testtrue   ::= expr POP_JUMP_IF_TRUE
+        testtrue   ::= expr_pjit
         testtruec  ::= expr POP_JUMP_IF_FALSE_BACK
         # Do we have to check the c_compare_chained37 ends in a POP_JUMP_IF_FALSE_BACK?
         testtruec  ::= c_compare_chained37_false

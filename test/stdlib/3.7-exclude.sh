@@ -1,9 +1,7 @@
 SKIP_TESTS=(
-    [test_ast.py]=1 # test error. works on uncompyle6
     [test_deque.py]=1 # test assert. works on uncompyle6
     [test_modulefinder.py]=1 # test failures. works on uncompyle6
     [test_plistlib.py]=1 # test errors; control flow. works on uncompyle6
-    [test_posix.py]=1 # test errors; control flow. works on uncompyle6
     [test_socketserver.py]=1 # test times out; works on uncompyle6
     [test_venv.py]=1 # test error (1) works on uncompyle6
     [test_wsgiref.py]=1 # test error (1) works on uncompyle6
@@ -108,7 +106,7 @@ SKIP_TESTS=(
     [test_typing.py]=1 # run errors
 
     [test_unicode.py]=1 # unicode thing
-    [test_urllibnet.py]=1 # test erors
+    [test_urllibnet.py]=1 # test errors
 
     [test_weakref.py]=1 # takes too long to run
     [test_with.py]=1 # test errors.
@@ -120,7 +118,7 @@ SKIP_TESTS=(
     [test_zipfile.py]=1 # it fails on its own
     [test_zipfile64.py]=1 # Too long to run
 )
-# 304 unit-test files in about 19 minutes
+# 305 unit-test files in about 19 minutes
 # 277 for unpyc37
 
 if (( BATCH )) ; then

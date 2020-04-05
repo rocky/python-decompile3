@@ -71,13 +71,18 @@ def ifstmt(
 
     if test in ("testtrue", "testtruec", "testfalse"):
 
-        if len(test) > 1 and test[1].kind.startswith("POP_JUMP_IF_"):
+        pop_jump_if = None
+        if len(test) == 1 and test[0].kind.startswith("expr_pji"):
+            pop_jump_if = test[0][1]
+        elif len(test) > 1 and test[1].kind.startswith("POP_JUMP_IF_"):
             pop_jump_if = test[1]
+
+        if pop_jump_if:
             jump_target = pop_jump_if.attr
             if last == n:
                 last -= 1
 
-            # Get reasonable offset end_if offset
+            # Get reasonable offset "end if" offset
             endif_offset = ltm1.off2int(prefer_last=True)
             if endif_offset == -1:
                 endif_offset = tokens[last - 2].off2int(prefer_last=True)
@@ -118,7 +123,11 @@ def ifstmt(
                     # FIXME: When xdis next changes, this will be a field in the instruction
                     no_follow = before_come_from.opcode in self.opc.nofollow
                     return not (before_come_from.is_jump() or no_follow)
-
+            elif pop_jump_if == "POP_JUMP_IF_TRUE":
+                # Make sure pop_jump_if doesn't jump inside the "then" part of the "if"
+                # print("WOOT", pop_jump_if.attr - endif_offset)
+                # We leave some slop for endif_offset being one instruction behind.
+                return not ((pop_jump_if.attr - endif_offset) in (0, 2))
         pass
 
     return False
