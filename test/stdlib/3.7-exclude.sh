@@ -70,6 +70,7 @@ SKIP_TESTS=(
     [test_nntplib.py]=1 # Too long in running before decomplation takes 25 seconds
 
     [test_ossaudiodev.py]=1 # it fails on its own
+    [test_optparse.py]=1 # test takes more than 15 seconds to run
 
     [test_pdb.py]=1 # Probably relies on comments
     [test_peepholer.py]=1 # test assert error (1)
