@@ -41,7 +41,7 @@ class SyntaxTree(spark_AST):
                 else:
                     child = node.__repr1__(indent, None)
             else:
-                inst = node.format(line_prefix="L.")
+                inst = node.format(line_prefix="")
                 if inst.startswith("\n"):
                     # Nuke leading \n
                     inst = inst[1:]

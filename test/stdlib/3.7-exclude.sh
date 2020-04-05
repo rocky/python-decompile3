@@ -5,7 +5,6 @@ SKIP_TESTS=(
     [test_plistlib.py]=1 # test errors; control flow. works on uncompyle6
     [test_posix.py]=1 # test errors; control flow. works on uncompyle6
     [test_socketserver.py]=1 # test times out; works on uncompyle6
-    [test_types.py]=1 # test failure (1) works on uncompyle6
     [test_venv.py]=1 # test error (1) works on uncompyle6
     [test_wsgiref.py]=1 # test error (1) works on uncompyle6
 
@@ -105,6 +104,7 @@ SKIP_TESTS=(
     [test_traceback.py]=1 # Probably uses comment for testing
     [test_tracemalloc.py]=1 # test assert failures
     [test_ttk_guionly.py]=1  # implementation specfic and test takes too long to run: 19 seconds
+    [test_types.py]=1 # test failure
     [test_typing.py]=1 # run errors
 
     [test_unicode.py]=1 # unicode thing

@@ -344,7 +344,7 @@ class SourceWalker(GenericASTTraversal, object):
                 else:
                     child = self.str_with_template1(node, indent, None)
             else:
-                inst = node.format(line_prefix="L.")
+                inst = node.format(line_prefix="")
                 if inst.startswith("\n"):
                     # Nuke leading \n
                     inst = inst[1:]
