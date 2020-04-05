@@ -560,7 +560,7 @@ class Python37BaseParser(PythonParser):
                 self.addRule("continue ::= CONTINUE_LOOP", nop_func)
                 custom_ops_processed.add(opname)
             elif opname == "DELETE_ATTR":
-                self.addRule("del_stmt ::= expr DELETE_ATTR", nop_func)
+                self.addRule("delete ::= expr DELETE_ATTR", nop_func)
                 custom_ops_processed.add(opname)
             elif opname == "DELETE_DEREF":
                 self.addRule(
@@ -574,7 +574,7 @@ class Python37BaseParser(PythonParser):
             elif opname == "DELETE_SUBSCR":
                 self.addRule(
                     """
-                    del_stmt ::= delete_subscript
+                    delete ::= delete_subscript
                     delete_subscript ::= expr expr DELETE_SUBSCR
                    """,
                     nop_func,

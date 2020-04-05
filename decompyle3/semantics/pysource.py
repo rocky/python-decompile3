@@ -905,7 +905,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec = 100
         if self.version >= 2.7:
             n = node[-1]
-        elif node[-1] == "del_stmt":
+        elif node[-1] == "delete":
             if node[-2] == "JUMP_BACK":
                 n = node[-3]
             else:

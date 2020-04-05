@@ -173,10 +173,10 @@ class Python37Parser(Python37LambdaParser):
         last_stmt  ::= forelselaststmt
         last_stmt  ::= iflaststmt
 
-        stmt ::= del_stmt
-        del_stmt ::= DELETE_FAST
-        del_stmt ::= DELETE_NAME
-        del_stmt ::= DELETE_GLOBAL
+        stmt   ::= delete
+        delete ::= DELETE_FAST
+        delete ::= DELETE_NAME
+        delete ::= DELETE_GLOBAL
 
         stmt   ::= return
 
@@ -764,9 +764,9 @@ class Python37Parser(Python37LambdaParser):
                                   END_FINALLY POP_EXCEPT jump
 
         except_var_finalize ::= POP_BLOCK POP_EXCEPT LOAD_CONST COME_FROM_FINALLY
-                                LOAD_CONST store del_stmt
+                                LOAD_CONST store delete
         except_var_finalize ::= POP_BLOCK            LOAD_CONST COME_FROM_FINALLY
-                                LOAD_CONST store del_stmt
+                                LOAD_CONST store delete
 
         except_suite   ::= returns
         c_except_suite ::= c_returns
