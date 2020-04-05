@@ -3,7 +3,6 @@ SKIP_TESTS=(
     [test_builtin.py]=1 # too long to run test; works on uncompyle6
     [test_colorsys.py]=1 # too long to run test; works on uncompyle6
     [test_contextlib_async.py]=1 # FIXME: parse error works on uncompyle6?
-    [test_file_eintr.py]=1 # too long to run test; works on uncompyle6
     [test_fileio.py]=1 # works on uncompyle6
     [test_fork1.py]=1 # works on uncompyle6
     [test_fractions.py]=1 # works on uncompyle6
@@ -101,6 +100,7 @@ SKIP_TESTS=(
     [test_exceptions.py]=1   # parse error
 
     [test_faulthandler.py]=1   # takes too long
+    [test_file_eintr.py]=1 # too long to run test; works on 3.7.7
     [test_fileinput.py]=1  # parse error
     [test_float.py]=1  # Takes a long time to decompile
     [test_frame.py]=1 # Test failures
