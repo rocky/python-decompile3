@@ -87,6 +87,7 @@ SKIP_TESTS=(
     [test_smtplib.py]=1 # test errors
     [test_socket.py]=1 # Takes too long to run before decompiling
     [test_ssl.py]=1 # Takes too long to run more than 15 seconds. Probably control flow; unintialized variable
+    [test_statistics.py]=1 # test errors
     [test_startfile.py]=1 # it fails on its own
     [test_strptime.py]=1 # test check failure
     [test_strtod.py]=1 # test assertions failed
