@@ -425,16 +425,10 @@ def customize_for_version37(self, version):
     self.n_c_with = n_c_with
 
     def n_c_except_suite(node):
-        node_len = len(node)
-        if not (node_len == 1 and node[0] in ("except_suite", "c_returns")):
-            try:
-                node[1]
-            except:
-                from trepan.api import debug; debug()
-        if node_len == 1 and node[0] in ("except_suite", "c_returns"):
+        if len(node) == 1 and node[0] == ("except_suite", "c_returns"):
             node = node[0]
             self.default(node)
-        elif node[1] in ("c_suite_stmts", "c_except_suite"):
+        elif node[1] == "c_suite_stmts":
             node = node[1][0]
             template = ("%+%c%-", 0)
             self.template_engine(template, node)
