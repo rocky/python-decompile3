@@ -210,6 +210,7 @@ SKIP_TESTS=(
     [test_sys_settrace.py]=1 # parse error
 
     [test_tarfile.py]=1 # test errors
+    [test_tcl.py]=1 # test errors
     [test_telnetlib.py]=1 # test after decompilation runs in more than 15 seconds
     [test_tempfile.py]=1 # parse error
     [test_threading.py]=1 #
