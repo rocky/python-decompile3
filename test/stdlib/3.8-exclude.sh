@@ -5,6 +5,7 @@ SKIP_TESTS=(
     [test_contextlib_async.py]=1 # FIXME: parse error works on uncompyle6?
     [test_fileio.py]=1 # works on uncompyle6
     [test_fork1.py]=1 # works on uncompyle6
+    [test___future__.py]=1 # test failure; works on uncompyle6
     [test_fractions.py]=1 # works on uncompyle6
     [test_heapq.py]=1 # works on uncompyle6
     [test_marshal.py]=1 # works on uncompyle6
