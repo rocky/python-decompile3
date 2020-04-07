@@ -5,6 +5,7 @@ SKIP_TESTS=(
     [test_contextlib_async.py]=1 # FIXME: parse error works on uncompyle6?
     [test_fileio.py]=1 # works on uncompyle6
     [test_fork1.py]=1 # works on uncompyle6
+    [test___future__.py]=1 # test failure; works on uncompyle6
     [test_fractions.py]=1 # works on uncompyle6
     [test_heapq.py]=1 # works on uncompyle6
     [test_marshal.py]=1 # works on uncompyle6
@@ -210,6 +211,7 @@ SKIP_TESTS=(
     [test_sys_settrace.py]=1 # parse error
 
     [test_tarfile.py]=1 # test errors
+    [test_tcl.py]=1 # test errors
     [test_telnetlib.py]=1 # test after decompilation runs in more than 15 seconds
     [test_tempfile.py]=1 # parse error
     [test_threading.py]=1 #

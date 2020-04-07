@@ -141,12 +141,10 @@ from decompyle3.semantics.parser_error import ParserError
 from decompyle3.semantics.check_ast import checker
 from decompyle3.semantics.customize import customize_for_version
 from decompyle3.semantics.helper import (
-    print_docstring,
     find_globals_and_nonlocals,
     flatten_list,
 )
 from decompyle3.semantics.transform import (
-    is_docstring,
     TreeTransform,
 )
 
@@ -155,9 +153,7 @@ from decompyle3.scanners.tok import Token
 from decompyle3.semantics.consts import (
     LINE_LENGTH,
     NONE,
-    RETURN_NONE,
     PASS,
-    ASSIGN_DOC_STRING,
     NAME_MODULE,
     TAB,
     INDENT_PER_LEVEL,
@@ -899,65 +895,6 @@ class SourceWalker(GenericASTTraversal, object):
         make_function36(self, node, is_lambda=True, code_node=node[-2])
         self.prune()  # stop recursing
 
-    def n_list_comp(self, node):
-        """List comprehensions"""
-        p = self.prec
-        self.prec = 100
-        if self.version >= 2.7:
-            n = node[-1]
-        elif node[-1] == "delete":
-            if node[-2] == "JUMP_BACK":
-                n = node[-3]
-            else:
-                n = node[-2]
-
-        assert n == "list_iter"
-
-        # Find the list comprehension body. It is the inner-most
-        # node that is not list_.. .
-        # FIXME: DRY with other use
-        while n == "list_iter":
-            n = n[0]  # iterate one nesting deeper
-            if n == "list_for":
-                n = n[3]
-            elif n == "list_if":
-                n = n[2]
-            elif n == "list_if_not":
-                n = n[2]
-        assert n == "lc_body"
-        self.write("[ ")
-
-        if self.version >= 2.7:
-            expr = n[0]
-            list_iter = node[-1]
-        else:
-            expr = n[1]
-            if node[-2] == "JUMP_BACK":
-                list_iter = node[-3]
-            else:
-                list_iter = node[-2]
-
-        assert expr == "expr"
-        assert list_iter == "list_iter"
-
-        # FIXME: use source line numbers for directing line breaks
-
-        line_number = self.line_number
-        last_line = self.f.getvalue().split("\n")[-1]
-        l = len(last_line)
-        indent = " " * (l - 1)
-
-        self.preorder(expr)
-        line_number = self.indent_if_source_nl(line_number, indent)
-        self.preorder(list_iter)
-        l2 = self.indent_if_source_nl(line_number, indent)
-        if l2 != line_number:
-            self.write(" " * (len(indent) - len(self.indent) - 1) + "]")
-        else:
-            self.write(" ]")
-        self.prec = p
-        self.prune()  # stop recursing
-
     def comprehension_walk(self, node, iter_index, code_index=-5):
         p = self.prec
         self.prec = 27
@@ -1195,7 +1132,9 @@ class SourceWalker(GenericASTTraversal, object):
             self.listcomp_closure3(node)
         else:
             if node == "list_comp_async":
-                list_iter_index = 5
+                # comprehension_walk_newer needs to pick out from node since
+                # there isn't an iter_index at the top level
+                list_iter_index = None
             else:
                 list_iter_index = 1
             self.comprehension_walk_newer(node, list_iter_index, 0)

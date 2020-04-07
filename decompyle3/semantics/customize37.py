@@ -426,11 +426,6 @@ def customize_for_version37(self, version):
 
     def n_c_except_suite(node):
         node_len = len(node)
-        if not (node_len == 1 and node[0] in ("except_suite", "c_returns")):
-            try:
-                node[1]
-            except:
-                from trepan.api import debug; debug()
         if node_len == 1 and node[0] in ("except_suite", "c_returns"):
             node = node[0]
             self.default(node)
