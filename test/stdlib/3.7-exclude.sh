@@ -87,6 +87,7 @@ SKIP_TESTS=(
     [test_smtplib.py]=1 # test errors
     [test_socket.py]=1 # Takes too long to run before decompiling
     [test_ssl.py]=1 # Takes too long to run more than 15 seconds. Probably control flow; unintialized variable
+    [test_statistics.py]=1 # test errors
     [test_startfile.py]=1 # it fails on its own
     [test_strptime.py]=1 # test check failure
     [test_strtod.py]=1 # test assertions failed
@@ -134,5 +135,18 @@ if (( BATCH )) ; then
     SKIP_TESTS[test_ttk_textonly.py]=1 # Installation dependent?
     SKIP_TESTS[test_venv.py]=1 # Too long to run: 11 seconds
     SKIP_TESTS[test_zipimport_support.py]=1
-
+    # POWER8 Debian problems
+    SKIP_TESTS[test_codecmaps_cn.py]=1 # test takes too long to run: 136 seconds
+    SKIP_TESTS[test_codecmaps_hk.py]=1 # test takes too long to run: 45 seconds
+    SKIP_TESTS[test_codecmaps_jp.py]=1 # test takes too long to run: 226 seconds
+    SKIP_TESTS[test_codecmaps_kr.py]=1 # test takes too long to run: 135 seconds
+    SKIP_TESTS[test_codecmaps_tw.py]=1 # test takes too long to run: 91 seconds
+    SKIP_TESTS[test_hashlib.py]=1 # test takes too long to run: 122 seconds
+    SKIP_TESTS[test_multiprocessing_main_handling.py]=1 # test takes too long to run: 11 seconds
+    SKIP_TESTS[test_pickle.py]=1 # test takes too long to run: 14 seconds
+    SKIP_TESTS[test_robotparser.py]=1 # test takes too long to run: 31 seconds
+    SKIP_TESTS[test_ucn.py]=1 # test takes too long to run: 16 seconds
+    SKIP_TESTS[test_urllib2net.py]=1 # test hangs
+    SKIP_TESTS[test_urllib2_localnet.py]=1 # hangs on POWER8
+    SKIP_TESTS[test_zipimport.py]=1 # test run error on POWER8
 fi

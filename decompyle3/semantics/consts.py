@@ -43,10 +43,10 @@ maxint = sys.maxsize
 # call((.. op ..)).
 
 PRECEDENCE = {
-    "yield":                 102,
-    "yield_from":            102,
-
     "named_expr":             40, # :=
+    "yield":                  38, # Needs to be below named_expr
+    "yield_from":             38,
+
     "mklambda":               30,
 
     "if_exp":                 28, # IfExp ( a if x else b)
