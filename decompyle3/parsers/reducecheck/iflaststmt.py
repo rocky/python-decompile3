@@ -72,9 +72,16 @@ def iflaststmt(
                     i += 1
                     inst = self.insts[i]
                     pass
+                last_index = self.offset2inst_index[last_offset]
+                last_inst = self.insts[last_index]
                 # Jumping beyond last_offset is okay since this may be the
                 # inner "if" jumping around the "else" situation above.
-                return target_offset == last_offset
+                if last_inst.is_jump():
+                    return target_offset == last_offset
+                else:
+                    # A fallthough can't jump *beyond* the end in the nested
+                    # "if" around and outer "else"
+                    return True
             pass
         pass
 
