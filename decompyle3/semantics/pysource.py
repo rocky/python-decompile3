@@ -586,7 +586,10 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_ret_expr(self, node):
         if len(node) == 1 and node[0] == "expr":
+            # If expr is yield we want parens.
+            self.prec = PRECEDENCE["yield"] - 1
             self.n_expr(node[0])
+            p = self.prec
         else:
             self.n_expr(node)
 

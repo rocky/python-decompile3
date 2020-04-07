@@ -68,3 +68,10 @@ def test_yield():
     check_syntax_error("def g(a:(yield)): pass")
 
 test_yield()
+
+# From test_types.py
+# Bug was needing parens around (yield 2)
+def gen_func():
+    yield 1
+    return (yield 2)
+gen = gen_func()
