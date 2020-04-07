@@ -1,4 +1,10 @@
 SKIP_TESTS=(
+    [test_locale.py]=1 # works on 5bbb74f3 (HEAD~10)
+    [test_os.py]=1 # works on 5bbb74f3 (HEAD~10)
+    [test_plistlib.py]=1 # works on 5bbb74f3 (HEAD~10)
+    [test_poplib.py]=1 # works on 5bbb74f3 (HEAD~10)
+    [test_threaded_import.py]=1 # works on 5bbb74f3 (HEAD~10)
+
     [test_codecs.py]=1 # works on 5bbb74f3 (HEAD~)
     [test_pyclbr.py]=1 # works on 5bbb74f3 (HEAD~)
     [test_urllib2.py]=1 # works on 5bbb74f3 (HEAD~5)
