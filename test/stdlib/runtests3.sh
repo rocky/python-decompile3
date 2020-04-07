@@ -30,7 +30,7 @@ MINOR=${FULLVERSION##?.?.}
 
 STOP_ONERROR=${STOP_ONERROR:-1}
 
-typeset -i timeout=15
+typeset -i timeout=30
 
 function timeout_cmd {
 
@@ -132,7 +132,7 @@ for file in $files; do
     typeset -i ENDTIME=$(date +%s)
     typeset -i time_diff
     (( time_diff =  ENDTIME - STARTTIME))
-    if (( time_diff > 10 )) ; then
+    if (( time_diff > $timeout )) ; then
 	echo "Skipping test $file -- test takes too long to run: $time_diff seconds"
 	continue
     fi

@@ -13,7 +13,6 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 def ifstmt(
     self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
 ) -> bool:
@@ -88,13 +87,20 @@ def ifstmt(
                 endif_offset = tokens[last - 2].off2int(prefer_last=True)
 
             if first_offset <= jump_target < endif_offset:
+                if rule[1] == ("testexpr", "stmts", "come_froms"):
+                    come_froms = ast[2]
+
+                    if hasattr(come_froms, "first_child"):
+                        come_from_offset = come_froms.first_child()
+                    else:
+                        assert come_froms.kind.startswith("COME_FROM")
+                        come_from_offset = come_froms.off2int()
+                    return jump_target != come_from_offset
                 # FIXME: investigate why this happens for "if"s with EXTENDED_ARG POP_JUMP_IF_FALSE.
                 # An example is decompyle3/semantics/transform.py n_ifelsestmt.py
-                if not (
-                    jump_target != endif_offset
-                    or rule == ("ifstmt", ("testexpr", "stmts", "come_froms"))
-                ):
+                elif rule[1][-1] == "\\e__come_froms":
                     return True
+                pass
 
             # jump_target equal tokens[last] is also okay: normal non-optimized non-loop jump
             # HACK Alert: +2 refers to instruction offset after endif
@@ -127,6 +133,7 @@ def ifstmt(
                 # Make sure pop_jump_if doesn't jump inside the "then" part of the "if"
                 # print("WOOT", pop_jump_if.attr - endif_offset)
                 # We leave some slop for endif_offset being one instruction behind.
+
                 return not ((pop_jump_if.attr - endif_offset) in (0, 2))
         pass
 

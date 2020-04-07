@@ -638,7 +638,6 @@ class Python37Parser(Python37LambdaParser):
         ifstmts_jump ::= stmts_opt JUMP_FORWARD JUMP_FORWARD _come_froms
 
         iflaststmt  ::= testexpr returns
-        iflaststmt  ::= testexpr stmts
         iflaststmt  ::= testexpr stmts JUMP_FORWARD
 
         iflaststmtc ::= testexpr c_stmts

@@ -1,11 +1,9 @@
 SKIP_TESTS=(
     [test_codecs.py]=1 # works on 5bbb74f3 (HEAD~)
     [test_pyclbr.py]=1 # works on 5bbb74f3 (HEAD~)
-    [test_platform.py]=1 # works on 5bbb74f3 (HEAD~5)
     [test_urllib2.py]=1 # works on 5bbb74f3 (HEAD~5)
 
     [test_socketserver.py]=1 # test times out; works on uncompyle6
-    [test_venv.py]=1 # test error (1) works on uncompyle6
 
     [test_httplib.py]=1 # test runs. kills after 15 seconds. works on f7e2064e
     [test_grammar.py]=1 # parse error. Probably "try"
