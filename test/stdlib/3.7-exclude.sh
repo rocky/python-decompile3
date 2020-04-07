@@ -1,6 +1,6 @@
 SKIP_TESTS=(
-    [test_modulefinder.py]=1 # test failures. works on uncompyle6
-    [test_plistlib.py]=1 # test errors; control flow. works on uncompyle6
+    [test_ast.py]=1 # works on 5bbb74f3 (HEAD~)
+    [test_platform.py]=1 # works on 5bbb74f3 (HEAD~)
     [test_socketserver.py]=1 # test times out; works on uncompyle6
     [test_venv.py]=1 # test error (1) works on uncompyle6
 
@@ -18,7 +18,7 @@ SKIP_TESTS=(
     [test_clinic.py]=1 # it fails on its own
     [test_cmath.py]=1 # test errors: control-flow error
     [test_cmd_line.py]=1  # Interactive?
-    [test_cmd_line_script.py]=1
+    [test_cmd_line_script.py]=1 # test errors
     [test_compileall.py]=1 # fails on its own
     [test_compile.py]=1  # Code introspects on co_consts in a non-decompilable way
     [test_concurrent_futures.py]=1 # Takes too long *before* decompiling
@@ -85,7 +85,7 @@ SKIP_TESTS=(
     [test_smtplib.py]=1 # test errors
     [test_socket.py]=1 # Takes too long to run before decompiling
     [test_ssl.py]=1 # Takes too long to run more than 15 seconds. Probably control flow; unintialized variable
-    [test_statistics.py]=1 # test errors
+    [test_statistics.py]=1 # test error (1)
     [test_startfile.py]=1 # it fails on its own
     [test_strptime.py]=1 # test check failure
     [test_strtod.py]=1 # test assertions failed

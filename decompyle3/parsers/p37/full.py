@@ -64,7 +64,6 @@ class Python37Parser(Python37LambdaParser):
         c_stmts ::= continues
         c_stmts ::= c_stmt+
         c_stmts ::= c_returns
-        c_stmts ::= lastc_stmt come_froms c_stmts
 
         # Additional statements that *must* be in a loop
         c_stmt  ::= break

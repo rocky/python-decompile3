@@ -40,8 +40,6 @@ def test_grammar():
     unused_rhs.add("classdefdeco1")
     unused_rhs.add("tryelsestmtc")
 
-    expect_right_recursive.add((("c_stmts", ("lastc_stmt", "come_froms", "c_stmts"))))
-
     assert expect_lhs == set(lhs)
     assert unused_rhs == set(rhs)
     assert expect_right_recursive == right_recursive

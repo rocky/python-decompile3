@@ -36,7 +36,11 @@ def iflaststmt(
         if tokens[first].off2int() <= come_from_offset <= tokens[last].off2int():
             return True
 
-    if rule == ("iflaststmt", ("testexpr", "stmts")):
+    if rule[1][0:2] in (
+            ("testexpr", "stmts"),
+            ("testexpr", "c_stmts"),
+            ("testexprc", "c_stmts")
+            ):
         # If there is a trailing if-jump (forward) at the end of "testexp", it should
         # to the end of "stmts".
 
@@ -67,7 +71,10 @@ def iflaststmt(
                         return False
                     i += 1
                     inst = self.insts[i]
-                return True
+                    pass
+                # Jumping beyond last_offset is okay since this may be the
+                # inner "if" jumping around the "else" situation above.
+                return target_offset == last_offset
             pass
         pass
 
