@@ -84,7 +84,6 @@ SKIP_TESTS=(
     [test_dbm_ndbm.py]=1 # it fails on its own
     [test_decimal.py]=1   # Parse error; takes a long time to decompile
     [test_decorators.py]=1   # parse error
-    [test_deque.py]=1   # test check failres
     [test_descr.py]=1   # Parse error
     [test_descrtut.py]=1   # parse error
     [test_devpoll.py]=1 # it fails on its own

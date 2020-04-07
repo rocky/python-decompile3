@@ -210,7 +210,7 @@ class TreeTransform(GenericASTTraversal, object):
                     #             1.   RAISE_VARARGS_1
                     # becomes:
                     # assert ::= assert_expr POP_JUMP_IF_TRUE LOAD_ASSERT RAISE_VARARGS_1 COME_FROM
-                    if jump_cond in ("POP_JUMP_IF_TRUE", NoneToken):
+                    if jump_cond in ("POP_JUMP_IF_TRUE", "POP_JUMP_IF_TRUE_BACK", NoneToken):
                         kind = "assert"
                     else:
                         assert jump_cond.kind.startswith("POP_JUMP_IF_")

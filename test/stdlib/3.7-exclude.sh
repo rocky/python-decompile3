@@ -1,10 +1,8 @@
 SKIP_TESTS=(
-    [test_deque.py]=1 # test assert. works on uncompyle6
     [test_modulefinder.py]=1 # test failures. works on uncompyle6
     [test_plistlib.py]=1 # test errors; control flow. works on uncompyle6
     [test_socketserver.py]=1 # test times out; works on uncompyle6
     [test_venv.py]=1 # test error (1) works on uncompyle6
-    [test_wsgiref.py]=1 # test error (1) works on uncompyle6
 
     [test_httplib.py]=1 # test runs. kills after 15 seconds. works on f7e2064e
     [test_grammar.py]=1 # parse error. Probably "try"
