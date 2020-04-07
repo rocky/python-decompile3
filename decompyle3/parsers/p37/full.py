@@ -609,7 +609,7 @@ class Python37Parser(Python37LambdaParser):
         testexpr   ::= testtrue
         testexpr   ::= or_and_not
 
-        testfalse  ::= expr POP_JUMP_IF_FALSE
+        testfalse  ::= expr_pjif
         testfalsec ::= expr POP_JUMP_IF_TRUE_BACK
         testfalsec ::= c_compare_chained1b_false_37
 

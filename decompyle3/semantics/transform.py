@@ -150,7 +150,10 @@ class TreeTransform(GenericASTTraversal, object):
                         # FIXME: come back to stuff like this
                         return node
 
-                    jump_cond = testtrue_or_false[1]
+                    if testtrue_or_false[0] == "expr_pjif":
+                        jump_cond = testtrue_or_false[0][1]
+                    else:
+                        jump_cond = testtrue_or_false[1]
                     assert_expr.kind = "assert_expr"
                     pass
 
