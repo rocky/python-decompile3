@@ -256,6 +256,7 @@ SKIP_TESTS=(
 
 if (( BATCH )) ; then
     SKIP_TESTS[test_idle.py]=1 # Probably installation specific
+    SKIP_TESTS[test_binascii.py]=1 # too long to run
     SKIP_TESTS[test_tix.py]=1 # fails on its own
     SKIP_TESTS[test_ttk_textonly.py]=1 # Installation dependent?
 
