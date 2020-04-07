@@ -866,7 +866,7 @@ class Python37Parser(Python37LambdaParser):
         ifelsestmtc        ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_froms
 
         ifstmtc            ::= testexpr ifstmts_jumpc
-        ifstmtc            ::= testexprc ifstmts_jumpc
+        ifstmtc            ::= testexprc ifstmts_jumpc _come_froms
 
         ifstmts_jumpc             ::= ifstmts_jump
         ifstmts_jumpc             ::= c_stmts_opt come_froms
