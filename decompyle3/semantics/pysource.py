@@ -1550,7 +1550,7 @@ class SourceWalker(GenericASTTraversal, object):
         prettyprint a list or tuple
         """
         p = self.prec
-        self.prec = 100
+        self.prec = PRECEDENCE["yield"] - 1
         lastnode = node.pop()
         lastnodetype = lastnode.kind
 

@@ -1570,7 +1570,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         prettyprint a list or tuple
         """
         p = self.prec
-        self.prec = 100
+        self.prec = PRECEDENCE["yield"] - 1
         n = node.pop()
         lastnode = n.kind
         start = len(self.f.getvalue())
