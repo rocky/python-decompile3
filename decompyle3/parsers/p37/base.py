@@ -983,6 +983,7 @@ class Python37BaseParser(PythonParser):
                 self.addRule(
                     """
                     stmt        ::= raise_stmt0
+                    last_stmt  ::= raise_stmt0
                     raise_stmt0 ::= RAISE_VARARGS_0
                     """,
                     nop_func,
@@ -992,6 +993,7 @@ class Python37BaseParser(PythonParser):
                 self.addRule(
                     """
                     stmt        ::= raise_stmt1
+                    last_stmt  ::= raise_stmt1
                     raise_stmt1 ::= expr RAISE_VARARGS_1
                     """,
                     nop_func,
@@ -1001,6 +1003,7 @@ class Python37BaseParser(PythonParser):
                 self.addRule(
                     """
                     stmt        ::= raise_stmt2
+                    last_stmt  ::= raise_stmt2
                     raise_stmt2 ::= expr expr RAISE_VARARGS_2
                     """,
                     nop_func,

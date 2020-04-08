@@ -19,6 +19,7 @@ def iflaststmt(
     self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
 ) -> bool:
     testexpr = ast[0]
+    rhs = rule[1]
 
     # print("XXX", first, last, rule)
     # for t in range(first, last): print(tokens[t])
@@ -36,7 +37,7 @@ def iflaststmt(
         if tokens[first].off2int() <= come_from_offset <= tokens[last].off2int():
             return True
 
-    if rule[1][0:2] in (
+    if rhs[0:2] in (
             ("testexpr", "stmts"),
             ("testexpr", "c_stmts"),
             ("testexprc", "c_stmts")
@@ -95,7 +96,7 @@ def iflaststmt(
         if (
             if_condition_len == 1
             and if_bool in ("nand", "and")
-            and rule[1] == ("testexpr", "stmts")
+            and rhs == ("testexpr", "stmts")
         ):
             # (n)and rules have precedence
             return True

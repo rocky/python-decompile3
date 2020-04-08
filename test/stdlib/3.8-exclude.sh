@@ -163,7 +163,6 @@ SKIP_TESTS=(
     [test_pickle.py]=1 # Probably relies on comments
     [test_pkg.py]=1 # Investigate: lists differ
     [test_pkgutil.py]=1 # Investigate:
-    [test_plistlib.py]=1 # test assert failure
     [test_poll.py]=1 # Takes too long to run before decompiling: 11 seconds
     [test_positional_only_arg.py]=1 # test failures
     [test_poplib.py]=1 # parse error

@@ -29,11 +29,27 @@ def ifelsestmt(
 
     first_offset = tokens[first].off2int()
 
+    # FIXME: It is conceivable the below could be handled strictly in the grammar.
+    # If we have an optional else, then we *must* have a COME_FROM for it.
+    # Otherwise this is fine as an "if" witout the "else"
+    if rule[1][2:4] == ("jf_cfs", "\\e_else_suite_opt"):
+        jf_cfs = ast[2]
+        come_froms = jf_cfs[1]
+        if isinstance(come_froms, Token):
+            come_from_target = come_froms.attr
+        else:
+            if len(come_froms) == 0:
+                return True
+            come_from_target = come_froms[-1].attr
+        if come_from_target < first_offset:
+            return True
+
     # Make sure all the offsets from the "come froms" at the
     # end of the "if" come from somewhere inside the "if".
     # Since the come_froms are ordered so that lowest
     # offset COME_FROM is last, it is sufficient to test
     # just the last one.
+    # Note: We may find Example A defeats this rule.
     if len(ast) == 5:
         end_come_froms = ast[-1]
         if end_come_froms == "opt_come_from_except" and len(end_come_froms) > 0:
