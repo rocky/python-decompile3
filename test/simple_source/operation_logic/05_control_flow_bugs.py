@@ -149,3 +149,16 @@ assert testit(True, True) == 1
 assert testit(True, False) == 2
 assert testit(False, True) == 0
 assert testit(False, False) == 0
+
+# From 3.7.7 test+_platform
+def test_architecture_via_symlink(a, b): # issue3762
+    if a and not b:
+        real = 2
+    else:
+        real = 3
+    return real
+
+assert test_architecture_via_symlink(False, False) == 3
+assert test_architecture_via_symlink(False, True) == 3
+assert test_architecture_via_symlink(True, False) == 2
+assert test_architecture_via_symlink(True, True) == 3

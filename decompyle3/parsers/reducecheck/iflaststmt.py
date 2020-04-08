@@ -42,6 +42,17 @@ def iflaststmt(
             ("testexpr", "c_stmts"),
             ("testexprc", "c_stmts")
             ):
+
+        # "stmts" (end of then) should not end in a fallthough instruction
+        # other wise this is just a plain ol' stmt.
+        ltm1 = tokens[last - 1]
+        if ltm1 == "COME_FROM":
+            return True
+        then_end = self.off2inst(ltm1)
+        # FIXME: fallthrough should be an xdis thing. Until then...
+        if then_end.opcode not in self.opc.nofollow:
+            return True
+
         # If there is a trailing if-jump (forward) at the end of "testexp", it should
         # to the end of "stmts".
 

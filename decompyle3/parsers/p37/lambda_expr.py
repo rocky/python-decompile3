@@ -65,6 +65,8 @@ class Python37LambdaParser(Python37BaseParser):
         # how we determine the difference between some "if not (not a or b) versus
         # "if a and b".
 
+        # FIXME: this is some sort of bool_not or not_cond. Figure out how to have
+        # it not appear in arbitrary expr's
         not        ::= expr_pjit
 
         and_parts  ::= expr_pjif+
@@ -75,7 +77,7 @@ class Python37LambdaParser(Python37BaseParser):
         and_cond   ::= and_parts expr_pjif _come_froms
 
         and        ::= and_parts expr
-        and        ::= not expr
+        # and      ::= not expr
 
         nand       ::= and_parts expr_pjit  come_froms
         c_nand     ::= and_parts expr_pjitt come_froms
@@ -383,8 +385,8 @@ class Python37LambdaParser(Python37BaseParser):
         # A reduction check distinguishes between "and" and "and_not"
         # based on whether the POP_IF_JUMP location matches the location of the
         # POP_JUMP_IF_FALSE.
-        and_not                    ::= expr_pjif expr POP_JUMP_IF_TRUE
-        or_and_not                 ::= expr POP_JUMP_IF_TRUE and_not COME_FROM
+        and_not                    ::= expr_pjif expr_pjit
+        or_and_not                 ::= expr_pjit and_not COME_FROM
 
         expr                       ::= if_exp_37a
         expr                       ::= if_exp_37b

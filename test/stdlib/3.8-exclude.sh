@@ -169,7 +169,7 @@ SKIP_TESTS=(
     [test_posix.py]=1 # parse error
     [test_pwd.py]=1 # killing - doesn't terminate
     [test_pulldom.py]=1 # test check failures
-    [test_pyclbr.py]=1 # Test errors
+    [test_pyclbr.py]=1 # parse error
     [test_pydoc.py]=1 # it fails on its own
 
     [test_queue.py]=1  # parse error

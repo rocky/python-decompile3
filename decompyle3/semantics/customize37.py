@@ -55,7 +55,7 @@ def customize_for_version37(self, version):
 
     TABLE_DIRECT.update(
         {
-            "and_not":  ("%c and not %c", (0, "expr_pjif"), (1, "expr")),
+            "and_not":  ("%c and not %c", (0, "expr_pjif"), (1, "expr_pjit")),
             "and_cond": (
                 "%c and %c",
                 (0, "and_parts"),

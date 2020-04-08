@@ -251,6 +251,13 @@ class PythonLambdaParser(GenericASTBuilder):
             rv = GenericASTBuilder.nonterminal(self, nt, args)
         return rv
 
+    def off2inst(self, token):
+        """
+        Return the corresponding instruction for this token
+        """
+        offset = token.off2int(prefer_last=False)
+        return self.insts[self.offset2inst_index[offset]]
+
     def __ambiguity(self, children):
         # only for debugging! to be removed hG/2000-10-15
         print(children)

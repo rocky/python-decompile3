@@ -84,13 +84,35 @@ def ifstmt(
                     return True
                 pass
 
+            endif_inst_index = self.offset2inst_index[ltm1.off2int(prefer_last=False)]
+            if endif_inst_index + 1 == len(self.insts):
+                return False
+            endif_next_inst = self.insts[endif_inst_index + 1]
+
             # jump_target equal tokens[last] is also okay: normal non-optimized non-loop jump
-            # HACK Alert: +2 refers to instruction offset after endif
-            if jump_target > endif_offset + 2:
+            if jump_target > endif_next_inst.offset:
                 # test for Example A where "if b" jumps around the outer "else"
                 if jump_target == tokens[last - 1].attr:
                     return False
                 if last < n and tokens[last].kind.startswith("JUMP"):
+                    # Distignus code like:
+                    #   if a and not b:  # there are two jumps to "else" here
+                    #     real = 2       # there is a jump around the else here
+                    #  else:
+                    #     real = 3
+                    # and don't confuse with:
+                    #
+                    #   if a:
+                    #     if not b:      # the test below excludes this inner "if"
+                    #        real = 2
+                    #   real = 3
+                    # which is wrong
+                    if (
+                        first > 0
+                        and tokens[first-1].kind.startswith("POP_JUMP_IF_")
+                        and tokens[first-1].attr == jump_target
+                    ):
+                        return True
                     return False
                 return True
             elif jump_target < first_offset:

@@ -15,8 +15,8 @@ def and_not_check(
 
         if tokens[first].off2int() <= jump_target < tokens[last].off2int():
             return True
-        if rule == ("and_not", ("expr_pjif", "expr", "POP_JUMP_IF_TRUE")):
-            jmp2_target = ast[2].attr
+        if rule == ("and_not", ("expr_pjif", "expr_pjit")):
+            jmp2_target = ast[1][1].attr
             return jump_target != jmp2_target
         return jump_target != tokens[last].off2int()
     return False

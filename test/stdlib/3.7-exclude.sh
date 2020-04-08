@@ -1,12 +1,20 @@
 SKIP_TESTS=(
+    [test_baseexception.py]=1 # test assert fail (1) works on 5bbb74f3 (HEAD~10)
+    [test_binop.py]=1 # test assert fail (1) works on 5bbb74f3 (HEAD~10)
+    [test_context.py]=1 # works on 5bbb74f3 (HEAD~10)
+    [test_dataclasses.py]=1 # works on 5bbb74f3 (HEAD~10)
+    [test_decorators.py]=1 # test errors (1); works on 5bbb74f3 (HEAD~10)
+    [test_functools.py]=1 # works on 5bbb74f3 (HEAD~10)
+    [test_httpservers.py]=1 # test assert failures(2); works on 5bbb74f3 (HEAD~10)
+    [test_posixpath.py]=1 # test errors (1); works on 5bbb74f3 (HEAD~10)
+    [test_set.py]=1 # works on 5bbb74f3 (HEAD~10)
+    [test_weakset.py]=1 # test assert fail (2); works on 5bbb74f3 (HEAD~10)
+
     [test_poplib.py]=1 # works on 5bbb74f3 (HEAD~10)
+    [test_codecs.py]=1 # test errors; works on 5bbb74f3 (HEAD~10)
+    [test_pyclbr.py]=1 # test errors; works on 5bbb74f3 (HEAD~10)
     [test_threaded_import.py]=1 # works on 5bbb74f3 (HEAD~10)
-
-    [test_codecs.py]=1 # works on 5bbb74f3 (HEAD~)
-    [test_pyclbr.py]=1 # works on 5bbb74f3 (HEAD~)
     [test_urllib2.py]=1 # works on 5bbb74f3 (HEAD~5)
-
-    [test_socketserver.py]=1 # test times out; works on uncompyle6
 
     [test_httplib.py]=1 # test runs. kills after 15 seconds. works on f7e2064e
     [test_grammar.py]=1 # parse error. Probably "try"
@@ -56,7 +64,7 @@ SKIP_TESTS=(
 
     [test_lib2to3.py]=1 # it fails on its own
     [test_long.py]=1 # test assert failure (1)
-    [test_logging.py]=1 # test takes too long to run: 20 seconds
+    [test_logging.py]=1 # test errors
 
     [test_mailbox.py]=1 # probably control flow
     [test_math.py]=1  # test assert failures

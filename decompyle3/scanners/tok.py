@@ -197,12 +197,5 @@ class Token:
         """
         return off2int(self.offset, prefer_last)
 
-    def off2inst(self):
-        """
-        Return the corresponding instruction for this token
-        """
-        offset = off2int(self.offset, prefer_last=False)
-        return self.insts[self.offset2inst_index]
-
 
 NoneToken = Token("LOAD_CONST", offset=-1, attr=None, pattr=None)

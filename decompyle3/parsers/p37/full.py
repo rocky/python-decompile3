@@ -587,8 +587,13 @@ class Python37Parser(Python37LambdaParser):
         pop_jump    ::= POP_JUMP_IF_TRUE
         pop_jump    ::= POP_JUMP_IF_FALSE
 
+        # These rules need reduce checks on the "_come_froms".
+        # When the come_from is empty the end of the "then"
+        # can't fall through. And when the "_come_froms" aren't
+        # empty they have to be reasonable, e.g. testexpr has to
+        # jump to one of the COME_FROMS
+        ifstmt      ::= testexpr stmts _come_froms
         ifstmt      ::= testexpr ifstmts_jump _come_froms
-        ifstmt      ::= testexpr stmts come_froms
 
         stmt        ::= ifstmt_bool
         ifstmt_bool ::= or_and_not stmts come_froms
