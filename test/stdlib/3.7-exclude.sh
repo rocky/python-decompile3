@@ -40,7 +40,7 @@ SKIP_TESTS=(
 
     [test_faulthandler.py]=1   # test takes too long before decompiling
     [test_fileinput.py]=1 # too long to run - control flow?
-    [test_frame.py]=1 # test assertion errors
+    [test_frame.py]=1 # Introspects line number
     [test_fstring.py]=1 # need to disambiguate leading fstrings from docstrings
 
     [test_generators.py]=1  # Works if you run via Python. So possibly some test-framework problem
@@ -55,7 +55,7 @@ SKIP_TESTS=(
     [test_kqueue.py]=1 # it fails on its own
 
     [test_lib2to3.py]=1 # it fails on its own
-    [test_long.py]=1 # FIX: if boundaries wrong in Rat __init__
+    [test_long.py]=1 # test assert failure (1)
     [test_logging.py]=1 # test takes too long to run: 20 seconds
 
     [test_mailbox.py]=1 # probably control flow

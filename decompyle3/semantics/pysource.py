@@ -1292,7 +1292,8 @@ class SourceWalker(GenericASTTraversal, object):
                 return
 
             kwargs = None
-            assert node[n].kind.startswith("CALL_FUNCTION")
+            opname = node[n].kind
+            assert opname.startswith("CALL_FUNCTION") or opname.startswith("CALL_METHOD")
 
             if node[n].kind.startswith("CALL_FUNCTION_KW"):
                 # 3.6+ starts doing this
