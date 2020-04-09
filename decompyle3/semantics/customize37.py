@@ -267,7 +267,7 @@ def customize_for_version37(self, version):
 
             "testfalsec": (
                 "not %c",
-                (0, ("expr", "c_compare_chained37_false", "c_nand"))
+                (0, ("expr", "c_compare_chained37_false", "c_compare_chained1b_false_37", "c_nand"))
                 ),
             "try_except36": ("%|try:\n%+%c%-%c\n\n", 1, -2),
             "c_try_except36": ("%|try:\n%+%c%-%c\n\n", 1, 2),
