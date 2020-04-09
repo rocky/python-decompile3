@@ -525,7 +525,11 @@ def customize_for_version37(self, version):
             and opname == "CALL_FUNCTION_1"
             or not re.match(r"\d", opname[-1])
         ):
-            self.template_engine(("%c(%c)", (0, "expr"), 1), node)
+            self.template_engine(
+                ("%c(%p)",
+                 (0, "expr"),
+                 (1, PRECEDENCE["yield"]-1)),
+                node)
             self.prec = p
             self.prune()
         else:

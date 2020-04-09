@@ -8,6 +8,16 @@ def check_syntax_error(statement):
     assert False
 
 def test_yield():
+    # Requires parentheses as call argument
+    def g():
+        f((yield 1), 1)
+    def g():
+        f((yield from ()))
+    def g():
+        f((yield from ()), 1)
+    def g():
+        f((yield 1))
+
     # Allowed as standalone statement
     def g():
         yield 1
