@@ -50,7 +50,7 @@ def iflaststmt(
             return True
         then_end = self.off2inst(ltm1)
         # FIXME: fallthrough should be an xdis thing. Until then...
-        if then_end.opcode not in self.opc.nofollow:
+        if then_end.opcode not in self.opc.nofollow and tokens[last] != "JUMP_BACK":
             return True
 
         # If there is a trailing if-jump (forward) at the end of "testexp", it should
