@@ -76,7 +76,9 @@ class Python37LambdaParser(Python37BaseParser):
         not_or     ::= and_parts expr_pjif _come_froms
         and_cond   ::= and_parts expr_pjif _come_froms
 
-        and        ::= and_parts expr
+        # FIXME: Investigate - We don't do the below because these rules prevent the "and_cond" from
+        #        trigering.
+        # and      ::= and_parts expr
         # and      ::= not expr
 
         nand       ::= and_parts expr_pjit  come_froms
@@ -106,8 +108,7 @@ class Python37LambdaParser(Python37BaseParser):
         # and       ::= expr_pjif expr COME_FROM
 
         jump_if_false_cf ::= POP_JUMP_IF_FALSE COME_FROM
-
-        and_or_cond ::= and_parts expr POP_JUMP_IF_TRUE come_froms expr_pjif _come_froms
+        and_or_cond      ::= and_parts expr POP_JUMP_IF_TRUE come_froms expr_pjif _come_froms
 
         # For "or", keep index 0 and 1 be the two expressions.
 
@@ -132,7 +133,7 @@ class Python37LambdaParser(Python37BaseParser):
         or_expr   ::= expr JUMP_IF_TRUE expr COME_FROM
 
         jitop_come_from_expr ::= JUMP_IF_TRUE_OR_POP _come_froms expr
-        or                   ::= and jitop_come_from_expr COME_FROM
+        and_or_expr  ::= and_parts expr jitop_come_from_expr COME_FROM
         """
 
     def p_come_froms(self, args):
@@ -272,6 +273,7 @@ class Python37LambdaParser(Python37BaseParser):
         expr ::= LOAD_NAME
         expr ::= LOAD_STR
         expr ::= and
+        expr ::= and_or_expr
         expr ::= bin_op
         expr ::= call
         expr ::= compare

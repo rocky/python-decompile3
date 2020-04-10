@@ -62,6 +62,7 @@ class PythonLambdaParser(GenericASTBuilder):
         # collect as stmts -> stmt stmt ...
         nt_list = [
             "_come_froms",
+            "and_parts",
             "attributes",
             "come_froms",
             "exprlist",
@@ -85,7 +86,7 @@ class PythonLambdaParser(GenericASTBuilder):
         )
 
         # Reduce singleton reductions in these nonterminals:
-        # FIXME: would love to do expr, sstmts, stmts and
+        # FIXME: would love to do sstmts, stmts and
         # so on but that would require major changes to the
         # semantic actions
         self.singleton = frozenset(("str", "store", "inplace_op"))
@@ -301,6 +302,7 @@ class PythonParser(PythonLambdaParser):
         nt_list = [
             "_come_froms",
             "_stmts",
+            "and_parts",
             "attributes",
             "come_froms",
             "except_stmts",
