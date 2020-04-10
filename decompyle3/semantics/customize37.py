@@ -64,7 +64,7 @@ def customize_for_version37(self, version):
             "and_not":  ("%c and not %c", (0, "expr_pjif"), (1, "expr_pjit")),
             "and_cond": (
                 "%c and %c",
-                (0, "and_parts"),
+                (0, ("and_parts", "testfalse")),
                 (1, ("expr_pjif", "expr")),
             ),
             "ann_assign": ("%|%[2]{attr}: %c\n", 0,),

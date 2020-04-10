@@ -1,6 +1,5 @@
 SKIP_TESTS=(
     [test_binop.py]=1 # test assert fail (1) works on 5bbb74f3 (HEAD~10)
-    [test_context.py]=1 # works on 5bbb74f3 (HEAD~10)
     [test_dataclasses.py]=1 # works on 5bbb74f3 (HEAD~10)
     [test_decorators.py]=1 # test errors (1); works on 5bbb74f3 (HEAD~10)
 
