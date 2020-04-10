@@ -18,7 +18,7 @@ import re, sys
 from decompyle3.parsers.treenode import SyntaxTree
 from decompyle3.scanners.tok import Token, NoneToken
 
-minint = -sys.maxsize-1
+minint = -sys.maxsize - 1
 maxint = sys.maxsize
 
 # Operator precidence See

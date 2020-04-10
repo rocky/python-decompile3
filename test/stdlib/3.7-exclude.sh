@@ -1,14 +1,8 @@
 SKIP_TESTS=(
-    [test_baseexception.py]=1 # test assert fail (1) works on 5bbb74f3 (HEAD~10)
     [test_binop.py]=1 # test assert fail (1) works on 5bbb74f3 (HEAD~10)
     [test_context.py]=1 # works on 5bbb74f3 (HEAD~10)
     [test_dataclasses.py]=1 # works on 5bbb74f3 (HEAD~10)
     [test_decorators.py]=1 # test errors (1); works on 5bbb74f3 (HEAD~10)
-    [test_functools.py]=1 # works on 5bbb74f3 (HEAD~10)
-    [test_httpservers.py]=1 # test assert failures(2); works on 5bbb74f3 (HEAD~10)
-    [test_posixpath.py]=1 # test errors (1); works on 5bbb74f3 (HEAD~10)
-    [test_set.py]=1 # works on 5bbb74f3 (HEAD~10)
-    [test_weakset.py]=1 # test assert fail (2); works on 5bbb74f3 (HEAD~10)
 
     [test_poplib.py]=1 # works on 5bbb74f3 (HEAD~10)
     [test_codecs.py]=1 # test errors; works on 5bbb74f3 (HEAD~10)
@@ -17,7 +11,7 @@ SKIP_TESTS=(
     [test_urllib2.py]=1 # works on 5bbb74f3 (HEAD~5)
 
     [test_httplib.py]=1 # test runs. kills after 15 seconds. works on f7e2064e
-    [test_grammar.py]=1 # parse error. Probably "try"
+    [test_grammar.py]=1 # assert failures
 
     [test___all__.py]=1 # it fails on its own
     [test_argparse.py]=1 # it fails on its own

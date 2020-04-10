@@ -162,3 +162,16 @@ assert test_architecture_via_symlink(False, False) == 3
 assert test_architecture_via_symlink(False, True) == 3
 assert test_architecture_via_symlink(True, False) == 2
 assert test_architecture_via_symlink(True, True) == 3
+
+# From 3.7.7 test_binop.py
+# Bug was nesting of last "return"
+def __floordiv__(other, b):
+    if other:
+        other += 1
+    elif b:
+        return b
+    return other
+
+assert __floordiv__(2, False) == 3
+assert __floordiv__(0, False) == 0
+assert __floordiv__(0, True) == True

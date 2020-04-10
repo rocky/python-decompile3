@@ -95,11 +95,13 @@ def ifstmt(
                 if jump_target == tokens[last - 1].attr:
                     return False
                 if last < n and tokens[last].kind.startswith("JUMP"):
-                    # Distignus code like:
+                    # Distingush code like:
+                    #
                     #   if a and not b:  # there are two jumps to "else" here
                     #     real = 2       # there is a jump around the else here
                     #  else:
                     #     real = 3
+                    #
                     # and don't confuse with:
                     #
                     #   if a:
@@ -109,8 +111,8 @@ def ifstmt(
                     # which is wrong
                     if (
                         first > 0
-                        and tokens[first-1].kind.startswith("POP_JUMP_IF_")
-                        and tokens[first-1].attr == jump_target
+                        and tokens[first - 1].kind.startswith("POP_JUMP_IF_")
+                        and tokens[first - 1].attr == jump_target
                     ):
                         return True
                     return False
@@ -139,7 +141,11 @@ def ifstmt(
 
     # If there is a final COME_FROM and that test jumps to that, this is a strong
     # indication that this is ok, s we'll skip jumps jumping too far test.
-    if pop_jump_if is not None and ltm1 == "COME_FROM" and ltm1.attr == pop_jump_if.off2int():
+    if (
+        pop_jump_if is not None
+        and ltm1 == "COME_FROM"
+        and ltm1.attr == pop_jump_if.off2int()
+    ):
         return False
 
     # Make sure jumps don't extend beyond the end of the if statement.
@@ -167,5 +173,11 @@ def ifstmt(
             #     return True
             pass
         pass
+
+    # If the "if_stmt" includes a COME_FROM from before the beginning of the "if", then
+    # no good. If the "if stmt" covers the non-COME_FROM instructions, there will have
+    # been a prior reduction that doesn't include the last COME_FROM.
+    if ltm1 == "COME_FROM":
+        return ltm1.attr < first_offset
 
     return False
