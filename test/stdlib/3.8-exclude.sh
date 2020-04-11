@@ -4,9 +4,18 @@ SKIP_TESTS=(
     [test_colorsys.py]=1 # too long to run test; works on uncompyle6
     [test_contextlib_async.py]=1 # FIXME: parse error works on uncompyle6?
     [test_capi.py]=1 # works on uncompyle6 ?
+
+    [test_dataclasses.py]=1 # works on uncompyle6 ?
+    [test_deque.py]=1 # works on uncompyle6 ?
+    [test_parser.py]=1 # works on uncompyle6 ?
+    [test_sysconfig.py]=1 # works on uncompyle6 ?
+    [test_thread.py]=1 # works on uncompyle6 ?
+
     [test_fileio.py]=1 # works on uncompyle6
     [test_fork1.py]=1 # works on uncompyle6
+    [test_format.py]=1 # works on uncompyle6?
     [test_fractions.py]=1 # works on uncompyle6
+
     [test_heapq.py]=1 # works on uncompyle6
     [test_marshal.py]=1 # works on uncompyle6
     [test_pkgimport.py]=1 # works on uncompyle6
