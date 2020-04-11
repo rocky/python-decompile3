@@ -92,7 +92,8 @@ class Python37LambdaParser(Python37BaseParser):
         #       "nand" and "or_cond", in contrast, *must* have at least one "come_from".
         or_cond     ::= or_parts expr_pjif come_froms
         or_cond1    ::= and POP_JUMP_IF_TRUE come_froms expr_pjif come_from_opt
-        nor_cond    ::= or_parts expr_pjit
+
+        nor_cond    ::= or_parts expr_pjif
 
         # When we alternating and/or's such as:
         #    a and (b or c) and d

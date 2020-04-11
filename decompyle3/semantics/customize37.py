@@ -229,6 +229,12 @@ def customize_for_version37(self, version):
                 (1, "expr_pjif"),
             ),
 
+            "nor_cond": (
+                "%c or %c",
+                (0, ("or_parts", "and")),
+                (1, "expr_pjif"),
+            ),
+
             "or_cond1": (
                 "%c or %c",
                 (0, ("or_parts", "and")),
@@ -255,7 +261,7 @@ def customize_for_version37(self, version):
             ),
 
             "and_parts": (
-                "%c and %c", (0, ("and_parts", "expr_pjif")), (1, "expr_pjif"),
+                "%P and %c", (0, -1, "and ", PRECEDENCE["and"]), (1, "expr_pjif"),
             ),
             "nand": (
                 "not (%c and %c)",
@@ -268,7 +274,7 @@ def customize_for_version37(self, version):
             ),
 
             "or_parts": (
-                "%c or %c", (0, "or_parts", "expr_pjit"), (1, "expr_pjit"),
+                "%P or %c", (0, -1, "or ", PRECEDENCE["or"]), (1, "expr_pjif"),
             ),
 
             "testfalsec": (

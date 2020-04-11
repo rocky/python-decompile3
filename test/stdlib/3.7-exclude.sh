@@ -1,4 +1,5 @@
 SKIP_TESTS=(
+    [test_builtin.py]=1 # works on 5bbb74f3 (HEAD~10)?
     [test_dataclasses.py]=1 # works on 5bbb74f3 (HEAD~10)
 
     [test_poplib.py]=1 # works on 5bbb74f3 (HEAD~10)

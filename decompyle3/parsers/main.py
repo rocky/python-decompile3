@@ -68,6 +68,7 @@ class PythonLambdaParser(GenericASTBuilder):
             "exprlist",
             "kvlist",
             "kwargs",
+            "or_parts",
         ]
         self.collect = frozenset(nt_list)
 
@@ -310,6 +311,7 @@ class PythonParser(PythonLambdaParser):
             "importlist",
             "kvlist",
             "kwargs",
+            "or_parts",
             # FIXME:
             # If we add c_stmts, we can miss adding a c_stmt,
             # test_float.py test_set_format() is an example.
