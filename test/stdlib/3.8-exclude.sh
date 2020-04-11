@@ -4,6 +4,7 @@ SKIP_TESTS=(
     [test_colorsys.py]=1 # too long to run test; works on uncompyle6
     [test_contextlib_async.py]=1 # FIXME: parse error works on uncompyle6?
     [test_capi.py]=1 # works on uncompyle6 ?
+    [test_codeccallbacks.py]=1 # works on uncompyle6 ?
 
     [test_dataclasses.py]=1 # works on uncompyle6 ?
     [test_deque.py]=1 # works on uncompyle6 ?
@@ -252,7 +253,7 @@ SKIP_TESTS=(
     [test_zipfile.py]=1 # it fails on its own
     [test_zipfile64.py]=1 #
 )
-# 210 test files, Elapsed time about 15 minutes 20 seconds
+# 210 test files, Elapsed time about 16
 
 if (( BATCH )) ; then
     SKIP_TESTS[test_idle.py]=1 # Probably installation specific
