@@ -125,7 +125,7 @@ SKIP_TESTS=(
     [test_zipfile.py]=1 # it fails on its own
     [test_zipfile64.py]=1 # Too long to run
 )
-# 305 unit-test files in about 19 minutes
+# 282 unit-test files in about 15 minutes
 # 277 for unpyc37
 
 if (( BATCH )) ; then
