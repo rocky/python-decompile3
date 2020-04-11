@@ -23,22 +23,37 @@ def and_check(
     self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
 ) -> bool:
 
+    # print("XXX", first, last, rule)
+    # for t in range(first, last): print(tokens[t])
+    # print("="*40)
+
     # a LOAD_ASSERT is not an expression and not part of an "and"
     # FIXME: the below really should have been done in the ingest
     # phase.
     ltm1 = tokens[last - 1]
+    rhs = rule[1]
     if ltm1 == "LOAD_ASSERT" or (ltm1 == "LOAD_GLOBAL" and ltm1.attr == "AssertionError"):
         return True
 
     expr_pjif = ast[0]
     if expr_pjif == "expr_pjif":
         jump = expr_pjif[1]
-    elif rule == ("and", ("and_parts", "expr")) and expr_pjif[0] == "expr_pjif":
+    elif expr_pjif == "expr_jifop_cfs":
+        if first > 0:
+            ftm1 = tokens[first - 1]
+            jump = ast[0][1]
+            if ftm1 == "JUMP_IF_TRUE_OR_POP" and ftm1.attr == jump.attr:
+                return True
+        else:
+            jump = ast[1]
+
+    elif rhs == ("and_parts", "expr") and expr_pjif[0] == "expr_pjif":
         expr_pjif = expr_pjif[0]
         jump = expr_pjif[1]
     else:
         # Probably not needed: was expr POP_JUMP_IF_FALSE
         jump = ast[1]
+        have_expr_jifpop = True
 
     if jump.kind.startswith("POP_JUMP_IF_"):
         if last == n:
@@ -48,6 +63,7 @@ def and_check(
 
         if tokens[first].off2int() <= jump_target < tokens[last].off2int():
             return True
+
         if rule == ("and", ("expr_pjif", "expr_pjif")):
             jump2_target = ast[1][1].attr
             return jump_target != jump2_target

@@ -12,10 +12,12 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
 def and_cond_check(
     self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
 ) -> bool:
-    if rule[1][0:2] == ("and_parts", "expr_pjif"):
+    rhs = rule[1]
+    if rhs[0] in ("and_parts", "testfalse") and rhs[1] == "expr_pjif":
         and_parts = ast[0]
         last_expr_pjif = ast[1]
         test_jump_target = last_expr_pjif[-1].attr
