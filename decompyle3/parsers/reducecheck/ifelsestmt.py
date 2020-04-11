@@ -65,10 +65,13 @@ def ifelsestmt(
 
     testexpr = ast[0]
 
-    # Check that the condition portion of the "if"
-    # jumps to the "else" part.
     if_condition = testexpr[0]
 
+    # Check that the condition portion of the "if"
+    # jumps to the "else" part, and that the
+    # end of the "then" portion jumps to a reasonable
+    # place, e.g. not somewhere in the middle of the "else"
+    # portion.
     if if_condition in ("testtrue", "testfalse", "and_cond"):
 
         then_end = ast[2]
@@ -122,6 +125,10 @@ def ifelsestmt(
             i += 1
             inst = self.insts[i]
 
+        last_offset = tokens[last].off2int(prefer_last=False)
+        if last_offset == -1:
+            last_offset = tokens[last - 1].off2int(prefer_last=False)
+
         if else_suite == "else_suitec" and then_end in (
             "jb_elsec",
             "jb_cfs",
@@ -137,6 +144,11 @@ def ifelsestmt(
                     return True
                 pass
             pass
+        elif else_suite == "else_suite" and then_end == "jf_cfs":
+            stmts = ast[1]
+            jf_cfs = then_end
+            if jf_cfs[0].attr < last_offset:
+                return True
 
         if if_condition == "and_cond" and if_condition[1] == "expr_pjif":
             if_condition = if_condition[1]
@@ -158,10 +170,6 @@ def ifelsestmt(
             jump_else_end = ast[2]
             if jump_else_end == "jf_cf_pop":
                 jump_else_end = jump_else_end[0]
-
-            last_offset = tokens[last].off2int(prefer_last=False)
-            if last_offset == -1:
-                last_offset = tokens[last - 1].off2int(prefer_last=False)
 
             # jump_to_jump = False
             if jump_else_end == "JUMP_FORWARD":

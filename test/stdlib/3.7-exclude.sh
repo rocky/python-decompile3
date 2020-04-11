@@ -1,13 +1,11 @@
 SKIP_TESTS=(
-    [test_binop.py]=1 # test assert fail (1) works on 5bbb74f3 (HEAD~10)
     [test_dataclasses.py]=1 # works on 5bbb74f3 (HEAD~10)
-    [test_decorators.py]=1 # test errors (1); works on 5bbb74f3 (HEAD~10)
 
     [test_poplib.py]=1 # works on 5bbb74f3 (HEAD~10)
     [test_codecs.py]=1 # test errors; works on 5bbb74f3 (HEAD~10)
     [test_pyclbr.py]=1 # test errors; works on 5bbb74f3 (HEAD~10)
     [test_threaded_import.py]=1 # works on 5bbb74f3 (HEAD~10)
-    [test_urllib2.py]=1 # works on 5bbb74f3 (HEAD~5)
+    [test_urllib2.py]=1 # test errors (1); works on 5bbb74f3 (HEAD~5)
 
     [test_httplib.py]=1 # test runs. kills after 15 seconds. works on f7e2064e
     [test_grammar.py]=1 # assert failures
@@ -20,7 +18,6 @@ SKIP_TESTS=(
 
 
     [test_clinic.py]=1 # it fails on its own
-    [test_cmath.py]=1 # test errors: control-flow error
     [test_cmd_line.py]=1  # Interactive?
     [test_cmd_line_script.py]=1 # test errors
     [test_compileall.py]=1 # fails on its own
@@ -37,7 +34,7 @@ SKIP_TESTS=(
     [test_dis.py]=1   # Introspects on line numbers; line numbers don't match in disassembly - duh!
     [test_doctest.py]=1   # fails on its own
 
-    [test_enum.py]=1   # test run errors; probably bad control flow
+    [test_enum.py]=1   # test run errors (1); probably bad control flow
 
     [test_faulthandler.py]=1   # test takes too long before decompiling
     [test_fileinput.py]=1 # too long to run - control flow?
@@ -46,7 +43,7 @@ SKIP_TESTS=(
 
     [test_generators.py]=1  # Works if you run via Python. So possibly some test-framework problem
     [test_gdb.py]=1 # it fails on its own
-    [test_glob.py]=1  # test errors, TypeError: join() argument must be str or bytes, not 'tuple'
+    [test_glob.py]=1  # test errors (1), TypeError: join() argument must be str or bytes, not 'tuple'
     [test_grp.py]=1 # Running test doesn't terminate (killed)
 
     [test_imaplib.py]=1 # test errors; control-flow?
@@ -57,10 +54,9 @@ SKIP_TESTS=(
 
     [test_lib2to3.py]=1 # it fails on its own
     [test_long.py]=1 # test assert failure (1)
-    [test_logging.py]=1 # test errors
+    [test_logging.py]=1 # test errors; (takes a long time to run)
 
     [test_mailbox.py]=1 # probably control flow
-    [test_math.py]=1  # test assert failures
     [test_msilib.py]=1 # it fails on its own
     [test_multiprocessing_fork.py]=1 # test takes too long to run before decompile: 62 seconds
     [test_multiprocessing_forkserver.py]=1 # test takes too long to run before decompile: 62 seconds
@@ -89,7 +85,7 @@ SKIP_TESTS=(
     [test_smtplib.py]=1 # test errors
     [test_socket.py]=1 # Takes too long to run before decompiling
     [test_ssl.py]=1 # Takes too long to run more than 15 seconds. Probably control flow; unintialized variable
-    [test_statistics.py]=1 # test error (1)
+    [test_statistics.py]=1 # test failure (1)
     [test_startfile.py]=1 # it fails on its own
     [test_strptime.py]=1 # test check failure (1)
     [test_strtod.py]=1 # test assertions failed

@@ -52,7 +52,7 @@ SKIP_TESTS=(
 
     [test_baseexception.py]=1  # test errors; control flow probably
     [test_bigmem.py]=1  # parse error
-    [test_binop.py]=1  # test check failures
+    [test_binop.py]=1  # parse error
     [test_bdb.py]=1  # parse error
     [test_buffer.py]=1  # parse error; take a long time to decompile
     [test_bz2.py]=1  # parse error
@@ -60,7 +60,7 @@ SKIP_TESTS=(
     [test_cap.py]=1  # takes too long to run before decompiling - 15 seconds
     [test_cgi.py]=1  # parse error
     [test_clinic.py]=1 # it fails on its own
-    [test_cmath.py]=1 # test check failure
+    [test_cmath.py]=1 # parse error
     [test_cmd.py]=1  # parse error
     [test_cmd_line.py]=1  # Interactive?
     [test_cmd_line_script.py]=1 # test check failures
@@ -138,7 +138,7 @@ SKIP_TESTS=(
 
     [test_mailbox.py]=1 # test failures
     [test_mailcap.py]=1 # test failures
-    [test_math.py]=1 # test failures and errors; takes along time to run
+    [test_math.py]=1 # parser error; takes a long time to run
     [test_memoryio.py]=1 # test failure
     [test_minidom.py]=1 # test failure
     [test_mmap.py]=1 # test errors
