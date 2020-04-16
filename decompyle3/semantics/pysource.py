@@ -128,7 +128,7 @@ import sys
 
 IS_PYPY = "__pypy__" in sys.builtin_module_names
 
-from xdis.code import iscode
+from xdis import iscode
 from xdis.util import COMPILER_FLAG_BIT
 
 import decompyle3.parsers.main as python_parser

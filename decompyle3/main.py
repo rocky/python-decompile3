@@ -17,7 +17,7 @@ from typing import Any, Tuple
 import datetime, py_compile, os, subprocess, sys, tempfile
 
 from decompyle3 import IS_PYPY, PYTHON_VERSION
-from xdis.code import iscode
+from xdis import iscode
 from xdis.magics import sysinfo2float
 from decompyle3.disas import check_object_path
 from decompyle3.semantics import pysource

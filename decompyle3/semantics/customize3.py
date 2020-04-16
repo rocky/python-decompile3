@@ -19,7 +19,7 @@
 from decompyle3.scanner import Code
 from decompyle3.semantics.consts import TABLE_DIRECT
 
-from xdis.code import iscode
+from xdis import iscode
 from xdis.util import co_flags_is_async
 from decompyle3.semantics.customize37 import customize_for_version37
 from decompyle3.semantics.customize38 import customize_for_version38

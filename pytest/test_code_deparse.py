@@ -26,6 +26,7 @@ def test_single_mode() -> None:
         "1",
         "i and (j or k)",
         "i and j or k",
+        "i or (j and k)",
         "j % 4",
         "i = 1",
         "i += 1",

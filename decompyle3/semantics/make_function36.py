@@ -15,7 +15,7 @@
 """
 All the crazy things we have to do to handle Python functions.
 """
-from xdis.code import iscode, code_has_star_arg, code_has_star_star_arg
+from xdis import iscode, code_has_star_arg, code_has_star_star_arg
 from xdis.util import CO_GENERATOR, CO_ASYNC_GENERATOR
 from decompyle3.scanner import Code
 from decompyle3.parsers.treenode import SyntaxTree

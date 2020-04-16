@@ -17,7 +17,7 @@
 
 import re
 from spark_parser.ast import GenericASTTraversalPruningException
-from xdis.code import iscode
+from xdis import iscode
 from xdis.util import co_flags_is_async
 from decompyle3.scanners.tok import Token
 from decompyle3.semantics.consts import (
@@ -61,6 +61,20 @@ def customize_for_version37(self, version):
                 (1, "expr"),
                 (2, "jitop_come_from_expr"),
                 ),
+            "or_and":          	(
+                "%c or (%c and %c)",
+                (0,  "expr_jitop"),
+                (1,  "expr"),
+                (4,  "expr")
+            ),
+
+            "and_or":          	(
+                "%c and (%c or %c)",
+                (0,  "expr_jifop"),
+                (1,  "expr"),
+                (4,  "expr")
+            ),
+
             "and_not":  ("%c and not %c", (0, "expr_pjif"), (1, "expr_pjit")),
             "and_cond": (
                 "%c and %c",

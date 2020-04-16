@@ -39,9 +39,13 @@ def and_check(
     if expr_pjif == "expr_pjif":
         jump = expr_pjif[1]
     elif expr_pjif == "expr_jifop_cfs":
+        expr_jifop_cfs = expr_pjif
+        jump = expr_jifop_cfs[1]
+        if expr_jifop_cfs[0][0] == "or":
+            # FIXME check if the "or" jumps to the same place as jump.attr
+            return True
         if first > 0:
             ftm1 = tokens[first - 1]
-            jump = ast[0][1]
             if ftm1 == "JUMP_IF_TRUE_OR_POP" and ftm1.attr == jump.attr:
                 return True
         else:

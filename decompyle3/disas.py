@@ -33,7 +33,7 @@ from typing import Any, Callable
 import sys
 from collections import deque
 
-from xdis.code import iscode
+from xdis import iscode
 from xdis.load import check_object_path, load_module
 from decompyle3.scanner import get_scanner
 

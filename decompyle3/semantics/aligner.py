@@ -107,7 +107,7 @@ class AligningWalker(SourceWalker, object):
             self.prune()
 
 
-from xdis.code import iscode
+from xdis import iscode
 from decompyle3.scanner import get_scanner
 from decompyle3.show import maybe_show_asm
 

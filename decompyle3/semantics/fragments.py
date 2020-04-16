@@ -68,7 +68,7 @@ from __future__ import print_function
 import re
 
 import decompyle3.parsers.main as python_parser
-from xdis.code import iscode
+from xdis import iscode
 from xdis.magics import sysinfo2float
 from decompyle3.semantics import pysource
 from decompyle3.scanner import Token, Code, get_scanner

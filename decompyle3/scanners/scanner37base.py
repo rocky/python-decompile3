@@ -31,7 +31,7 @@ Finally we save token information.
 
 from typing import Any, Dict, List
 
-from xdis.code import iscode
+from xdis import iscode
 from xdis.bytecode import instruction_size, _get_const_info, Instruction
 
 from decompyle3.scanner import Token
