@@ -108,6 +108,7 @@ def customize_for_version37(self, version):
                 (17, "for_block"),
             ),
             "async_with_stmt": ("%|async with %c:\n%+%c%-", (0, "expr"), 3),
+            "c_async_with_stmt": ("%|async with %c:\n%+%c%-", (0, "expr"), 3),
             "async_with_as_stmt": (
                 "%|async with %c as %c:\n%+%c%-",
                 (0, "expr"),

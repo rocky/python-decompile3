@@ -212,6 +212,7 @@ class Python37BaseParser(PythonParser):
                 rules_str = """
                    stmt            ::= async_with_stmt
                    stmt            ::= async_with_as_stmt
+                   c_stmt          ::= c_async_with_stmt
                 """
 
                 if self.version < 3.8:
