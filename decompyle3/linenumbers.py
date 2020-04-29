@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2016, 2018-2019 by Rocky Bernstein
+#  Copyright (c) 2015-2016, 2018-2020 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
 
 from collections import deque
 
-xofrom xdis import iscode
+from xdis import iscode
 from xdis.load import load_file, load_module
 from xdis.main import get_opcode
 from xdis.bytecode import Bytecode, findlinestarts, offset2line
