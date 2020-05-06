@@ -73,6 +73,7 @@ cd $srcdir
 fulldir=$(pwd)
 
 DECOMPILER=${DECOMPILER:-"$fulldir/../../bin/decompyle3"}
+OPTS=${OPTS:-""}
 TESTDIR=/tmp/test${PYVERSION}
 if [[ -e $TESTDIR ]] ; then
     rm -fr $TESTDIR
@@ -80,6 +81,8 @@ fi
 
 PYENV_ROOT=${PYENV_ROOT:-$HOME/.pyenv}
 pyenv_local=$(pyenv local)
+
+echo Python version is $pyenv_local
 
 # pyenv version update
 for dir in ../ ../../ ; do
@@ -94,13 +97,15 @@ pyenv local $FULLVERSION
 export PYTHONPATH=$TESTDIR
 export PATH=${PYENV_ROOT}/shims:${PATH}
 
+DONT_SKIP_TESTS=${DONT_SKIP_TESTS:-0}
+
 # Run tests
 typeset -i i=0
 typeset -i allerrs=0
 if [[ -n $1 ]] ; then
-    files=$1
-    typeset -a files_ary=( $(echo $1) )
-    if (( ${#files_ary[@]} == 1 )) ; then
+    files=$@
+    typeset -a files_ary=( $(echo $@) )
+    if (( ${#files_ary[@]} == 1 || DONT_SKIP_TESTS == 1 )) ; then
 	SKIP_TESTS=()
     fi
 else
@@ -144,7 +149,7 @@ for file in $files; do
     $fulldir/compile-file.py $file && \
     mv $file{,.orig} && \
     echo ==========  $(date +%X) Decompiling $file ===========
-    $DECOMPILER $decompiled_file > $file
+    $DECOMPILER $OPTS $decompiled_file > $file
     rc=$?
     if (( rc == 0 )) ; then
 	echo ========== $(date +%X) Running $file ===========
