@@ -70,6 +70,8 @@ class Python38FullParser(Python37Parser, Python38LambdaParser):
         stmt               ::= forelselaststmtc38
         stmt               ::= tryfinally38stmt
         stmt               ::= tryfinally38rstmt
+        stmt               ::= tryfinally38rstmt2
+        stmt               ::= tryfinally38rstmt3
         stmt               ::= tryfinally38astmt
         stmt               ::= try_elsestmtl38
         stmt               ::= try_except_ret38
@@ -218,27 +220,31 @@ class Python38FullParser(Python37Parser, Python38LambdaParser):
         call_finally_pt    ::= CALL_FINALLY POP_TOP
         cf_cf_finally      ::= come_from_opt COME_FROM_FINALLY
         pop_finally_pt     ::= POP_FINALLY POP_TOP
+        ss_end_finally     ::= suite_stmts END_FINALLY
+        sf_pb_call_returns ::= SETUP_FINALLY POP_BLOCK CALL_FINALLY returns
 
 
-        tryfinally38rstmt  ::= lc_setup_finally POP_BLOCK call_finally_pt
-                               returns
-                               cf_cf_finally pop_finally_pt
-                               suite_stmts
-                               END_FINALLY POP_TOP
-        tryfinally38rstmt  ::= SETUP_FINALLY POP_BLOCK CALL_FINALLY
-                               returns
+        # FIXME: DRY rules below
+        tryfinally38rstmt  ::= sf_pb_call_returns
+                               cf_cf_finally
+                               ss_end_finally
+        tryfinally38rstmt  ::= sf_pb_call_returns
                                cf_cf_finally END_FINALLY
                                suite_stmts
-        tryfinally38rstmt  ::= SETUP_FINALLY POP_BLOCK CALL_FINALLY
-                               returns
+        tryfinally38rstmt  ::= sf_pb_call_returns
                                cf_cf_finally POP_FINALLY
-                               suite_stmts
-                               END_FINALLY
-        tryfinally38rstmt  ::= SETUP_FINALLY POP_BLOCK CALL_FINALLY
-                               returns
+                               ss_end_finally
+        tryfinally38rstmt  ::= sf_bp_call_returns
                                COME_FROM_FINALLY POP_FINALLY
-                               suite_stmts
-                               END_FINALLY
+                               ss_end_finally
+
+        tryfinally38rstmt2 ::= lc_setup_finally POP_BLOCK call_finally_pt
+                               returns
+                               cf_cf_finally pop_finally_pt
+                               ss_end_finally POP_TOP
+        tryfinally38rstmt3 ::= SETUP_FINALLY expr POP_BLOCK CALL_FINALLY RETURN_VALUE
+                               COME_FROM COME_FROM_FINALLY
+                               ss_end_finally
 
         tryfinally38stmt   ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
                                BEGIN_FINALLY COME_FROM_FINALLY

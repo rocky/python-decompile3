@@ -300,7 +300,7 @@ TABLE_DIRECT = {
     "and":          	(
         "%c and %c",
         (0,  ("and_parts", "expr", "expr_pjif", "expr_jifop_cfs", "not")),
-        (1,  ("expr", "expr_pjif", "expr_jifop_cfs"))
+        (1,  ("expr", "expr_pjif", "expr_jifop_cfs")),
     ),
     "ret_and":        	( "%c and %c", 0, 2 ),
     "and2":          	( "%c", 3 ),

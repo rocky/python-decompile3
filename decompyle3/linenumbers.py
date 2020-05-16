@@ -15,10 +15,9 @@
 
 from collections import deque
 
-from xdis import iscode
-from xdis.load import load_file, load_module
+from xdis import Bytecode, iscode, findlinestarts, load_file, load_module
 from xdis.main import get_opcode
-from xdis.bytecode import Bytecode, findlinestarts, offset2line
+from xdis.bytecode import offset2line
 
 
 def line_number_mapping(pyc_filename, src_filename):

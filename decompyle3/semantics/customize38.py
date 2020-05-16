@@ -134,7 +134,19 @@ def customize_for_version38(self, version):
         ),
         "tryfinally38rstmt": (
             "%|try:\n%+%c%-%|finally:\n%+%c%-\n\n",
-                   (3, "returns"), 6 ),
+            (0, "sf_pb_call_returns"),
+            (-1, ("ss_end_finally", "suite_stmts")),
+        ),
+        "tryfinally38rstmt2": (
+            "%|try:\n%+%c%-%|finally:\n%+%c%-\n\n",
+            (4, "returns"),
+            -2, "ss_end_finally"
+        ),
+        "tryfinally38rstmt3": (
+            "%|try:\n%+%|return %c%-\n%|finally:\n%+%c%-\n\n",
+            (1, "expr"),
+            (-1, "ss_end_finally")
+        ),
         "tryfinally38stmt": (
             "%|try:\n%+%c%-%|finally:\n%+%c%-\n\n",
             (1, "suite_stmts_opt"),
