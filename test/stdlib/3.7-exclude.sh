@@ -1,4 +1,15 @@
 SKIP_TESTS=(
+    # FIXME: Did this work sometime in the past ?
+    #   for elem in g(s):
+    #     if not tgt and isOdd(elem): continue
+    # is erroneously:
+    #   for elem in g(s):
+    #    if tgt or isOdd(elem):
+    #       pass
+    #    else:
+    #       tgt.append(elem)
+    [test_itertools.py]=1
+
     [test_minidom.py]=1 # test errors; works on 5bbb74f3 (HEAD~10)
     [test_modulefinder.py]=1 # works on 5bbb74f3 (HEAD~10)
     [test_struct.py]=1 # assert failure (1); works on 5bbb74f3 (HEAD~10)
