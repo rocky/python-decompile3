@@ -24,14 +24,11 @@ scanners, e.g. for Python 3.7 or 3.8.
 from typing import Optional
 from array import array
 from collections import namedtuple
-import sys
 
 from decompyle3 import IS_PYPY
 from decompyle3.scanners.tok import Token
 import xdis
-from xdis.bytecode import Bytecode, instruction_size, extended_arg_val, next_offset
-from xdis.magics import canonic_python_version
-from xdis.util import code2num
+from xdis import Bytecode, canonic_python_version, code2num, extended_arg_val, instruction_size, next_offset
 
 # The byte code versions we support.
 # Note: these all have to be floats

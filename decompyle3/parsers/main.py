@@ -29,8 +29,7 @@ Note however all of this is imported from the __init__ module
 
 import sys
 
-from xdis import iscode
-from xdis.magics import py_str2float
+from xdis import iscode, py_str2float
 from spark_parser import GenericASTBuilder, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from decompyle3.show import maybe_show_asm
 
@@ -46,6 +45,7 @@ class ParserError(Exception):
             self.token,
             self.offset,
         )
+
 
 def nop_func(self, args):
     return None
@@ -287,7 +287,9 @@ class PythonParser(PythonLambdaParser):
         elif compile_mode == "eval_expr":
             start_symbol = "eval_expr"
         else:
-            raise BaseException(f'compile_mode should be either "exec", "single", "lambda", or "eval"; got {compile_mode}')
+            raise BaseException(
+                f'compile_mode should be either "exec", "single", "lambda", or "eval"; got {compile_mode}'
+            )
 
         if compile_mode in ("eval", "expr"):
             PythonParserEval.__init__(self, SyntaxTree, start_symbol, debug)

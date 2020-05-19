@@ -31,8 +31,8 @@ Finally we save token information.
 
 from typing import Any, Dict, List
 
-from xdis import iscode
-from xdis.bytecode import instruction_size, _get_const_info, Instruction
+from xdis import iscode, instruction_size, Instruction
+from xdis.bytecode import _get_const_info
 
 from decompyle3.scanner import Token
 import xdis
@@ -241,10 +241,7 @@ class Scanner37Base(Scanner):
             # If we have a JUMP_FORWARD after the
             # RAISE_VARARGS then we have a "raise" statement
             # else we have an "assert" statement.
-            assert_can_follow = (
-                inst.opname == "POP_JUMP_IF_TRUE"
-                and i + 1 < n
-            )
+            assert_can_follow = inst.opname == "POP_JUMP_IF_TRUE" and i + 1 < n
             if assert_can_follow:
                 next_inst = self.insts[i + 1]
                 if (
@@ -490,7 +487,7 @@ class Scanner37Base(Scanner):
                                 # intern is used because we are changing the *previous* token.
                                 # A POP_TOP suggests a "break" rather than a "continue"?
                                 if tokens[-2] == "POP_TOP":
-                                   tokens[-1].kind = sys.intern("BREAK_LOOP")
+                                    tokens[-1].kind = sys.intern("BREAK_LOOP")
                                 else:
                                     tokens[-1].kind = sys.intern("CONTINUE")
                                     pass
@@ -571,7 +568,6 @@ class Scanner37Base(Scanner):
             self.detect_control_flow(offset, targets, i)
 
             if inst.has_arg:
-                oparg = inst.arg
                 # FIXME: fix grammar so we don't have to exclude FOR_ITER
                 if inst.is_jump() and op != self.opc.FOR_ITER:
                     label = inst.argval
@@ -840,7 +836,9 @@ class Scanner37Base(Scanner):
                     != code[xdis.next_offset(next_op, self.opc, next_offset)]
                 ):
                     self.fixed_jumps[next_offset] = target
-                    from trepan.api import debug; debug()
+                    from trepan.api import debug
+
+                    debug()
                     self.except_targets[target] = next_offset
 
         elif op == self.opc.SETUP_FINALLY:

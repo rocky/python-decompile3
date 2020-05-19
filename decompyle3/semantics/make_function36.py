@@ -15,22 +15,24 @@
 """
 All the crazy things we have to do to handle Python functions.
 """
-from xdis import iscode, code_has_star_arg, code_has_star_star_arg
-from xdis.util import CO_GENERATOR, CO_ASYNC_GENERATOR
+from xdis import (
+    iscode,
+    CO_GENERATOR,
+    CO_ASYNC_GENERATOR,
+    code_has_star_arg,
+    code_has_star_star_arg,
+)
 from decompyle3.scanner import Code
-from decompyle3.parsers.treenode import SyntaxTree
 from decompyle3.semantics.parser_error import ParserError
 from decompyle3.parsers.main import ParserError as ParserError2
 from decompyle3.semantics.helper import (
-    print_docstring,
     find_all_globals,
     find_globals_and_nonlocals,
     find_none,
 )
 
-from itertools import zip_longest
-
 from decompyle3.show import maybe_show_tree_param_default
+
 
 def make_function36(self, node, is_lambda, nested=1, code_node=None):
     """Dump function definition, doc string, and function body in
@@ -97,9 +99,7 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
             if annotate_node == "dict" and annotate_name_node.kind.startswith(
                 "BUILD_CONST_KEY_MAP"
             ):
-                types = [
-                    self.traverse(n, indent="") for n in annotate_node[:-2]
-                ]
+                types = [self.traverse(n, indent="") for n in annotate_node[:-2]]
                 names = annotate_node[-2].attr
                 l = len(types)
                 assert l == len(names)
@@ -325,9 +325,7 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
             self.write(" -> %s" % annotate_dict["return"])
         self.println(":")
 
-    if (
-        node[-2] == "docstring" and not is_lambda
-    ):
+    if node[-2] == "docstring" and not is_lambda:
         # docstring exists, dump it
         self.println(self.traverse(node[-2]))
 
@@ -366,5 +364,5 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
         if need_bogus_yield:
             self.template_engine(("%|if False:\n%+%|yield None%-",), node)
 
-    scanner_code._tokens = None # save memory
+    scanner_code._tokens = None  # save memory
     scanner_code._customize = None  # save memory

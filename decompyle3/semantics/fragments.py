@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2019 by Rocky Bernstein
+#  Copyright (c) 2015-2020 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -68,8 +68,7 @@ from __future__ import print_function
 import re
 
 import decompyle3.parsers.main as python_parser
-from xdis import iscode
-from xdis.magics import sysinfo2float
+from xdis import iscode, sysinfo2float
 from decompyle3.semantics import pysource
 from decompyle3.scanner import Token, Code, get_scanner
 from decompyle3.semantics.check_ast import checker
@@ -612,32 +611,6 @@ class FragmentsWalker(pysource.SourceWalker, object):
         else:
             self.write("\n\n\n")
         self.indent_less()
-        self.prune()  # stop recursing
-
-    def n_list_comp(self, node):
-        """List comprehensions"""
-        p = self.prec
-        self.prec = 27
-        n = node[-1]
-        assert n == "list_iter"
-        # find innermost node
-        while n == "list_iter":
-            n = n[0]  # recurse one step
-            if n == "list_for":
-                n = n[3]
-            elif n == "list_if":
-                n = n[2]
-            elif n == "list_if_not":
-                n = n[2]
-        assert n == "lc_body"
-        if node[0].kind.startswith("BUILD_LIST"):
-            start = len(self.f.getvalue())
-            self.set_pos_info(node[0], start, start + 1)
-        self.write("[ ")
-        self.preorder(n[0])  # lc_body
-        self.preorder(node[-1])  # for/if parts
-        self.write(" ]")
-        self.prec = p
         self.prune()  # stop recursing
 
     def comprehension_walk(self, node, iter_index, code_index=-5):
@@ -1186,9 +1159,9 @@ class FragmentsWalker(pysource.SourceWalker, object):
             # modularity is broken here
             p_insts = self.p.insts
             self.p.insts = self.scanner.insts
-            ast = parser.parse(self.p, tokens, customize)
+            ast = python_parser.parse(self.p, tokens, customize)
             self.p.insts = p_insts
-        except (parser.ParserError, AssertionError) as e:
+        except (python_parser.ParserError, AssertionError) as e:
             raise ParserError(e, tokens)
 
         maybe_show_tree(self, ast)

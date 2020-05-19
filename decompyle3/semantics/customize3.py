@@ -16,11 +16,10 @@
 """Isolate Python 3 version-specific semantic actions here.
 """
 
+from xdis import iscode, co_flags_is_async
+
 from decompyle3.scanner import Code
 from decompyle3.semantics.consts import TABLE_DIRECT
-
-from xdis import iscode
-from xdis.util import co_flags_is_async
 from decompyle3.semantics.customize37 import customize_for_version37
 from decompyle3.semantics.customize38 import customize_for_version38
 
@@ -43,9 +42,9 @@ def customize_for_version3(self, version):
             "importmultiple": ("%|import %c%c\n", 2, 3),
             "import_cont": (", %c", 2),
             "raise_stmt2": ("%|raise %c from %c\n", 0, 1),
-            "tf_tryelsestmtc3": ( '%c%-%c%|else:\n%+%c', 1, 3, 5 ),
+            "tf_tryelsestmtc3": ("%c%-%c%|else:\n%+%c", 1, 3, 5),
             "store_locals": ("%|# inspect.currentframe().f_locals = __locals__\n",),
-             "with":      ("%|with %c:\n%+%c%-", 0, 3),
+            "with": ("%|with %c:\n%+%c%-", 0, 3),
             "withasstmt": ("%|with %c as %c:\n%+%c%-", 0, 2, 3),
         }
     )
@@ -59,17 +58,18 @@ def customize_for_version3(self, version):
     # are different. See test_fileio.py for an example that shows this.
     def tryfinallystmt(node):
         suite_stmts = node[1][0]
-        if len(suite_stmts) == 1 and suite_stmts[0] == 'stmt':
+        if len(suite_stmts) == 1 and suite_stmts[0] == "stmt":
             stmt = suite_stmts[0]
             try_something = stmt[0]
             if try_something == "try_except":
                 try_something.kind = "tf_try_except"
             if try_something.kind.startswith("tryelsestmt"):
                 if try_something == "c_tryelsestmt":
-                    try_something.kind = 'tf_tryelsestmtc3'
+                    try_something.kind = "tf_tryelsestmtc3"
                 else:
-                    try_something.kind = 'tf_tryelsestmt'
+                    try_something.kind = "tf_tryelsestmt"
         self.default(node)
+
     self.n_tryfinallystmt = tryfinallystmt
 
     def listcomp_closure3(node):
@@ -148,7 +148,7 @@ def customize_for_version3(self, version):
         for i, store in enumerate(stores):
             if i >= n_colls:
                 break
-            if collections[i] == "LOAD_DEREF"  and co_flags_is_async(code_obj.co_flags):
+            if collections[i] == "LOAD_DEREF" and co_flags_is_async(code_obj.co_flags):
                 self.write(" async")
                 pass
             self.write(" for ")
@@ -160,6 +160,7 @@ def customize_for_version3(self, version):
                 pass
             pass
         self.prec = p
+
     self.listcomp_closure3 = listcomp_closure3
 
     TABLE_DIRECT.update(

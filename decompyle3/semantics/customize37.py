@@ -17,8 +17,7 @@
 
 import re
 from spark_parser.ast import GenericASTTraversalPruningException
-from xdis import iscode
-from xdis.util import co_flags_is_async
+from xdis import co_flags_is_async, iscode
 from decompyle3.scanners.tok import Token
 from decompyle3.semantics.consts import (
     PRECEDENCE,

@@ -17,8 +17,7 @@ from typing import Any, Tuple
 import datetime, py_compile, os, subprocess, sys, tempfile
 
 from decompyle3 import IS_PYPY, PYTHON_VERSION
-from xdis import iscode
-from xdis.magics import sysinfo2float
+from xdis import iscode, load_module, sysinfo2float
 from decompyle3.disas import check_object_path
 from decompyle3.semantics import pysource
 from decompyle3.parsers import ParserError
@@ -29,8 +28,6 @@ from decompyle3.version import VERSION
 from decompyle3.semantics.pysource import code_deparse
 from decompyle3.semantics.fragments import code_deparse as code_deparse_fragments
 from decompyle3.semantics.linemap import deparse_code_with_map
-
-from xdis.load import load_module
 
 
 def _get_outstream(outfile: str) -> Any:
@@ -135,7 +132,12 @@ def decompile(
             else:
                 deparse_fn = code_deparse
             deparsed = deparse_fn(
-                co, out, bytecode_version, debug_opts=debug_opts, is_pypy=is_pypy, compile_mode=compile_mode
+                co,
+                out,
+                bytecode_version,
+                debug_opts=debug_opts,
+                is_pypy=is_pypy,
+                compile_mode=compile_mode,
             )
             pass
         return deparsed

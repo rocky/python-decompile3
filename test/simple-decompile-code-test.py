@@ -3,7 +3,7 @@
 from __future__ import print_function
 
 from decompyle3.main import decompile
-from xdis.magics import sysinfo2float
+from xdis import sysinfo2float
 import sys, inspect
 
 def decompile_test():

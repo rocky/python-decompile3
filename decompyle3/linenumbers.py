@@ -15,15 +15,27 @@
 
 from collections import deque
 
-from xdis import Bytecode, iscode, findlinestarts, load_file, load_module
-from xdis.main import get_opcode
-from xdis.bytecode import offset2line
+from xdis import (
+    Bytecode,
+    iscode,
+    findlinestarts,
+    get_opcode,
+    offset2line,
+    load_file,
+    load_module,
+)
 
 
 def line_number_mapping(pyc_filename, src_filename):
-    (version, timestamp, magic_int, code1, is_pypy, source_size, sip_hash) = load_module(
-        pyc_filename
-    )
+    (
+        version,
+        timestamp,
+        magic_int,
+        code1,
+        is_pypy,
+        source_size,
+        sip_hash,
+    ) = load_module(pyc_filename)
     try:
         code2 = load_file(src_filename)
     except SyntaxError as e:

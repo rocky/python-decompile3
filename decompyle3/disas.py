@@ -29,12 +29,10 @@ Second, we need structured instruction information for the
 want to run on earlier Python versions.
 """
 
-from typing import Any, Callable
 import sys
 from collections import deque
 
-from xdis import iscode
-from xdis.load import check_object_path, load_module
+from xdis import check_object_path, iscode, load_module
 from decompyle3.scanner import get_scanner
 
 
