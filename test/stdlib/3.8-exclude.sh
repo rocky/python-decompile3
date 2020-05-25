@@ -1,5 +1,6 @@
 SKIP_TESTS=(
     [test_asynchat.py]=1 # FIXME: takes more than 15 seconds to run works in a795b2195 ?
+    ]test_binascii.py]=1 # Killing test_binascii.py; takes more than 30 seconds to run
     [test_builtin.py]=1 # too long to run test; works on uncompyle6
     [test_colorsys.py]=1 # too long to run test; works on uncompyle6
     [test_contextlib_async.py]=1 # FIXME: parse error works on uncompyle6?
