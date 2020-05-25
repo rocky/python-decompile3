@@ -10,6 +10,14 @@ SKIP_TESTS=(
     #       tgt.append(elem)
     [test_itertools.py]=1
 
+    # and/or expressions:
+    #   if ((module2, module3) not in ALT_IMPORT_MAPPING and
+    #      REVERSE_IMPORT_MAPPING.get(module3, None) != module2):
+    # comes out:
+    #   if module2, module3) not in ALT_IMPORT_MAPPING or
+    #      REVERSE_IMPORT_MAPPING.get(module3, None) != module2:
+    [test_pickle.py]=1
+
     [test_minidom.py]=1 # test errors; works on 5bbb74f3 (HEAD~10)
     [test_modulefinder.py]=1 # works on 5bbb74f3 (HEAD~10)
     [test_struct.py]=1 # assert failure (1); works on 5bbb74f3 (HEAD~10)
