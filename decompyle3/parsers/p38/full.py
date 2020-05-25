@@ -236,7 +236,7 @@ class Python38FullParser(Python37Parser, Python38LambdaParser):
         tryfinally38rstmt  ::= sf_pb_call_returns
                                cf_cf_finally POP_FINALLY
                                ss_end_finally
-        tryfinally38rstmt  ::= sf_bp_call_returns
+        tryfinally38rstmt  ::= sf_pb_call_returns
                                COME_FROM_FINALLY POP_FINALLY
                                ss_end_finally
 
