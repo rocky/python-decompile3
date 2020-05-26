@@ -45,7 +45,7 @@ for VERSION in $PYVERSIONS ; do
 	# functools fails (needs to parse assert)
 	# pydecimal fails. Then we can go to 39
 	MAX_TESTS=10
-    elif [[ $VERSION == '3.8.2' ]] ; then
+    elif [[ $VERSION == '3.8.3' ]] ; then
 	# _compression.cpython-38.pyc fails
 	# _markupbase.py.cpython-38.pyc fails
 	MAX_TESTS=5
