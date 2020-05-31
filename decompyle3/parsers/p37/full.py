@@ -626,6 +626,8 @@ class Python37Parser(Python37LambdaParser):
         testtruec  ::= c_nand
 
         testtrue   ::= compare_chained37
+        testtrue   ::= compare_chained_and
+
         testtrue   ::= nor_cond
 
         testfalse  ::= and_not

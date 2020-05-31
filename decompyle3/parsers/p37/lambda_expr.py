@@ -185,6 +185,18 @@ class Python37LambdaParser(Python37BaseParser):
         compare_chained     ::= compare_chained37
         compare_chained     ::= compare_chained37_false
 
+        compare_chained_and ::= expr chained_parts
+                                compare_chained2a_false_37
+                                come_froms
+                                POP_TOP JUMP_FORWARD COME_FROM
+                                negated_testtrue
+                                come_froms
+
+        # We don't use testtrue directly because we need to tell the semantic
+        # action to negate the testtrue
+        negated_testtrue ::= testtrue
+
+
         c_compare_chained   ::= c_compare_chained37_false
 
         compare_chained37   ::= expr chained_parts

@@ -380,6 +380,12 @@ class TreeTransform(GenericASTTraversal, object):
             list_for_node.transformed_by = ("n_list_for",)
         return list_for_node
 
+    def n_negated_testtrue(self, node):
+        assert node[0] == "testtrue"
+        test_node = node[0][0]
+        test_node.transformed_by = "n_negated_testtrue"
+        return test_node
+
     def n_stmts(self, node):
         if node.first_child() == "SETUP_ANNOTATIONS":
             prev = node[0]

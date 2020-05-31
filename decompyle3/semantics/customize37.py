@@ -160,6 +160,22 @@ def customize_for_version37(self, version):
                 ' %[3]{pattr.replace("-", " ")} %p',
                 (0, "expr", PRECEDENCE["compare"]-1),
             ),
+
+            "compare_chained_and": (
+                "%c%c and %c",
+                (0, "expr"),
+                (1, "chained_parts"),
+                -2, # Is often a transformed negated_testtrue
+            ),
+
+            # This is eliminated in the transform phase, but
+            # we have it here to be logically complete and more robust
+            # if something goes wrong.
+            "negated_testtrue": (
+                "not %c",
+                (0, "testtrue"),
+            ),
+
             "compare_chained1c_37": (
                 "%p %p",
                 (0, PRECEDENCE["compare"]-1),

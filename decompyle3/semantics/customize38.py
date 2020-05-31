@@ -51,6 +51,7 @@ def customize_for_version38(self, version):
             (2, "store"),
             (0, "expr"),
             (3, "for_block"), -1 ),
+
         "except_cond1a": (
             "%|except %c:\n", (1, "expr"),
             ),
