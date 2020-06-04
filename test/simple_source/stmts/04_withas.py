@@ -30,3 +30,11 @@ def test_re_tests(tests):
     for t in tests:
         with a:
             continue
+
+# Adapted from 3.8 distutils/command/config.py
+# In 3.8 the problem was in handling "with .. as" code
+def _gen_temp_sourcefile(x, a, headers, lang):
+    with x as y:
+        if a:
+            y = 2
+    return 5
