@@ -1,6 +1,6 @@
 SKIP_TESTS=(
     [test_asynchat.py]=1 # FIXME: takes more than 15 seconds to run works in a795b2195 ?
-    ]test_binascii.py]=1 # Killing test_binascii.py; takes more than 30 seconds to run
+    [test_binascii.py]=1 # Killing test_binascii.py; takes more than 30 seconds to run
     [test_builtin.py]=1 # too long to run test; works on uncompyle6
     [test_colorsys.py]=1 # too long to run test; works on uncompyle6
     [test_contextlib_async.py]=1 # FIXME: parse error works on uncompyle6?
@@ -158,7 +158,12 @@ SKIP_TESTS=(
     [test_opcodes.py]=1 # test check failure
     [test_optparse.py]=1 # parse error
     [test_ordered_dict.py]=1 # parse error
-    [test_os.py]=1 # parse error
+
+    # Test assertion failure due to boolean evaluation of:
+    # @unittest.skipUnless(os.isatty(0) and (sys.platform.startswith('win') or
+    # (hasattr(locale, 'nl_langinfo') and hasattr(locale, 'CODESET')))
+    [test_os.py]=1
+
     [test_ossaudiodev.py]=1 # it fails on its own
 
     [test_pdb.py]=1 # Probably relies on comments
