@@ -166,6 +166,10 @@ class Python38FullParser(Python37Parser, Python38LambdaParser):
         except_cond1a      ::= DUP_TOP expr COMPARE_OP POP_JUMP_IF_FALSE
                                POP_TOP POP_TOP POP_TOP
 
+        # except .. as var
+        except_cond1a      ::= DUP_TOP expr COMPARE_OP POP_JUMP_IF_FALSE
+                               POP_TOP STORE_FAST POP_TOP
+
         try_elsestmtl38    ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
                                except_handler38 COME_FROM
                                else_suitec opt_come_from_except
@@ -180,6 +184,9 @@ class Python38FullParser(Python37Parser, Python38LambdaParser):
         # suite_stmts has a return
         try_except38       ::= SETUP_FINALLY POP_BLOCK suite_stmts
                                except_handler38b
+
+        try_except38       ::= SETUP_FINALLY POP_BLOCK suite_stmts
+                               except_handler38c END_FINALLY COME_FROM
 
         try_except_ret38   ::= SETUP_FINALLY returns except_ret38a
         try_except_ret38a  ::= SETUP_FINALLY returns except_handler38c

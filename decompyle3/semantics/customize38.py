@@ -120,8 +120,8 @@ def customize_for_version38(self, version):
         ),
         "try_except38": (
             "%|try:\n%+%c\n%-%|except:\n%+%c%-\n\n",
-            -2,  # "suite_stmts_opt", "suite_stmts"
-            -1,  # except-handler38{a,b}
+            2,  # "suite_stmts_opt", "suite_stmts"
+            3,  # except-handler38{a,b,c}
         ),
         "try_except_ret38": (
             "%|try:\n%+%c%-\n%|except:\n%+%|%c%-\n\n",
