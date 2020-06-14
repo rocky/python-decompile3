@@ -77,6 +77,7 @@ class Python38FullParser(Python37Parser, Python38LambdaParser):
         stmt               ::= try_except_ret38
         stmt               ::= try_except_ret38a
         stmt               ::= try_except38
+        stmt               ::= try_except_as
         stmt               ::= whilestmt38
         stmt               ::= whileTruestmt38
         stmt               ::= call_stmt
@@ -166,6 +167,10 @@ class Python38FullParser(Python37Parser, Python38LambdaParser):
         except_cond1a      ::= DUP_TOP expr COMPARE_OP POP_JUMP_IF_FALSE
                                POP_TOP POP_TOP POP_TOP
 
+        # except .. as var
+        except_cond_as     ::= DUP_TOP expr COMPARE_OP POP_JUMP_IF_FALSE
+                               POP_TOP STORE_FAST POP_TOP
+
         try_elsestmtl38    ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
                                except_handler38 COME_FROM
                                else_suitec opt_come_from_except
@@ -180,6 +185,12 @@ class Python38FullParser(Python37Parser, Python38LambdaParser):
         # suite_stmts has a return
         try_except38       ::= SETUP_FINALLY POP_BLOCK suite_stmts
                                except_handler38b
+
+        try_except_as      ::= SETUP_FINALLY POP_BLOCK suite_stmts
+                               except_handler_as END_FINALLY COME_FROM
+        try_except_as      ::= SETUP_FINALLY suite_stmts
+                               except_handler_as END_FINALLY COME_FROM
+
 
         try_except_ret38   ::= SETUP_FINALLY returns except_ret38a
         try_except_ret38a  ::= SETUP_FINALLY returns except_handler38c
@@ -202,9 +213,11 @@ class Python38FullParser(Python37Parser, Python38LambdaParser):
         except_handler38b  ::= COME_FROM_FINALLY POP_TOP POP_TOP POP_TOP
                                POP_EXCEPT returns END_FINALLY
         except_handler38c  ::= COME_FROM_FINALLY except_cond1a except_stmts
-                               POP_EXCEPT JUMP_FORWARD COME_FROM
-        except_handler38c  ::= COME_FROM_FINALLY except_cond1a except_stmts
                                COME_FROM
+        except_handler38c  ::= COME_FROM_FINALLY except_cond1a except_stmts
+                               POP_EXCEPT JUMP_FORWARD COME_FROM
+        except_handler_as  ::= COME_FROM_FINALLY except_cond_as tryfinallystmt
+                               POP_EXCEPT JUMP_FORWARD COME_FROM
 
         except             ::= POP_TOP POP_TOP POP_TOP c_stmts_opt break POP_EXCEPT JUMP_BACK
 
