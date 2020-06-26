@@ -594,7 +594,6 @@ class SourceWalker(GenericASTTraversal, object):
             # If expr is yield we want parens.
             self.prec = PRECEDENCE["yield"] - 1
             self.n_expr(node[0])
-            p = self.prec
         else:
             self.n_expr(node)
 
@@ -832,8 +831,16 @@ class SourceWalker(GenericASTTraversal, object):
 
         indent = self.indent
         doc_node = node[0]
-        docstring = doc_node.attr if doc_node.attr else node[0].pattr
-
+        if doc_node.attr:
+            docstring = doc_node.attr
+            if not isinstance(docstring, str):
+                # FIXME: we have mistakenly tagged something as a doc
+                # string in transform when it isn't one.
+                # The rule in n_mkfunc is pretty flaky.
+                self.prune()
+                return
+        else:
+            docstring = node[0].pattr
 
         quote = '"""'
         if docstring.find(quote) >= 0:
