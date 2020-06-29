@@ -39,7 +39,11 @@ def ifelsestmt(
             come_from_target = come_froms.attr
         else:
             if len(come_froms) == 0:
-                return True
+                # We are seeing in optional else's:
+                #   XX       JUMP_FORWARD         XX+2
+                #   XX+2_00  COME_FROM            XX
+                # and these aren't caught by our "if/then" rules
+                return tokens[last].off2int() != jf_cfs[0].attr
             come_from_target = come_froms[-1].attr
         if come_from_target < first_offset:
             return True
