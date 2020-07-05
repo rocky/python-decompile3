@@ -21,30 +21,38 @@ Why this?
 Uncompyle6 is awesome, but it has has a fundamental problem in the way
 it handles control flow. In the early days of Python when there was
 little optimization and code was generated in a very template-oriented
-way, figuring ot control flow-structures could be done by simply looking at code patterns.
+way, figuring out control flow-structures could be done by simply looking at code patterns.
 
 Over the years more code optimization, specifically around handling
 jumps has made it harder to support detecting control flow strictly
 from code patterns. This was noticed as far back as Python 2.4 (2004)
-but since this is a difficult problem, so far it hasn't been tackled.
+but since this is a difficult problem, so far it hasn't been tackled
+in a satisfactory way.
 
-The initial attempt to fix to this problem was to add markers in the instruction stream,
-initially this was a `COME_FROM` instruction, and then use that in
-pattern detection.
+The initial attempt to fix to this problem was to add markers in the
+instruction stream, initially this was a `COME_FROM` instruction, and
+then use that in pattern detection.
 
 Over the years, I've extended that to be more specific, so
 `COME_FROM_LOOP` and `COME_FROM_WITH` were added. And I added checks
-at grammar reduce type to make try to make sure jumps match with
+at grammar-reduce time to make try to make sure jumps match with
 supposed `COME_FROM` targets.
 
-However all of this is complicated, not robust, and not really tenable.
+However all of this is complicated, not robust, has greatly slowed
+down deparsing and is not really tenable.
 
-So in this project we'll address control flow directly via
-the python-control-flow_ project.
+So in this project we started rewriting and refactoring the grammar.
 
-I expect it will be a while before this is as good as *uncompyle6* for
-Python 3.7, but if decompilation is to have a future in Python, this
-work is necessary.
+However it is clear that even this isn't enough. Control flow needs
+to be addressed by using dominators and reverse-dominators which
+the python-control-flow_ project can give.
+
+This hasn't started yet. It is a lot of work. And currently there
+isn't any funding for this or the other decompiler. So it may take
+time and is on the back burner. And if it were worked on, I expect it
+will be a while before an approach using control flow is as good as
+this is for Python 3.7. But if decompilation is to have a future
+and work in Python 3.9, I think this work is necessary.
 
 
 Requirements
@@ -124,27 +132,51 @@ Known Bugs/Restrictions
 **We support only released versions, not candidate versions.** Note however
 that the magic of a released version is usually the same as the *last* candidate version prior to release.
 
-We also don't handle PJOrion_ obfuscated code. For that try: PJOrion
-Deobfuscator_ to unscramble the bytecode to get valid bytecode before
-trying this tool. This program can't decompile Microsoft Windows EXE
-files created by Py2EXE_, although we can probably decompile the code
-after you extract the bytecode properly. For situations like this, you
-might want to consider a decompilation service like `Crazy Compilers
-<http://www.crazy-compilers.com/decompyle/>`_.  Handling
-pathologically long lists of expressions or statements is slow.
+We also don't handle PJOrion_ or otherwise obfuscated code. For
+PJOrion try: PJOrion Deobfuscator_ to unscramble the bytecode to get
+valid bytecode before trying this tool. This program can't decompile
+Microsoft Windows EXE files created by Py2EXE_, although we can
+probably decompile the code after you extract the bytecode
+properly. Handling pathologically long lists of expressions or
+statements is slow. We don't handle Cython_ or MicroPython_ which don't use bytecode.
 
+There are numerous bugs in decompilation. And that's true for every
+other CPython decompiler I have encountered, even the ones that
+claimed to be "perfect" on some particular version like 2.4.
 
-There is lots to do, so please dig in and help.
+As Python progresses decompilation also gets harder because the
+compilation is more sophisticated and the language itself is more
+sophisticated. I suspect that attempts there will be fewer ad-hoc
+attempts like unpyc37_ (which is based on a 3.3 decompiler) simply
+because it is harder to do so. The good news, at least from my
+standpoint, is that I think I understand what's needed to address the
+problems in a more robust way. But right now until such time as
+project is better funded, I do not intend to make any serious effort
+to support Python versions 3.8 or 3.9, including bugs that might come
+in. I imagine at some point I may be interested in it.
+
+You can easily find bugs by running the tests against the standard
+test suite that Python uses to check itself. At any given time, there are
+dozens of known problems that are pretty well isolated and that could
+be solved if one were to put in the time to do so. The problem is that
+there aren't that many people who have been working on bug fixing.
+
+You may run across a bug, that you want to report. Please do so. But
+be aware that it might not get my attention for a while. If you
+sponsor or support the project in some way, I'll prioritize your
+issues above the queue of other things I might be doing instead.
+
 
 See Also
 --------
 
-* https://github.com/andrew-tavera/unpyc37/ : indirect fork of https://code.google.com/archive/p/unpyc3/ The above projects use a different decompiling technique than what is used here. Instructions are walked. Some instructions use the stack to generate strings, while others don't. Because control flow isn't dealt with directly, it too suffers the same problems as the various `uncompyle` and `decompyle` prorgrams.
+* https://github.com/andrew-tavera/unpyc37/ : indirect fork of https://code.google.com/archive/p/unpyc3/ The above projects use a different decompiling technique than what is used here. Instructions are walked. Some instructions use the stack to generate strings, while others don't. Because control flow isn't dealt with directly, it too suffers the same problems as the various `uncompyle` and `decompyle` programs.
 * https://github.com/rocky/python-xdis : Cross Python version disassembler
 * https://github.com/rocky/python-xasm : Cross Python version assembler
 * https://github.com/rocky/python-decompile3/wiki : Wiki Documents which describe the code and aspects of it in more detail
 
-
+.. _Cython: https://en.wikipedia.org/wiki/Cython
+.. _MicroPython: https://micropotyon.org
 .. _uncompyle6: https://pypi.python.org/pypi/uncompyle6
 .. _python-control-flow: https://github.com/rocky/python-control-flow
 .. _trepan: https://pypi.python.org/pypi/trepan2
