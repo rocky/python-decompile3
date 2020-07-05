@@ -77,6 +77,7 @@ class Python38FullParser(Python37Parser, Python38LambdaParser):
         stmt               ::= try_except_ret38
         stmt               ::= try_except_ret38a
         stmt               ::= try_except38
+        stmt               ::= try_except38r
         stmt               ::= try_except_as
         stmt               ::= whilestmt38
         stmt               ::= whileTruestmt38
@@ -185,6 +186,10 @@ class Python38FullParser(Python37Parser, Python38LambdaParser):
         # suite_stmts has a return
         try_except38       ::= SETUP_FINALLY POP_BLOCK suite_stmts
                                except_handler38b
+        try_except38r      ::= SETUP_FINALLY return_except
+                               except_handler38b
+        return_except      ::= stmts POP_BLOCK return
+
 
         try_except_as      ::= SETUP_FINALLY POP_BLOCK suite_stmts
                                except_handler_as END_FINALLY COME_FROM
@@ -216,6 +221,7 @@ class Python38FullParser(Python37Parser, Python38LambdaParser):
                                COME_FROM
         except_handler38c  ::= COME_FROM_FINALLY except_cond1a except_stmts
                                POP_EXCEPT JUMP_FORWARD COME_FROM
+
         except_handler_as  ::= COME_FROM_FINALLY except_cond_as tryfinallystmt
                                POP_EXCEPT JUMP_FORWARD COME_FROM
 

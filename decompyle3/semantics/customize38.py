@@ -118,12 +118,14 @@ def customize_for_version38(self, version):
             "%|return %c\n", (0, "ret_expr")
         ),
 
-        "whilestmt38": ( "%|while %c:\n%+%c%-\n\n",
-                         (1, "testexpr"),
-                         2 # "c_stmts" or "pass"
+        "whilestmt38": (
+            "%|while %c:\n%+%c%-\n\n",
+            (1, "testexpr"),
+            (2, ("c_stmts", "pass"))
         ),
-        "whileTruestmt38": ( "%|while True:\n%+%c%-\n\n",
-                             1 # "c_stmts" or "pass"
+        "whileTruestmt38": (
+            "%|while True:\n%+%c%-\n\n",
+            (1, "c_stmts",  "pass"),
         ),
         "try_elsestmtl38": (
             "%|try:\n%+%c%-%c%|else:\n%+%c%-",
@@ -133,8 +135,13 @@ def customize_for_version38(self, version):
         ),
         "try_except38": (
             "%|try:\n%+%c\n%-%|except:\n%+%c%-\n\n",
-            2,  # "suite_stmts_opt", "suite_stmts"
-            3,  # except-handler38{a,b,c}
+            (2,  ("suite_stmts_opt", "suite_stmts")),
+            (3,  ("except_handler38a", "except_handler38b", "except_handler38c"))
+        ),
+        "try_except38r": (
+            "%|try:\n%+%c\n%-%|except:\n%+%c%-\n\n",
+            (1,  "return_except"),
+            (2,  "except_handler38b"),
         ),
 
         "try_except_as": (
