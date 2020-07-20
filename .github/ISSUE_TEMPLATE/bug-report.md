@@ -31,8 +31,11 @@ Prerequisites
   disassembler and produces valid results.
 * Don't put bytecode and corresponding source code on any service that
   requires registration to download.
-* When you open a bug report there is no privacy. If the legitimacy of
-  the activity is deemed suspicous, I may flag it as suspicious,
+* When you open a bug report there is no privacy. If you need privacy, then
+  contact me by email and explain who you are and the need for privacy.
+  But be mindful that you may be asked to sponsor the project for the
+  personal and private help that you are requesting.
+* If the legitimacy of the activity is deemed suspicous, I may flag it as suspicious,
   making the issue even more easy to detect.
 
 Bug reports that violate a prerequisite may be discarded.
