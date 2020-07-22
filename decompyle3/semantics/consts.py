@@ -128,12 +128,15 @@ PASS = SyntaxTree("stmts",
                  [ SyntaxTree("stmt",
                        [ SyntaxTree("pass", [])])])])
 
-ASSIGN_DOC_STRING = lambda doc_string: \
-  SyntaxTree("stmt",
-      [ SyntaxTree("assign",
-            [ SyntaxTree("expr", [ Token("LOAD_STR", pattr=doc_string) ]),
-              SyntaxTree("store", [ Token("STORE_NAME", pattr="__doc__")])
-            ])])
+ASSIGN_DOC_STRING = lambda doc_string, doc_load: SyntaxTree(
+    "assign",
+    [
+        SyntaxTree(
+            "expr", [Token(doc_load, pattr=doc_string, attr=doc_string)]
+        ),
+        SyntaxTree("store", [Token("STORE_NAME", pattr="__doc__")]),
+    ],
+)
 
 NAME_MODULE = SyntaxTree("assign",
                     [ SyntaxTree("expr",
