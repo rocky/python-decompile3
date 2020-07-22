@@ -933,7 +933,7 @@ class SourceWalker(GenericASTTraversal, object):
         assert iscode(cn.attr)
 
         code = Code(cn.attr, self.scanner, self.currentclass)
-        ast = self.build_ast(code._tokens, code._customize)
+        ast = self.build_ast(code._tokens, code._customize, code)
         self.customize(code._customize)
 
         # Remove single reductions as in ("stmts", "sstmt"):
@@ -1009,7 +1009,7 @@ class SourceWalker(GenericASTTraversal, object):
         assert iscode(code), node[code_index]
         code = Code(code, self.scanner, self.currentclass)
 
-        ast = self.build_ast(code._tokens, code._customize)
+        ast = self.build_ast(code._tokens, code._customize, code)
         self.customize(code._customize)
 
         # skip over: sstmt, stmt, return, ret_expr
@@ -1175,7 +1175,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec = 27
 
         code = Code(node[1].attr, self.scanner, self.currentclass)
-        ast = self.build_ast(code._tokens, code._customize)
+        ast = self.build_ast(code._tokens, code._customize, code)
         self.customize(code._customize)
 
         # Remove single reductions as in ("stmts", "sstmt"):
@@ -1979,7 +1979,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         indent = self.indent
         # self.println(indent, '#flags:\t', int(code.co_flags))
-        ast = self.build_ast(code._tokens, code._customize)
+        ast = self.build_ast(code._tokens, code._customize, code)
 
         # save memory by deleting no-longer-used structures
         code._tokens = None
@@ -2062,7 +2062,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.return_none = rn
 
     def build_ast(
-        self, tokens, customize, is_lambda=False, noneInNames=False, isTopLevel=False
+        self, tokens, customize, code, is_lambda=False, noneInNames=False, isTopLevel=False
     ):
 
         # FIXME: DRY with fragments.py
@@ -2091,7 +2091,7 @@ class SourceWalker(GenericASTTraversal, object):
                 self.customize(customize)
             except (python_parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens, self.p.debug["reduce"])
-            transform_ast = self.treeTransform.transform(ast)
+            transform_ast = self.treeTransform.transform(ast, code)
             self.maybe_show_tree(ast)
             del ast # Save memory
             return transform_ast
@@ -2131,7 +2131,7 @@ class SourceWalker(GenericASTTraversal, object):
         checker(ast, False, self.ast_errors)
 
         self.customize(customize)
-        transform_ast = self.treeTransform.transform(ast)
+        transform_ast = self.treeTransform.transform(ast, code)
 
         self.maybe_show_tree(ast)
 
@@ -2195,7 +2195,7 @@ def code_deparse(
     isTopLevel = co.co_name == "<module>"
     if compile_mode == "eval":
         deparsed.hide_internal = False
-    deparsed.ast = deparsed.build_ast(tokens, customize, isTopLevel=isTopLevel)
+    deparsed.ast = deparsed.build_ast(tokens, customize, co, isTopLevel=isTopLevel)
 
     #### XXX workaround for profiling
     if deparsed.ast is None:
