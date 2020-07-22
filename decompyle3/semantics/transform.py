@@ -23,11 +23,12 @@ from decompyle3.scanners.tok import NoneToken, Token
 from decompyle3.semantics.consts import RETURN_NONE
 
 
-def is_docstring(node) -> bool:
-    try:
-        return node.kind == "assign" and node[1][0].pattr == "__doc__"
-    except:
-        return False
+def is_docstring(node, version: str, co_consts) -> bool:
+    # try:
+    #     return node.kind == "assign" and node[1][0].pattr == "__doc__"
+    # except:
+    #     return False
+    return node == ASSIGN_DOC_STRING(co_consts[0], "LOAD_STR")
 
 
 def is_not_docstring(call_stmt_node) -> bool:
@@ -426,7 +427,7 @@ class TreeTransform(GenericASTTraversal, object):
         node = self.preorder(node)
         return node
 
-    def transform(self, ast):
+    def transform(self, ast, code):
         self.maybe_show_tree(ast)
         self.ast = copy(ast)
         self.ast = self.traverse(self.ast, is_lambda=False)

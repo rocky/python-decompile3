@@ -162,7 +162,7 @@ def code_deparse_align(
     )
 
     isTopLevel = co.co_name == "<module>"
-    deparsed.ast = deparsed.build_ast(tokens, customize, isTopLevel=isTopLevel)
+    deparsed.ast = deparsed.build_ast(tokens, customize, co, isTopLevel=isTopLevel)
 
     assert deparsed.ast == "stmts", "Should have parsed grammar start"
 
