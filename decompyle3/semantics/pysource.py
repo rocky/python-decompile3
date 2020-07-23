@@ -244,7 +244,8 @@ class SourceWalker(GenericASTTraversal, object):
         # Initialize p_lambda on demand
         self.p_lambda = None
 
-        self.treeTransform = TreeTransform(showast)
+        self.treeTransform = TreeTransform(version=self.version,
+                                           show_ast=showast)
         self.debug_parser = dict(debug_parser)
         self.showast = showast
         self.params = params
