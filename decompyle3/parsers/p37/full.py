@@ -966,6 +966,7 @@ class Python37Parser(Python37LambdaParser):
 
 def info(args):
     # Check grammar
+    import sys
     p = Python37Parser()
     if len(args) > 0:
         arg = args[0]
