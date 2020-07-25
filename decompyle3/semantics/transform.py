@@ -20,7 +20,7 @@ from spark_parser import GenericASTTraversal, GenericASTTraversalPruningExceptio
 from decompyle3.semantics.helper import find_code_node
 from decompyle3.parsers.treenode import SyntaxTree
 from decompyle3.scanners.tok import NoneToken, Token
-from decompyle3.semantics.consts import RETURN_NONE
+from decompyle3.semantics.consts import RETURN_NONE, ASSIGN_DOC_STRING
 
 
 def is_docstring(node, version: str, co_consts) -> bool:
@@ -43,8 +43,9 @@ def is_not_docstring(call_stmt_node) -> bool:
 
 
 class TreeTransform(GenericASTTraversal, object):
-    def __init__(self, show_ast=None):
+    def __init__(self, version, show_ast=None):
         self.showast = show_ast
+        self.version = version
         return
 
     def maybe_show_tree(self, ast):
@@ -447,7 +448,7 @@ class TreeTransform(GenericASTTraversal, object):
         try:
 
             for i in range(n):
-                if is_docstring(self.ast[i]):
+                if is_docstring(self.ast[i], self.version, code.co_consts):
                     load_const = self.ast[i].first_child()
                     docstring_ast = SyntaxTree(
                         "docstring",

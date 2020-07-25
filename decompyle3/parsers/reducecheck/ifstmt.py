@@ -44,6 +44,12 @@ def ifstmt(
     if not ast:
         return False
 
+    ifstmts_jump = ast[1]
+    if ifstmts_jump.kind.startswith("ifstmts_jump"):
+        come_from = ifstmts_jump[0]
+        if come_from == "COME_FROM" and come_from.attr < first_offset:
+            return True
+
     testexpr = ast[0]
 
     test = testexpr[0]
