@@ -257,7 +257,7 @@ def customize_for_version37(self, version):
             "importlist37": ("%C", (0, maxint, ", ")),
 
             "or_and_not": (
-                "%c or %c", (0, "expr"), (2, "and_not"),
+                "%c or %c", (0, "expr_pjit"), (1, "and_not"),
             ),
 
             "or_cond": (

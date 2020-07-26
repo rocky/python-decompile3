@@ -1,15 +1,4 @@
 SKIP_TESTS=(
-    # FIXME: Did this work sometime in the past ?
-    #   for elem in g(s):
-    #     if not tgt and isOdd(elem): continue
-    # is erroneously:
-    #   for elem in g(s):
-    #    if tgt or isOdd(elem):
-    #       pass
-    #    else:
-    #       tgt.append(elem)
-    [test_itertools.py]=1
-
     # and/or expressions:
     #   if ((module2, module3) not in ALT_IMPORT_MAPPING and
     #      REVERSE_IMPORT_MAPPING.get(module3, None) != module2):
@@ -18,12 +7,13 @@ SKIP_TESTS=(
     #      REVERSE_IMPORT_MAPPING.get(module3, None) != module2:
     [test_pickle.py]=1
 
+    # self._testCloneElementCopiesAttributes(root, clone, 'testCloneElement' + deep and 'Deep' or 'Shallow')
+    # TypeError: can only concatenate str (not "int") to str
     [test_minidom.py]=1 # test errors; works on 5bbb74f3 (HEAD~10)
+
     [test_modulefinder.py]=1 # works on 5bbb74f3 (HEAD~10)
-    [test_struct.py]=1 # assert failure (1); works on 5bbb74f3 (HEAD~10)
     [test_wsgiref.py]=1 # works on 5bbb74f3 (HEAD~10)
 
-    [test_builtin.py]=1 # works on 5bbb74f3 (HEAD~10)?
     [test_format.py]=1 # works on 5bbb74f3 (HEAD~10)?
     [test_dataclasses.py]=1 # works on 5bbb74f3 (HEAD~10)
 
