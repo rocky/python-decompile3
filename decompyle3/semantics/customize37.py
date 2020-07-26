@@ -67,6 +67,12 @@ def customize_for_version37(self, version):
                 (4,  "expr")
             ),
 
+            "or_and1":          	(
+                "%c or (%c)",
+                (0,  "or_parts"),
+                (1,  "and_parts"),
+            ),
+
             "and_or":          	(
                 "%c and (%c or %c)",
                 (0,  "expr_jifop"),
@@ -216,9 +222,10 @@ def customize_for_version37(self, version):
             ),
             "ifstmt_bool": (
                 "%|if %c:\n%+%c%-",
-                (0, "or_and_not"),
+                (0, ("or_and_not", "or_and1")),
                 (1, "stmts")
             ),
+
             "ifstmtc": ("%|if %c:\n%+%c%-",
                         (0, ("testexpr", "testexprc")),
                         (1, "ifstmts_jumpc")
