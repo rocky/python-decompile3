@@ -91,46 +91,36 @@ SKIP_TESTS=(
     [test_dbm_gnu.py]=1   # Takes too long
     [test_dbm_ndbm.py]=1 # it fails on its own
     [test_decimal.py]=1   # Parse error; takes a long time to decompile
-    [test_decorators.py]=1   # parse error
-    [test_descr.py]=1   # Parse error
+    [test_descr.py]=1   # test failure
     [test_descrtut.py]=1   # parse error
     [test_devpoll.py]=1 # it fails on its own
-    [test_dict.py]=1   # parse error
     [test_dictcomps.py]=1 # test check failures
     [test_dis.py]=1   # Parse error. We change line numbers - duh!
     [test_doctest.py]=1 # test check failures
     [test_docxmlrpc.py]=1
-    [test_dtrace.py]=1 # test failures
 
     [test_enum.py]=1   # Test errors
     [test_enumerate.py]=1   # parse error
     [test_exception_hierarchy.py]=1 # control flow?
-    [test_exceptions.py]=1   # parse error
 
     [test_file_eintr.py]=1 # too long to run test; works on 3.7.7
     [test_fileinput.py]=1  # parse error
     [test_frame.py]=1 # Test failures
     [test_fstring.py]=1 # Investigate: Syntax error unexcpeted EOF wile parsing
-    [test_ftplib.py]=1 # parse error
     [test_functools.py]=1 # running tests takes too long
 
-    [test_gc.py]=1 # test check failures
     [test_gdb.py]=1 # it fails on its own
     [test_generators.py]=1  # parse error
     [test_glob.py]=1  # test errors
     [test_grammar.py]=1 # parse error (also takes a while to decompile)
     [test_grp.py]=1 # takes too long to run
-    [test_gzip.py]=1 # parse error
 
-    [test_hashlib.py]=1 # parse error
     [test_httplib.py]=1 # parse error
     [test_httpservers.py]=1 # test check failure
 
     [test_io.py]=1 # test takes too long to run: 37 seconds
     [test_imaplib.py]=1 # parse error
     [test_inspect.py]=1 # parse error
-    [test_iter.py]=1 # parse error
-    [test_itertools.py]=1 # parse error
 
     [test_kqueue.py]=1 # it fails on its own
 
