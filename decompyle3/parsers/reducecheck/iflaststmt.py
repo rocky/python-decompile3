@@ -43,12 +43,14 @@ def iflaststmt(
             ("testexprc", "c_stmts")
             ):
 
+
         # "stmts" (end of then) should not end in a fallthough instruction
         # other wise this is just a plain ol' stmt.
         ltm1 = tokens[last - 1]
         if ltm1 == "COME_FROM":
             return True
         then_end = self.off2inst(ltm1)
+
         # FIXME: fallthrough should be an xdis thing. Until then...
         if then_end.opcode not in self.opc.nofollow and tokens[last] != "JUMP_BACK":
             return True
@@ -61,13 +63,30 @@ def iflaststmt(
         # through to it.
         stmt_offset = ast[1].first_child().off2int(prefer_last=False)
         inst_offset = self.offset2inst_index[stmt_offset]
+
+        test_expr_offset = ast[0].first_child().off2int(prefer_last=False)
+        test_inst_offset = self.offset2inst_index[test_expr_offset]
+
+        last_offset = tokens[last].off2int(prefer_last=False)
+
+        # Make sure there are *forward* jumps outside offset range of this construct.
+        # This helps distinguish:
+        #     while True:
+        #        if testexpr
+        # from:
+        #     while testexpr
+        for i in range(test_inst_offset, inst_offset):
+            inst = self.insts[i]
+            if inst.is_jump() and inst.argval > last_offset:
+                return True
+
         testexpr_last_inst = self.insts[inst_offset - 1]
         if testexpr_last_inst.is_jump():
             target_offset = testexpr_last_inst.argval
-            last_offset = tokens[last].off2int(prefer_last=False)
             if target_offset != last_offset:
                 if target_offset < last_offset:
                     return True
+
                 # There is still this weird case:
                 # if a:
                 #   if b:
