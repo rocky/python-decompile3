@@ -73,10 +73,11 @@ class Python37LambdaParser(Python37BaseParser):
 
         # Note: "and" like "nor" might not have a trailing "come_from".
         #       "nand" and "or", in contrast, *must* have at least one "come_from".
-        not_or     ::= and_parts expr_pjif _come_froms
+        not_or       ::= and_parts expr_pjif _come_froms
 
-        and_cond   ::= and_parts expr_pjif _come_froms
-        and_cond   ::= testfalse expr_pjif _come_froms
+        and_cond     ::= and_parts expr_pjif _come_froms
+        and_cond     ::= testfalse expr_pjif _come_froms
+        and_not_cond ::= and_not
 
         # FIXME: Investigate - We don't do the below because these rules prevent the "and_cond" from
         #        trigering.
@@ -386,6 +387,7 @@ class Python37LambdaParser(Python37BaseParser):
         """
         expr                       ::= if_exp37
         bool_op                    ::= and_cond
+        bool_op                    ::= and_not_cond
         bool_op                    ::= and POP_JUMP_IF_TRUE expr
 
         expr_pjif                  ::= expr POP_JUMP_IF_FALSE
