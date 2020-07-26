@@ -105,6 +105,7 @@ class Python37LambdaParser(Python37BaseParser):
         and            ::= expr_jifop_cfs expr _come_froms
 
         or_and         ::= expr_jitop expr come_from_opt JUMP_IF_FALSE_OR_POP expr _come_froms
+        or_and1        ::= or_parts and_parts come_froms
         and_or         ::= expr_jifop expr come_from_opt JUMP_IF_TRUE_OR_POP expr _come_froms
 
         ## A COME_FROM is dropped off because of JUMP-to-JUMP optimization

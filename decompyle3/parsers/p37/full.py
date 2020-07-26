@@ -597,6 +597,7 @@ class Python37Parser(Python37LambdaParser):
 
         stmt        ::= ifstmt_bool
         ifstmt_bool ::= or_and_not stmts come_froms
+        ifstmt_bool ::= or_and1 stmts come_froms
 
         if_or_stmt  ::= expr POP_JUMP_IF_TRUE expr pop_jump come_froms
                         stmts COME_FROM
