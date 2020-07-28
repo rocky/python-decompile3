@@ -39,13 +39,13 @@ for VERSION in $PYVERSIONS ; do
     typeset -i rc=0
     LOGFILE=/tmp/pyenvlib-$VERSION-$$.log
 
-    if [[ $VERSION == '3.7.7' ]] ; then
-	# .pyenv/versions/3.7.7/lib/python3.7/__pycache__/compileall.cpython-37.pyc
+    if [[ $VERSION == '3.7.8' ]] ; then
+	# .pyenv/versions/3.7.8/lib/python3.7/__pycache__/compileall.cpython-37.pyc
 	# is the first to fail
 	# functools fails (needs to parse assert)
 	# pydecimal fails. Then we can go to 39
 	MAX_TESTS=10
-    elif [[ $VERSION == '3.8.3' ]] ; then
+    elif [[ $VERSION == '3.8.5' ]] ; then
 	# _compression.cpython-38.pyc fails
 	# _markupbase.py.cpython-38.pyc fails
 	MAX_TESTS=5

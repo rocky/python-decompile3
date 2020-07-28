@@ -5,8 +5,8 @@ test_pyenvlib -- decompile and verify Python libraries
 
 Usage-Examples:
 
-  test_pyenvlib.py --3.7.3 --syntax-verify	# decompile and verify python lib 3.7.3
-  test_pyenvlib.py --3.7.3 --max 10	# decompile first 10 of 3.7.3
+  test_pyenvlib.py --3.7.8 --syntax-verify	# decompile and verify python lib 3.7.8
+  test_pyenvlib.py --3.7.8 --max 10	# decompile first 10 of 3.7.8
 
 Adding own test-trees:
 
