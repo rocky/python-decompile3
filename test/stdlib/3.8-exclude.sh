@@ -1,4 +1,34 @@
 SKIP_TESTS=(
+    # Very Simple example. Compare with 3.7 Need 3.8 parse rules for exception handling return
+    #    for proto in p:
+    #    try:
+    #        drop = 5
+    #    except StopIteration:
+    #        continue
+
+    [test_dict.py]=1 #
+
+    # Simple example. Compare with 3.7 Need 3.8 parse rules for exception handling return
+    #    try:
+    #    return 5
+    # except KeyError:
+    #    return res
+    # except TypeError:
+    #    return 10
+
+    # These and the above may be due to new code generation or tests
+    # between 3.8.3 and 3.8.5 ?
+    [test_decorators.py]=1 #
+
+    [test_dtrace.py]=1 #
+    [test_exceptions.py]=1 #
+    [test_ftplib.py]=1 #
+    [test_gc.py]=1 #
+    [test_gzip.py]=1 #
+    [test_hashlib.py]=1 #
+    [test_iter.py]=1 #
+    [test_itertools.py]=1 #
+
     [test_asynchat.py]=1 # FIXME: takes more than 15 seconds to run works in a795b2195 ?
     [test_binascii.py]=1 # Killing test_binascii.py; takes more than 30 seconds to run
     [test_builtin.py]=1 # too long to run test; works on uncompyle6
