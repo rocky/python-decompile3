@@ -28,7 +28,14 @@ from collections import namedtuple
 from decompyle3 import IS_PYPY
 from decompyle3.scanners.tok import Token
 import xdis
-from xdis import Bytecode, canonic_python_version, code2num, extended_arg_val, instruction_size, next_offset
+from xdis import (
+    Bytecode,
+    canonic_python_version,
+    code2num,
+    extended_arg_val,
+    instruction_size,
+    next_offset,
+)
 
 # The byte code versions we support.
 # Note: these all have to be floats
@@ -39,8 +46,8 @@ CANONIC2VERSION = dict((canonic_python_version[str(v)], v) for v in PYTHON_VERSI
 L65536 = 65536
 
 
-def long(l):
-    return l
+def long(num):
+    return num
 
 
 class Code(object):
