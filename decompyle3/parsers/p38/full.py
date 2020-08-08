@@ -243,6 +243,7 @@ class Python38FullParser(Python37Parser, Python38LambdaParser):
         pop_finally_pt     ::= POP_FINALLY POP_TOP
         ss_end_finally     ::= suite_stmts END_FINALLY
         sf_pb_call_returns ::= SETUP_FINALLY POP_BLOCK CALL_FINALLY returns
+        sf_pb_call_returns ::= SETUP_FINALLY POP_BLOCK POP_EXCEPT CALL_FINALLY returns
 
 
         # FIXME: DRY rules below
