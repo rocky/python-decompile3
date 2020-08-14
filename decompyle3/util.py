@@ -38,7 +38,6 @@ def better_repr(v: Any) -> Any:
             return "(%s,)" % better_repr(v[0])
         return "(%s)" % ", ".join(better_repr(i) for i in v)
     elif isinstance(v, list):
-        l = better_repr(v)
         if len(v) == 1:
             return "[%s,]" % better_repr(v[0])
         return "[%s]" % ", ".join(better_repr(i) for i in v)
