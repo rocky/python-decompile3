@@ -116,6 +116,7 @@ class Python38FullParser(Python37Parser, Python38LambdaParser):
         # Seems to be used to discard values before a return in a "for" loop
         discard_top        ::= ROT_TWO POP_TOP
         discard_tops       ::= discard_top+
+        pop_tops           ::= POP_TOP+
 
         return             ::= ret_expr
                                discard_tops RETURN_VALUE
@@ -140,6 +141,7 @@ class Python38FullParser(Python37Parser, Python38LambdaParser):
         forelsestmt38      ::= expr get_for_iter store for_block JUMP_BACK _come_froms else_suite
 
         c_stmt             ::= c_forelsestmt38
+        c_stmt             ::= pop_tops return
         c_forelsestmt38    ::= expr get_for_iter store for_block POP_BLOCK else_suitec
         c_forelsestmt38    ::= expr get_for_iter store for_block JUMP_BACK _come_froms else_suitec
 
