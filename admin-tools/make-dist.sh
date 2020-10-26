@@ -32,7 +32,7 @@ for pyversion in $PYVERSIONS; do
     first_two=$(echo $pyversion | cut -d'.' -f 1-2 | sed -e 's/\.//')
     rm -fr build
     python setup.py bdist_egg bdist_wheel
-    mv -v dist/${PACKAGE}-$VERSION-{py2.py3,py$first_two}-none-any.whl
+    python setup.py bdist_wheel --universal
 done
 
 python ./setup.py sdist
