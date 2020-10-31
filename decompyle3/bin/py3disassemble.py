@@ -7,7 +7,7 @@ from __future__ import print_function
 import sys, os, getopt
 
 from decompyle3.disas import disassemble_file
-from decompyle3.version import VERSION
+from decompyle3.version import __version__
 
 program, ext = os.path.splitext(os.path.basename(__file__))
 
@@ -65,7 +65,7 @@ Type -h for for full help."""
             print(__doc__)
             sys.exit(1)
         elif opt in ("-V", "--version"):
-            print("%s %s" % (program, VERSION))
+            print("%s %s" % (program, __version__))
             sys.exit(0)
         else:
             print(opt)
