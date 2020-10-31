@@ -29,7 +29,7 @@ For example:
 Finally we save token information.
 """
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Set
 
 from xdis import iscode, instruction_size, Instruction
 from xdis.bytecode import _get_const_info
@@ -548,12 +548,12 @@ class Scanner37Base(Scanner):
         # Map fixed jumps to their real destination
         self.fixed_jumps: Dict[int, int] = {}
         self.except_targets = {}
-        self.ignore_if = set()
+        self.ignore_if: Set[int] = set()
         self.build_statement_indices()
 
         # Containers filled by detect_control_flow()
-        self.not_continue = set()
-        self.return_end_ifs = set()
+        self.not_continue: Set[int] = set()
+        self.return_end_ifs: Set[int] = set()
         self.setup_loop_targets = {}  # target given setup_loop offset
         self.setup_loops = {}  # setup_loop offset given target
 
@@ -694,7 +694,7 @@ class Scanner37Base(Scanner):
         op = inst.opcode
 
         # Detect parent structure
-        parent: Dict[str, int] = self.structs[0]
+        parent: Dict[str, Any] = self.structs[0]
         start: int = parent["start"]
         end: int = parent["end"]
 
@@ -836,9 +836,6 @@ class Scanner37Base(Scanner):
                     != code[xdis.next_offset(next_op, self.opc, next_offset)]
                 ):
                     self.fixed_jumps[next_offset] = target
-                    from trepan.api import debug
-
-                    debug()
                     self.except_targets[target] = next_offset
 
         elif op == self.opc.SETUP_FINALLY:
