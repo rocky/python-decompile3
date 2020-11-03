@@ -155,7 +155,10 @@ class TreeTransform(GenericASTTraversal, object):
                     assert_expr = testtrue_or_false[0]
                     jump_cond = NoneToken
                 else:
-                    assert testtrue_or_false in ("testfalse", "testfalsec"), testtrue_or_false
+                    assert testtrue_or_false in (
+                        "testfalse",
+                        "testfalsec",
+                    ), testtrue_or_false
                     assert_expr = testtrue_or_false[0]
                     if assert_expr in ("and_not", "nand", "not_or", "and"):
                         # FIXME: come back to stuff like this
@@ -194,7 +197,7 @@ class TreeTransform(GenericASTTraversal, object):
                         kind = "assert2not"
 
                     LOAD_ASSERT = call[0].first_child()
-                    if LOAD_ASSERT not in ( "LOAD_ASSERT", "LOAD_GLOBAL"):
+                    if LOAD_ASSERT not in ("LOAD_ASSERT", "LOAD_GLOBAL"):
                         return node
                     if isinstance(call[1], SyntaxTree):
                         expr = call[1][0]
@@ -224,7 +227,11 @@ class TreeTransform(GenericASTTraversal, object):
                     #             1.   RAISE_VARARGS_1
                     # becomes:
                     # assert ::= assert_expr POP_JUMP_IF_TRUE LOAD_ASSERT RAISE_VARARGS_1 COME_FROM
-                    if jump_cond in ("POP_JUMP_IF_TRUE", "POP_JUMP_IF_TRUE_BACK", NoneToken):
+                    if jump_cond in (
+                        "POP_JUMP_IF_TRUE",
+                        "POP_JUMP_IF_TRUE_BACK",
+                        NoneToken,
+                    ):
                         kind = "assert"
                     else:
                         assert jump_cond.kind.startswith("POP_JUMP_IF_")
@@ -402,16 +409,12 @@ class TreeTransform(GenericASTTraversal, object):
             prev = node[0]
             new_stmts = [node[0]]
             for i, sstmt in enumerate(node[1:]):
-                ann_assign = sstmt[0]
-                if (
-                    sstmt[0] == "stmt"
-                    and ann_assign == "ann_assign"
-                    and prev == "assign"
-                ):
+                ann_assign = sstmt
+                if ann_assign == "ann_assign" and prev == "assign":
                     annotate_var = ann_assign[-2]
                     if annotate_var.attr == prev[-1][0].attr:
                         del new_stmts[-1]
-                        sstmt[0][0] = SyntaxTree(
+                        sstmt = SyntaxTree(
                             "ann_assign_init",
                             [ann_assign[0], prev[0], annotate_var],
                             transformed_by="n_stmts",

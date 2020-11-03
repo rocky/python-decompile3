@@ -23,6 +23,7 @@ check-short:
 
 # Run all tests
 check:
+	$(PYTHON) -V && PYTHON_VERSION=`$(PYTHON) -V 2>&1 | cut -d ' ' -f 2 | cut -d'.' -f1,2`; \
 	$(MAKE) check-$(PYTHON_VERSION)
 
 #: Run working tests from Python 3.7
