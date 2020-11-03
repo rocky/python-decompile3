@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Mode: -*- python -*-
 #
-# Copyright (c) 2015-2017, 2019 by Rocky Bernstein
+# Copyright (c) 2015-2017, 2019-2020 by Rocky Bernstein
 # Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 from __future__ import print_function
@@ -60,7 +60,7 @@ Extensions of generated files:
 program = "decompyle3"
 
 from decompyle3.main import main, status_msg
-from decompyle3.version import VERSION
+from decompyle3.version import __version__
 
 
 def usage():
@@ -101,7 +101,7 @@ def main_bin():
             print(__doc__)
             sys.exit(0)
         elif opt in ("-V", "--version"):
-            print("%s %s" % (program, VERSION))
+            print("%s %s" % (program, __version__))
             sys.exit(0)
         elif opt == "--syntax-verify":
             options["do_verify"] = "weak"

@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2019 Rocky Bernstein <rocky@gnu.org>
+# Copyright (C) 2018-2020 Rocky Bernstein <rocky@gnu.org>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -14,8 +14,10 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import sys
 
+from typing import Any, Union
 
-def maybe_show_asm(showasm: bool, tokens: list) -> None:
+
+def maybe_show_asm(showasm: Any, tokens: list) -> None:
     """
     Show the asm based on the showasm flag (or file object), writing to the
     appropriate stream depending on the type of the flag.

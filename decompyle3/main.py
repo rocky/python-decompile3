@@ -21,7 +21,7 @@ from xdis import iscode, load_module, sysinfo2float
 from decompyle3.disas import check_object_path
 from decompyle3.semantics import pysource
 from decompyle3.parsers import ParserError
-from decompyle3.version import VERSION
+from decompyle3.version import __version__
 
 # from decompyle3.linenumbers import line_number_mapping
 
@@ -88,7 +88,7 @@ def decompile(
         "# decompyle3 version %s\n"
         "# %sPython bytecode %s%s\n# Decompiled from: %sPython %s"
         % (
-            VERSION,
+            __version__,
             co_pypy_str,
             bytecode_version,
             " (%s)" % str(magic_int) if magic_int else "",

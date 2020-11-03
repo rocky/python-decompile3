@@ -1,5 +1,5 @@
 """
-  Copyright (c) 2015, 2018 by Rocky Bernstein
+  Copyright (c) 2015, 2018, 2020 by Rocky Bernstein
   Copyright (c) 2000 by hartmut Goebel <h.goebel@crazy-compilers.com>
   Copyright (c) 1999 John Aycock
 
@@ -29,6 +29,8 @@
 import sys
 
 __docformat__ = "restructuredtext"
+
+from decompyle3.version import __version__  # noqa
 
 # We do this crazy way to support Python 2.6 which
 # doesn't support version_major, and has a bug in
