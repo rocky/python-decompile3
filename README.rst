@@ -176,7 +176,7 @@ See Also
 * https://github.com/rocky/python-decompile3/wiki : Wiki Documents which describe the code and aspects of it in more detail
 
 .. _Cython: https://en.wikipedia.org/wiki/Cython
-.. _MicroPython: https://micropotyon.org
+.. _MicroPython: https://micropython.org
 .. _uncompyle6: https://pypi.python.org/pypi/uncompyle6
 .. _python-control-flow: https://github.com/rocky/python-control-flow
 .. _trepan: https://pypi.python.org/pypi/trepan2
