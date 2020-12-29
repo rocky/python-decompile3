@@ -28,7 +28,7 @@ def test_grammar():
 
     expect_lhs.add("load_genexpr")
     expect_lhs.add("kv3")
-    expect_lhs.add("lambda_start") # Start symbol for lambda expressions
+    expect_lhs.add("lambda_start")  # Start symbol for lambda expressions
 
     unused_rhs = unused_rhs.union(
         set(
@@ -56,24 +56,25 @@ def test_grammar():
     )
     reduced_dup_rhs = dict((k, dup_rhs[k]) for k in dup_rhs if k not in expect_dup_rhs)
     if reduced_dup_rhs:
-        print("\nPossible duplicate RHS that might be folded, into one of the LHS symbols")
+        print(
+            "\nPossible duplicate RHS that might be folded, into one of the LHS symbols"
+        )
         for k in reduced_dup_rhs:
             print(k, reduced_dup_rhs[k])
     # assert not reduced_dup_rhs, reduced_dup_rhs
 
-    s = get_scanner(PYTHON_VERSION, IS_PYPY)
-    ignore_set = set(
-        """
-            JUMP_BACK CONTINUE
-            COME_FROM COME_FROM_EXCEPT
-            COME_FROM_EXCEPT_CLAUSE
-            COME_FROM_LOOP COME_FROM_WITH
-            COME_FROM_FINALLY ELSE
-            LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_STR LOAD_CODE
-            LAMBDA_MARKER
-            RETURN_END_IF RETURN_END_IF_LAMBDA RETURN_VALUE_LAMBDA RETURN_LAST
-            """.split()
-    )
+    # ignore_set = set(
+    #     """
+    #         JUMP_BACK CONTINUE
+    #         COME_FROM COME_FROM_EXCEPT
+    #         COME_FROM_EXCEPT_CLAUSE
+    #         COME_FROM_LOOP COME_FROM_WITH
+    #         COME_FROM_FINALLY ELSE
+    #         LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_STR LOAD_CODE
+    #         LAMBDA_MARKER
+    #         RETURN_END_IF RETURN_END_IF_LAMBDA RETURN_VALUE_LAMBDA RETURN_LAST
+    #         """.split()
+    # )
 
 
 def test_dup_rule():
@@ -92,6 +93,7 @@ def test_dup_rule():
             "context": True,
         },
     )
+
 
 if __name__ == "__main__":
     test_grammar()

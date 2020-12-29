@@ -393,7 +393,6 @@ class Python37LambdaParser(Python37BaseParser):
         bool_op                    ::= and_cond
         bool_op                    ::= and_not_cond
         bool_op                    ::= and POP_JUMP_IF_TRUE expr
-        bool_op                    ::= not_and
 
         expr_pjif                  ::= expr POP_JUMP_IF_FALSE
         expr_pjit                  ::= expr POP_JUMP_IF_TRUE
