@@ -54,33 +54,26 @@ def customize_for_version37(self, version):
 
     TABLE_DIRECT.update(
         {
-            "and_or_expr":  (
+            "and_or_expr": (
                 "%c and %c or %c",
                 (0, "and_parts"),
                 (1, "expr"),
                 (2, "jitop_come_from_expr"),
-                ),
-            "or_and":          	(
+            ),
+            "or_and": (
                 "%c or (%c and %c)",
-                (0,  "expr_jitop"),
-                (1,  "expr"),
-                (4,  "expr")
+                (0, "expr_jitop"),
+                (1, "expr"),
+                (4, "expr"),
             ),
-
-            "or_and1":          	(
-                "%c or (%c)",
-                (0,  "or_parts"),
-                (1,  "and_parts"),
-            ),
-
-            "and_or":          	(
+            "or_and1": ("%c or (%c)", (0, "or_parts"), (1, "and_parts"),),
+            "and_or": (
                 "%c and (%c or %c)",
-                (0,  "expr_jifop"),
-                (1,  "expr"),
-                (4,  "expr")
+                (0, "expr_jifop"),
+                (1, "expr"),
+                (4, "expr"),
             ),
-
-            "and_not":  ("%c and not %c", (0, "expr_pjif"), (1, "expr_pjit")),
+            "and_not": ("%c and not %c", (0, "expr_pjif"), (1, "expr_pjit")),
             "and_cond": (
                 "%c and %c",
                 (0, ("and_parts", "testfalse")),
@@ -133,79 +126,90 @@ def customize_for_version37(self, version):
                 (0, "IMPORT_NAME_ATTR"),
                 (1, "IMPORT_FROM"),
             ),
-
             # nested await expressions like:
             #   return await (await bar())
             # need parenthesis.
-            "await_expr": ("await %p", (0, PRECEDENCE["await_expr"]-1)),
-
+            "await_expr": ("await %p", (0, PRECEDENCE["await_expr"] - 1)),
             "await_stmt": ("%|%c\n", 0),
             "call_ex": ("%c(%p)", (0, "expr"), (1, 100)),
             "compare_chained1a_37": (
                 "%p %p",
-                (0, PRECEDENCE["compare"]-1),
-                (1, PRECEDENCE["compare"]-1),
+                (0, PRECEDENCE["compare"] - 1),
+                (1, PRECEDENCE["compare"] - 1),
             ),
             "c_compare_chained1a_37": (
                 "%p %p",
-                (0, PRECEDENCE["compare"]-1),
-                (1, PRECEDENCE["compare"]-1),
+                (0, PRECEDENCE["compare"] - 1),
+                (1, PRECEDENCE["compare"] - 1),
             ),
             "compare_chained1_false_37": (
-                "%p%p", (0, "chained_parts", PRECEDENCE["compare"]-1), (1, PRECEDENCE["compare"]-1),
+                "%p%p",
+                (0, "chained_parts", PRECEDENCE["compare"] - 1),
+                (1, PRECEDENCE["compare"] - 1),
             ),
             "compare_chained2_false_37": (
-                (0, "chained_part", PRECEDENCE["compare"]-1), (1, PRECEDENCE["compare"]-1),
+                (0, "chained_part", PRECEDENCE["compare"] - 1),
+                (1, PRECEDENCE["compare"] - 1),
             ),
             "compare_chained1b_false_37": (
                 "%p %p",
-                (0, PRECEDENCE["compare"]-1),
-                (1, PRECEDENCE["compare"]-1),
+                (0, PRECEDENCE["compare"] - 1),
+                (1, PRECEDENCE["compare"] - 1),
             ),
             "chained_part": (
                 ' %[3]{pattr.replace("-", " ")} %p',
-                (0, "expr", PRECEDENCE["compare"]-1),
+                (0, "expr", PRECEDENCE["compare"] - 1),
             ),
-
             "compare_chained_and": (
                 "%c%c and %c",
                 (0, "expr"),
                 (1, "chained_parts"),
-                -2, # Is often a transformed negated_testtrue
+                -2,  # Is often a transformed negated_testtrue
             ),
-
             # This is eliminated in the transform phase, but
             # we have it here to be logically complete and more robust
             # if something goes wrong.
-            "negated_testtrue": (
-                "not %c",
-                (0, "testtrue"),
-            ),
-
+            "negated_testtrue": ("not %c", (0, "testtrue"),),
             "compare_chained1c_37": (
                 "%p %p",
-                (0, PRECEDENCE["compare"]-1),
-                (1, PRECEDENCE["compare"]-1),
+                (0, PRECEDENCE["compare"] - 1),
+                (1, PRECEDENCE["compare"] - 1),
             ),
-            "compare_chained2a_37": ('%[1]{pattr.replace("-", " ")} %p', (0, PRECEDENCE["compare"]-1)),
-            "c_compare_chained2a_37": ('%[1]{pattr.replace("-", " ")} %p', (0, PRECEDENCE["compare"]-1)),
-            "compare_chained2b_false_37": ('%[1]{pattr.replace("-", " ")} %p', (0, PRECEDENCE["compare"]-1)),
-            "c_compare_chained2b_false_37": (' %[1]{pattr.replace("-", " ")} %p', (0, PRECEDENCE["compare"]-1)),
-            "compare_chained2a_false_37": ('%[1]{pattr.replace("-", " ")} %p', (0, PRECEDENCE["compare"]-1)),
-            "c_compare_chained2a_false_37": (' %[1]{pattr.replace("-", " ")} %p', (0, PRECEDENCE["compare"]-1)),
+            "compare_chained2a_37": (
+                '%[1]{pattr.replace("-", " ")} %p',
+                (0, PRECEDENCE["compare"] - 1),
+            ),
+            "c_compare_chained2a_37": (
+                '%[1]{pattr.replace("-", " ")} %p',
+                (0, PRECEDENCE["compare"] - 1),
+            ),
+            "compare_chained2b_false_37": (
+                '%[1]{pattr.replace("-", " ")} %p',
+                (0, PRECEDENCE["compare"] - 1),
+            ),
+            "c_compare_chained2b_false_37": (
+                ' %[1]{pattr.replace("-", " ")} %p',
+                (0, PRECEDENCE["compare"] - 1),
+            ),
+            "compare_chained2a_false_37": (
+                '%[1]{pattr.replace("-", " ")} %p',
+                (0, PRECEDENCE["compare"] - 1),
+            ),
+            "c_compare_chained2a_false_37": (
+                ' %[1]{pattr.replace("-", " ")} %p',
+                (0, PRECEDENCE["compare"] - 1),
+            ),
             "compare_chained2c_37": (
                 "%p %p",
-                (0, PRECEDENCE["compare"]-1),
-                (1, PRECEDENCE["compare"]-1),
+                (0, PRECEDENCE["compare"] - 1),
+                (1, PRECEDENCE["compare"] - 1),
             ),
-            "c_try_except": (
-                "%|try:\n%+%c%-%c\n\n", 1, (3, "c_except_handler" )
-            ),
+            "c_try_except": ("%|try:\n%+%c%-%c\n\n", 1, (3, "c_except_handler")),
             "if_exp37": (
                 "%p if %c else %c",
                 (1, "expr", 27),
                 0,
-                -2 # Must be from end since beginnings might not match
+                -2,  # Must be from end since beginnings might not match
             ),
             "except_return": ("%|except:\n%+%c%-", 3),
             "if_exp_37a": (
@@ -223,117 +227,116 @@ def customize_for_version37(self, version):
             "ifstmt_bool": (
                 "%|if %c:\n%+%c%-",
                 (0, ("or_and_not", "or_and1")),
-                (1, "stmts")
+                (1, "stmts"),
             ),
-
-            "ifstmtc": ("%|if %c:\n%+%c%-",
-                        (0, ("testexpr", "testexprc")),
-                        (1, "ifstmts_jumpc")
+            "ifstmtc": (
+                "%|if %c:\n%+%c%-",
+                (0, ("testexpr", "testexprc")),
+                (1, "ifstmts_jumpc"),
             ),
-            "if_and_elsestmtc": ("%|if %c and %c:\n%+%c%-%|else:\n%+%c%-",
-                               (0, "expr_pjif"),
-                               (1, "expr_pjif"),
-                               (2, "c_stmts"),
-                               (-2, "else_suitec")),
-            "if_and_stmt": ("%|if %c and %c:\n%+%c%-",
-                           (0, "expr_pjif"), (1, "expr"),
-                           (3, "stmts")),
-            "if_or_stmt": ("%|if %c or %c:\n%+%c%-",
-                           (0, "expr"), (2, "expr"),
-                           (5, "stmts")),
-            "if_or_elsestmt": ("%|if %c or %c:\n%+%c%-%|else:\n%+%c%-",
-                               (0, "expr"),
-                               (3, "expr"),
-                               (6, "stmts"),
-                               (-2, "else_suite")),
-            "if_or_not_elsestmt": ("%|if %c or not %c:\n%+%c%-%|else:\n%+%c%-",
-                               (0, "expr"),
-                               (3, "expr"),
-                               (6, "stmts"),
-                               (-2, "else_suite")),
+            "if_and_elsestmtc": (
+                "%|if %c and %c:\n%+%c%-%|else:\n%+%c%-",
+                (0, "expr_pjif"),
+                (1, "expr_pjif"),
+                (2, "c_stmts"),
+                (-2, "else_suitec"),
+            ),
+            "if_and_stmt": (
+                "%|if %c and %c:\n%+%c%-",
+                (0, "expr_pjif"),
+                (1, "expr"),
+                (3, "stmts"),
+            ),
+            "if_or_stmt": (
+                "%|if %c or %c:\n%+%c%-",
+                (0, "expr"),
+                (2, "expr"),
+                (5, "stmts"),
+            ),
+            "if_or_elsestmt": (
+                "%|if %c or %c:\n%+%c%-%|else:\n%+%c%-",
+                (0, "expr"),
+                (3, "expr"),
+                (6, "stmts"),
+                (-2, "else_suite"),
+            ),
+            "if_or_not_elsestmt": (
+                "%|if %c or not %c:\n%+%c%-%|else:\n%+%c%-",
+                (0, "expr"),
+                (3, "expr"),
+                (6, "stmts"),
+                (-2, "else_suite"),
+            ),
             "import_as37": ("%|import %c as %c\n", 2, -2),
             "import_from37": ("%|from %[2]{pattr} import %c\n", (3, "importlist37")),
             "importattr37": ("%c", (0, "IMPORT_NAME_ATTR")),
             "importlist37": ("%C", (0, maxint, ", ")),
-
-            "or_and_not": (
-                "%c or %c", (0, "expr_pjit"), (1, "and_not"),
-            ),
-
+            "or_and_not": ("%c or %c", (0, "expr_pjit"), (1, "and_not"),),
             "or_cond": (
                 "%c or %c",
-                (0, ("or_parts", "and")),
+                (0, ("or_parts", "and", "not_and_not")),
                 (1, "expr_pjif"),
             ),
-
-            "nor_cond": (
-                "%c or %c",
-                (0, ("or_parts", "and")),
-                (1, "expr_pjif"),
-            ),
-
-            "or_cond1": (
-                "%c or %c",
-                (0, ("or_parts", "and")),
-                (-2, "expr_pjif"),
-            ),
-
+            "not_and_not": ("%c and not %c", (0, "not"), (1, "expr_pjif"),),
+            "nor_cond": ("%c or %c", (0, ("or_parts", "and")), (1, "expr_pjif"),),
+            "or_cond1": ("%c or %c", (0, ("or_parts", "and")), (-2, "expr_pjif"),),
             "and_or_cond": (
                 "%c and %c or %c",
                 (0, ("and_parts", "or_parts")),
                 (1, "expr"),
                 (4, "expr_pjif"),
             ),
-
             "list_afor": (
                 " async for %[1]{%c} in %c%[1]{%c}",
-                (1, "store"), (0, "get_aiter"), (3, "list_iter"),
+                (1, "store"),
+                (0, "get_aiter"),
+                (3, "list_iter"),
             ),
-
             "list_if37": (" if %p%c", (0, 27), 1),
             "list_if37_not": (" if not %p%c", (0, 27), 1),
-            "not": (
-                "not %p",
-                (0, "expr_pjit", PRECEDENCE["not"]),
-            ),
+            "not": ("not %p", (0, "expr_pjit", PRECEDENCE["not"]),),
             "not_or": (
                 "not %p or %c",
-                (0, "and_parts", PRECEDENCE["and"]-1),
-                (1, "expr_pjif")
+                (0, "and_parts", PRECEDENCE["and"] - 1),
+                (1, "expr_pjif"),
             ),
-
             "and_parts": (
-                "%P and %c", (0, -1, "and ", PRECEDENCE["and"]), (1, "expr_pjif"),
+                "%P and %c",
+                (0, -1, "and ", PRECEDENCE["and"]),
+                (1, "expr_pjif"),
             ),
-            "nand": (
-                "not (%c and %c)",
-                (0, "and_parts"), (1, ("expr", "expr_pjit")),
-            ),
-
-            "c_nand": (
-                "not (%c and %c)",
-                (0, "and_parts"), (1, "expr_pjitt"),
-            ),
-
+            "nand": ("not (%c and %c)", (0, "and_parts"), (1, ("expr", "expr_pjit")),),
+            "c_nand": ("not (%c and %c)", (0, "and_parts"), (1, "expr_pjitt"),),
             "or_parts": (
-                "%P or %c", (0, -1, "or ", PRECEDENCE["or"]), (1, "expr_pjif"),
+                "%P or %c",
+                (0, -1, "or ", PRECEDENCE["or"]),
+                (1, "expr_pjif"),
             ),
-
             "testfalsec": (
                 "not %c",
-                (0, ("expr", "c_compare_chained37_false", "c_compare_chained1b_false_37", "c_nand"))
+                (
+                    0,
+                    (
+                        "expr",
+                        "c_compare_chained37_false",
+                        "c_compare_chained1b_false_37",
+                        "c_nand",
+                    ),
                 ),
+            ),
             "try_except36": ("%|try:\n%+%c%-%c\n\n", 1, -2),
             "c_try_except36": ("%|try:\n%+%c%-%c\n\n", 1, 2),
             "tryfinally36": ("%|try:\n%+%c%-%|finally:\n%+%c%-\n\n", (1, "returns"), 3),
-            "tryfinally_return_stmt1":
-                ("%|try:\n%+%c%-%|finally:\n%+%c%-\n\n",
-                 (1, "suite_stmts_opt"),
-                 (-1, "returns")),
-            "tryfinally_return_stmt2":
-                ("%|try:\n%+%c%-%|finally:\n%+%|return %c%-\n\n",
-                 (1, "suite_stmts_opt"), 3
-                ),
+            "tryfinally_return_stmt1": (
+                "%|try:\n%+%c%-%|finally:\n%+%c%-\n\n",
+                (1, "suite_stmts_opt"),
+                (-1, "returns"),
+            ),
+            "tryfinally_return_stmt2": (
+                "%|try:\n%+%c%-%|finally:\n%+%|return %c%-\n\n",
+                (1, "suite_stmts_opt"),
+                3,
+            ),
             "unmap_dict": ("{**%C}", (0, -1, ", **")),
             "unpack_list": ("*%c", (0, "list")),
             "yield_from": ("yield from %c", (0, "expr")),
@@ -348,7 +351,6 @@ def customize_for_version37(self, version):
         }
     )
 
-
     # FIXME: we should be able to compress this into a single template
     def n_and_parts(node):
         if len(node) == 1:
@@ -358,6 +360,7 @@ def customize_for_version37(self, version):
             self.default(node)
             pass
         return
+
     self.n_and_parts = n_and_parts
 
     # FIXME: we should be able to compress this into a single template
@@ -369,10 +372,11 @@ def customize_for_version37(self, version):
             self.default(node)
             pass
         return
+
     self.n_or_parts = n_or_parts
 
-
     self.n_and_parts = n_and_parts
+
     def n_assert_invert(node):
         testtrue = node[0]
         assert testtrue == "testtrue"
@@ -580,10 +584,8 @@ def customize_for_version37(self, version):
             or not re.match(r"\d", opname[-1])
         ):
             self.template_engine(
-                ("%c(%p)",
-                 (0, "expr"),
-                 (1, PRECEDENCE["yield"]-1)),
-                node)
+                ("%c(%p)", (0, "expr"), (1, PRECEDENCE["yield"] - 1)), node
+            )
             self.prec = p
             self.prune()
         else:
@@ -811,12 +813,16 @@ def customize_for_version37(self, version):
     self.n_classdef36 = n_classdef36
 
     def n_compare_chained(node):
-        if node[0] in ("c_compare_chained37",
-                       "c_compare_chained37_false",
-                       "compare_chained37", "compare_chained37_false"):
+        if node[0] in (
+            "c_compare_chained37",
+            "c_compare_chained37_false",
+            "compare_chained37",
+            "compare_chained37_false",
+        ):
             self.default(node[0])
         else:
             self.default(node)
+
     self.n_compare_chained = self.n_c_compare_chained = n_compare_chained
 
     def n_importlist37(node):
@@ -1131,7 +1137,7 @@ def customize_for_version37(self, version):
         kwargs = node[2]
         if kwargs == "expr":
             kwargs = kwargs[0]
-        if kwargs == 'expr' and kwargs[0] != "dict":
+        if kwargs == "expr" and kwargs[0] != "dict":
             self.call36_dict(kwargs)
         else:
             self.write("**")

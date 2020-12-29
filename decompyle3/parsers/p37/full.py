@@ -17,6 +17,7 @@ from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from decompyle3.parsers.main import PythonParserEval, PythonParserSingle
 from decompyle3.parsers.p37.lambda_expr import Python37LambdaParser
 
+
 class Python37Parser(Python37LambdaParser):
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG, compile_mode="exec"):
         super(Python37Parser, self).__init__(debug_parser, compile_mode=compile_mode)
@@ -192,7 +193,6 @@ class Python37Parser(Python37LambdaParser):
                          JUMP_BACK _come_froms
         """
         pass
-
 
     # # A "condition", in contrast to an "expr"ession ,is something that is is used in
     # # tests and pops the condition after testing
@@ -598,6 +598,7 @@ class Python37Parser(Python37LambdaParser):
         stmt        ::= ifstmt_bool
         ifstmt_bool ::= or_and_not stmts come_froms
         ifstmt_bool ::= or_and1 stmts come_froms
+        ifstmt_bool ::= not_and_not stmts come_froms
 
         if_or_stmt  ::= expr POP_JUMP_IF_TRUE expr pop_jump come_froms
                         stmts COME_FROM
@@ -968,6 +969,7 @@ class Python37Parser(Python37LambdaParser):
 def info(args):
     # Check grammar
     import sys
+
     p = Python37Parser()
     if len(args) > 0:
         arg = args[0]
@@ -991,6 +993,7 @@ class Python37ParserSingle(Python37Parser, PythonParserSingle):
     # FIXME: add a suitable __init__
     pass
 
+
 class Python37ParserEval(Python37LambdaParser, PythonParserEval):
     # FIXME: add a suitable __init__
     pass
@@ -999,6 +1002,7 @@ class Python37ParserEval(Python37LambdaParser, PythonParserEval):
 if __name__ == "__main__":
     # Check grammar
     from decompyle3.parsers.dump import dump_and_check
+
     p = Python37Parser()
     modified_tokens = set(
         """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM

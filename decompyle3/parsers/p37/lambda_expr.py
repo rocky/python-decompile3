@@ -24,8 +24,11 @@ from decompyle3.scanners.tok import Token
 
 class Python37LambdaParser(Python37BaseParser):
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG, compile_mode="lambda"):
-        super(Python37LambdaParser, self).__init__(debug_parser, compile_mode=compile_mode)
+        super(Python37LambdaParser, self).__init__(
+            debug_parser, compile_mode=compile_mode
+        )
         self.customized = {}
+
     ###################################################
     #  Python 3.7 grammar rules for lambda expressions
     ###################################################
@@ -92,6 +95,7 @@ class Python37LambdaParser(Python37BaseParser):
         # Note: "nor" like "and" might not have a trailing "come_from".
         #       "nand" and "or_cond", in contrast, *must* have at least one "come_from".
         or_cond     ::= or_parts expr_pjif come_froms
+        or_cond     ::= not_and_not expr_pjif come_froms
         or_cond1    ::= and POP_JUMP_IF_TRUE come_froms expr_pjif come_from_opt
 
         nor_cond    ::= or_parts expr_pjif
@@ -389,6 +393,7 @@ class Python37LambdaParser(Python37BaseParser):
         bool_op                    ::= and_cond
         bool_op                    ::= and_not_cond
         bool_op                    ::= and POP_JUMP_IF_TRUE expr
+        bool_op                    ::= not_and
 
         expr_pjif                  ::= expr POP_JUMP_IF_FALSE
         expr_pjit                  ::= expr POP_JUMP_IF_TRUE
@@ -414,12 +419,13 @@ class Python37LambdaParser(Python37BaseParser):
         and_not                    ::= expr_pjif expr_pjit
         or_and_not                 ::= expr_pjit and_not COME_FROM
 
+        not_and_not                ::= not expr_pjif COME_FROM
+
         expr                       ::= if_exp_37a
         expr                       ::= if_exp_37b
         if_exp_37a                 ::= and_not expr JUMP_FORWARD come_froms expr COME_FROM
         if_exp_37b                 ::= expr_pjif expr_pjif jump_forward_else expr
         """
-
 
     def p_comprehension3(self, args):
         """
@@ -784,15 +790,17 @@ class Python37LambdaParser(Python37BaseParser):
             pass
         return False
 
+
 if __name__ == "__main__":
     # Check grammar
     from decompyle3.parsers.dump import dump_and_check
+
     p = Python37LambdaParser()
     modified_tokens = set(
         """JUMP_BACK CONTINUE RETURN_END_IF_LAMBDA COME_FROM
            LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_CLASSNAME
            LAMBDA_MARKER RETURN_VALUE_LAMBDA
         """.split()
-        )
+    )
 
     dump_and_check(p, 3.7, modified_tokens)
