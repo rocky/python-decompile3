@@ -19,7 +19,7 @@ Funding the project was added to address the problem that there are
 lots of people seeking help and reporting bugs, but few people who are
 willing or capable of providing help or fixing bugs.
 
-Finally https://github.com/rocky/python-decompyle3/blob/master/HOW-TO-REPORT-A-BUG.md ?
+Finally https://github.com/rocky/python-decompile3/blob/master/HOW-TO-REPORT-A-BUG.md ?
 -->
 
 <!--
