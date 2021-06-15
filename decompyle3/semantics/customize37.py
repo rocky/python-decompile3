@@ -583,8 +583,9 @@ def customize_for_version37(self, version):
             and opname == "CALL_FUNCTION_1"
             or not re.match(r"\d", opname[-1])
         ):
+            template = "(%c)(%p)" if node[0][0] == "mklambda" else "%c(%p)"
             self.template_engine(
-                ("%c(%p)", (0, "expr"), (1, PRECEDENCE["yield"] - 1)), node
+                (template, (0, "expr"), (1, PRECEDENCE["yield"] - 1)), node
             )
             self.prec = p
             self.prune()
