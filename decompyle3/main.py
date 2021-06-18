@@ -77,7 +77,7 @@ def decompile(
         s += "\n"
         real_out.write(s)
 
-    assert iscode(co)
+    assert iscode(co), f"""{co} is not smell like code"""
 
     co_pypy_str = "PyPy " if is_pypy else ""
     run_pypy_str = "PyPy " if IS_PYPY else ""
