@@ -13,9 +13,6 @@ trap finish EXIT
 if ! source ./pyenv-versions ; then
     exit $?
 fi
-if ! source ./setup-master.sh ; then
-    exit $?
-fi
 
 cd ..
 source $PACKAGE/version.py
