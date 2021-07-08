@@ -1,4 +1,4 @@
-#  Copyright (c) 2018-2020 by Rocky Bernstein
+#  Copyright (c) 2018-2021 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -16,10 +16,7 @@
 """Isolate Python version-specific semantic actions here.
 """
 
-from decompyle3.semantics.consts import PRECEDENCE, TABLE_R, TABLE_DIRECT
-
-from decompyle3.parsers.treenode import SyntaxTree
-from decompyle3.scanners.tok import Token
+from decompyle3.semantics.consts import PRECEDENCE, TABLE_DIRECT
 
 
 def customize_for_version(self, is_pypy, version):

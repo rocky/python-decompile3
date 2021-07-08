@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2020 by Rocky Bernstein
+#  Copyright (c) 2015-2021 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -89,6 +89,9 @@ from decompyle3.semantics.consts import (
     MAP,
     PASS,
 )
+
+from decompyle3.semantics.customize import customize_for_version
+from decompyle3.semantics.make_function36 import make_function36
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from spark_parser.ast import GenericASTTraversalPruningException
@@ -185,10 +188,20 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.hide_internal = False
         self.offsets = {}
         self.last_finish = -1
+        self.debug_parser = dict(debug_parser)
+
+        # FIXME: have p.insts update in a better way
+        # modularity is broken here
+        self.p.insts = scanner.insts
+        self.p.opc = scanner.opc
+        self.p.offset2inst_index = scanner.offset2inst_index
 
         # FIXME: is there a better way?
         global MAP_DIRECT_FRAGMENT
         MAP_DIRECT_FRAGMENT = (dict(TABLE_DIRECT, **TABLE_DIRECT_FRAGMENT),)
+        self.version = version
+        self.is_pypy = is_pypy
+        customize_for_version(self, is_pypy, version)
         return
 
     f = property(
@@ -316,9 +329,10 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
     def n_return(self, node):
         start = len(self.f.getvalue()) + len(self.indent)
-        if (
-                self.params["is_lambda"]
-                or node[0] in ("pop_return", "popb_return", "pop_ex_return")
+        if self.params["is_lambda"] or node[0] in (
+            "pop_return",
+            "popb_return",
+            "pop_ex_return",
         ):
             self.preorder(node[0])
             if hasattr(node[-1], "offset"):
@@ -602,7 +616,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         self.indent_more()
         start = len(self.f.getvalue())
-        self.make_function36(node, is_lambda=False, code_node=code_node)
+        make_function36(self, node, is_lambda=False, code_node=code_node)
 
         self.set_pos_info(node, start, len(self.f.getvalue()))
 
@@ -1094,8 +1108,15 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.name = old_name
         self.return_none = rn
 
-    def build_ast(self, tokens, customize, code, is_lambda=False,
-                  noneInNames=False, isTopLevel=False):
+    def build_ast(
+        self,
+        tokens,
+        customize,
+        code,
+        is_lambda=False,
+        noneInNames=False,
+        isTopLevel=False,
+    ):
 
         # FIXME: DRY with pysource.py
 
@@ -1114,10 +1135,11 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 p_insts = self.p.insts
                 self.p.insts = self.scanner.insts
                 self.p.offset2inst_index = self.scanner.offset2inst_index
+                self.p.opc = self.scanner.opc
                 ast = python_parser.parse(self.p, tokens, customize, is_lambda)
                 self.p.insts = p_insts
             except (python_parser.ParserError, AssertionError) as e:
-                raise ParserError(e, tokens)
+                raise ParserError(e, tokens, self.debug_parser.get("reduce", False))
 
             ## FIXME: So as not to remove tokens with offsets,
             ## remove this phase until we have a chance to go over,
@@ -1126,7 +1148,6 @@ class FragmentsWalker(pysource.SourceWalker, object):
             return ast
             # del ast # Save memory
             # return transform_ast
-
 
         # The bytecode for the end of the main routine has a
         # "return None". However you can't issue a "return" statement in
@@ -1158,10 +1179,10 @@ class FragmentsWalker(pysource.SourceWalker, object):
             # modularity is broken here
             p_insts = self.p.insts
             self.p.insts = self.scanner.insts
-            ast = python_parser.parse(self.p, tokens, customize)
+            ast = python_parser.parse(self.p, tokens, customize, is_lambda=is_lambda)
             self.p.insts = p_insts
         except (python_parser.ParserError, AssertionError) as e:
-            raise ParserError(e, tokens)
+            raise ParserError(e, tokens, self.debug_parser.get("reduce", False))
 
         maybe_show_tree(self, ast)
 
@@ -1622,6 +1643,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         fmt = entry[0]
         arg = 1
         i = 0
+
         lastC = -1
         recurse_node = False
 
@@ -1666,17 +1688,21 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
                 index = entry[arg]
                 if isinstance(index, tuple):
-                    assert node[index[0]] == index[1], (
-                        "at %s[%d], expected %s node; got %s"
-                        % (node.kind, arg, node[index[0]].kind, index[1])
-                    )
+                    if isinstance(index[1], str):
+                        assert node[index[0]] == index[1], (
+                            "at %s[%d], expected %s node; got %s"
+                            % (node.kind, arg, node[index[0]].kind, index[1])
+                        )
+                    else:
+                        assert node[index[0]] in index[1], (
+                            "at %s[%d], expected to be in '%s' node; got '%s'"
+                            % (node.kind, arg, index[1], node[index[0]].kind)
+                        )
+
                     index = index[0]
-                assert isinstance(
-                    index, int
-                ), "at %s[%d], %s should be int or tuple" % (
-                    node.kind,
-                    arg,
-                    type(index),
+                assert isinstance(index, int), (
+                    "at %s[%d], %s should be int or tuple"
+                    % (node.kind, arg, type(index),)
                 )
                 self.preorder(node[index])
 
@@ -1892,7 +1918,8 @@ def code_deparse(
         is_pypy=is_pypy,
     )
 
-    deparsed.ast = deparsed.build_ast(tokens, customize)
+    isTopLevel = co.co_name == "<module>"
+    deparsed.ast = deparsed.build_ast(tokens, customize, co, isTopLevel=isTopLevel)
 
     assert deparsed.ast == "stmts", "Should have parsed grammar start"
 
