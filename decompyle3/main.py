@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2020 Rocky Bernstein <rocky@gnu.org>
+# Copyright (C) 2018-2021 Rocky Bernstein <rocky@gnu.org>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from typing import Any, Tuple
-import datetime, py_compile, os, subprocess, sys, tempfile
+import datetime, py_compile, os, sys
 
 from decompyle3 import IS_PYPY, PYTHON_VERSION
 from xdis import iscode, load_module, sysinfo2float
