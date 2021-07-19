@@ -1,4 +1,4 @@
-|TravisCI| |CircleCI|
+|TravisCI| |CircleCI| |Pypi Installs|
 
 decompyle3
 ==========
@@ -197,3 +197,4 @@ See Also
 .. |Supported Python Versions| image:: https://img.shields.io/pypi/pyversions/decompyle3.svg
 .. |Latest Version| image:: https://badge.fury.io/py/decompyle3.svg
 		 :target: https://badge.fury.io/py/decompyle3
+.. |PyPI Installs| image:: https://pepy.tech/badge/decompyle3/month
