@@ -9,7 +9,7 @@ PHONY=check clean dist distclean test test-unit test-functional rmChangeLog clea
 GIT2CL ?= git2cl
 PYTHON ?= python
 
-PYTHON_VERSION = $(shell $(PYTHON) -V 2>&1 | cut -d ' ' -f 2 | cut -d'.' -f1,2)
+PYTHON_VERSION = $(shell $(PYTHON) -V 2>&1 | cut -d ' ' -f 2 | cut -d'.' -f1,2 | head -1)
 NATIVE_CHECK = check-$(PYTHON_VERSION)
 
 # Set COMPILE='--compile' to force compilation before check
@@ -18,12 +18,12 @@ COVER_DIR=../tmp/grammar-cover
 
 # Run short tests
 check-short:
-	@$(PYTHON) -V && PYTHON_VERSION=`$(PYTHON) -V 2>&1 | cut -d ' ' -f 2 | cut -d'.' -f1,2`; \
+	@$(PYTHON) -V && PYTHON_VERSION=`$(PYTHON) -V 2>&1 | cut -d ' ' -f 2 | cut -d'.' -f1,2 | head -1`; \
 	$(MAKE) check-bytecode-$${PYTHON_VERSION}
 
 # Run all tests
 check:
-	$(PYTHON) -V && PYTHON_VERSION=`$(PYTHON) -V 2>&1 | cut -d ' ' -f 2 | cut -d'.' -f1,2`; \
+	$(PYTHON) -V && PYTHON_VERSION=`$(PYTHON) -V 2>&1 | cut -d ' ' -f 2 | cut -d'.' -f1,2 | head -1`; \
 	$(MAKE) check-$(PYTHON_VERSION)
 
 #: Run working tests from Python 3.7
