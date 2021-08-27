@@ -484,6 +484,13 @@ def python_parser(
     # parser_debug = {'rules': True, 'transition': True, 'reduce' : True,
     #                 'showstack': 'full'}
     p = get_python_parser(version, parser_debug)
+
+    # FIXME: have p.insts update in a better way
+    # modularity is broken here
+    p.insts = scanner.insts
+    p.offset2inst_index = scanner.offset2inst_index
+    p.opc = scanner.opc
+
     return parse(p, tokens, customize, is_lambda)
 
 
