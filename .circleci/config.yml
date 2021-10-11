@@ -44,7 +44,7 @@ jobs:
     # This is based on your 1.0 configuration file or project settings
     - run: sudo pip install --upgrade setuptools
     - run: sudo pip install -e .
-    - run: sudo pip install pytest==3.2.5 hypothesis==3.0.0
+    - run: sudo pip install pytest==3.2.5 hypothesis==3.0.0 https://github.com/rocky/python-xdis/archive/3.10-adjust.zip
     # Save dependency cache
     - save_cache:
         key: v1-dep-{{ .Branch }}-{{ epoch }}
