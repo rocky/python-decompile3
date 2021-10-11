@@ -1,5 +1,5 @@
 """
-  Copyright (c) 2015, 2018, 2020 by Rocky Bernstein
+  Copyright (c) 2015, 2018, 2020-2021 by Rocky Bernstein
   Copyright (c) 2000 by hartmut Goebel <h.goebel@crazy-compilers.com>
   Copyright (c) 1999 John Aycock
 
@@ -31,12 +31,8 @@ import sys
 __docformat__ = "restructuredtext"
 
 from decompyle3.version import __version__  # noqa
+from xdis import PYTHON_VERSION_TRIPLE
 
-# We do this crazy way to support Python 2.6 which
-# doesn't support version_major, and has a bug in
-# floating point so we can't divide 26 by 10 and get
-# 2.6
-PYTHON_VERSION: float = sys.version_info[0] + (sys.version_info[1] / 10.0)
 PYTHON_VERSION_STR: str = "%s.%s" % (sys.version_info[0], sys.version_info[1])
 
 IS_PYPY: bool = "__pypy__" in sys.builtin_module_names

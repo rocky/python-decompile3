@@ -149,9 +149,7 @@ from decompyle3.semantics.helper import (
     find_globals_and_nonlocals,
     flatten_list,
 )
-from decompyle3.semantics.transform import (
-    TreeTransform,
-)
+from decompyle3.semantics.transform import TreeTransform
 
 from decompyle3.scanners.tok import Token
 
@@ -244,8 +242,7 @@ class SourceWalker(GenericASTTraversal, object):
         # Initialize p_lambda on demand
         self.p_lambda = None
 
-        self.treeTransform = TreeTransform(version=self.version,
-                                           show_ast=showast)
+        self.treeTransform = TreeTransform(version=self.version, show_ast=showast)
         self.debug_parser = dict(debug_parser)
         self.showast = showast
         self.params = params
@@ -294,10 +291,12 @@ class SourceWalker(GenericASTTraversal, object):
 
     def maybe_show_tree(self, ast):
         if self.showast and self.treeTransform.showast:
-            self.println("""
+            self.println(
+                """
 ---- end before transform
 ---- begin after transform
-""" + "    "
+"""
+                + "    "
             )
 
         if isinstance(self.showast, dict) and self.showast.get:
@@ -487,14 +486,18 @@ class SourceWalker(GenericASTTraversal, object):
         else:
             # We can't comment out like above because there may be a trailing ')'
             # that needs to be written
-            assert len(node) == 3 and node[2] in ("RETURN_VALUE_LAMBDA", "LAMBDA_MARKER")
+            assert len(node) == 3 and node[2] in (
+                "RETURN_VALUE_LAMBDA",
+                "LAMBDA_MARKER",
+            )
             self.preorder(node[0])
             self.prune()
 
     def n_return(self, node):
-        if (
-                self.params["is_lambda"]
-                or node[0] in ("pop_return", "popb_return", "pop_ex_return")
+        if self.params["is_lambda"] or node[0] in (
+            "pop_return",
+            "popb_return",
+            "pop_ex_return",
         ):
             self.preorder(node[0])
             self.prune()
@@ -525,7 +528,7 @@ class SourceWalker(GenericASTTraversal, object):
     def n_yield(self, node):
         if node != SyntaxTree("yield", [NONE, Token("YIELD_VALUE")]):
             self.template_engine(("yield %c", 0), node)
-        elif self.version <= 2.4:
+        elif self.version <= (2, 4):
             # Early versions of Python don't allow a plain "yield"
             self.write("yield None")
         else:
@@ -645,7 +648,7 @@ class SourceWalker(GenericASTTraversal, object):
         attr = node.attr
         data = node.pattr
         datatype = type(data)
-        if isinstance(data, float) :
+        if isinstance(data, float):
             self.write(better_repr(data))
         elif isinstance(data, complex):
             self.write(better_repr(data))
@@ -780,7 +783,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prune()
 
     def n_alias(self, node):
-        if self.version <= 2.1:
+        if self.version <= (2, 1):
             if len(node) == 2:
                 store = node[1]
                 assert store == "store"
@@ -801,6 +804,7 @@ class SourceWalker(GenericASTTraversal, object):
         else:
             self.write(iname, " as ", sname)
         self.prune()  # stop recursing
+
     n_alias37 = n_alias
 
     def n_mkfunc(self, node):
@@ -851,31 +855,34 @@ class SourceWalker(GenericASTTraversal, object):
         self.write(indent)
         docstring = repr(docstring.expandtabs())[1:-1]
 
-        for (orig, replace) in (('\\\\', '\t'),
-                                ('\\r\\n', '\n'),
-                                ('\\n', '\n'),
-                                ('\\r', '\n'),
-                                ('\\"', '"'),
-                                ("\\'", "\'")):
+        for (orig, replace) in (
+            ("\\\\", "\t"),
+            ("\\r\\n", "\n"),
+            ("\\n", "\n"),
+            ("\\r", "\n"),
+            ('\\"', '"'),
+            ("\\'", "'"),
+        ):
             docstring = docstring.replace(orig, replace)
 
         # Do a raw string if there are backslashes but no other escaped characters:
         # also check some edge cases
-        if ('\t' in docstring
-            and '\\' not in docstring
+        if (
+            "\t" in docstring
+            and "\\" not in docstring
             and len(docstring) >= 2
-            and docstring[-1] != '\t'
-            and (docstring[-1] != '"'
-                or docstring[-2] == '\t')):
-            self.write('r') # raw string
+            and docstring[-1] != "\t"
+            and (docstring[-1] != '"' or docstring[-2] == "\t")
+        ):
+            self.write("r")  # raw string
             # Restore backslashes unescaped since raw
-            docstring = docstring.replace('\t', '\\')
+            docstring = docstring.replace("\t", "\\")
         else:
             # Escape the last character if it is the same as the
             # triple quote character.
             quote1 = quote[-1]
             if len(docstring) and docstring[-1] == quote1:
-                docstring = docstring[:-1] + '\\' + quote1
+                docstring = docstring[:-1] + "\\" + quote1
 
             # Escape triple quote when needed
             if quote == '"""':
@@ -885,9 +892,9 @@ class SourceWalker(GenericASTTraversal, object):
                 replace_str = "\\'''"
 
             docstring = docstring.replace(quote, replace_str)
-            docstring = docstring.replace('\t', '\\\\')
+            docstring = docstring.replace("\t", "\\\\")
 
-        lines = docstring.split('\n')
+        lines = docstring.split("\n")
 
         self.write(quote)
         if len(lines) == 0:
@@ -898,14 +905,13 @@ class SourceWalker(GenericASTTraversal, object):
             self.println(lines[0])
             for line in lines[1:-1]:
                 if line:
-                    self.println( line )
+                    self.println(line)
                 else:
-                    self.println( "\n\n" )
+                    self.println("\n\n")
                     pass
                 pass
             self.println(lines[-1], quote)
         self.prune()
-
 
     def n_mklambda(self, node):
         make_function36(self, node, is_lambda=True, code_node=node[-2])
@@ -984,6 +990,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.comprehension_walk(node, iter_index=4, code_index=code_index)
         self.write(")")
         self.prune()
+
     n_generator_exp_async = n_generator_exp
 
     def n_set_comp(self, node):
@@ -1083,9 +1090,14 @@ class SourceWalker(GenericASTTraversal, object):
                     if not comp_store:
                         comp_store = store
                 n = n[3]
-            elif n in ("list_if", "list_if_not",
-                       "list_if37", "list_if37_not",
-                       "comp_if", "comp_if_not"):
+            elif n in (
+                "list_if",
+                "list_if_not",
+                "list_if37",
+                "list_if37_not",
+                "comp_if",
+                "comp_if_not",
+            ):
                 have_not = n in ("list_if_not", "comp_if_not", "list_if37_not")
                 if n in ("list_if37", "list_if37_not", "comp_if"):
                     if n == "comp_if":
@@ -1165,6 +1177,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.comprehension_walk_newer(node, list_iter_index, 0)
         self.write("]")
         self.prune()
+
     n_list_comp_async = n_list_comp
 
     def setcomprehension_walk3(self, node, collection_index: int):
@@ -1291,7 +1304,7 @@ class SourceWalker(GenericASTTraversal, object):
             return
 
         n_subclasses = len(node[:-1])
-        if n_subclasses > 0 or self.version > 2.4:
+        if n_subclasses > 0 or self.version > (2, 4):
             # Not an old-style pre-2.2 class
             self.write("(")
 
@@ -1302,7 +1315,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.write(sep, value)
             sep = line_separator
 
-        if n_subclasses > 0 or self.version > 2.4:
+        if n_subclasses > 0 or self.version > (2, 4):
             # Not an old-style pre-2.2 class
             self.write(")")
 
@@ -1315,7 +1328,9 @@ class SourceWalker(GenericASTTraversal, object):
 
             kwargs = None
             opname = node[n].kind
-            assert opname.startswith("CALL_FUNCTION") or opname.startswith("CALL_METHOD")
+            assert opname.startswith("CALL_FUNCTION") or opname.startswith(
+                "CALL_METHOD"
+            )
 
             if node[n].kind.startswith("CALL_FUNCTION_KW"):
                 # 3.6+ starts doing this
@@ -1393,7 +1408,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.write("{")
         line_number = self.line_number
 
-        if self.version >= 3.0 and not self.is_pypy:
+        if self.version >= (3, 0) and not self.is_pypy:
             if node[0].kind.startswith("kvlist"):
                 # Python 3.5+ style key/value list in dict
                 kv_node = node[0]
@@ -1479,14 +1494,14 @@ class SourceWalker(GenericASTTraversal, object):
                     self.write(sep[1:])
                 pass
             elif node[0].kind.startswith("dict_entry"):
-                assert self.version >= 3.5
+                assert self.version >= (3, 5)
                 template = ("%C", (0, len(node[0]), ", **"))
                 self.template_engine(template, node[0])
                 sep = ""
             elif node[-1].kind.startswith("BUILD_MAP_UNPACK") or node[
                 -1
             ].kind.startswith("dict_entry"):
-                assert self.version >= 3.5
+                assert self.version >= (3, 5)
                 # FIXME: I think we can intermingle dict_comp's with other
                 # dictionary kinds of things. The most common though is
                 # a sequence of dict_comp's
@@ -1655,7 +1670,7 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_assign(self, node):
         # A horrible hack for Python 3.0 .. 3.2
-        if 3.0 <= self.version <= 3.2 and len(node) == 2:
+        if (3, 0) <= self.version <= (3, 2) and len(node) == 2:
             if (
                 node[0][0] == "LOAD_FAST"
                 and node[0][0].pattr == "__locals__"
@@ -1774,12 +1789,9 @@ class SourceWalker(GenericASTTraversal, object):
                         )
 
                     index = index[0]
-                assert isinstance(
-                    index, int
-                ), "at %s[%d], %s should be int or tuple" % (
-                    node.kind,
-                    arg,
-                    type(index),
+                assert isinstance(index, int), (
+                    "at %s[%d], %s should be int or tuple"
+                    % (node.kind, arg, type(index),)
                 )
 
                 try:
@@ -1902,10 +1914,14 @@ class SourceWalker(GenericASTTraversal, object):
             if k.startswith("CALL_METHOD"):
                 # This happens in PyPy and Python 3.7+
                 TABLE_R[k] = ("%c(%P)", (0, "expr"), (1, -1, ", ", 100))
-            elif self.version >= 3.6 and k.startswith("CALL_FUNCTION_KW"):
+            elif self.version >= (3, 6) and k.startswith("CALL_FUNCTION_KW"):
                 TABLE_R[k] = ("%c(%P)", (0, "expr"), (1, -1, ", ", 100))
             elif op == "CALL_FUNCTION":
-                TABLE_R[k] = ("%c(%P)", (0, "expr"), (1, -1, ", ", PRECEDENCE["yield"]-1))
+                TABLE_R[k] = (
+                    "%c(%P)",
+                    (0, "expr"),
+                    (1, -1, ", ", PRECEDENCE["yield"] - 1),
+                )
             elif op in (
                 "CALL_FUNCTION_VAR",
                 "CALL_FUNCTION_VAR_KW",
@@ -1924,12 +1940,12 @@ class SourceWalker(GenericASTTraversal, object):
                 if op == "CALL_FUNCTION_VAR":
                     # Python 3.5 only puts optional args (the VAR part)
                     # lowest down the stack
-                    if self.version == 3.5:
+                    if self.version == (3, 5):
                         if str == "%c(%C, ":
                             entry = ("%c(*%C, %c)", 0, p2, -2)
                         elif str == "%c(%C":
                             entry = ("%c(*%C)", 0, (1, 100, ""))
-                    elif self.version == 3.4:
+                    elif self.version == (3, 4):
                         # CALL_FUNCTION_VAR's top element of the stack contains
                         # the variable argument list
                         if v == 0:
@@ -1949,7 +1965,7 @@ class SourceWalker(GenericASTTraversal, object):
                     # Python 3.5 only puts optional args (the VAR part)
                     # lowest down the stack
                     na = v & 0xFF  # positional parameters
-                    if self.version == 3.5 and na == 0:
+                    if self.version == (3, 5) and na == 0:
                         if p2[2]:
                             p2 = (2, -2, ", ")
                         entry = (str, 0, p2, 1, -2)
@@ -2063,7 +2079,13 @@ class SourceWalker(GenericASTTraversal, object):
         self.return_none = rn
 
     def build_ast(
-        self, tokens, customize, code, is_lambda=False, noneInNames=False, isTopLevel=False
+        self,
+        tokens,
+        customize,
+        code,
+        is_lambda=False,
+        noneInNames=False,
+        isTopLevel=False,
     ):
 
         # FIXME: DRY with fragments.py
@@ -2094,7 +2116,7 @@ class SourceWalker(GenericASTTraversal, object):
                 raise ParserError(e, tokens, self.p.debug["reduce"])
             transform_ast = self.treeTransform.transform(ast, code)
             self.maybe_show_tree(ast)
-            del ast # Save memory
+            del ast  # Save memory
             return transform_ast
 
         # The bytecode for the end of the main routine has a
@@ -2136,7 +2158,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         self.maybe_show_tree(ast)
 
-        del ast # Save memory
+        del ast  # Save memory
         return transform_ast
 
     @classmethod
@@ -2166,7 +2188,7 @@ def code_deparse(
     assert iscode(co)
 
     if version is None:
-        version = float(sys.version[0:3])
+        version = sys.version_info[:2]
 
     # store final output stream for case of error
     scanner = get_scanner(version, is_pypy=is_pypy)

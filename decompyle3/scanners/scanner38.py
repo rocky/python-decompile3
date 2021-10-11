@@ -37,13 +37,15 @@ JUMP_OPs = opc.JUMP_OPS
 
 class Scanner38(Scanner37):
     def __init__(self, show_asm=None, debug=False):
-        Scanner37Base.__init__(self, 3.8, show_asm, debug)
+        Scanner37Base.__init__(self, (3, 8), show_asm, debug)
         self.debug = debug
         return
 
     pass
 
-    def ingest(self, co, classname=None, code_objects={}, show_asm=None) -> Tuple[list, dict]:
+    def ingest(
+        self, co, classname=None, code_objects={}, show_asm=None
+    ) -> Tuple[list, dict]:
         tokens, customize = super(Scanner38, self).ingest(
             co, classname, code_objects, show_asm
         )
@@ -63,7 +65,7 @@ class Scanner38(Scanner37):
         if self.debug and jump_back_targets:
             print(jump_back_targets)
         loop_ends: List[int] = []
-        next_end = tokens[len(tokens)-1].off2int() + 10
+        next_end = tokens[len(tokens) - 1].off2int() + 10
         for i, token in enumerate(tokens):
             opname = token.kind
             offset = token.offset
@@ -72,12 +74,18 @@ class Scanner38(Scanner37):
                 if self.debug:
                     print(f"{'  ' * len(loop_ends)}remove loop offset {offset}")
                     pass
-                next_end = loop_ends[-1] if len(loop_ends) else tokens[len(tokens)-1].off2int() + 10
+                next_end = (
+                    loop_ends[-1]
+                    if len(loop_ends)
+                    else tokens[len(tokens) - 1].off2int() + 10
+                )
 
             if offset in jump_back_targets:
                 next_end = off2int(jump_back_targets[offset], prefer_last=False)
                 if self.debug:
-                    print(f"{'  ' * len(loop_ends)}adding loop offset {offset} ending at {next_end}")
+                    print(
+                        f"{'  ' * len(loop_ends)}adding loop offset {offset} ending at {next_end}"
+                    )
                 loop_ends.append(next_end)
 
             # Turn JUMP opcodes into "BREAK_LOOP" opcodes.
@@ -93,9 +101,14 @@ class Scanner38(Scanner37):
                 # We also want to avoid confusing BREAK_LOOPS with parts of the
                 # grammar rules for loops. (Perhaps we should change the grammar.)
                 # Try to find an adjacent JUMP_BACK which is part of the normal loop end.
-                jump_back_index = self.offset2inst_index[off2int(offset, prefer_last=False)]
+                jump_back_index = self.offset2inst_index[
+                    off2int(offset, prefer_last=False)
+                ]
 
-                if jump_back_index + 1 < len(self.insts) and self.insts[jump_back_index+1].opname == "JUMP_BACK":
+                if (
+                    jump_back_index + 1 < len(self.insts)
+                    and self.insts[jump_back_index + 1].opname == "JUMP_BACK"
+                ):
                     # Sometimes the jump back is after the "break" instruction..
                     jump_back_index += 1
                 else:
@@ -108,8 +121,7 @@ class Scanner38(Scanner37):
 
                 # Is this a forward jump not next to a JUMP_BACK ? ...
                 break_loop = (
-                    jump_back_inst.starts_line
-                    and jump_back_inst.opname != "JUMP_BACK"
+                    jump_back_inst.starts_line and jump_back_inst.opname != "JUMP_BACK"
                 )
 
                 # or if there is looping jump back, then that loop

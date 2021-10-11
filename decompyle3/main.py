@@ -16,7 +16,7 @@
 from typing import Any, Tuple
 import datetime, py_compile, os, sys
 
-from decompyle3 import IS_PYPY, PYTHON_VERSION
+from decompyle3 import IS_PYPY, PYTHON_VERSION_TRIPLE
 from xdis import iscode, load_module, sysinfo2float
 from decompyle3.disas import check_object_path
 from decompyle3.semantics import pysource
@@ -153,9 +153,12 @@ def compile_file(source_path: str) -> str:
         basename = source_path
 
     if hasattr(sys, "pypy_version_info"):
-        bytecode_path = "%s-pypy%s.pyc" % (basename, PYTHON_VERSION)
+        bytecode_path = "%s-pypy%s.pyc" % (
+            basename,
+            ".".join(PYTHON_VERSION_TRIPLE[:2]),
+        )
     else:
-        bytecode_path = "%s-%s.pyc" % (basename, PYTHON_VERSION)
+        bytecode_path = "%s-%s.pyc" % (basename, ".".join(PYTHON_VERSION_TRIPLE[:2]))
 
     print("compiling %s to %s" % (source_path, bytecode_path))
     py_compile.compile(source_path, bytecode_path, "exec")

@@ -33,14 +33,16 @@ JUMP_OPs = opc.JUMP_OPS
 
 class Scanner37(Scanner37Base):
     def __init__(self, show_asm=None, debug=False):
-        Scanner37Base.__init__(self, 3.7, show_asm)
+        Scanner37Base.__init__(self, (3, 7), show_asm)
         self.debug = debug
         return
 
     pass
 
     def ingest(self, co, classname=None, code_objects={}, show_asm=None) -> tuple:
-        tokens, customize = Scanner37Base.ingest(self, co, classname, code_objects, show_asm)
+        tokens, customize = Scanner37Base.ingest(
+            self, co, classname, code_objects, show_asm
+        )
         for t in tokens:
             # The lowest bit of flags indicates whether the
             # var-keyword argument is placed at the top of the stack
@@ -61,6 +63,7 @@ class Scanner37(Scanner37Base):
                 t.kind = "BUILD_TUPLE_UNPACK_WITH_CALL_%d" % t.attr
             pass
         return tokens, customize
+
 
 if __name__ == "__main__":
     from decompyle3 import PYTHON_VERSION

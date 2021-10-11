@@ -1,4 +1,4 @@
-#  Copyright (c) 2018-2020 by Rocky Bernstein
+#  Copyright (c) 2018-2021 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ def customize_for_version3(self, version):
         }
     )
 
-    assert version >= 3.7
+    assert version >= (3, 7)
 
     # In 2.5+ and 3.0+ "except" handlers and the "finally" can appear in one
     # "try" statement. So the below has the effect of combining the
@@ -177,9 +177,9 @@ def customize_for_version3(self, version):
 
     TABLE_DIRECT.update({"LOAD_CLASSDEREF": ("%{pattr}",)})
 
-    if version >= 3.7:
+    if version >= (3, 7):
         customize_for_version37(self, version)
-        if version >= 3.8:
+        if version >= (3, 8):
             customize_for_version38(self, version)
             pass  # version >= 3.8
         pass  # 3.7
