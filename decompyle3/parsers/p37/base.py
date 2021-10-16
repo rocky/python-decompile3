@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2017, 2019-2020 Rocky Bernstein
+#  Copyright (c) 2016-2017, 2019-2021 Rocky Bernstein
 """
 Python 3.7 base code. We keep non-custom-generated grammar rules out of this file.
 """
@@ -215,7 +215,7 @@ class Python37BaseParser(PythonParser):
                    c_stmt          ::= c_async_with_stmt
                 """
 
-                if self.version < 3.8:
+                if self.version < (3, 8):
                     rules_str += """
                       stmt                 ::= async_with_stmt SETUP_ASYNC_WITH
                       c_stmt               ::= c_async_with_stmt SETUP_ASYNC_WITH
@@ -330,7 +330,10 @@ class Python37BaseParser(PythonParser):
                 rule = """
                    expr ::= dict
                    dict ::= %sLOAD_CONST %s
-                """ % (kvlist_n, opname)
+                """ % (
+                    kvlist_n,
+                    opname,
+                )
                 self.addRule(rule, nop_func)
 
             elif opname.startswith("BUILD_LIST_UNPACK"):
@@ -388,7 +391,10 @@ class Python37BaseParser(PythonParser):
                                expr ::= dict_comp
                                expr ::= dict
                                dict ::= %s%s
-                            """ % ("dict_comp " * token.attr, opname)
+                            """ % (
+                                "dict_comp " * token.attr,
+                                opname,
+                            )
                             self.addRule(rule, nop_func)
                         rule = """
                          expr       ::= unmap_dict
@@ -404,10 +410,13 @@ class Python37BaseParser(PythonParser):
                             opname,
                         )
                         self.add_unique_rule(rule, opname, token.attr, customize)
-                        rule = """
+                        rule = (
+                            """
                         expr ::= dict
                         dict ::=  %s
-                        """ % kvlist_n
+                        """
+                            % kvlist_n
+                        )
                 self.add_unique_rule(rule, opname, token.attr, customize)
 
             elif opname.startswith("BUILD_MAP_UNPACK_WITH_CALL"):
@@ -689,7 +698,9 @@ class Python37BaseParser(PythonParser):
                 )
                 custom_ops_processed.add(opname)
             elif opname == "LOAD_LISTCOMP":
-                self.add_unique_rule("expr ::= list_comp", opname, token.attr, customize)
+                self.add_unique_rule(
+                    "expr ::= list_comp", opname, token.attr, customize
+                )
                 custom_ops_processed.add(opname)
             elif opname == "LOAD_NAME":
                 if (
@@ -750,7 +761,10 @@ class Python37BaseParser(PythonParser):
                     rule_pat = """
                                 expr     ::= mklambda
                                 mklambda ::= %sload_closure LOAD_LAMBDA %%s%s
-                               """ % ("expr " * args_pos, opname)
+                               """ % (
+                        "expr " * args_pos,
+                        opname,
+                    )
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
 
                 if has_get_iter_call_function1:
@@ -863,11 +877,12 @@ class Python37BaseParser(PythonParser):
                         "GET_ITER CALL_FUNCTION_1" % ("expr " * args_pos, opname)
                     )
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
-                    rule_pat = (
-                        """
+                    rule_pat = """
                            expr          ::= generator_exp
                            generator_exp ::= %sload_closure load_genexpr %%s%s expr
-                           GET_ITER CALL_FUNCTION_1""" % ("expr " * args_pos, opname)
+                           GET_ITER CALL_FUNCTION_1""" % (
+                        "expr " * args_pos,
+                        opname,
                     )
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                     if is_pypy or (i >= 2 and tokens[i - 2] == "LOAD_LISTCOMP"):
@@ -1087,7 +1102,7 @@ class Python37BaseParser(PythonParser):
                                   POP_BLOCK LOAD_CONST COME_FROM_WITH
                                   with_suffix
                 """
-                if self.version < 3.8:
+                if self.version < (3, 8):
                     rules_str += """
                     with      ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
                                    LOAD_CONST
@@ -1134,15 +1149,23 @@ class Python37BaseParser(PythonParser):
 
             elif opname_base in ("UNPACK_EX",):
                 before_count, after_count = token.attr
-                rule =  """
+                rule = (
+                    """
                         store  ::= unpack
-                        unpack ::= """ + opname + " store" * (before_count + after_count + 1)
+                        unpack ::= """
+                    + opname
+                    + " store" * (before_count + after_count + 1)
+                )
                 self.addRule(rule, nop_func)
 
             elif opname_base == "UNPACK_SEQUENCE":
-                rule = """
+                rule = (
+                    """
                     store  ::= unpack
-                    unpack ::= """ + opname + " store" * token.attr
+                    unpack ::= """
+                    + opname
+                    + " store" * token.attr
+                )
                 self.addRule(rule, nop_func)
             pass
 
@@ -1286,17 +1309,20 @@ class Python37BaseParser(PythonParser):
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
         lhs = rule[0]
         n = len(tokens)
-        last = min(last, n-1)
+        last = min(last, n - 1)
         fn = self.reduce_check_table.get(lhs, None)
         try:
             if fn:
                 return fn(self, lhs, n, rule, ast, tokens, first, last)
         except:
             import sys, traceback
-            print(f"Exception in {fn.__name__} {sys.exc_info()[1]}\n" +
-                  f"rule: {rule2str(rule)}\n" +
-                  f"offsets {tokens[first].offset} .. {tokens[last].offset}")
-            print(traceback.print_tb(sys.exc_info()[2],-1))
+
+            print(
+                f"Exception in {fn.__name__} {sys.exc_info()[1]}\n"
+                + f"rule: {rule2str(rule)}\n"
+                + f"offsets {tokens[first].offset} .. {tokens[last].offset}"
+            )
+            print(traceback.print_tb(sys.exc_info()[2], -1))
             raise ParserError(tokens[last], tokens[last].off2int(), self.debug["rules"])
 
         if lhs in ("aug_assign1", "aug_assign2") and ast[0][0] == "and":

@@ -39,9 +39,12 @@ from xdis import (
 
 # The byte code versions we support.
 # Note: these all have to be floats
-PYTHON_VERSIONS = frozenset((3.7, 3.8, 3.9))
+PYTHON_VERSIONS = frozenset(((3, 7), (3, 8), (3, 9)))
 
-CANONIC2VERSION = dict((canonic_python_version[str(v)], v) for v in PYTHON_VERSIONS)
+CANONIC2VERSION = dict(
+    (canonic_python_version[".".join(str(v) for v in python_version)], python_version)
+    for python_version in PYTHON_VERSIONS
+)
 
 L65536 = 65536
 
@@ -66,16 +69,16 @@ class Code(object):
 
 
 class Scanner(object):
-    def __init__(self, version: float, show_asm=None, is_pypy=False):
+    def __init__(self, version: tuple, show_asm=None, is_pypy=False):
         self.version = version
         self.show_asm = show_asm
         self.is_pypy = is_pypy
 
         if version in PYTHON_VERSIONS:
             if is_pypy:
-                v_str = "opcode_%spypy" % (int(version * 10))
+                v_str = "opcode_%spypy" % ("".join([str(v) for v in version]))
             else:
-                v_str = "opcode_%s" % (int(version * 10))
+                v_str = "opcode_%s" % ("".join([str(v) for v in version]))
             exec("from xdis.opcodes import %s" % v_str)
             exec("self.opc = %s" % v_str)
         else:
@@ -112,7 +115,7 @@ class Scanner(object):
 
         # Offset: lineno pairs, only for offsets which start line.
         # Locally we use list for more convenient iteration using indices
-        if self.version > 1.4:
+        if self.version > (1, 4):
             linestarts = list(self.opc.findlinestarts(code_obj))
         else:
             linestarts = [[0, 1]]
@@ -502,8 +505,8 @@ def get_scanner(version, is_pypy=False, show_asm=None):
         version = CANONIC2VERSION[canonic_version]
 
     # Pick up appropriate scanner
-    if version in PYTHON_VERSIONS:
-        v_str = "%s" % (int(version * 10))
+    if version[:2] in PYTHON_VERSIONS:
+        v_str = "".join([str(v) for v in version[:2]])
         try:
             import importlib
 
@@ -535,7 +538,9 @@ def get_scanner(version, is_pypy=False, show_asm=None):
                 "scan.Scanner%s(show_asm=show_asm)" % v_str, locals(), globals()
             )
     else:
-        raise RuntimeError("Unsupported Python version %s" % version)
+        raise RuntimeError(
+            "Unsupported Python version %s" % ".".join([str(v) for v in version])
+        )
     return scanner
 
 

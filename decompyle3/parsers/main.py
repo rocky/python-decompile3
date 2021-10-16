@@ -382,18 +382,15 @@ def get_python_parser(
 
     """
 
-    # If version is a string, turn that into the corresponding float.
-    if isinstance(version, str):
-        version = py_str2float(version)
-
     # FIXME: there has to be a better way...
     # We could do this as a table lookup, but that would force us
     # in import all of the parsers all of the time. Perhaps there is
     # a lazy way of doing the import?
 
-    if version < 3.7:
+    version = version[:2]
+    if version < (3, 7):
         raise RuntimeError(f"Unsupported Python version {version}")
-    elif version == 3.7:
+    elif version == (3, 7):
         import decompyle3.parsers.p37 as parse37
 
         if compile_mode == "exec":
@@ -407,7 +404,7 @@ def get_python_parser(
             p = parse37.Python37ParserEval(debug_parser, compile_mode="eval_expr")
         else:
             p = parse37.Python37ParserSingle(debug_parser, compile_mode=compile_mode)
-    elif version == 3.8:
+    elif version == (3, 8):
         import decompyle3.parsers.p38 as parse38
 
         if compile_mode == "exec":
@@ -421,6 +418,10 @@ def get_python_parser(
             p = parse38.Python38ParserEval(debug_parser, compile_mode="eval_expr")
         else:
             p = parse38.Python38ParserSingle(debug_parser, compile_mode=compile_mode)
+    elif version > (3, 8):
+        raise RuntimeError(
+            f"""Version {".".join([str(v) for v in version])} is not supported."""
+        )
 
     p.version = version
     # p.dump_grammar() # debug

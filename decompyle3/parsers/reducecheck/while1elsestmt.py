@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 Rocky Bernstein
+#  Copyright (c) 2020-2021 Rocky Bernstein
 
 
 def while1elsestmt(
@@ -22,4 +22,4 @@ def while1elsestmt(
     # not while1else. Also do for whileTrue?
     last += 1
     # 3.8+ Doesn't have SETUP_LOOP
-    return self.version < 3.8 and tokens[first].attr > tokens[last].off2int()
+    return self.version < (3, 8) and tokens[first].attr > tokens[last].off2int()

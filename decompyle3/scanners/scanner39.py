@@ -33,7 +33,7 @@ JUMP_OPs = opc.JUMP_OPS
 
 class Scanner39(Scanner38):
     def __init__(self, show_asm=None):
-        Scanner37Base.__init__(self, 3.9, show_asm)
+        Scanner37Base.__init__(self, (3, 9), show_asm)
         return
 
     pass
@@ -51,5 +51,4 @@ if __name__ == "__main__":
             print(t.format())
         pass
     else:
-        print("Need to be Python 3.9 to demo; I am %s." %
-              PYTHON_VERSION)
+        print("Need to be Python 3.9 to demo; I am %s." % PYTHON_VERSION)

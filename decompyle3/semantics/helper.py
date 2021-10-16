@@ -62,7 +62,7 @@ def find_globals_and_nonlocals(node, globs, nonlocals, code, version):
         elif n.kind in read_global_ops:
             globs.add(n.pattr)
         elif (
-            version >= 3.0
+            version >= (3, 0)
             and n.kind in nonglobal_ops
             and n.pattr in code.co_freevars
             and n.pattr != code.co_name
