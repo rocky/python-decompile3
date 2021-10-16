@@ -1,3 +1,10 @@
+3.7.6
+=====
+
+* Fix fragment comprehension bugs
+* Makefile tolerance for pyston
+* Revise for xdis 6.0.0 - in  Python version comparisions use tuples instead of floats
+
 3.7.5
 =====
 
