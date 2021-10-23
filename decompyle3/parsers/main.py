@@ -29,7 +29,8 @@ Note however all of this is imported from the __init__ module
 
 import sys
 
-from xdis import iscode, py_str2float
+from xdis import iscode
+from xdis.version_info import version_tuple_to_str
 from spark_parser import GenericASTBuilder, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from decompyle3.show import maybe_show_asm
 
@@ -420,7 +421,7 @@ def get_python_parser(
             p = parse38.Python38ParserSingle(debug_parser, compile_mode=compile_mode)
     elif version > (3, 8):
         raise RuntimeError(
-            f"""Version {".".join([str(v) for v in version])} is not supported."""
+            f"""Version {version_tuple_to_str(version)} is not supported."""
         )
 
     p.version = version

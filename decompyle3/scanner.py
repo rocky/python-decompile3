@@ -1,4 +1,4 @@
-#  Copyright (c) 2016, 2018-2020 by Rocky Bernstein
+#  Copyright (c) 2016, 2018-2021 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -25,7 +25,7 @@ from typing import Optional
 from array import array
 from collections import namedtuple
 
-from decompyle3 import IS_PYPY
+from xdis.version_info import IS_PYPY, version_tuple_to_str
 from decompyle3.scanners.tok import Token
 import xdis
 from xdis import (
@@ -42,7 +42,7 @@ from xdis import (
 PYTHON_VERSIONS = frozenset(((3, 7), (3, 8), (3, 9)))
 
 CANONIC2VERSION = dict(
-    (canonic_python_version[".".join(str(v) for v in python_version)], python_version)
+    (canonic_python_version[version_tuple_to_str(python_version)], python_version)
     for python_version in PYTHON_VERSIONS
 )
 
@@ -539,7 +539,7 @@ def get_scanner(version, is_pypy=False, show_asm=None):
             )
     else:
         raise RuntimeError(
-            "Unsupported Python version %s" % ".".join([str(v) for v in version])
+            f"Unsupported Python version {version_tuple_to_str(version)}"
         )
     return scanner
 
