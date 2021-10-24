@@ -68,11 +68,9 @@ from __future__ import print_function
 import re
 
 import decompyle3.parsers.main as python_parser
-from xdis import iscode, sysinfo2float
 from decompyle3.semantics import pysource
 from decompyle3.scanner import Token, Code, get_scanner
 from decompyle3.semantics.check_ast import checker
-from decompyle3 import IS_PYPY
 
 from decompyle3.show import maybe_show_asm, maybe_show_tree
 
@@ -95,6 +93,9 @@ from decompyle3.semantics.make_function36 import make_function36
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from spark_parser.ast import GenericASTTraversalPruningException
+
+from xdis import iscode
+from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE
 
 from collections import namedtuple
 
@@ -599,7 +600,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
     def n_mkfunc(self, node):
         start = len(self.f.getvalue())
 
-        if self.version >= 3.3 or node[-2] == "kwargs":
+        if self.version >= (3, 3) or node[-2] == "kwargs":
             # LOAD_CONST code object ..
             # LOAD_CONST        'x0'  if >= 3.3
             # MAKE_FUNCTION ..
@@ -658,8 +659,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
             ast = ast[0]
 
         n = ast[iter_index]
-        assert n == "comp_iter", n.kind
 
+        assert n == "comp_iter", n.kind
         # Find the comprehension body. It is the inner-most
         # node that is not list_.. .
         while n == "comp_iter":  # list_iter
@@ -779,7 +780,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.name = code_name
 
         # Issue created with later Python code generation is that there
-        # is a lamda set up with a dummy argument name that is then called
+        # is a lambda set up with a dummy argument name that is then called
         # So we can't just translate that as is but need to replace the
         # dummy name. Below we are picking out the variable name as seen
         # in the code. And trying to generate code for the other parts
@@ -1020,7 +1021,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         # class definition ('class X(A,B,C):')
         cclass = self.currentclass
 
-        if self.version > 3.0:
+        if self.version >= (3, 1):
             if node == "classdefdeco2":
                 currentclass = node[1][2].pattr
                 buildclass = node
@@ -1084,7 +1085,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         start = len(self.f.getvalue())
         self.write(self.indent, "class ", self.currentclass)
 
-        if self.version > 3.0:
+        if self.version >= (3, 1):
             self.print_super_classes3(subclass_info)
         else:
             self.print_super_classes(build_list)
@@ -1485,7 +1486,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.write("{")
         self.set_pos_info(node[0], start, start + 1)
 
-        if self.version >= 3.0 and not self.is_pypy:
+        if self.version >= (3, 0) and not self.is_pypy:
             if node[0].kind.startswith("kvlist"):
                 # Python 3.5+ style key/value list in dict
                 kv_node = node[0]
@@ -1902,10 +1903,11 @@ def code_deparse(
     assert iscode(co)
 
     if version is None:
-        version = sysinfo2float()
+        version = PYTHON_VERSION_TRIPLE
     if is_pypy is None:
         is_pypy = IS_PYPY
 
+    # store final output stream for case of error
     scanner = get_scanner(version, is_pypy=is_pypy)
 
     show_asm = debug_opts.get("asm", None)
@@ -1937,10 +1939,12 @@ def code_deparse(
 
     assert deparsed.ast == "stmts", "Should have parsed grammar start"
 
-    del tokens  # save memory
+    # save memory
+    del tokens
 
     # convert leading '__doc__ = "..." into doc string
     assert deparsed.ast == "stmts"
+
     (deparsed.mod_globs, nonlocals) = pysource.find_globals_and_nonlocals(
         deparsed.ast, set(), set(), co, version
     )
