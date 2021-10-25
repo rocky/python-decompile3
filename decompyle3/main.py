@@ -13,11 +13,12 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Any, Tuple
 import datetime, py_compile, os, sys
+from typing import Any, Tuple
+from xdis import iscode, load_module
+from xdis.version_info import version_tuple_to_str
 
 from decompyle3 import IS_PYPY, PYTHON_VERSION_TRIPLE
-from xdis import iscode, load_module, sysinfo2float
 from decompyle3.disas import check_object_path
 from decompyle3.semantics import pysource
 from decompyle3.parsers import ParserError
@@ -68,7 +69,7 @@ def decompile(
     Caller is responsible for closing `out` and `mapstream`
     """
     if bytecode_version is None:
-        bytecode_version = sysinfo2float()
+        bytecode_version = PYTHON_VERSION_TRIPLE
 
     # store final output stream for case of error
     real_out = out or sys.stdout
@@ -90,7 +91,7 @@ def decompile(
         % (
             __version__,
             co_pypy_str,
-            bytecode_version,
+            version_tuple_to_str(bytecode_version),
             " (%s)" % str(magic_int) if magic_int else "",
             run_pypy_str,
             "\n# ".join(sys_version_lines),
@@ -153,12 +154,9 @@ def compile_file(source_path: str) -> str:
         basename = source_path
 
     if hasattr(sys, "pypy_version_info"):
-        bytecode_path = "%s-pypy%s.pyc" % (
-            basename,
-            ".".join(PYTHON_VERSION_TRIPLE[:2]),
-        )
+        bytecode_path = "%s-pypy%s.pyc" % (basename, version_tuple_to_str())
     else:
-        bytecode_path = "%s-%s.pyc" % (basename, ".".join(PYTHON_VERSION_TRIPLE[:2]))
+        bytecode_path = "%s-%s.pyc" % (basename, version_tuple_to_str())
 
     print("compiling %s to %s" % (source_path, bytecode_path))
     py_compile.compile(source_path, bytecode_path, "exec")
