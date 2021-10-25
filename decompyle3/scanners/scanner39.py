@@ -1,4 +1,4 @@
-#  Copyright (c) 2019 by Rocky Bernstein
+#  Copyright (c) 2019, 2021 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@ scanner routine for Python 3.7 and up.
 """
 
 from decompyle3.scanners.scanner38 import Scanner38
-from decompyle3.scanners.scanner37base import Scanner37Base
 
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_38 as opc
@@ -33,7 +32,7 @@ JUMP_OPs = opc.JUMP_OPS
 
 class Scanner39(Scanner38):
     def __init__(self, show_asm=None):
-        Scanner37Base.__init__(self, (3, 9), show_asm)
+        Scanner38.__init__(self, (3, 9), show_asm)
         return
 
     pass
