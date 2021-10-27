@@ -164,6 +164,11 @@ def customize_for_version38(self, version):
                 (1, "expr"),
                 (-1, "ss_end_finally"),
             ),
+            "tryfinally38rstmt4": (
+                "%|try:\n%+%c%-\n%|finally:\n%+%|return %c%-\n\n",
+                (1, "suite_stmts_opt"),
+                (5, "expr"),
+            ),
             "tryfinally38stmt": (
                 "%|try:\n%+%c%-%|finally:\n%+%c%-\n\n",
                 (1, "suite_stmts_opt"),
