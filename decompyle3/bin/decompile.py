@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # Mode: -*- python -*-
 #
-# Copyright (c) 2015-2017, 2019-2020 by Rocky Bernstein
+# Copyright (c) 2015-2017, 2019-2021 by Rocky Bernstein
 # Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
-from __future__ import print_function
 import sys, os, getopt, time
+from xdis.version_info import version_tuple_to_str
 
 program = "decompyle3"
 
@@ -69,8 +69,12 @@ def usage():
 
 
 def main_bin():
-    if not (sys.version_info[0:2] in ((3, 7), (3, 8))):
-        print("Error: %s requires Python 3.7-3.8" % program, file=sys.stderr)
+    version_tuple = sys.version_info[0:2]
+    if not (version_tuple in ((3, 7), (3, 8))):
+        print(
+            f"Error: {program} can decompile only bytecode from Python 3.7"
+            f""" to 3.8.\n\tYou have version: {version_tuple_to_str()}."""
+        )
         sys.exit(-1)
 
     do_verify = recurse_dirs = False
