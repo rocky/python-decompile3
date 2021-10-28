@@ -198,6 +198,9 @@ def main_bin():
                 mess = status_msg(do_verify, *result)
                 print("# " + mess)
                 pass
+        except ImportError as e:
+            print(str(e))
+            sys.exit(2)
         except (KeyboardInterrupt):
             pass
     else:
