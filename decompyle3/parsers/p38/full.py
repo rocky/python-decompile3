@@ -242,6 +242,8 @@ class Python38FullParser(Python37Parser, Python38LambdaParser):
         ss_end_finally     ::= suite_stmts END_FINALLY
         sf_pb_call_returns ::= SETUP_FINALLY POP_BLOCK CALL_FINALLY returns
         sf_pb_call_returns ::= SETUP_FINALLY POP_BLOCK POP_EXCEPT CALL_FINALLY returns
+        suite_stmts_return ::= suite_stmts expr
+        suite_stmts_return ::= expr
 
 
         # FIXME: DRY rules below
@@ -269,7 +271,7 @@ class Python38FullParser(Python37Parser, Python38LambdaParser):
 
         tryfinally38rstmt4 ::= lc_setup_finally suite_stmts_opt POP_BLOCK
                                BEGIN_FINALLY COME_FROM_FINALLY
-                               expr
+                               suite_stmts_return
                                POP_FINALLY ROT_TWO POP_TOP
                                RETURN_VALUE
                                END_FINALLY POP_TOP
