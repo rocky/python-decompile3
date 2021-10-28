@@ -164,6 +164,11 @@ def customize_for_version38(self, version):
                 (1, "expr"),
                 (-1, "ss_end_finally"),
             ),
+            "tryfinally38rstmt4": (
+                "%|try:\n%+%c%-\n%|finally:\n%+%c%-\n\n",
+                (1, "suite_stmts_opt"),
+                (5, "suite_stmts_return"),
+            ),
             "tryfinally38stmt": (
                 "%|try:\n%+%c%-%|finally:\n%+%c%-\n\n",
                 (1, "suite_stmts_opt"),
@@ -181,3 +186,15 @@ def customize_for_version38(self, version):
             ),
         }
     )
+
+    def suite_stmts_return(node):
+        if len(node) > 1:
+            assert len(node) == 2
+            self.template_engine(
+                ("%c\n%|return %c", (0, "suite_stmts"), (1, "expr")), node
+            )
+        else:
+            self.template_engine(("%|return %c", (0, "expr")), node)
+        self.prune()
+
+    self.n_suite_stmts_return = suite_stmts_return

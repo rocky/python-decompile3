@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2020 Rocky Bernstein
+#  Copyright (c) 2017-2021 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -16,15 +16,10 @@
 spark grammar differences over Python 3.7 for Python 3.8
 """
 
-from decompyle3.parsers.main import PythonParserEval, PythonParserSingle
-from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+from decompyle3.parsers.main import PythonParserEval
 from decompyle3.parsers.p37.full import Python37Parser
 from decompyle3.parsers.p38.lambda_expr import Python38LambdaParser
 
-from decompyle3.parsers.reducecheck import (
-    break_check,
-    pop_return_check
-)
 
 class Python38FullParser(Python37Parser, Python38LambdaParser):
     def p_38walrus(self, args):
@@ -72,6 +67,7 @@ class Python38FullParser(Python37Parser, Python38LambdaParser):
         stmt               ::= tryfinally38rstmt
         stmt               ::= tryfinally38rstmt2
         stmt               ::= tryfinally38rstmt3
+        stmt               ::= tryfinally38rstmt4
         stmt               ::= tryfinally38astmt
         stmt               ::= try_elsestmtl38
         stmt               ::= try_except_ret38
@@ -246,6 +242,8 @@ class Python38FullParser(Python37Parser, Python38LambdaParser):
         ss_end_finally     ::= suite_stmts END_FINALLY
         sf_pb_call_returns ::= SETUP_FINALLY POP_BLOCK CALL_FINALLY returns
         sf_pb_call_returns ::= SETUP_FINALLY POP_BLOCK POP_EXCEPT CALL_FINALLY returns
+        suite_stmts_return ::= suite_stmts expr
+        suite_stmts_return ::= expr
 
 
         # FIXME: DRY rules below
@@ -266,9 +264,18 @@ class Python38FullParser(Python37Parser, Python38LambdaParser):
                                returns
                                cf_cf_finally pop_finally_pt
                                ss_end_finally POP_TOP
+
         tryfinally38rstmt3 ::= SETUP_FINALLY expr POP_BLOCK CALL_FINALLY RETURN_VALUE
                                COME_FROM COME_FROM_FINALLY
                                ss_end_finally
+
+        tryfinally38rstmt4 ::= lc_setup_finally suite_stmts_opt POP_BLOCK
+                               BEGIN_FINALLY COME_FROM_FINALLY
+                               suite_stmts_return
+                               POP_FINALLY ROT_TWO POP_TOP
+                               RETURN_VALUE
+                               END_FINALLY POP_TOP
+
 
         tryfinally38stmt   ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
                                BEGIN_FINALLY COME_FROM_FINALLY
@@ -287,6 +294,7 @@ class Python38ParserEval(Python38LambdaParser, PythonParserEval):
 if __name__ == "__main__":
     # Check grammar
     from decompyle3.parsers.dump import dump_and_check
+
     p = Python38FullParser()
     modified_tokens = set(
         """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
