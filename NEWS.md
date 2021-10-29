@@ -1,3 +1,10 @@
+3.7.7
+=====
+
+* Better handling of invalid bytecode magic
+* Python 3.8 "try" with a "return" in "finally". Issue #67
+* Support running from 3.9 and 3.10 although we do not support those bytecodes
+
 3.7.6
 =====
 

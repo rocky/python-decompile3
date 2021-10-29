@@ -75,11 +75,10 @@ class Scanner(object):
         self.is_pypy = is_pypy
 
         if version in PYTHON_VERSIONS:
+            v_str = f"""opcode_{version_tuple_to_str(version, start=0, end=2, delimiter="")}"""
             if is_pypy:
-                v_str = "opcode_%spypy" % ("".join([str(v) for v in version]))
-            else:
-                v_str = "opcode_%s" % ("".join([str(v) for v in version]))
-            exec("from xdis.opcodes import %s" % v_str)
+                v_str += "pypy"
+            exec(f"""from xdis.opcodes import {v_str}""")
             exec("self.opc = %s" % v_str)
         else:
             raise TypeError("%s is not a Python version I know about" % version)
@@ -506,7 +505,7 @@ def get_scanner(version, is_pypy=False, show_asm=None):
 
     # Pick up appropriate scanner
     if version[:2] in PYTHON_VERSIONS:
-        v_str = "".join([str(v) for v in version[:2]])
+        v_str = version_tuple_to_str(version, start=0, end=2, delimiter="")
         try:
             import importlib
 
