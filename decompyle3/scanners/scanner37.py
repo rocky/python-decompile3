@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2019 by Rocky Bernstein
+#  Copyright (c) 2016-2019, 2021 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -32,8 +32,8 @@ JUMP_OPs = opc.JUMP_OPS
 
 
 class Scanner37(Scanner37Base):
-    def __init__(self, show_asm=None, debug=False):
-        Scanner37Base.__init__(self, (3, 7), show_asm)
+    def __init__(self, show_asm=None, debug=False, is_pypy=False):
+        Scanner37Base.__init__(self, (3, 7), show_asm, is_pypy)
         self.debug = debug
         return
 
@@ -59,7 +59,7 @@ class Scanner37(Scanner37Base):
                     pass
             elif t.op == self.opc.BUILD_MAP_UNPACK_WITH_CALL:
                 t.kind = "BUILD_MAP_UNPACK_WITH_CALL_%d" % t.attr
-            elif t.op == self.opc.BUILD_TUPLE_UNPACK_WITH_CALL:
+            elif (not self.is_pypy) and t.op == self.opc.BUILD_TUPLE_UNPACK_WITH_CALL:
                 t.kind = "BUILD_TUPLE_UNPACK_WITH_CALL_%d" % t.attr
             pass
         return tokens, customize

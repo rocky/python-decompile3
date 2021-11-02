@@ -1511,6 +1511,30 @@ class SourceWalker(GenericASTTraversal, object):
                 sep = ""
 
             pass
+        elif self.version >= (3, 6) and self.is_pypy:
+            # FIXME: DRY with above
+            if node[-1].kind.startswith("BUILD_CONST_KEY_MAP"):
+                # Python 3.6+ style const map
+                keys = node[-2].pattr
+                values = node[:-2]
+                # FIXME: Line numbers?
+                for key, value in zip(keys, values):
+                    self.write(sep)
+                    self.write(repr(key))
+                    line_number = self.line_number
+                    self.write(":")
+                    self.write(self.traverse(value[0]))
+                    sep = ", "
+                    if line_number != self.line_number:
+                        sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+                        line_number = self.line_number
+                    else:
+                        sep += " "
+                        pass
+                    pass
+                if sep.startswith(",\n"):
+                    self.write(sep[1:])
+                pass
         else:
             # Python 2 style kvlist. Find beginning of kvlist.
             if node[0].kind.startswith("BUILD_MAP"):
