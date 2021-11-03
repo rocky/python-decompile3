@@ -30,6 +30,10 @@ check-short: pytest
 check-3.7 check-3.8 check-3.9 check-3.10: pytest
 	$(MAKE) -C test check
 
+# FIXME
+#: pypy3.8-7.3.7
+7.3:
+
 #: Run py.test tests
 pytest:
 	$(MAKE) -C pytest check

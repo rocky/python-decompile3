@@ -540,7 +540,7 @@ def get_scanner(version, is_pypy=False, show_asm=None):
             )
     else:
         raise RuntimeError(
-            f"Unsupported Python version {version_tuple_to_str(version)}"
+            f"Unsupported Python version, {version_tuple_to_str(version)}, for decompilation"
         )
     return scanner
 
@@ -549,5 +549,7 @@ if __name__ == "__main__":
     import inspect, decompyle3
 
     co = inspect.currentframe().f_code
-    scanner = get_scanner(decompyle3.PYTHON_VERSION, IS_PYPY, True)
+    from xdis.version_info import PYTHON_VERSION_TRIPLE
+
+    scanner = get_scanner(decompyle3.PYTHON_VERSION_TRIPLE, IS_PYPY, True)
     tokens, customize = scanner.ingest(co, {}, show_asm="after")
