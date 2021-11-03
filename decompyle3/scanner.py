@@ -21,13 +21,11 @@ scanner/ingestion module. From here we call various version-specific
 scanners, e.g. for Python 3.7 or 3.8.
 """
 
+import xdis
 from typing import Optional
 from array import array
 from collections import namedtuple
-
 from xdis.version_info import IS_PYPY, version_tuple_to_str
-from decompyle3.scanners.tok import Token
-import xdis
 from xdis import (
     Bytecode,
     canonic_python_version,
@@ -36,6 +34,8 @@ from xdis import (
     instruction_size,
     next_offset,
 )
+
+from decompyle3.scanners.tok import Token
 
 # The byte code versions we support.
 # Note: these all have to be floats
@@ -74,14 +74,17 @@ class Scanner(object):
         self.show_asm = show_asm
         self.is_pypy = is_pypy
 
-        if version in PYTHON_VERSIONS:
+        if version[:2] in PYTHON_VERSIONS:
             v_str = f"""opcode_{version_tuple_to_str(version, start=0, end=2, delimiter="")}"""
             if is_pypy:
                 v_str += "pypy"
             exec(f"""from xdis.opcodes import {v_str}""")
             exec("self.opc = %s" % v_str)
         else:
-            raise TypeError("%s is not a Python version I know about" % version)
+            raise TypeError(
+                "%s is not a Python version I know about"
+                % version_tuple_to_str(version)
+            )
 
         self.opname = self.opc.opname
 
@@ -494,12 +497,11 @@ def get_scanner(version, is_pypy=False, show_asm=None):
     # If version is a string, turn that into the corresponding float.
     if isinstance(version, str):
         if version not in canonic_python_version:
-            raise RuntimeError("Unknown Python version in xdis %s" % version)
+            raise RuntimeError(f"Unknown Python version in xdis {version}")
         canonic_version = canonic_python_version[version]
         if canonic_version not in CANONIC2VERSION:
             raise RuntimeError(
-                "Unsupported Python version %s (canonic %s)"
-                % (version, canonic_version)
+                f"Unsupported Python version {version} (canonic {canonic_version})"
             )
         version = CANONIC2VERSION[canonic_version]
 
