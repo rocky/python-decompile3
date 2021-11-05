@@ -9,5 +9,5 @@ repos:
     rev: 19.10b0
     hooks:
     - id: black
-      exclude: version.py
+      exclude: version.py, test/simple_source
       language_version: python3

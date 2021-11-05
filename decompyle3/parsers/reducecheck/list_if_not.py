@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 Rocky Bernstein
+#  Copyright (c) 2020-2021 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -13,11 +13,16 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
 def list_if_not(
     self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
 ) -> bool:
-    assert rule[1][:-1] == ("expr", "pjump_ift", "list_iter")
+    assert rule[1][:-1] == ("expr", "list_if_not_end", "list_iter")
     # The jump should not be somewhere inside the list_if_not
-    pop_jump_if = ast[1][0]
+    pop_jump_if = ast[1][0][0]
     assert pop_jump_if.kind.startswith("POP_JUMP_IF_TRUE")
-    return tokens[first].off2int(prefer_last=False) < pop_jump_if.attr < tokens[last].off2int(prefer_last=True)
+    return (
+        tokens[first].off2int(prefer_last=False)
+        < pop_jump_if.attr
+        < tokens[last].off2int(prefer_last=True)
+    )

@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2020 Rocky Bernstein
+#  Copyright (c) 2017-2021 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -376,10 +376,15 @@ class Python37LambdaParser(Python37BaseParser):
         list_for  ::= expr for_iter store list_iter jb_or_c _come_froms
         list_comp ::= BUILD_LIST_0 list_iter
 
+        list_if_not_end ::= pjump_ift _come_froms
+        list_if_not ::= expr list_if_not_end list_iter come_from_opt
+
         list_if     ::= expr pjump_iff list_iter come_from_opt
-        list_if_not ::= expr pjump_ift list_iter come_from_opt
         list_if     ::= expr jump_if_false_cf   list_iter
         list_if_or_not ::= expr_pjit expr_pjit COME_FROM list_iter
+
+        list_if_end ::= pjump_iff _come_froms
+        list_if     ::= expr list_if_end list_iter come_from_opt
 
         jb_or_c ::= JUMP_BACK
         jb_or_c ::= CONTINUE
