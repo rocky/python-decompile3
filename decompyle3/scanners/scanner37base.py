@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2020 by Rocky Bernstein
+#  Copyright (c) 2015-2021 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
@@ -930,11 +930,10 @@ if __name__ == "__main__":
         import inspect
 
         co = inspect.currentframe().f_code  # type: ignore
-        from decompyle3 import PYTHON_VERSION
 
-        tokens, customize = Scanner37Base(PYTHON_VERSION).ingest(co)
+        tokens, customize = Scanner37Base(PYTHON_VERSION_TRIPLE).ingest(co)
         for t in tokens:
             print(t)
     else:
-        print(f"Need to be Python 3.7 to demo; I am version {version_tuple_to_str}.")
+        print(f"Need to be Python 3.7 to demo; I am version {version_tuple_to_str()}.")
     pass
