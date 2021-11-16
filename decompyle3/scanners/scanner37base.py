@@ -924,9 +924,9 @@ class Scanner37Base(Scanner):
 
 
 if __name__ == "__main__":
-    from decompyle3 import PYTHON_VERSION
+    from xdis.version_info import PYTHON_VERSION_TRIPLE, version_tuple_to_str
 
-    if PYTHON_VERSION >= 3.7:
+    if PYTHON_VERSION_TRIPLE[:2] == (3, 7):
         import inspect
 
         co = inspect.currentframe().f_code  # type: ignore
@@ -936,7 +936,5 @@ if __name__ == "__main__":
         for t in tokens:
             print(t)
     else:
-        print(
-            f"Need to be Python 3.7 or greater to demo; I am version {PYTHON_VERSION}."
-        )
+        print(f"Need to be Python 3.7 to demo; I am version {version_tuple_to_str}.")
     pass

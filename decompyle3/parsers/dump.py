@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 Rocky Bernstein
+#  Copyright (c) 2020-2021 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -14,21 +14,22 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Common grammar dump and check routine"""
 
-def dump_and_check(p, version: float, modified_tokens: set) -> None:
+
+def dump_and_check(p, version: tuple, modified_tokens: set) -> None:
 
     p.dump_grammar()
     print("=" * 50, "\n")
 
     p.check_grammar()
-    from decompyle3 import PYTHON_VERSION, IS_PYPY
+    from xdis.version_info import PYTHON_VERSION_TRIPLE, IS_PYPY
 
-    if PYTHON_VERSION == version:
+    if PYTHON_VERSION_TRIPLE[:2] == version[:2]:
         lhs, rhs, tokens, right_recursive, dup_rhs = p.check_sets()
         from decompyle3.scanner import get_scanner
 
-        s = get_scanner(PYTHON_VERSION, IS_PYPY)
+        s = get_scanner(PYTHON_VERSION_TRIPLE, IS_PYPY)
         modified_tokens = set(
-                """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
+            """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
                LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_CLASSNAME
                LAMBDA_MARKER RETURN_LAST
             """.split()

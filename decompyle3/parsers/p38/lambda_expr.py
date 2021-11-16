@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 Rocky Bernstein
+#  Copyright (c) 2020-2021 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ from decompyle3.parsers.main import PythonParserSingle
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from decompyle3.parsers.p37 import Python37LambdaParser
 
+
 class Python38LambdaParser(Python37LambdaParser):
     def p_38walrus(self, args):
         """
@@ -29,18 +30,22 @@ class Python38LambdaParser(Python37LambdaParser):
         """
 
     def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG, compile_mode="lambda"):
-        super(Python38LambdaParser, self).__init__(debug_parser, compile_mode=compile_mode)
+        super(Python38LambdaParser, self).__init__(
+            debug_parser, compile_mode=compile_mode
+        )
         self.customized = {}
+
 
 if __name__ == "__main__":
     # Check grammar
     from decompyle3.parsers.dump import dump_and_check
+
     p = Python38LambdaParser()
     modified_tokens = set(
         """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
            LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_CLASSNAME
            LAMBDA_MARKER RETURN_LAST
         """.split()
-        )
+    )
 
-    dump_and_check(p, 3.8, modified_tokens)
+    dump_and_check(p, (3, 8), modified_tokens)

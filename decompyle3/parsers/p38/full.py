@@ -303,4 +303,4 @@ if __name__ == "__main__":
         """.split()
     )
 
-    dump_and_check(p, 3.8, modified_tokens)
+    dump_and_check(p, (3, 8), modified_tokens)

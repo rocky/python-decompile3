@@ -3,9 +3,10 @@
 # This code is RUNNABLE!
 
 import sys
-PYTHON_VERSION = sys.version_info[0] + (sys.version_info[1] / 10.0)
 
-assert PYTHON_VERSION >= 3.7
+PYTHON_VERSION_TRIPLE = sys.version_info[:3]
+
+assert PYTHON_VERSION_TRIPLE >= (3, 7)
 
 # some floats (from 01_float.py)
 
@@ -20,7 +21,7 @@ assert -1e300 * 1e300 == float("-inf")
 y = 5j
 assert y ** 2 == -25
 y **= 3
-assert y == (-0-125j)
+assert y == (-0 - 125j)
 
 
 # Tests BINARY_TRUE_DIVIDE and INPLACE_TRUE_DIVIDE (from 02_try_divide.py)

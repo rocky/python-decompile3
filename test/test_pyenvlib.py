@@ -65,8 +65,10 @@ for vers in TEST_VERSIONS:
     else:
         if vers == "native":
             short_vers = os.path.basename(sys.path[-1])
-            from xdis import PYTHON_VERSION
-            PYC = (f"*.cpython-{int(PYTHON_VERSION * 10)}.pyc",)
+            from xdis.version_info import version_tuple_to_str
+
+            version = version_tuple_to_str(end=2)
+            PYC = f"*.cpython-{version}.pyc"
             test_options[vers] = (sys.path[-1], PYC, short_vers)
         else:
             short_vers = vers[:3]
@@ -145,14 +147,7 @@ if __name__ == "__main__":
     opts, args = getopt.getopt(
         sys.argv[1:],
         "",
-        [
-            "start-with=",
-            "verify-run",
-            "syntax-verify",
-            "max=",
-            "coverage",
-            "all",
-        ]
+        ["start-with=", "verify-run", "syntax-verify", "max=", "coverage", "all",]
         + test_options_keys,
     )
     vers = ""

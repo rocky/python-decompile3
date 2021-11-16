@@ -546,10 +546,10 @@ def get_scanner(version, is_pypy=False, show_asm=None):
 
 
 if __name__ == "__main__":
-    import inspect, decompyle3
+    import inspect
 
     co = inspect.currentframe().f_code
     from xdis.version_info import PYTHON_VERSION_TRIPLE
 
-    scanner = get_scanner(decompyle3.PYTHON_VERSION_TRIPLE, IS_PYPY, True)
+    scanner = get_scanner(PYTHON_VERSION_TRIPLE, IS_PYPY, True)
     tokens, customize = scanner.ingest(co, {}, show_asm="after")
