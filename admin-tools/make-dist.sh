@@ -24,12 +24,8 @@ for pyversion in $PYVERSIONS; do
     fi
     # pip bdist_egg create too-general wheels. So
     # we narrow that by moving the generated wheel.
-
-    # Pick out first two number of version, e.g. 3.5.1 -> 35
-    first_two=$(echo $pyversion | cut -d'.' -f 1-2 | sed -e 's/\.//')
     rm -fr build
-    python setup.py bdist_egg bdist_wheel
-    python setup.py bdist_wheel --universal
+    python setup.py bdist_egg
 done
 
-python ./setup.py sdist
+python ./setup.py bdist_wheel sdist

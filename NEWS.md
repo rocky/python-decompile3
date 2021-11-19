@@ -1,3 +1,14 @@
+3.8.0
+=====
+
+* Sync version number with corresponding uncompile6 version. The big change in 3.7.7 was using xdis >= 6.x
+* use `expr_stmt` instead of `call_stmt` when that is what is meant
+* remove float version tests
+* better, but not perfect, `list .. if` comprehensions
+* PyPy 3.8 testing support
+* Start PyPy 3.7 and PyPy 3.8 decompilation support
+
+
 3.7.7
 =====
 
