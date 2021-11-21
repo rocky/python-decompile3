@@ -16,7 +16,8 @@
 """Isolate Python version-specific semantic actions here.
 """
 
-from decompyle3.semantics.consts import PRECEDENCE, TABLE_DIRECT
+from decompyle3.semantics.consts import INDENT_PER_LEVEL, PRECEDENCE, TABLE_DIRECT
+from decompyle3.semantics.helper import flatten_list
 
 
 def customize_for_version(self, is_pypy, version):
@@ -26,6 +27,7 @@ def customize_for_version(self, is_pypy, version):
         #######################
         TABLE_DIRECT.update(
             {
+                "assert": ("%|assert %c\n", 0),
                 "assert_pypy": ("%|assert %c\n", 1),
                 "assert2_pypy": ("%|assert %c, %c\n", 1, 4),
                 "try_except_pypy": ("%|try:\n%+%c%-%c\n\n", 1, 2),
@@ -34,6 +36,41 @@ def customize_for_version(self, is_pypy, version):
                 "assign2_pypy": ("%|%c, %c = %c, %c\n", 3, 2, 0, 1),
             }
         )
+        if version[:2] == (3, 7):
+
+            def n_call_kw_pypy37(node):
+                self.template_engine(("%p(", (0, 100)), node)
+                assert node[-1] == "CALL_METHOD_KW"
+                pypy_kw_keys = node[-2]
+                assert pypy_kw_keys == "pypy_kw_keys"
+
+                flat_elems = flatten_list(node[1:-2])
+                # FIXME zip pypy_kw_keys and elems
+
+                self.indent_more(INDENT_PER_LEVEL)
+                sep = ""
+
+                n = len(flat_elems)
+                kw_keys_tuple = pypy_kw_keys[0].attr
+                assert n == len(kw_keys_tuple)
+                for i in range(n):
+                    elem = flat_elems[i]
+                    assert elem == "expr"
+                    line_number = self.line_number
+                    value = self.traverse(elem)
+                    if line_number != self.line_number:
+                        sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+                        pass
+                    self.write(sep)
+                    self.write(f"{kw_keys_tuple[i]}={value}")
+                    sep = ", "
+                    pass
+
+                self.write(")")
+                self.prune()
+
+            self.n_call_kw_pypy37 = n_call_kw_pypy37
+
     else:
         ########################
         # Without PyPy
