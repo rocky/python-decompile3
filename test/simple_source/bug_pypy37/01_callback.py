@@ -6,5 +6,5 @@ def lcase(s):
 
 
 l = ["xyz", "ABC"]
-l.sort(key=lcase)
-assert l == ["ABC", "xyz"]
+l.sort(key=lcase, reverse=True)
+assert l == ["xyz", "ABC"]
