@@ -13,4 +13,4 @@
 # This file is suitable for sourcing inside bash as
 # well as importing into Python
 # fmt: off
-__version__="3.8.1.dev0"  # noqa
+__version__="3.8.1a1"  # noqa
