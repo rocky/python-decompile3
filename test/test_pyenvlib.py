@@ -68,7 +68,7 @@ for vers in TEST_VERSIONS:
             from xdis.version_info import version_tuple_to_str
 
             version = version_tuple_to_str(end=2)
-            PYC = f"*.cpython-{version}.pyc"
+            PYC = (f"*.cpython-{version}.pyc",)
             test_options[vers] = (sys.path[-1], PYC, short_vers)
         else:
             short_vers = vers[:3]
