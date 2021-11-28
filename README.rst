@@ -65,13 +65,20 @@ files it can read have been tested on Python bytecodes from versions
 Installation
 ------------
 
-This uses setup.py, so it follows the standard Python routine:
+You can install from PyPy using the name `decompyle3`::
+
+    pip install decompyle3
+	
+	
+To install from source, this is uses setup.py, so it follows the standard Python routine:
 
 ::
 
     pip install -e .  # set up to run from source tree
                       # Or if you want to install instead
-    python setup.py install # may need sudo
+or alternatively::
+
+    python setup.py install # may need sudo; use python3 if your python is python2
 
 A GNU makefile is also provided so :code:`make install` (possibly as root or
 sudo) will do the steps above.
