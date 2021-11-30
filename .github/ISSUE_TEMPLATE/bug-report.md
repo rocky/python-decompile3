@@ -4,7 +4,10 @@ about: Tell us about decompyle3 bugs
 
 ---
 
-<!-- __Note:__ Bugs are not for asking questions about a problem you
+<!-- __Note:__ If you are using this program to do something illegal - don't.
+The issue may flagged to make it easier for those looking for illegal activity.
+
+Bugs are not for asking questions about a problem you
 are trying to solve that involve the use of decompyle3 along the way,
 although I may be more tolerent of this if you sponsor the project.
 
@@ -15,9 +18,16 @@ acted upon.
 To set expectations, some legitimate bugs can take years to fix, but
 they eventually do get fixed.
 
-Funding the project was added to address the problem that there are
+Funding the project was added to partially address the problem that there are
 lots of people seeking help and reporting bugs, but few people who are
 willing or capable of providing help or fixing bugs.
+
+Tasks or the kinds of things others can do but you can't or don't want
+to do yourself are typically the kind of thing that you pay someone to
+do, especially when you are the primary beneficiary of the work, or
+the task is complex, long, or tedious. If your code is over 30 lines
+long, it fits into this category.
+
 
 Finally https://github.com/rocky/python-decompile3/blob/master/HOW-TO-REPORT-A-BUG.md ?
 -->
@@ -25,7 +35,7 @@ Finally https://github.com/rocky/python-decompile3/blob/master/HOW-TO-REPORT-A-B
 <!--
 Please remove any of the optional sections if they are not applicable.
 
-Prerequisites
+Prerequisites/Caveats
 
 * Make sure the bytecode you have can be disassembled with a
   disassembler and produces valid results.
@@ -37,8 +47,9 @@ Prerequisites
   personal and private help that you are requesting.
 * If the legitimacy of the activity is deemed suspicous, I may flag it as suspicious,
   making the issue even more easy to detect.
+* Long and tedious tasks or the kinds of things others can do but you can't do yourself are typically the kind of thing that you pay someone to do because you want something done, especially when you are the primary beneficiary of the work.
 
-Bug reports that violate a prerequisite may be discarded.
+Bug reports that violate the above may be discarded.
 
 -->
 
