@@ -74,6 +74,8 @@ class Python38FullParser(Python37Parser, Python38LambdaParser):
         stmt               ::= try_except_ret38a
         stmt               ::= try_except38
         stmt               ::= try_except38r
+        stmt               ::= try_except38r2
+        stmt               ::= try_except38r3
         stmt               ::= try_except_as
         stmt               ::= whilestmt38
         stmt               ::= whileTruestmt38
@@ -187,6 +189,33 @@ class Python38FullParser(Python37Parser, Python38LambdaParser):
         try_except38r      ::= SETUP_FINALLY return_except
                                except_handler38b
         return_except      ::= stmts POP_BLOCK return
+
+
+        # In 3.8 there seems to be some sort of code fiddle with POP_EXCEPT when there
+        # is a final return in the "except" block.
+        # So we treat the "return" separate from the other statements
+        cond_except_stmt      ::= except_cond1 except_stmts
+        cond_except_stmts_opt ::= cond_except_stmt*
+
+        try_except38r2     ::= SETUP_FINALLY
+                               suite_stmts_opt
+                               POP_BLOCK JUMP_FORWARD
+                               COME_FROM_FINALLY POP_TOP POP_TOP POP_TOP
+                               cond_except_stmts_opt
+                               POP_EXCEPT return
+                               END_FINALLY
+                               COME_FROM
+
+        try_except38r3     ::= SETUP_FINALLY
+                               suite_stmts_opt
+                               POP_BLOCK JUMP_FORWARD
+                               COME_FROM_FINALLY
+                               cond_except_stmts_opt
+                               POP_EXCEPT return
+                               COME_FROM
+                               END_FINALLY
+                               COME_FROM
+
 
 
         try_except_as      ::= SETUP_FINALLY POP_BLOCK suite_stmts

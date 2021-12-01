@@ -23,6 +23,8 @@ except:
 
 for path in py_source:
     short = os.path.basename(path)
+    if short.endswith(".py"):
+        short = short[: -len(".py")]
     if hasattr(sys, "pypy_version_info"):
         version = version_tuple_to_str(end=2, delimiter="")
         bytecode = f"bytecode_pypy{version}{suffix}/{short}py{version}.pyc"

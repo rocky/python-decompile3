@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2020 by Rocky Bernstein
+#  Copyright (c) 2019-2021 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -133,6 +133,12 @@ def customize_for_version38(self, version):
                 (1, "return_except"),
                 (2, "except_handler38b"),
             ),
+            "try_except38r2": (
+                "%|try:\n%+%c\n%-%|except:\n%+%c%c%-\n\n",
+                (1, "suite_stmts_opt"),
+                (8, "cond_except_stmts_opt"),
+                (10, "return"),
+            ),
             "try_except_as": (
                 "%|try:\n%+%c%-\n%|%-%c\n\n",
                 (-4, "suite_stmts"),  # Go from the end because of POP_BLOCK variation
@@ -186,6 +192,27 @@ def customize_for_version38(self, version):
             ),
         }
     )
+
+    # FIXME: now that we've split out cond_except_stmt,
+    # we should be able to get this working as a pure transformation rule,
+    # so no procedure is needed here.
+    def try_except38r3(node):
+        self.template_engine(("%|try:\n%+%c\n%-", (1, "suite_stmts_opt")), node)
+        cond_except_stmts_opt = node[5]
+        assert cond_except_stmts_opt == "cond_except_stmts_opt"
+        for child in cond_except_stmts_opt:
+            if child == "cond_except_stmt":
+                if child[0] == "except_cond1":
+                    self.template_engine(
+                        ("%c\n", (0, "except_cond1"), (1, "expr")), child
+                    )
+                    self.template_engine(("%+%c%-\n", (1, "except_stmts")), child)
+                pass
+            pass
+        self.template_engine(("%+%c%-\n", (7, "return")), node)
+        self.prune()
+
+    self.n_try_except38r3 = try_except38r3
 
     def suite_stmts_return(node):
         if len(node) > 1:
