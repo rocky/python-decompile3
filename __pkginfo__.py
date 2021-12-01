@@ -54,7 +54,7 @@ mailing_list = "python-debugger@googlegroups.com"
 modname = "decompyle3"
 py_modules = None
 short_desc = "Python cross-version byte-code decompiler"
-web = "https://github.com/rocky/python-decompyle3/"
+web = "https://github.com/rocky/python-decompile3/"
 
 # tracebacks in zip files are funky and not debuggable
 zip_safe = True
