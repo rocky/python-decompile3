@@ -18,7 +18,7 @@ For decompilation of older Python bytecode see uncompyle6_.
 Why this?
 ---------
 
-Uncompyle6 is awesome, but it has has a fundamental problem in the way
+Uncompyle6 is awesome, but it has a fundamental problem in the way
 it handles control flow. In the early days of Python when there was
 little optimization and code was generated in a very template-oriented
 way, figuring out control flow-structures could be done by simply looking at code patterns.
