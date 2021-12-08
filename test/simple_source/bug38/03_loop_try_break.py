@@ -30,8 +30,8 @@ for i in range(5):
 # Bug was handling a "break" inside a "try".
 # In 3.8 POP_EXCEPT is moved before "JUMP_ABSOLUTE" of
 # the break.
-def compiler_fixup(compiler_so, cc_args):
-    if stripArch:
+def compiler_fixup(compiler_so, cc_args, index):
+    if index:
         while True:
             try:
                 index = 1
@@ -39,9 +39,22 @@ def compiler_fixup(compiler_so, cc_args):
                 index = 2
                 break
 
+
 # Bug was returning an IfExp inside "with":
 # the return value is mixed in with the "with"
 # code finalization.
 def _read_output(x, a):
     with x as fp:
         return fp if a else None
+
+
+# In 3.8 the CONTINUE_LOOP disappears,
+# and this makes it harder to detect continue
+# inside a loop with a continue in the except clause.
+def connect_ws_with_retry(f1, f2):
+    while True:
+        try:
+            f1()
+        except Exception:
+            f2()
+            continue

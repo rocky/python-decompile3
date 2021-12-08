@@ -143,6 +143,11 @@ class Python38FullParser(Python37Parser, Python38LambdaParser):
         c_forelsestmt38    ::= expr get_for_iter store for_block POP_BLOCK else_suitec
         c_forelsestmt38    ::= expr get_for_iter store for_block JUMP_BACK _come_froms else_suitec
 
+        # continue is a weird one. In 3.8, CONTINUE_LOOP was removed.
+        # Inside an loop we can have this, which can only appear in side a try/except
+        # And it can also appear at the end of the try except.
+        continue           ::= POP_EXCEPT JUMP_BACK
+
         forelselaststmt38  ::= expr get_for_iter store for_block POP_BLOCK else_suitec
         forelselaststmtc38 ::= expr get_for_iter store for_block POP_BLOCK else_suitec
 

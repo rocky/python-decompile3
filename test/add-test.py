@@ -2,7 +2,7 @@
 """ Trivial helper program to bytecompile and run an uncompile
 """
 import os, sys, py_compile
-from xdis.version_info import version_tuple_to_str, PYTHON_VERSION_TRIPLE
+from xdis.version_info import version_tuple_to_str
 
 assert 2 <= len(sys.argv) <= 4
 version = sys.version[0:3]
