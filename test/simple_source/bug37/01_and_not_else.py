@@ -7,10 +7,16 @@ def foo(foldnuls, word):
     x = 5 if foldnuls and not word else 6
     return x
 
+
 for expect, foldnuls, word in (
-        (6, True, True),
-        (5, True, False),
-        (6, False, True),
-        (6, False, False)
-        ):
-   assert foo(foldnuls, word) == expect
+    (6, True, True),
+    (5, True, False),
+    (6, False, True),
+    (6, False, False),
+):
+    assert foo(foldnuls, word) == expect
+
+# Bug in 3.8
+identity = lambda a: False if not (a) else True
+assert identity(True) == True
+assert identity(False) == False

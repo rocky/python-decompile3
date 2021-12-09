@@ -16,7 +16,6 @@
 Differences over Python 3.7 for Python 3.8 in the Earley-algorithm lambda grammar
 """
 
-from decompyle3.parsers.main import PythonParserSingle
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from decompyle3.parsers.p37 import Python37LambdaParser
 
