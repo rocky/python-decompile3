@@ -1,8 +1,11 @@
+import pytest
+from xdis.version_info import PYTHON_VERSION_TRIPLE
 from decompyle3 import code_deparse
 
 from io import StringIO
 
 out = StringIO()
+
 
 def run_deparse(expr: str, compile_mode: bool, debug=False) -> object:
     if debug:
@@ -14,13 +17,19 @@ def run_deparse(expr: str, compile_mode: bool, debug=False) -> object:
         compile_mode = "eval"
     code = compile(expr + "\n", "<string %s>" % expr, compile_mode)
     if debug:
-        import dis;
+        import dis
+
         print(dis.dis(code))
-    deparsed = code_deparse(code, out=out, compile_mode=compile_mode, debug_opts=debug_opts)
+    deparsed = code_deparse(
+        code, out=out, compile_mode=compile_mode, debug_opts=debug_opts
+    )
     return deparsed
 
 
 # FIXME: DRY this code
+@pytest.mark.skipif(
+    not (3, 7) <= PYTHON_VERSION_TRIPLE < (3, 9), reason="asssume Python 3.7 or 3.8"
+)
 def test_single_mode() -> None:
     expressions = (
         "1",
@@ -50,10 +59,15 @@ def test_single_mode() -> None:
 
         if deparsed.text != (expr + "\n"):
             from decompyle3.show import maybe_show_tree
+
             deparsed.showast = {"Full": True}
             maybe_show_tree(deparsed, deparsed.ast)
         assert deparsed.text == expr + "\n"
 
+
+@pytest.mark.skipif(
+    not (3, 7) <= PYTHON_VERSION_TRIPLE < (3, 9), reason="asssume Python 3.7 or 3.8"
+)
 def test_eval_mode():
     expressions = (
         "1",
@@ -72,10 +86,15 @@ def test_eval_mode():
 
         if deparsed.text != expr:
             from decompyle3.show import maybe_show_tree
+
             deparsed.showast = {"Full": True}
             maybe_show_tree(deparsed, deparsed.ast)
         assert deparsed.text == expr
 
+
+@pytest.mark.skipif(
+    not (3, 7) <= PYTHON_VERSION_TRIPLE < (3, 9), reason="asssume Python 3.7 or 3.8"
+)
 def test_lambda_mode():
     expressions = (
         "lambda d=b'': 5",
@@ -94,9 +113,11 @@ def test_lambda_mode():
             continue
         if deparsed.text != expr:
             from decompyle3.show import maybe_show_tree
+
             deparsed.showast = {"Full": True}
             maybe_show_tree(deparsed, deparsed.ast)
         assert deparsed.text == expr
+
 
 if __name__ == "__main__":
     test_eval_mode()

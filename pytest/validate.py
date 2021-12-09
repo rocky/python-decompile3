@@ -108,7 +108,7 @@ def are_code_objects_equal(co1, co2):
     return True
 
 
-def validate_uncompyle(text, mode="exec"):
+def validate_decompile(text, mode="exec"):
     """
     Validate decompilation of the given source code.
 
