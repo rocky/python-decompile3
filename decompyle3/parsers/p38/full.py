@@ -79,9 +79,6 @@ class Python38FullParser(Python37Parser, Python38LambdaParser):
         stmt               ::= try_except_as
         stmt               ::= whilestmt38
         stmt               ::= whileTruestmt38
-        stmt               ::= call_stmt
-
-        call_stmt          ::= call
 
         # FIXME: "break"" should be isolated to loops
         stmt  ::= break

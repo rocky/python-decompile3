@@ -70,10 +70,10 @@ def usage():
 
 def main_bin():
     version_tuple = sys.version_info[0:2]
-    if not (version_tuple in ((3, 7), (3, 8))):
+    if version_tuple < (3, 7):
         print(
-            f"Error: {program} can decompile only bytecode from Python 3.7"
-            f""" to 3.8.\n\tYou have version: {version_tuple_to_str()}."""
+            f"Error: {program} runs from Python 3.7 or greater."
+            f""" \n\tYou have version: {version_tuple_to_str()}."""
         )
         sys.exit(-1)
 

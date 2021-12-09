@@ -2,6 +2,12 @@ import re
 from decompyle3 import PYTHON_VERSION_TRIPLE, IS_PYPY
 from decompyle3.parsers.main import get_python_parser, python_parser
 
+version_tuple = (
+    (3, 8)
+    if PYTHON_VERSION_TRIPLE >= (3, 9) or PYTHON_VERSION_TRIPLE < (3, 7)
+    else PYTHON_VERSION_TRIPLE
+)
+
 
 def test_grammar():
     def check_tokens(tokens, opcode_set):
@@ -15,7 +21,7 @@ def test_grammar():
             p.dump_grammar(),
         )
 
-    p = get_python_parser(PYTHON_VERSION_TRIPLE, is_pypy=IS_PYPY)
+    p = get_python_parser(version_tuple, is_pypy=IS_PYPY)
     (lhs, rhs, tokens, right_recursive, dup_rhs) = p.check_sets()
 
     expect_lhs = set([])
@@ -80,7 +86,7 @@ def test_dup_rule():
     import inspect
 
     python_parser(
-        PYTHON_VERSION_TRIPLE,
+        version_tuple,
         inspect.currentframe().f_code,
         is_pypy=IS_PYPY,
         parser_debug={
