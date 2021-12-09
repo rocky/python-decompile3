@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 Rocky Bernstein
+#  Copyright (c) 2020-2021 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -12,6 +12,9 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+spark grammar for Python 3.7
+"""
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from decompyle3.parsers.main import PythonParserEval, PythonParserSingle
