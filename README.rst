@@ -68,8 +68,8 @@ Installation
 You can install from PyPy using the name `decompyle3`::
 
     pip install decompyle3
-	
-	
+
+
 To install from source, this is uses setup.py, so it follows the standard Python routine:
 
 ::
@@ -186,7 +186,7 @@ See Also
 .. _MicroPython: https://micropython.org
 .. _uncompyle6: https://pypi.python.org/pypi/uncompyle6
 .. _python-control-flow: https://github.com/rocky/python-control-flow
-.. _trepan: https://pypi.python.org/pypi/trepan2
+.. _trepan: https://pypi.python.org/pypi/trepan3k
 .. _compiler: https://pypi.python.org/pypi/spark_parser
 .. _HISTORY: https://github.com/rocky/python-decompile3/blob/master/HISTORY.md
 .. _debuggers: https://pypi.python.org/pypi/trepan3k

@@ -1015,7 +1015,7 @@ class SourceWalker(GenericASTTraversal, object):
         code = node[code_index].attr
 
         assert iscode(code), node[code_index]
-        code = Code(code, self.scanner, self.currentclass)
+        code = Code(code, self.scanner, self.currentclass, self.debug_opts["asm"])
 
         ast = self.build_ast(code._tokens, code._customize, code)
         self.customize(code._customize)
@@ -2083,13 +2083,16 @@ class SourceWalker(GenericASTTraversal, object):
 
         self.classes.pop(-1)
 
-    def gen_source(self, ast, name, customize, is_lambda=False, returnNone=False):
+    def gen_source(
+        self, ast, name, customize, is_lambda=False, returnNone=False, debug_opts=None
+    ):
         """convert SyntaxTree to Python source code"""
 
         rn = self.return_none
         self.return_none = returnNone
         old_name = self.name
         self.name = name
+        self.debug_opts = debug_opts
         # if code would be empty, append 'pass'
         if len(ast) == 0:
             self.println(self.indent, "pass")
@@ -2267,7 +2270,9 @@ def code_deparse(
     )
 
     # What we've been waiting for: Generate source from Syntax Tree!
-    deparsed.gen_source(deparsed.ast, co.co_name, customize)
+    deparsed.gen_source(
+        deparsed.ast, name=co.co_name, customize=customize, debug_opts=debug_opts
+    )
 
     for g in sorted(deparsed.mod_globs):
         deparsed.write("# global %s ## Warning: Unused global\n" % g)
