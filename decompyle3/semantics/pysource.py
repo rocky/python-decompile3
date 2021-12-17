@@ -175,6 +175,8 @@ from decompyle3.util import better_repr
 
 from io import StringIO
 
+DEFAULT_DEBUG_OPTS = {"asm": False, "tree": False, "grammar": False}
+
 
 class SourceWalkerError(Exception):
     def __init__(self, errmsg):
@@ -2084,7 +2086,13 @@ class SourceWalker(GenericASTTraversal, object):
         self.classes.pop(-1)
 
     def gen_source(
-        self, ast, name, customize, is_lambda=False, returnNone=False, debug_opts=None
+        self,
+        ast,
+        name,
+        customize,
+        is_lambda=False,
+        returnNone=False,
+        debug_opts=DEFAULT_DEBUG_OPTS,
     ):
         """convert SyntaxTree to Python source code"""
 
@@ -2191,10 +2199,6 @@ class SourceWalker(GenericASTTraversal, object):
     @classmethod
     def _get_mapping(cls, node):
         return MAP.get(node, MAP_DIRECT)
-
-
-#
-DEFAULT_DEBUG_OPTS = {"asm": False, "tree": False, "grammar": False}
 
 
 def code_deparse(
