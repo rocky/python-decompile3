@@ -63,8 +63,6 @@ The node position 0 will be associated with "import".
 
 # FIXME: DRY code with pysource
 
-from __future__ import print_function
-
 import re
 
 import decompyle3.parsers.main as python_parser
@@ -342,9 +340,10 @@ class FragmentsWalker(pysource.SourceWalker, object):
         else:
             start = len(self.f.getvalue()) + len(self.indent)
             self.write(self.indent, "return")
-            if self.return_none or node != SyntaxTree(
-                "return", [SyntaxTree("ret_expr", [NONE]), Token("RETURN_VALUE")]
-            ):
+            # One reason we worry over whether we use "return None" or "return"
+            # is that inside a generator, "return None" is illegal.
+            # Thank you, Python!
+            if self.return_none or not self.is_return_none(node):
                 self.write(" ")
                 self.last_finish = len(self.f.getvalue())
                 self.preorder(node[0])
@@ -370,9 +369,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         else:
             start = len(self.f.getvalue()) + len(self.indent)
             self.write(self.indent, "return")
-            if self.return_none or node != SyntaxTree(
-                "return", [SyntaxTree("ret_expr", [NONE]), Token("RETURN_END_IF")]
-            ):
+            if self.return_none or not self.is_return_none(node):
                 self.write(" ")
                 self.preorder(node[0])
                 if hasattr(node[-1], "offset"):
@@ -675,7 +672,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             elif n == "comp_if_not":
                 n = n[2]
 
-        assert n == "comp_body", ast
+        assert n == "comp_body", n
 
         self.preorder(n[0])
         if node == "generator_exp_async":
@@ -716,7 +713,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         assert iscode(code), node[code_index]
         code_name = code.co_name
-        code = Code(code, self.scanner, self.currentclass)
+        code = Code(code, self.scanner, self.currentclass, self.debug_opts["asm"])
 
         ast = self.build_ast(code._tokens, code._customize, code)
 
@@ -1165,8 +1162,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
             except (python_parser.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens, self.debug_parser.get("reduce", False))
 
-            ## FIXME: So as not to remove tokens with offsets,
-            ## remove this phase until we have a chance to go over,
+            # FIXME: So as not to remove tokens with offsets,
+            # remove this phase until we have a chance to go over,
             # transform_ast = self.treeTransform.transform(ast)
             maybe_show_tree(self, ast)
             return ast
@@ -2017,7 +2014,7 @@ def code_deparse_around_offset(
     assert iscode(co)
 
     if version is None:
-        version = sysinfo2float()
+        version = PYTHON_VERSION_TRIPLE
     if is_pypy is None:
         is_pypy = IS_PYPY
 

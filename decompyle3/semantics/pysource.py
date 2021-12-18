@@ -284,7 +284,6 @@ class SourceWalker(GenericASTTraversal, object):
         self.version = version
         self.is_pypy = is_pypy
         customize_for_version(self, is_pypy, version)
-
         return
 
     def maybe_show_tree(self, ast):
@@ -946,8 +945,8 @@ class SourceWalker(GenericASTTraversal, object):
             ast = ast[0]
 
         n = ast[iter_index]
-        assert n == "comp_iter", n
 
+        assert n == "comp_iter", n.kind
         # Find the comprehension body. It is the inner-most
         # node that is not list_.. .
         while n == "comp_iter":  # list_iter
