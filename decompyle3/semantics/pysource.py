@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2020 by Rocky Bernstein
+#  Copyright (c) 2015-2021 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -201,30 +201,25 @@ class SourceWalker(GenericASTTraversal, object):
         linestarts={},
         tolerate_errors=False,
     ):
-        """
-        "version" is the Python version (a float) of the Python
-        dialect of both the syntax tree and language we should
-        produce.
+        """`version' is the Python version (a float) of the Python dialect
+        of both the syntax tree and language we should produce.
 
-        "out" is IO-like file pointer to where the output should go. It
+        `out' is IO-like file pointer to where the output should go. It
         whould have a getvalue() method.
 
-        "scanner" is a method to call when we need to scan tokens. Sometimes
+        `scanner' is a method to call when we need to scan tokens. Sometimes
         in producing output we will run across further tokens that need
         to be scaned.
 
-        If "showast" is True, we print the syntax tree.
+        If `showast' is True, we print the syntax tree.
 
-        "compile_mode" is is either "exec" or "single" or "lambda".
+        `compile_mode' is is either 'exec' or 'single'. It isthe compile
+        mode that was used to create the Syntax Tree and specifies a
+        gramar variant within a Python version to use.
 
-        For "lambda", the grammar that can be used in lambda
-        expressions is used.  Otherwise, it is the compile mode that
-        was used to create the Syntax Tree and specifies a gramar
-        variant within a Python version to use.
+        `is_pypy' should be True if the Syntax Tree was generated for PyPy.
 
-        "is_pypy" should be True if the Syntax Tree was generated for PyPy.
-
-        "linestarts" is a dictionary of line number to bytecode offset. This
+        `linestarts' is a dictionary of line number to bytecode offset. This
         can sometimes assist in determinte which kind of source-code construct
         to use when there is ambiguity.
 
@@ -1399,7 +1394,7 @@ class SourceWalker(GenericASTTraversal, object):
         """
         prettyprint a dict
         'dict' is something like k = {'a': 1, 'b': 42}"
-        We will source-code use line breaks to guide us when to break.
+        We will use source-code line breaks to guide us when to break.
         """
         p = self.prec
         self.prec = 100
@@ -1834,7 +1829,6 @@ class SourceWalker(GenericASTTraversal, object):
                 arg += 1
             elif typ == "p":
                 p = self.prec
-                # entry[arg]
                 tup = entry[arg]
                 assert isinstance(tup, tuple)
                 if len(tup) == 3:
@@ -2105,6 +2099,7 @@ class SourceWalker(GenericASTTraversal, object):
         if len(ast) == 0:
             self.println(self.indent, "pass")
         else:
+            self.customize(customize)
             if is_lambda:
                 self.write(self.traverse(ast, is_lambda=is_lambda))
             else:
@@ -2219,7 +2214,7 @@ def code_deparse(
     assert iscode(co)
 
     if version is None:
-        version = sys.version_info[:2]
+        version = PYTHON_VERSION_TRIPLE
 
     # store final output stream for case of error
     scanner = get_scanner(version, is_pypy=is_pypy)

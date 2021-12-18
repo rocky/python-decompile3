@@ -1,14 +1,19 @@
 #!/usr/bin/env python
-""" Trivial helper program to bytecompile and run an uncompile
+""" Trivial helper program to byte compile and uncompile the bytecode file.
 """
 import os, sys, py_compile
 from xdis.version_info import version_tuple_to_str
+
+if len(sys.argv) < 2:
+    print("Usage: add-test.py [--run] *python-source*... [optimize-level]")
+    sys.exit(1)
 
 assert 2 <= len(sys.argv) <= 4
 version = sys.version[0:3]
 vers = sys.version_info[:2]
 if sys.argv[1] in ("--run", "-r"):
     suffix = "_run"
+    assert sys.argv >= 3
     py_source = sys.argv[2:]
     i = 2
 else:
@@ -17,7 +22,10 @@ else:
     i = 1
 try:
     optimize = int(sys.argv[-1])
+    assert sys.argv >= i + 2
     py_source = sys.argv[i:-1]
+    i = 2
+
 except:
     optimize = 2
 
