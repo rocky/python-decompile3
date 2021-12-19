@@ -2103,8 +2103,8 @@ class SourceWalker(GenericASTTraversal, object):
             if is_lambda:
                 self.write(self.traverse(ast, is_lambda=is_lambda))
             else:
-                text = self.traverse(ast, is_lambda=is_lambda)
-                self.println(text)
+                self.text = self.traverse(ast, is_lambda=is_lambda)
+                self.println(self.text)
         self.name = old_name
         self.return_none = rn
 
