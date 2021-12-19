@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2020 by Rocky Bernstein
+#  Copyright (c) 2019-2021 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -89,7 +89,6 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
         pos_args, kw_args, annotate_argc, closure = args_attr
 
     i = -4 if node[-2] != "docstring" else -5
-    kw_pairs = 0
     if annotate_argc:
         # Turn into subroutine and DRY with other use
         annotate_node = node[i]
@@ -142,8 +141,8 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
         code = code_node.attr
 
     assert iscode(code)
-    debug_opts = self.debug_opts["asm"] if self.debug_opts else None
-    scanner_code = Code(code, self.scanner, self.currentclass, debug_opts)
+    debug_asm_opts = self.debug_opts["asm"] if self.debug_opts else None
+    scanner_code = Code(code, self.scanner, self.currentclass, debug_asm_opts)
 
     # add defaults values to parameter names
     argc = code.co_argcount
