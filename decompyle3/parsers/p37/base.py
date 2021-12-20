@@ -888,8 +888,8 @@ class Python37BaseParser(PythonParser):
                 if has_get_iter_call_function1:
                     rule_pat = (
                         "generator_exp ::= %sload_genexpr %%s%s expr "
-                        "GET_ITER CALL_FUNCTION_1" % ("expr " * args_pos, opname)
-                    )
+                        "GET_ITER CALL_FUNCTION_1"
+                    ) % ("expr " * args_pos, opname)
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                     rule_pat = """
                            expr          ::= generator_exp

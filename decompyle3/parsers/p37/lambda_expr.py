@@ -308,6 +308,7 @@ class Python37LambdaParser(Python37BaseParser):
         expr ::= compare
         expr ::= or
         expr ::= or_expr
+        expr ::= if_exp
         expr ::= subscript
         expr ::= subscript2
         expr ::= unary_not
@@ -338,6 +339,21 @@ class Python37LambdaParser(Python37BaseParser):
         binary_operator   ::= BINARY_RSHIFT
         binary_operator   ::= BINARY_POWER
 
+        # FIXME: the below is to work around test_grammar expecting a "call" to be
+        # on the LHS because it is also somewhere on in a rule.
+        call           ::= expr CALL_METHOD_0
+
+        compare           ::= compare_chained
+        compare           ::= compare_single
+        compare_single    ::= expr expr COMPARE_OP
+        c_compare         ::= c_compare_chained
+
+        load_genexpr      ::= LOAD_GENEXPR
+        load_genexpr      ::= BUILD_TUPLE_1 LOAD_GENEXPR LOAD_STR
+
+        subscript         ::= expr expr BINARY_SUBSCR
+        subscript2        ::= expr expr DUP_TOP_TWO BINARY_SUBSCR
+
         # unary_op (formerly "unary_expr") is the Python AST UnaryOp
         unary_op          ::= expr unary_operator
 
@@ -347,22 +363,7 @@ class Python37LambdaParser(Python37BaseParser):
 
         unary_not         ::= expr UNARY_NOT
 
-        subscript         ::= expr expr BINARY_SUBSCR
-        subscript2        ::= expr expr DUP_TOP_TWO BINARY_SUBSCR
-
         yield             ::= expr YIELD_VALUE
-
-        expr              ::= if_exp
-
-        compare           ::= compare_chained
-        compare           ::= compare_single
-        compare_single    ::= expr expr COMPARE_OP
-        c_compare         ::= c_compare_chained
-
-
-        # FIXME: the below is to work around test_grammar expecting a "call" to be
-        # on the LHS because it is also somewhere on in a rule.
-        call           ::= expr CALL_METHOD_0
         """
 
     def p_list_comprehension(self, args):

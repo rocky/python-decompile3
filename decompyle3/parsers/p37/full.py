@@ -225,12 +225,6 @@ class Python37Parser(Python37LambdaParser):
         load_closure       ::= LOAD_CLOSURE
         """
 
-    def p_generator_exp3(self, args):
-        """
-        load_genexpr ::= LOAD_GENEXPR
-        load_genexpr ::= BUILD_TUPLE_1 LOAD_GENEXPR LOAD_STR
-        """
-
     def p_augmented_assign(self, args):
         """
         stmt ::= aug_assign1
@@ -994,4 +988,4 @@ if __name__ == "__main__":
         """.split()
     )
 
-    dump_and_check(p, 3.7, modified_tokens)
+    dump_and_check(p, (3, 7), modified_tokens)
