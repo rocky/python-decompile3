@@ -532,10 +532,45 @@ class Python37LambdaParser(Python37BaseParser):
         super(Python37LambdaParser, self).customize_grammar_rules(tokens, customize)
         self.check_reduce["call_kw"] = "AST"
 
+        # For a rough break out on the first word. This may
+        # include instructions that don't need customization,
+        # but we'll do a finer check after the rough breakout.
+        customize_instruction_basenames = frozenset(
+            ("BEFORE", "BUILD", "GET", "FORMAT", "LOAD", "MAKE", "SETUP",)
+        )
+
+        # Opcode names in the custom_ops_processed set have rules that get added
+        # unconditionally and the rules are constant. So they need to be done
+        # only once and if we see the opcode a second we don't have to consider
+        # adding more rules.
+        #
+        # Note: BUILD_TUPLE_UNPACK_WITH_CALL gets considered by
+        # default because it starts with BUILD. So we'll set to ignore it from
+        # the start.
+        custom_ops_processed = set(("BUILD_TUPLE_UNPACK_WITH_CALL",))
+
         for i, token in enumerate(tokens):
             opname = token.kind
 
-            if opname == "LOAD_ASSERT":
+            # Do a quick breakout before testing potentially
+            # each of the dozen or so instruction in if elif.
+            if (
+                opname[: opname.find("_")] not in customize_instruction_basenames
+                or opname in custom_ops_processed
+            ):
+                continue
+
+            if opname == "GET_ITER":
+                self.addRule(
+                    """
+                    expr      ::= get_iter
+                    get_iter  ::= expr GET_ITER
+                    """,
+                    nop_func,
+                )
+                custom_ops_processed.add(opname)
+
+            elif opname == "LOAD_ASSERT":
                 if "PyPy" in customize:
                     rules_str = """
                     stmt ::= JUMP_IF_NOT_DEBUG stmts COME_FROM
