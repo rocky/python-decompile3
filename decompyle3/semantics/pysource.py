@@ -137,6 +137,7 @@ IS_PYPY = "__pypy__" in sys.builtin_module_names
 from xdis import COMPILER_FLAG_BIT, iscode
 from xdis.version_info import PYTHON_VERSION_TRIPLE
 
+import decompyle3.parsers.parse_heads as heads
 import decompyle3.parsers.main as python_parser
 from decompyle3.parsers.main import get_python_parser
 from decompyle3.parsers.treenode import SyntaxTree
@@ -2147,7 +2148,7 @@ class SourceWalker(GenericASTTraversal, object):
                 p.offset2inst_index = self.scanner.offset2inst_index
                 ast = python_parser.parse(p, tokens, customize, is_lambda)
                 self.customize(customize)
-            except (python_parser.ParserError, AssertionError) as e:
+            except (heads.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens, self.p.debug["reduce"])
             transform_ast = self.treeTransform.transform(ast, code)
             self.maybe_show_tree(ast)
@@ -2183,7 +2184,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.p.opc = self.scanner.opc
             ast = python_parser.parse(self.p, tokens, customize, is_lambda=is_lambda)
             self.p.insts = p_insts
-        except (python_parser.ParserError, AssertionError) as e:
+        except (heads.ParserError, AssertionError) as e:
             raise ParserError(e, tokens, self.p.debug["reduce"])
 
         checker(ast, False, self.ast_errors)

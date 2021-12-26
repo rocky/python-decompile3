@@ -17,13 +17,12 @@ spark grammar for Python 3.7
 """
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
-from decompyle3.parsers.main import PythonParserEval, PythonParserSingle
 from decompyle3.parsers.p37.lambda_expr import Python37LambdaParser
 
 
 class Python37Parser(Python37LambdaParser):
-    def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG, compile_mode="exec"):
-        super(Python37Parser, self).__init__(debug_parser, compile_mode=compile_mode)
+    def __init__(self, start_symbol: str, debug_parser=PARSER_DEFAULT_DEBUG):
+        super(Python37Parser, self).__init__(start_symbol, debug_parser)
         self.customized = {}
 
     ###############################################
@@ -964,16 +963,6 @@ def info(args):
     if len(sys.argv) > 1 and sys.argv[1] == "dump":
         print("-" * 50)
         p.dump_grammar()
-
-
-class Python37ParserSingle(Python37Parser, PythonParserSingle):
-    # FIXME: add a suitable __init__
-    pass
-
-
-class Python37ParserEval(Python37LambdaParser, PythonParserEval):
-    # FIXME: add a suitable __init__
-    pass
 
 
 if __name__ == "__main__":

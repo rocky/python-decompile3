@@ -13,16 +13,16 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from decompyle3.parsers.main import PythonParserSingle
+from decompyle3.parsers.parse_heads import PythonBaseParser
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
-from decompyle3.parsers.p38.full import Python38FullParser
 from decompyle3.parsers.reducecheck import break_check, for38_check, pop_return_check
 
 
-class Python38Parser(Python38FullParser):
-    def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG, compile_mode="exec"):
-        super(Python38Parser, self).__init__(debug_parser, compile_mode=compile_mode)
-        self.customized = {}
+class Python38BaseParser(PythonBaseParser):
+    def __init__(self, start_symbol, debug_parser: dict = PARSER_DEFAULT_DEBUG):
+        super(Python38BaseParser, self).__init__(
+            start_symbol=start_symbol, debug_parser=debug_parser
+        )
 
     def remove_rules_38(self):
         self.remove_rules(
@@ -92,7 +92,7 @@ class Python38Parser(Python38FullParser):
         )
 
     def customize_grammar_rules(self, tokens, customize):
-        super(Python38Parser, self).customize_grammar_rules(tokens, customize)
+        super(Python38BaseParser, self).customize_grammar_rules(tokens, customize)
         self.remove_rules_38()
         self.check_reduce["break"] = "tokens"
         self.check_reduce["for38"] = "tokens"
@@ -106,7 +106,7 @@ class Python38Parser(Python38FullParser):
         self.reduce_check_table["pop_return"] = pop_return_check
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
-        invalid = super(Python38Parser, self).reduce_is_invalid(
+        invalid = super(Python38BaseParser, self).reduce_is_invalid(
             rule, ast, tokens, first, last
         )
         if invalid:
@@ -123,23 +123,3 @@ class Python38Parser(Python38FullParser):
             pass
 
         return False
-
-
-class Python38ParserSingle(Python38Parser, PythonParserSingle):
-    pass
-
-
-if __name__ == "__main__":
-    # Check grammar
-    from decompyle3.parsers.dump import dump_and_check
-
-    p = Python38Parser()
-    modified_tokens = set(
-        """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
-           LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_CLASSNAME
-           LAMBDA_MARKER RETURN_LAST
-        """.split()
-    )
-
-    p.remove_rules_38()
-    dump_and_check(p, (3, 8), modified_tokens)

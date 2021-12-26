@@ -65,6 +65,7 @@ The node position 0 will be associated with "import".
 
 import re
 
+import decompyle3.parsers.parse_heads as heads
 import decompyle3.parsers.main as python_parser
 from decompyle3.semantics import pysource
 from decompyle3.scanner import Token, Code, get_scanner
@@ -1159,7 +1160,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 self.p.opc = self.scanner.opc
                 ast = python_parser.parse(self.p, tokens, customize, is_lambda)
                 self.p.insts = p_insts
-            except (python_parser.ParserError, AssertionError) as e:
+            except (heads.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens, self.debug_parser.get("reduce", False))
 
             # FIXME: So as not to remove tokens with offsets,
@@ -1202,7 +1203,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             self.p.insts = self.scanner.insts
             ast = python_parser.parse(self.p, tokens, customize, is_lambda=is_lambda)
             self.p.insts = p_insts
-        except (python_parser.ParserError, AssertionError) as e:
+        except (heads.ParserError, AssertionError) as e:
             raise ParserError(e, tokens, self.debug_parser.get("reduce", False))
 
         maybe_show_tree(self, ast)

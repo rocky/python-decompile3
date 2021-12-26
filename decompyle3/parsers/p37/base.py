@@ -2,7 +2,11 @@
 """
 Python 3.7 base code. We keep non-custom-generated grammar rules out of this file.
 """
-from decompyle3.parsers.main import PythonParser, nop_func, ParserError
+from decompyle3.parsers.parse_heads import (
+    PythonBaseParser,
+    ParserError,
+    nop_func,
+)
 from decompyle3.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from spark_parser.spark import rule2str
@@ -31,13 +35,11 @@ from decompyle3.parsers.reducecheck import (
 )
 
 
-class Python37BaseParser(PythonParser):
-    def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG, compile_mode="exec"):
+class Python37BaseParser(PythonBaseParser):
+    def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
 
         self.added_rules = set()
-        super(Python37BaseParser, self).__init__(
-            SyntaxTree, compile_mode, debug=debug_parser
-        )
+        super(Python37BaseParser, self).__init__(SyntaxTree, debug=debug_parser)
         self.new_rules = set()
 
     @staticmethod
