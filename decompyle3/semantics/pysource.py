@@ -215,13 +215,16 @@ class SourceWalker(GenericASTTraversal, object):
 
         If `showast' is True, we print the syntax tree.
 
-        `compile_mode' is is either 'exec' or 'single'. It is the compile
-        mode that was used to create the Syntax Tree and specifies a
-        gramar variant within a Python version to use.
+        `compile_mode` is is either `exec`, `single` or `lambda`.
 
-        `is_pypy' should be True if the Syntax Tree was generated for PyPy.
+        For `lambda`, the grammar that can be used in lambda
+        expressions is used.  Otherwise, it is the compile mode that
+        was used to create the Syntax Tree and specifies a gramar
+        variant within a Python version to use.
 
-        `linestarts' is a dictionary of line number to bytecode offset. This
+        `is_pypy` should be True if the Syntax Tree was generated for PyPy.
+
+        `linestarts` is a dictionary of line number to bytecode offset. This
         can sometimes assist in determinte which kind of source-code construct
         to use when there is ambiguity.
 
@@ -1012,21 +1015,28 @@ class SourceWalker(GenericASTTraversal, object):
         """Non-closure-based comprehensions the way they are done in Python3
         and some Python 2.7. Note: there are also other set comprehensions.
         """
+        # FIXME: DRY with listcomp_closure3
         p = self.prec
         self.prec = 27
-        code = node[code_index].attr
 
-        assert iscode(code), node[code_index]
-        code = Code(code, self.scanner, self.currentclass, self.debug_opts["asm"])
+        code_obj = node[code_index].attr
+        assert iscode(code_obj), node[code_index]
+        try:
+            self.debug_opts["asm"]
+        except:
+            from trepan.api import debug
 
-        ast = self.build_ast(code._tokens, code._customize, code)
+            debug()
+        code = Code(code_obj, self.scanner, self.currentclass, self.debug_opts["asm"])
+
+        ast = self.build_ast(
+            code._tokens, code._customize, code, is_lambda=self.is_lambda
+        )
         self.customize(code._customize)
 
         # skip over: sstmt, stmt, return, ret_expr
         # and other singleton derivations
-        while len(ast) == 1 or (
-            ast in ("sstmt", "return") and ast[-1] in ("RETURN_LAST", "RETURN_VALUE")
-        ):
+        while len(ast) == 1 or (ast in ("sstmt", "return", "ret_expr")):
             self.prec = 100
             ast = ast[0]
 
@@ -1057,6 +1067,13 @@ class SourceWalker(GenericASTTraversal, object):
         elif ast == "list_comp_async":
             store = ast[2][1]
         else:
+            # FIXME: we get this when we parse lambda's explicitly.
+            # And here we've already printed/handled the list comprehension
+            # this iteration is duplicate in seeing the list-comprehension code
+            # item again. Is this a larger duplicate parsing problem?
+            # Not sure what the best thi
+            if n.kind == "return_lambda":
+                self.prune()
             assert n == "list_iter", n
 
         # FIXME: I'm not totally sure this is right.
@@ -1599,8 +1616,10 @@ class SourceWalker(GenericASTTraversal, object):
                 self.write(value)
                 sep = ", "
                 if line_number != self.line_number:
-                    sep += "\n" + self.indent + "  "
+                    sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
                     line_number = self.line_number
+                else:
+                    sep += " "
                     pass
                 pass
             pass
@@ -2250,17 +2269,37 @@ def code_deparse(
     isTopLevel = co.co_name == "<module>"
     if compile_mode == "eval":
         deparsed.hide_internal = False
-    deparsed.ast = deparsed.build_ast(tokens, customize, co, isTopLevel=isTopLevel)
+    deparsed.compile_mode = compile_mode
+    deparsed.ast = deparsed.build_ast(
+        tokens,
+        customize,
+        co,
+        is_lambda=(compile_mode == "lambda"),
+        isTopLevel=isTopLevel,
+    )
 
     #### XXX workaround for profiling
     if deparsed.ast is None:
         return None
 
-    if compile_mode != "eval":
-        assert deparsed.ast == "stmts", "Should have parsed grammar start"
+    # FIXME use a lookup table here.
+    if compile_mode == "lambda":
+        expected_start = "lambda_start"
+    elif compile_mode == "eval":
+        # expected_start = "expr_stmt"
+        expected_start = "expr_start"
+    elif compile_mode == "expr":
+        expected_start = "expr_start"
+    elif compile_mode == "exec":
+        expected_start = "stmts"
+    elif compile_mode == "single":
+        expected_start = "single_start"
     else:
-        assert deparsed.ast == "eval_expr", "Should have parsed grammar start"
-
+        expected_start = None
+    if expected_start:
+        assert (
+            deparsed.ast == expected_start
+        ), f"Should have parsed grammar start to '{expected_start}'; got: {deparsed.ast.kind}"
     # save memory
     del tokens
 

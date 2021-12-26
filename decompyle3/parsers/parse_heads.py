@@ -263,20 +263,6 @@ class PythonBaseParser(GenericASTBuilder):
         return GenericASTBuilder.resolve(self, list)
 
 
-class PythonParserEval(PythonBaseParser):
-    def p_start_rule_eval(self, args):
-        """
-        call_stmt ::= expr PRINT_EXPR
-
-        # eval-mode compilation.  Single-mode interactive compilation
-        # adds another rule.
-        expr_stmt ::= expr POP_TOP
-        """
-
-    def __init__(self, debug_parser, start_symbol="call_stmt"):
-        super(PythonParserEval, self).__init__(start_symbol, debug_parser)
-
-
 class PythonParserExpr(PythonBaseParser):
     """This corresponds to a single grammar expression: "expr". It matches smaller
     units, so it is something to parse for that might be used when larger
@@ -286,15 +272,17 @@ class PythonParserExpr(PythonBaseParser):
 
     def p_start_rule_expr(self, args):
         """
-        expr_start       ::= dom_start
-                             expr
-                             return_value_opt
-                             dom_end_opt
+        expr_start       ::= expr return_value_opt
         return_value_opt ::= RETURN_VALUE?
         """
 
     def __init__(self, debug_parser, start_symbol="expr_start"):
-        super(PythonParserExpr, self).__init__(start_symbol, debug_parser)
+        super(PythonParserExpr, self).__init__(
+            debug_parser=debug_parser, start_symbol=start_symbol
+        )
+
+
+PythonParserEval = PythonParserExpr
 
 
 class PythonParserExec(PythonBaseParser):
@@ -329,27 +317,22 @@ class PythonParserLambda(PythonBaseParser):
     # parse.
     def __init__(self, debug_parser, start_symbol="lambda_start"):
         super(PythonParserLambda, self).__init__(
-            debug_parser=debug_parser, start_symbol=start_symbol,
+            start_symbol=start_symbol, debug_parser=debug_parser
         )
 
 
 class PythonParserSingle(PythonBaseParser):
-    """
-    This corresponds to the compile-mode == "single"
-    in the *compile()* builtin
-    """
-
     def p_start_rule_single(self, args):
         """
-        # The start or goal symbol
-        stmts ::= sstmt_plus
-        sstmt_plus ::= sstmt+
+        # Single-mode interactive compilation
+        single_start ::= expr PRINT_EXPR
+        single_start ::= stmt
         """
 
-    def __init__(self, debug_parser, start_symbol="stmts"):
-        super(PythonParserSingle, self).__init__(debug_parser, start_symbol)
-
-    pass
+    def __init__(self, debug_parser, start_symbol="single_start"):
+        super(PythonParserSingle, self).__init__(
+            start_symbol=start_symbol, debug_parser=debug_parser
+        )
 
 
 class PythonParser(PythonBaseParser):

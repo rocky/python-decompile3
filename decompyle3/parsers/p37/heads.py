@@ -49,4 +49,4 @@ class Python37ParserLambda(Python37LambdaParser, PythonParserLambda):
 # various classes inherited properly and start_symbols set pproperly
 class Python37ParserSingle(Python37Parser, PythonParserSingle):
     def __init__(self, debug_parser):
-        PythonParserSingle.__init__(self, debug_parser, start_symbol="stmts")
+        PythonParserSingle.__init__(self, debug_parser)
