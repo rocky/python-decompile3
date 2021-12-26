@@ -4,12 +4,10 @@ Python 3.7 base code. We keep non-custom-generated grammar rules out of this fil
 """
 from decompyle3.parsers.parse_heads import (
     PythonBaseParser,
-    ParserError,
     nop_func,
 )
 from decompyle3.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
-from spark_parser.spark import rule2str
 
 from decompyle3.parsers.reducecheck import (
     and_check,
@@ -116,8 +114,7 @@ class Python37BaseParser(PythonBaseParser):
     # FIXME FIXME FIXME: The below is an utter mess. Come up with a better
     # organization for this. For example, arrange organize by opcode base?
 
-    def customize_grammar_rules(self, tokens, customize):
-
+    def customize_grammar_rules37(self, tokens, customize):
         is_pypy = False
 
         # For a rough break out on the first word. This may
@@ -1312,37 +1309,3 @@ class Python37BaseParser(PythonBaseParser):
                         args_pos,
                     )
                     self.add_unique_rule(rule, token.kind, uniq_param, customize)
-
-    def reduce_is_invalid(self, rule, ast, tokens, first, last):
-        lhs = rule[0]
-        n = len(tokens)
-        last = min(last, n - 1)
-        fn = self.reduce_check_table.get(lhs, None)
-        try:
-            if fn:
-                return fn(self, lhs, n, rule, ast, tokens, first, last)
-        except:
-            import sys, traceback
-
-            print(
-                f"Exception in {fn.__name__} {sys.exc_info()[1]}\n"
-                + f"rule: {rule2str(rule)}\n"
-                + f"offsets {tokens[first].offset} .. {tokens[last].offset}"
-            )
-            print(traceback.print_tb(sys.exc_info()[2], -1))
-            raise ParserError(tokens[last], tokens[last].off2int(), self.debug["rules"])
-
-        if lhs in ("aug_assign1", "aug_assign2") and ast[0][0] == "and":
-            return True
-        elif lhs == "annotate_tuple":
-            return not isinstance(tokens[first].attr, tuple)
-        elif lhs == "import_from37":
-            importlist37 = ast[3]
-            alias37 = importlist37[0]
-            if importlist37 == "importlist37" and alias37 == "alias37":
-                store = alias37[1]
-                assert store == "store"
-                return alias37[0].attr != store[0].attr
-            return False
-
-        return False

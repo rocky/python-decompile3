@@ -91,8 +91,8 @@ class Python38BaseParser(PythonBaseParser):
         """
         )
 
-    def customize_grammar_rules(self, tokens, customize):
-        super(Python38BaseParser, self).customize_grammar_rules(tokens, customize)
+    def customize_grammar_rules38(self, tokens, customize):
+        self.customize_grammar_rules37(tokens, customize)
         self.remove_rules_38()
         self.check_reduce["break"] = "tokens"
         self.check_reduce["for38"] = "tokens"
@@ -104,22 +104,3 @@ class Python38BaseParser(PythonBaseParser):
         self.reduce_check_table["break"] = break_check
         self.reduce_check_table["for38"] = for38_check
         self.reduce_check_table["pop_return"] = pop_return_check
-
-    def reduce_is_invalid(self, rule, ast, tokens, first, last):
-        invalid = super(Python38BaseParser, self).reduce_is_invalid(
-            rule, ast, tokens, first, last
-        )
-        if invalid:
-            return invalid
-        lhs = rule[0]
-        if lhs in ("whileTruestmt38", "whilestmt38"):
-            jb_index = last - 1
-            while jb_index > 0 and tokens[jb_index].kind.startswith("COME_FROM"):
-                jb_index -= 1
-            t = tokens[jb_index]
-            if t.kind != "JUMP_BACK":
-                return True
-            return t.attr != tokens[first].off2int()
-            pass
-
-        return False

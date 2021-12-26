@@ -18,13 +18,17 @@ spark grammar differences over Python 3.7 for Python 3.8
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from decompyle3.parsers.p37.full import Python37Parser
+from decompyle3.parsers.p38.base import Python38BaseParser
 from decompyle3.parsers.p38.lambda_expr import Python38LambdaParser
 
 
-class Python38Parser(Python37Parser, Python38LambdaParser):
+class Python38Parser(Python37Parser, Python38LambdaParser, Python38BaseParser):
     def __init__(self, start_symbol: str = "stmts", debug_parser=PARSER_DEFAULT_DEBUG):
         Python38LambdaParser.__init__(self, start_symbol, debug_parser)
         self.customized = {}
+
+    def customize_grammar_rules(self, tokens, customize):
+        self.customize_grammar_rules38(tokens, customize)
 
     def p_38walrus(self, args):
         """

@@ -27,7 +27,7 @@ class Python37LambdaCustom(Python37BaseParser):
         self.customized = {}
 
     def customize_grammar_rules_lambda37(self, tokens, customize):
-        super(Python37LambdaCustom, self).customize_grammar_rules(tokens, customize)
+        Python37BaseParser.customize_grammar_rules37(self, tokens, customize)
         self.check_reduce["call_kw"] = "AST"
 
         # For a rough break out on the first word. This may
@@ -315,11 +315,6 @@ class Python37LambdaCustom(Python37BaseParser):
             )
 
     def reduce_is_invalid(self, rule, ast, tokens, first, last):
-        invalid = Python37BaseParser.reduce_is_invalid(
-            self, rule, ast, tokens, first, last
-        )
-        if invalid:
-            return invalid
         if rule[0] == "call_kw":
             # Make sure we don't derive call_kw
             nt = ast[0]

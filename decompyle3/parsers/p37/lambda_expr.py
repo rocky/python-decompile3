@@ -25,6 +25,22 @@ from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
 
 class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
+    def __init__(
+        self,
+        start_symbol: str = "lambda_start",
+        debug_parser: dict = PARSER_DEFAULT_DEBUG,
+    ):
+        PythonParserLambda.__init__(
+            self, debug_parser=debug_parser, start_symbol=start_symbol
+        )
+        PythonBaseParser.__init__(
+            self, start_symbol=start_symbol, debug_parser=debug_parser
+        )
+        Python37LambdaCustom.__init__(self)
+
+    def customize_grammar_rules(self, tokens, customize):
+        self.customize_grammar_rules_lambda37(tokens, customize)
+
     ###################################################
     #  Python 3.7 grammar rules for lambda expressions
     ###################################################
@@ -523,22 +539,6 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         store           ::= store_subscript
         store_subscript ::= expr expr STORE_SUBSCR
         """
-
-    def __init__(
-        self,
-        start_symbol: str = "lambda_start",
-        debug_parser: dict = PARSER_DEFAULT_DEBUG,
-    ):
-        PythonParserLambda.__init__(
-            self, debug_parser=debug_parser, start_symbol=start_symbol
-        )
-        PythonBaseParser.__init__(
-            self, start_symbol=start_symbol, debug_parser=debug_parser
-        )
-        Python37LambdaCustom.__init__(self)
-
-    def customize_grammar_rules(self, tokens, customize):
-        self.customize_grammar_rules_lambda37(tokens, customize)
 
 
 if __name__ == "__main__":

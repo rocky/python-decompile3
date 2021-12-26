@@ -16,6 +16,7 @@
 Differences over Python 3.7 for Python 3.8 in the Earley-algorithm lambda grammar
 """
 
+from decompyle3.parsers.p37.lambda_custom import Python37LambdaCustom
 from decompyle3.parsers.p37.lambda_expr import Python37LambdaParser
 from decompyle3.parsers.parse_heads import (
     PythonParserLambda,
@@ -25,7 +26,9 @@ from decompyle3.parsers.parse_heads import (
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
 
-class Python38LambdaParser(Python37LambdaParser, PythonParserLambda):
+class Python38LambdaParser(
+    Python37LambdaParser, Python37LambdaCustom, PythonParserLambda
+):
     def p_38walrus(self, args):
         """
         # named_expr is also known as the "walrus op" :=
