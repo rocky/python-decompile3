@@ -22,7 +22,7 @@ from decompyle3.parsers.p38.lambda_expr import Python38LambdaParser
 
 
 class Python38Parser(Python37Parser, Python38LambdaParser):
-    def __init__(self, start_symbol: str, debug_parser=PARSER_DEFAULT_DEBUG):
+    def __init__(self, start_symbol: str = "stmts", debug_parser=PARSER_DEFAULT_DEBUG):
         Python38LambdaParser.__init__(self, start_symbol, debug_parser)
         self.customized = {}
 
@@ -326,7 +326,7 @@ if __name__ == "__main__":
     # Check grammar
     from decompyle3.parsers.dump import dump_and_check
 
-    p = Python38FullParser()
+    p = Python38Parser()
     modified_tokens = set(
         """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
            LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_CLASSNAME

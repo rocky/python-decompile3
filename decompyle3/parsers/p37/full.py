@@ -21,7 +21,7 @@ from decompyle3.parsers.p37.lambda_expr import Python37LambdaParser
 
 
 class Python37Parser(Python37LambdaParser):
-    def __init__(self, start_symbol: str, debug_parser=PARSER_DEFAULT_DEBUG):
+    def __init__(self, start_symbol: str = "stmts", debug_parser=PARSER_DEFAULT_DEBUG):
         super(Python37Parser, self).__init__(start_symbol, debug_parser)
         self.customized = {}
 
