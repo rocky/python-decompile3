@@ -2323,7 +2323,7 @@ def code_deparse(
 
     if deparsed.ast_errors:
         deparsed.write("# NOTE: have internal decompilation grammar errors.\n")
-        deparsed.write("# Use -t option to show full context.")
+        deparsed.write("# Use -T option to show full context.")
         for err in deparsed.ast_errors:
             deparsed.write(err)
         raise SourceWalkerError("Deparsing hit an internal grammar-rule bug")
