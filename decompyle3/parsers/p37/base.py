@@ -2,10 +2,12 @@
 """
 Python 3.7 base code. We keep non-custom-generated grammar rules out of this file.
 """
-from decompyle3.parsers.main import PythonParser, nop_func, ParserError
+from decompyle3.parsers.parse_heads import (
+    PythonBaseParser,
+    nop_func,
+)
 from decompyle3.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
-from spark_parser.spark import rule2str
 
 from decompyle3.parsers.reducecheck import (
     and_check,
@@ -31,13 +33,11 @@ from decompyle3.parsers.reducecheck import (
 )
 
 
-class Python37BaseParser(PythonParser):
-    def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG, compile_mode="exec"):
+class Python37BaseParser(PythonBaseParser):
+    def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG):
 
         self.added_rules = set()
-        super(Python37BaseParser, self).__init__(
-            SyntaxTree, compile_mode, debug=debug_parser
-        )
+        super(Python37BaseParser, self).__init__(SyntaxTree, debug=debug_parser)
         self.new_rules = set()
 
     @staticmethod
@@ -114,8 +114,7 @@ class Python37BaseParser(PythonParser):
     # FIXME FIXME FIXME: The below is an utter mess. Come up with a better
     # organization for this. For example, arrange organize by opcode base?
 
-    def customize_grammar_rules(self, tokens, customize):
-
+    def customize_grammar_rules37(self, tokens, customize):
         is_pypy = False
 
         # For a rough break out on the first word. This may

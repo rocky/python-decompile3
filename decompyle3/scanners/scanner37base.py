@@ -216,7 +216,7 @@ class Scanner37Base(Scanner):
         # show_asm = 'both'
         if show_asm in ("both", "before"):
             for instr in bytecode.get_instructions(co):
-                print(instr.disassemble())
+                print(instr.disassemble(self.opc))
 
         # "customize" is in the process of going away here
         customize = {}

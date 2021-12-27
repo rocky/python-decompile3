@@ -24,7 +24,7 @@ from xdis import (
 )
 from decompyle3.scanner import Code
 from decompyle3.semantics.parser_error import ParserError
-from decompyle3.parsers.main import ParserError as ParserError2
+from decompyle3.parsers.parse_heads import ParserError as ParserError2
 from decompyle3.semantics.helper import (
     find_all_globals,
     find_globals_and_nonlocals,

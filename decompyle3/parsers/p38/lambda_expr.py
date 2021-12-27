@@ -16,11 +16,19 @@
 Differences over Python 3.7 for Python 3.8 in the Earley-algorithm lambda grammar
 """
 
+from decompyle3.parsers.p37.lambda_expr import Python37LambdaParser
+from decompyle3.parsers.p38.lambda_custom import Python38LambdaCustom
+from decompyle3.parsers.parse_heads import (
+    PythonParserLambda,
+    PythonBaseParser,
+)
+
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
-from decompyle3.parsers.p37 import Python37LambdaParser
 
 
-class Python38LambdaParser(Python37LambdaParser):
+class Python38LambdaParser(
+    Python38LambdaCustom, Python37LambdaParser, PythonParserLambda
+):
     def p_38walrus(self, args):
         """
         # named_expr is also known as the "walrus op" :=
@@ -28,11 +36,21 @@ class Python38LambdaParser(Python37LambdaParser):
         named_expr        ::= expr DUP_TOP store
         """
 
-    def __init__(self, debug_parser=PARSER_DEFAULT_DEBUG, compile_mode="lambda"):
-        super(Python38LambdaParser, self).__init__(
-            debug_parser, compile_mode=compile_mode
+    def __init__(
+        self,
+        start_symbol: str = "lambda_start",
+        debug_parser: dict = PARSER_DEFAULT_DEBUG,
+    ):
+        PythonParserLambda.__init__(
+            self, debug_parser=debug_parser, start_symbol=start_symbol
         )
-        self.customized = {}
+        PythonBaseParser.__init__(
+            self, start_symbol=start_symbol, debug_parser=debug_parser
+        )
+        Python38LambdaCustom.__init__(self)
+
+    def customize_grammar_rules(self, tokens, customize):
+        self.customize_grammar_rules_lambda38(tokens, customize)
 
 
 if __name__ == "__main__":

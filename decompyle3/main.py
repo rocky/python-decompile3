@@ -21,7 +21,7 @@ from xdis.version_info import version_tuple_to_str
 from decompyle3 import IS_PYPY, PYTHON_VERSION_TRIPLE
 from decompyle3.disas import check_object_path
 from decompyle3.semantics import pysource
-from decompyle3.parsers import ParserError
+from decompyle3.parsers.parse_heads import ParserError
 from decompyle3.version import __version__
 
 # from decompyle3.linenumbers import line_number_mapping

@@ -157,7 +157,7 @@ def customize_for_version38(self, version):
             "tryfinally38rstmt": (
                 "%|try:\n%+%c%-%|finally:\n%+%c%-\n\n",
                 (0, "sf_pb_call_returns"),
-                (-1, ("ss_end_finally", "suite_stmts")),
+                (-1, ("ss_end_finally", "suite_stmts", "_stmts")),
             ),
             "tryfinally38rstmt2": (
                 "%|try:\n%+%c%-%|finally:\n%+%c%-\n\n",
@@ -218,7 +218,7 @@ def customize_for_version38(self, version):
         if len(node) > 1:
             assert len(node) == 2
             self.template_engine(
-                ("%c\n%|return %c", (0, "suite_stmts"), (1, "expr")), node
+                ("%c\n%|return %c", (0, ("_stmts", "suite_stmts")), (1, "expr")), node
             )
         else:
             self.template_engine(("%|return %c", (0, "expr")), node)
