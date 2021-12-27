@@ -568,10 +568,7 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_expr(self, node):
         first_child = node[0]
-        if first_child == "_mklambda" and self.in_format_string:
-            p = -2
-        else:
-            p = self.prec
+        p = self.prec
 
         if first_child.kind.startswith("bin_op"):
             n = node[0][-1][0]
@@ -918,7 +915,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.println(lines[-1], quote)
         self.prune()
 
-    def n_mklambda(self, node):
+    def n_lambda_body(self, node):
         make_function36(self, node, is_lambda=True, code_node=node[-2])
         self.prune()  # stop recursing
 
