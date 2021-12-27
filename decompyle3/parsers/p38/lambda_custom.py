@@ -13,20 +13,22 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-Grammar Customization rules for Python 3.7's Lambda expression grammar.
+Grammar Customization rules for Python 3.8's Lambda expression grammar.
 """
 
+from decompyle3.scanners.tok import Token
 from decompyle3.parsers.p37.base import Python37BaseParser
+from decompyle3.parsers.p38.base import Python38BaseParser
 from decompyle3.parsers.parse_heads import nop_func
 
 
-class Python37LambdaCustom(Python37BaseParser):
+class Python38LambdaCustom(Python38BaseParser):
     def __init__(self):
         self.new_rules = set()
         self.customized = {}
 
-    def customize_grammar_rules_lambda37(self, tokens, customize):
-        Python37BaseParser.customize_grammar_rules37(self, tokens, customize)
+    def customize_grammar_rules_lambda38(self, tokens, customize):
+        Python38BaseParser.customize_grammar_rules38(self, tokens, customize)
         self.check_reduce["call_kw"] = "AST"
 
         # For a rough break out on the first word. This may

@@ -22,18 +22,22 @@ from decompyle3.parsers.parse_heads import (
     # PythonParserStmt
 )
 
+# Make sure to list Python38... classes first so we prefer to inherit methods from that first.
+# In particular methods like reduce_is_invalid() need to come from there rather than
+# a more generic place.
 
-class Python38ParserEval(PythonParserEval, Python38LambdaParser):
+
+class Python38ParserEval(Python38LambdaParser, PythonParserEval):
     def __init__(self, debug_parser):
         PythonParserEval.__init__(self, debug_parser)
 
 
-class Python38ParserExec(PythonParserExec, Python38Parser):
+class Python38ParserExec(Python38Parser, PythonParserExec):
     def __init__(self, debug_parser):
         PythonParserExec.__init__(self, debug_parser)
 
 
-class Python38ParserExpr(PythonParserExpr, Python38Parser):
+class Python38ParserExpr(Python38Parser, PythonParserExpr):
     def __init__(self, debug_parser):
         PythonParserExpr.__init__(self, debug_parser)
 

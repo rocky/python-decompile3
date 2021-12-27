@@ -13,9 +13,12 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from decompyle3.parsers.parse_heads import PythonBaseParser
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+
+from decompyle3.parsers.p37.base import Python37BaseParser
+from decompyle3.parsers.parse_heads import PythonBaseParser
 from decompyle3.parsers.reducecheck import break_check, for38_check, pop_return_check
+from decompyle3.scanners.tok import Token
 
 
 class Python38BaseParser(PythonBaseParser):
@@ -92,7 +95,7 @@ class Python38BaseParser(PythonBaseParser):
         )
 
     def customize_grammar_rules38(self, tokens, customize):
-        self.customize_grammar_rules37(tokens, customize)
+        Python37BaseParser.customize_grammar_rules37(self, tokens, customize)
         self.remove_rules_38()
         self.check_reduce["break"] = "tokens"
         self.check_reduce["for38"] = "tokens"

@@ -1309,3 +1309,37 @@ class Python37BaseParser(PythonBaseParser):
                         args_pos,
                     )
                     self.add_unique_rule(rule, token.kind, uniq_param, customize)
+
+    def reduce_is_invalid(self, rule, ast, tokens, first, last):
+        lhs = rule[0]
+        n = len(tokens)
+        last = min(last, n - 1)
+        fn = self.reduce_check_table.get(lhs, None)
+        try:
+            if fn:
+                return fn(self, lhs, n, rule, ast, tokens, first, last)
+        except:
+            import sys, traceback
+
+            print(
+                f"Exception in {fn.__name__} {sys.exc_info()[1]}\n"
+                + f"rule: {rule2str(rule)}\n"
+                + f"offsets {tokens[first].offset} .. {tokens[last].offset}"
+            )
+            print(traceback.print_tb(sys.exc_info()[2], -1))
+            raise ParserError(tokens[last], tokens[last].off2int(), self.debug["rules"])
+
+        if lhs in ("aug_assign1", "aug_assign2") and ast[0][0] == "and":
+            return True
+        elif lhs == "annotate_tuple":
+            return not isinstance(tokens[first].attr, tuple)
+        elif lhs == "import_from37":
+            importlist37 = ast[3]
+            alias37 = importlist37[0]
+            if importlist37 == "importlist37" and alias37 == "alias37":
+                store = alias37[1]
+                assert store == "store"
+                return alias37[0].attr != store[0].attr
+            return False
+
+        return False

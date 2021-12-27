@@ -17,18 +17,19 @@ spark grammar differences over Python 3.7 for Python 3.8
 """
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+from spark_parser.spark import rule2str
+
 from decompyle3.parsers.p37.full import Python37Parser
-from decompyle3.parsers.p38.base import Python38BaseParser
+from decompyle3.parsers.parse_heads import ParserError
 from decompyle3.parsers.p38.lambda_expr import Python38LambdaParser
 
+from decompyle3.scanners.tok import Token
 
-class Python38Parser(Python37Parser, Python38LambdaParser, Python38BaseParser):
+
+class Python38Parser(Python38LambdaParser, Python37Parser):
     def __init__(self, start_symbol: str = "stmts", debug_parser=PARSER_DEFAULT_DEBUG):
         Python38LambdaParser.__init__(self, start_symbol, debug_parser)
         self.customized = {}
-
-    def customize_grammar_rules(self, tokens, customize):
-        self.customize_grammar_rules38(tokens, customize)
 
     def p_38walrus(self, args):
         """
@@ -324,6 +325,52 @@ class Python38Parser(Python37Parser, Python38LambdaParser, Python38BaseParser):
                                BEGIN_FINALLY COME_FROM_FINALLY
                                POP_FINALLY POP_TOP suite_stmts_opt END_FINALLY POP_TOP
         """
+
+    # FIXME: try this
+    def reduce_is_invalid(self, rule, ast, tokens, first, last):
+        lhs = rule[0]
+        if lhs == "call_kw":
+            # Make sure we don't derive call_kw
+            nt = ast[0]
+            while not isinstance(nt, Token):
+                if nt[0] == "call_kw":
+                    return True
+                nt = nt[0]
+                pass
+            pass
+        n = len(tokens)
+        last = min(last, n - 1)
+        fn = self.reduce_check_table.get(lhs, None)
+        try:
+            if fn:
+                return fn(self, lhs, n, rule, ast, tokens, first, last)
+        except:
+            import sys, traceback
+
+            print(
+                f"Exception in {fn.__name__} {sys.exc_info()[1]}\n"
+                + f"rule: {rule2str(rule)}\n"
+                + f"offsets {tokens[first].offset} .. {tokens[last].offset}"
+            )
+            print(traceback.print_tb(sys.exc_info()[2], -1))
+            raise ParserError(tokens[last], tokens[last].off2int(), self.debug["rules"])
+
+        if lhs in ("aug_assign1", "aug_assign2") and ast[0][0] == "and":
+            return True
+        elif lhs == "annotate_tuple":
+            return not isinstance(tokens[first].attr, tuple)
+        elif lhs == "import_from37":
+            importlist37 = ast[3]
+            alias37 = importlist37[0]
+            if importlist37 == "importlist37" and alias37 == "alias37":
+                store = alias37[1]
+                assert store == "store"
+                return alias37[0].attr != store[0].attr
+            return False
+
+        return False
+
+        return False
 
 
 if __name__ == "__main__":

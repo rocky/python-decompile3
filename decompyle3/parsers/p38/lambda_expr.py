@@ -16,8 +16,8 @@
 Differences over Python 3.7 for Python 3.8 in the Earley-algorithm lambda grammar
 """
 
-from decompyle3.parsers.p37.lambda_custom import Python37LambdaCustom
 from decompyle3.parsers.p37.lambda_expr import Python37LambdaParser
+from decompyle3.parsers.p38.lambda_custom import Python38LambdaCustom
 from decompyle3.parsers.parse_heads import (
     PythonParserLambda,
     PythonBaseParser,
@@ -27,7 +27,7 @@ from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
 
 class Python38LambdaParser(
-    Python37LambdaParser, Python37LambdaCustom, PythonParserLambda
+    Python38LambdaCustom, Python37LambdaParser, PythonParserLambda
 ):
     def p_38walrus(self, args):
         """
@@ -47,7 +47,10 @@ class Python38LambdaParser(
         PythonBaseParser.__init__(
             self, start_symbol=start_symbol, debug_parser=debug_parser
         )
-        self.customized = {}
+        Python38LambdaCustom.__init__(self)
+
+    def customize_grammar_rules(self, tokens, customize):
+        self.customize_grammar_rules_lambda38(tokens, customize)
 
 
 if __name__ == "__main__":
