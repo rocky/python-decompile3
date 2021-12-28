@@ -26,6 +26,6 @@ jobs:
         # pip install git+git://github.com/rocky/python-xdis.git#egg=xdis
         pip install -e .
         pip install -r requirements-dev.txt
-    - name: Test deocmpyle3
+    - name: Test decompyle3
       run: |
         make check
