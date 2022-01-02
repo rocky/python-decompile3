@@ -16,7 +16,6 @@
 Grammar Customization rules for Python 3.8's Lambda expression grammar.
 """
 
-from decompyle3.scanners.tok import Token
 from decompyle3.parsers.p37.base import Python37BaseParser
 from decompyle3.parsers.p38.base import Python38BaseParser
 from decompyle3.parsers.parse_heads import nop_func

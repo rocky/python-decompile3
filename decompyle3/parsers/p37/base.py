@@ -1,13 +1,15 @@
-#  Copyright (c) 2016-2017, 2019-2021 Rocky Bernstein
+#  Copyright (c) 2016-2017, 2019-2022 Rocky Bernstein
 """
 Python 3.7 base code. We keep non-custom-generated grammar rules out of this file.
 """
 from decompyle3.parsers.parse_heads import (
+    ParserError,
     PythonBaseParser,
     nop_func,
 )
 from decompyle3.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+from spark_parser.spark import rule2str
 
 from decompyle3.parsers.reducecheck import (
     and_check,
@@ -994,7 +996,7 @@ class Python37BaseParser(PythonBaseParser):
             elif opname == "RETURN_VALUE_LAMBDA":
                 self.addRule(
                     """
-                    return_lambda ::= ret_expr RETURN_VALUE_LAMBDA
+                    return_expr_lambda ::= ret_expr RETURN_VALUE_LAMBDA
                     """,
                     nop_func,
                 )

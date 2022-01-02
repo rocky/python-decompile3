@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2021 Rocky Bernstein
+#  Copyright (c) 2017-2022 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -48,26 +48,26 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
 
     def p_lambda(self, args):
         """
-        lambda_start       ::= return_lambda LAMBDA_MARKER
-        return_lambda      ::= expr RETURN_VALUE_LAMBDA
-        return_lambda      ::= if_exp_lambda
-        return_lambda      ::= if_exp_lambda2
-        return_lambda      ::= if_exp_not_lambda
-        return_lambda      ::= if_exp_not_lambda2
-        return_lambda      ::= if_exp_dead_code
+        lambda_start       ::= return_expr_lambda LAMBDA_MARKER
+        return_expr_lambda ::= expr RETURN_VALUE_LAMBDA
+        return_expr_lambda ::= if_exp_lambda
+        return_expr_lambda ::= if_exp_lambda2
+        return_expr_lambda ::= if_exp_not_lambda
+        return_expr_lambda ::= if_exp_not_lambda2
+        return_expr_lambda ::= if_exp_dead_code
 
         return_if_lambda   ::= RETURN_END_IF_LAMBDA COME_FROM
         return_if_lambda   ::= RETURN_END_IF_LAMBDA
 
         if_exp_lambda      ::= expr_pjif expr return_if_lambda
-                               return_lambda LAMBDA_MARKER
-        if_exp_lambda2     ::= and_parts return_lambda come_froms
-                               return_lambda opt_lambda_marker
+                               return_expr_lambda LAMBDA_MARKER
+        if_exp_lambda2     ::= and_parts return_expr_lambda come_froms
+                               return_expr_lambda opt_lambda_marker
         if_exp_not_lambda  ::= expr POP_JUMP_IF_TRUE expr return_if_lambda
-                               return_lambda LAMBDA_MARKER
+                               return_expr_lambda LAMBDA_MARKER
         if_exp_not_lambda2 ::= expr POP_JUMP_IF_TRUE expr
-                               RETURN_VALUE_LAMBDA COME_FROM return_lambda
-        if_exp_dead_code   ::= return_lambda return_lambda
+                               RETURN_VALUE_LAMBDA COME_FROM return_expr_lambda
+        if_exp_dead_code   ::= return_expr_lambda return_expr_lambda
         opt_lambda_marker  ::= LAMBDA_MARKER?
         """
 
