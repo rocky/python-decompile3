@@ -1,3 +1,17 @@
+#  Copyright (c) 2022 Rocky Bernstein
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Here we have the top-level parse grammar types with their rules and the start symbols
 for them.
 
@@ -309,7 +323,7 @@ class PythonParserLambda(PythonBaseParser):
 
     def p_start_rule_lambda(self, args):
         """
-        lambda_start       ::= return_lambda
+        lambda_start ::= return_expr_lambda
         """
 
     # lambda_start is the highest level nonterminal. However

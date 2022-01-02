@@ -78,7 +78,7 @@ def find_globals_and_nonlocals(node, globs, nonlocals, code, version):
 #         # print("XXX", n.kind, global_ops)
 #         if isinstance(n, SyntaxTree):
 #             # FIXME: do I need a caser for n.kind="mkfunc"?
-#             if n.kind in ("if_exp_lambda", "return_lambda"):
+#             if n.kind in ("if_exp_lambda", "return_expr_lambda"):
 #                 globs = find_globals(n, globs, lambda_body_globals)
 #             else:
 #                 globs = find_globals(n, globs, global_ops)

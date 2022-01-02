@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2020 by Rocky Bernstein
+#  Copyright (c) 2017-2020, 2022 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -263,29 +263,29 @@ TABLE_DIRECT = {
     ),
     "if_exp_lambda": (
         "%c if %c else %c",
-        (1, ("expr", "return_lambda")),
+        (1, ("expr", "return_expr_lambda")),
         (0, "expr_pjif"),
-        (-1, ("return_lambda", "return_if_lambda")),
+        (-1, ("return_expr_lambda", "return_if_lambda")),
     ),
     "if_exp_lambda2": (
         "%c if %c else %c",
-        (1, ("expr", "return_lambda")),
+        (1, ("expr", "return_expr_lambda")),
         (0, "and_parts"),
-        (-2, "return_lambda"),
+        (-2, "return_expr_lambda"),
     ),
     "if_exp_not_lambda2": (
         "%c if not (%c) else %c",
         (2, "expr"),
         (0, "expr"),
-        (-1, "return_lambda"),
+        (-1, "return_expr_lambda"),
     ),
     # The arg2 is dead-code
     "if_expr_true": ("%p if 1 else %c", (0, "expr", 27), 2),
     # The arg 1 is dead-code
     "if_exp_dead_code": (
         "%c if True else %c",
-        (0, "return_lambda"),
-        (1, "return_lambda"),
+        (0, "return_expr_lambda"),
+        (1, "return_expr_lambda"),
     ),
     "if_exp_true": ("%p if 1 else %c", (0, "expr", 27), 2),
     "if_exp_ret": ("%p if %p else %p", (2, 27), (0, 27), (-1, 27)),
