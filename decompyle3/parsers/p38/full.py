@@ -122,16 +122,16 @@ class Python38Parser(Python38LambdaParser, Python37Parser):
         discard_tops       ::= discard_top+
         pop_tops           ::= POP_TOP+
 
-        return             ::= ret_expr
+        return             ::= return_expr
                                discard_tops RETURN_VALUE
 
         return             ::= pop_return
         return             ::= popb_return
         return             ::= pop_ex_return
         except_stmt        ::= pop_ex_return
-        pop_return         ::= POP_TOP ret_expr RETURN_VALUE
-        popb_return        ::= ret_expr POP_BLOCK RETURN_VALUE
-        pop_ex_return      ::= ret_expr ROT_FOUR POP_EXCEPT RETURN_VALUE
+        pop_return         ::= POP_TOP return_expr RETURN_VALUE
+        popb_return        ::= return_expr POP_BLOCK RETURN_VALUE
+        pop_ex_return      ::= return_expr ROT_FOUR POP_EXCEPT RETURN_VALUE
 
         except_stmt        ::= except_cond1a except_suite come_from_opt
 

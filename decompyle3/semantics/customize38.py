@@ -108,9 +108,9 @@ def customize_for_version38(self, version):
                 -2,
             ),
             "ifpoplaststmtc": ("%|if %c:\n%+%c%-", (0, "testexpr"), (2, "c_stmts")),
-            "pop_return": ("%|return %c\n", (1, "ret_expr")),
-            "popb_return": ("%|return %c\n", (0, "ret_expr")),
-            "pop_ex_return": ("%|return %c\n", (0, "ret_expr")),
+            "pop_return": ("%|return %c\n", (1, "return_expr")),
+            "popb_return": ("%|return %c\n", (0, "return_expr")),
+            "pop_ex_return": ("%|return %c\n", (0, "return_expr")),
             "whilestmt38": (
                 "%|while %c:\n%+%c%-\n\n",
                 (1, "testexpr"),

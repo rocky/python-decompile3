@@ -996,7 +996,7 @@ class Python37BaseParser(PythonBaseParser):
             elif opname == "RETURN_VALUE_LAMBDA":
                 self.addRule(
                     """
-                    return_expr_lambda ::= ret_expr RETURN_VALUE_LAMBDA
+                    return_expr_lambda ::= return_expr RETURN_VALUE_LAMBDA
                     """,
                     nop_func,
                 )
@@ -1118,7 +1118,7 @@ class Python37BaseParser(PythonBaseParser):
                     rules_str += """
                      # A return at the end of a withas stmt can be this.
                      # FIXME: should this be a different kind of return?
-                     return      ::= ret_expr POP_BLOCK
+                     return      ::= return_expr POP_BLOCK
                                      ROT_TWO
                                      BEGIN_FINALLY
                                      WITH_CLEANUP_START

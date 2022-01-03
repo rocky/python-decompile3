@@ -437,8 +437,8 @@ class Python37Parser(Python37LambdaParser):
         binary_operator  ::= BINARY_MATRIX_MULTIPLY
 
         # FIXME: do we need these?
-        ret_expr ::= expr
-        return_if_stmt ::= ret_expr RETURN_END_IF POP_BLOCK
+        return_expr ::= expr
+        return_if_stmt ::= return_expr RETURN_END_IF POP_BLOCK
 
         jb_cf     ::= JUMP_BACK COME_FROM
         ifelsestmtc ::= testexpr c_stmts_opt JUMP_FORWARD else_suitec
@@ -524,7 +524,7 @@ class Python37Parser(Python37LambdaParser):
 
         return_if_stmts ::= return_if_stmt come_from_opt
         return_if_stmts ::= _stmts return_if_stmt _come_froms
-        return_if_stmt  ::= ret_expr RETURN_END_IF
+        return_if_stmt  ::= return_expr RETURN_END_IF
         returns         ::= _stmts return_if_stmt
 
 
@@ -816,10 +816,10 @@ class Python37Parser(Python37LambdaParser):
     def p_jump3(self, args):
         """
         # FIXME: simplify this
-        ret_expr_or_cond ::= if_exp_ret
-        ret_expr_or_cond ::= ret_expr
+        return_expr_or_cond ::= if_exp_ret
+        return_expr_or_cond ::= return_expr
 
-        if_exp_ret ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM ret_expr_or_cond
+        if_exp_ret ::= expr POP_JUMP_IF_FALSE expr RETURN_END_IF COME_FROM return_expr_or_cond
 
         testfalse ::= or POP_JUMP_IF_FALSE COME_FROM
         testfalse ::= nand
@@ -843,7 +843,7 @@ class Python37Parser(Python37LambdaParser):
         if_exp_not_lambda
                            ::= expr POP_JUMP_IF_TRUE expr return_if_lambda
                                return_stmt_lambda
-        return_stmt_lambda ::= ret_expr RETURN_VALUE_LAMBDA
+        return_stmt_lambda ::= return_expr RETURN_VALUE_LAMBDA
 
         stmt               ::= return_closure
         return_closure     ::= LOAD_CLOSURE RETURN_VALUE RETURN_LAST
@@ -928,8 +928,8 @@ class Python37Parser(Python37LambdaParser):
         # 3.6 due to jump optimization, we sometimes add RETURN_END_IF where
         # RETURN_VALUE is meant. Specifcally this can happen in
         # ifelsestmt -> ...else_suite _. suite_stmts... (last) stmt
-        return ::= ret_expr RETURN_END_IF
-        return ::= ret_expr RETURN_VALUE
+        return ::= return_expr RETURN_END_IF
+        return ::= return_expr RETURN_VALUE
 
         jf_cf        ::= JUMP_FORWARD COME_FROM
 

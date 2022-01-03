@@ -470,7 +470,7 @@ class SourceWalker(GenericASTTraversal, object):
     def is_return_none(self, node):
         # Is there a better way?
         ret = (
-            node[0] == "ret_expr"
+            node[0] == "return_expr"
             and node[0][0] == "expr"
             and node[0][0][0] == "LOAD_CONST"
             and node[0][0][0].pattr is None
@@ -479,7 +479,7 @@ class SourceWalker(GenericASTTraversal, object):
         # FIXME: should the SyntaxTree expression be folded into
         # the global RETURN_NONE constant?
         return ret or node == SyntaxTree(
-            "return", [SyntaxTree("ret_expr", [NONE]), Token("RETURN_VALUE")]
+            "return", [SyntaxTree("return_expr", [NONE]), Token("RETURN_VALUE")]
         )
 
     # Python 3.x can have be dead code as a result of its optimization?
@@ -595,7 +595,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec = p
         self.prune()
 
-    def n_ret_expr(self, node):
+    def n_return_expr(self, node):
         if len(node) == 1 and node[0] == "expr":
             # If expr is yield we want parens.
             self.prec = PRECEDENCE["yield"] - 1
@@ -603,7 +603,7 @@ class SourceWalker(GenericASTTraversal, object):
         else:
             self.n_expr(node)
 
-    n_ret_expr_or_cond = n_expr
+    n_return_expr_or_cond = n_expr
 
     def n_bin_op(self, node):
         """bin_op (formerly "binary_expr") is the Python AST BinOp"""
@@ -1018,12 +1018,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         code_obj = node[code_index].attr
         assert iscode(code_obj), node[code_index]
-        try:
-            self.debug_opts["asm"]
-        except:
-            from trepan.api import debug
-
-            debug()
+        self.debug_opts["asm"]
         code = Code(code_obj, self.scanner, self.currentclass, self.debug_opts["asm"])
 
         ast = self.build_ast(
@@ -1031,9 +1026,9 @@ class SourceWalker(GenericASTTraversal, object):
         )
         self.customize(code._customize)
 
-        # skip over: sstmt, stmt, return, ret_expr
+        # skip over: sstmt, stmt, return, return_expr
         # and other singleton derivations
-        while len(ast) == 1 or (ast in ("sstmt", "return", "ret_expr")):
+        while len(ast) == 1 or (ast in ("sstmt", "return", "return_expr")):
             self.prec = 100
             ast = ast[0]
 

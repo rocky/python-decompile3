@@ -452,9 +452,9 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.set_pos_info(node, start, len(self.f.getvalue()))
         self.prune()
 
-    def n_ret_expr(self, node):
+    def n_return_expr(self, node):
         start = len(self.f.getvalue())
-        super(FragmentsWalker, self).n_ret_expr(node)
+        super(FragmentsWalker, self).n_return_expr(node)
         self.set_pos_info(node, start, len(self.f.getvalue()))
 
     def n_bin_op(self, node):
@@ -722,7 +722,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         if ast[0] == "sstmt":
             ast = ast[0]
 
-        # skip over stmt return ret_expr
+        # skip over stmt return return_expr
         ast = ast[0][0][0]
         store = None
         if ast in ["set_comp_func", "dict_comp_func"]:
