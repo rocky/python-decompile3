@@ -1656,6 +1656,15 @@ class SourceWalker(GenericASTTraversal, object):
         if lastnodetype.startswith("BUILD_LIST"):
             self.write("[")
             endchar = "]"
+
+        elif lastnodetype.startswith("BUILD_MAP_UNPACK"):
+            self.write("{*")
+            endchar = "}"
+
+        elif lastnodetype.startswith("BUILD_SET"):
+            self.write("{")
+            endchar = "}"
+
         elif lastnodetype.startswith("BUILD_TUPLE"):
             # Tuples can appear places that can NOT
             # have parenthesis around them, like array
@@ -1674,15 +1683,10 @@ class SourceWalker(GenericASTTraversal, object):
                 endchar = ")"
                 pass
 
-        elif lastnodetype.startswith("BUILD_SET"):
-            self.write("{")
-            endchar = "}"
-        elif lastnodetype.startswith("BUILD_MAP_UNPACK"):
-            self.write("{*")
-            endchar = "}"
         elif lastnodetype.startswith("ROT_TWO"):
             self.write("(")
             endchar = ")"
+
         else:
             # from trepan.api import debug; debug()
             raise TypeError(
@@ -1715,7 +1719,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.prune()
         return
 
-    n_set = n_tuple = n_build_set = n_list
+    n_set = n_build_set = n_tuple = n_list
 
     def n_attribute(self, node):
         if node[0] == "LOAD_CONST" or node[0] == "expr" and node[0][0] == "LOAD_CONST":

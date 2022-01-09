@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2021 by Rocky Bernstein
+#  Copyright (c) 2019-2022 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -1397,8 +1397,8 @@ def customize_for_version37(self, version):
     # self.n_kwargs_only_36 = kwargs_only_36
 
     def n_starred(node):
-        l = len(node)
-        assert l > 0
+        node_len = len(node)
+        assert node_len > 0
         pos_args = node[0]
         if pos_args == "expr":
             pos_args = pos_args[0]
@@ -1418,7 +1418,7 @@ def customize_for_version37(self, version):
             self.write(", ")
         else:
             star_start = 0
-        if l > 1:
+        if node_len > 1:
             template = ("*%C", (star_start, -1, ", *"))
         else:
             template = ("*%c", (star_start, "expr"))
