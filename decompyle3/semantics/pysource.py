@@ -299,7 +299,7 @@ class SourceWalker(GenericASTTraversal, object):
         # An example is:
         # __module__ = __name__
         self.hide_internal = True
-        self.compile_mode = "exec"
+        self.compile_mode = compile_mode
         self.name = None
         self.version = version
         self.is_pypy = is_pypy
@@ -1028,7 +1028,7 @@ class SourceWalker(GenericASTTraversal, object):
 
     n_dict_comp = n_set_comp
 
-    def comprehension_walk_newer(self, node, iter_index: int, code_index=-5):
+    def comprehension_walk_newer(self, node, iter_index: int, code_index: int = -5):
         """Non-closure-based comprehensions the way they are done in Python3
         and some Python 2.7. Note: there are also other set comprehensions.
         """
@@ -1684,6 +1684,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.write("(")
             endchar = ")"
         else:
+            # from trepan.api import debug; debug()
             raise TypeError(
                 "Internal Error: n_build_list expects list, tuple, set, or unpack"
             )
@@ -1836,14 +1837,16 @@ class SourceWalker(GenericASTTraversal, object):
                 index = entry[arg]
                 if isinstance(index, tuple):
                     if isinstance(index[1], str):
+                        # if node[index[0]] != index[1]:
+                        #     from trepan.api import debug; debug()
                         assert node[index[0]] == index[1], (
                             "at %s[%d], expected '%s' node; got '%s'"
-                            % (node.kind, arg, index[1], node[index[0]].kind)
+                            % (node.kind, arg, index[1], node[index[0]].kind,)
                         )
                     else:
                         assert node[index[0]] in index[1], (
                             "at %s[%d], expected to be in '%s' node; got '%s'"
-                            % (node.kind, arg, index[1], node[index[0]].kind)
+                            % (node.kind, arg, index[1], node[index[0]].kind,)
                         )
 
                     index = index[0]
@@ -1871,10 +1874,17 @@ class SourceWalker(GenericASTTraversal, object):
                 assert isinstance(tup, tuple)
                 if len(tup) == 3:
                     (index, nonterm_name, self.prec) = tup
-                    assert node[index] == nonterm_name, (
-                        "at %s[%d], expected '%s' node; got '%s'"
-                        % (node.kind, arg, nonterm_name, node[index].kind)
-                    )
+                    if isinstance(tup[1], str):
+                        assert node[index] == nonterm_name, (
+                            "at %s[%d], expected '%s' node; got '%s'"
+                            % (node.kind, arg, nonterm_name, node[index].kind,)
+                        )
+                    else:
+                        assert node[tup[0]] in tup[1], (
+                            "at %s[%d], expected to be in '%s' node; got '%s'"
+                            % (node.kind, arg, index[1], node[index[0]].kind,)
+                        )
+
                 else:
                     assert len(tup) == 2
                     (index, self.prec) = entry[arg]
@@ -1971,9 +1981,9 @@ class SourceWalker(GenericASTTraversal, object):
 
             if k.startswith("CALL_METHOD"):
                 # This happens in PyPy and Python 3.7+
-                TABLE_R[k] = ("%c(%P)", (0, "expr"), (1, -1, ", ", 100))
-            elif self.version >= (3, 6) and k.startswith("CALL_FUNCTION_KW"):
-                TABLE_R[k] = ("%c(%P)", (0, "expr"), (1, -1, ", ", 100))
+                TABLE_R[k] = ("%c(%P)", 0, (1, -1, ", ", 100))
+            elif k.startswith("CALL_FUNCTION_KW"):
+                TABLE_R[k] = ("%c(%P)", 0, (1, -1, ", ", 100))
             elif op == "CALL_FUNCTION":
                 TABLE_R[k] = (
                     "%c(%P)",
@@ -2194,8 +2204,9 @@ class SourceWalker(GenericASTTraversal, object):
                 if tokens[-1].kind in ("RETURN_VALUE", "RETURN_VALUE_LAMBDA"):
                     # Python 3.4's classes can add a "return None" which is
                     # invalid syntax.
-                    if tokens[-2].kind == "LOAD_CONST":
-                        if isTopLevel or tokens[-2].pattr is None:
+                    load_const = tokens[-2]
+                    if load_const.kind == "LOAD_CONST":
+                        if isTopLevel or load_const.pattr is None:
                             del tokens[-2:]
                         else:
                             tokens.append(Token("RETURN_LAST"))
@@ -2295,7 +2306,6 @@ def code_deparse(
     if compile_mode == "lambda":
         expected_start = "lambda_start"
     elif compile_mode == "eval":
-        # expected_start = "expr_stmt"
         expected_start = "expr_start"
     elif compile_mode == "expr":
         expected_start = "expr_start"
