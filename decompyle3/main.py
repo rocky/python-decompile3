@@ -86,8 +86,8 @@ def decompile(
     if source_encoding:
         write("# -*- coding: %s -*-" % source_encoding)
     write(
-        "# decompile_cfg version %s\n"
-        "# %sPython bytecode %s%s\n# Decompiled from: %sPython %s"
+        "# decompyle3 version %s\n"
+        "# %sPython bytecode version base %s%s\n# Decompiled from: %sPython %s"
         % (
             __version__,
             co_pypy_str,
