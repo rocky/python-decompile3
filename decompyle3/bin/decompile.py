@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Mode: -*- python -*-
 #
-# Copyright (c) 2015-2017, 2019-2021 by Rocky Bernstein
+# Copyright (c) 2015-2017, 2019-2022 by Rocky Bernstein
 # Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 import sys, os, getopt, time
@@ -190,9 +190,7 @@ def main_bin():
 
     if numproc <= 1:
         try:
-            result = main(
-                src_base, out_base, pyc_paths, source_paths, outfile, **options
-            )
+            result = main(src_base, out_base, pyc_paths, source_paths, outfile,)
             result = list(result) + [options.get("do_verify", None)]
             if len(pyc_paths) > 1:
                 mess = status_msg(do_verify, *result)

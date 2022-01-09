@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2021 Rocky Bernstein <rocky@gnu.org>
+# Copyright (C) 2018-2022 Rocky Bernstein <rocky@gnu.org>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ from decompyle3.version import __version__
 
 # from decompyle3.linenumbers import line_number_mapping
 
-from decompyle3.semantics.pysource import code_deparse
+from decompyle3.semantics.pysource import code_deparse, PARSER_DEFAULT_DEBUG
 from decompyle3.semantics.fragments import code_deparse as code_deparse_fragments
 from decompyle3.semantics.linemap import deparse_code_with_map
 
@@ -44,9 +44,9 @@ def _get_outstream(outfile: str) -> Any:
 
 
 def decompile(
-    bytecode_version: str,
     co,
-    out=None,
+    bytecode_version: str = PYTHON_VERSION_TRIPLE,
+    out=sys.stdout,
     showasm=None,
     showast={},
     timestamp=None,
@@ -86,7 +86,7 @@ def decompile(
     if source_encoding:
         write("# -*- coding: %s -*-" % source_encoding)
     write(
-        "# decompyle3 version %s\n"
+        "# decompile_cfg version %s\n"
         "# %sPython bytecode %s%s\n# Decompiled from: %sPython %s"
         % (
             __version__,
@@ -104,7 +104,13 @@ def decompile(
     if source_size:
         write("# Size of source mod 2**32: %d bytes" % source_size)
 
-    debug_opts = {"asm": showasm, "ast": showast, "grammar": showgrammar}
+    # maybe a second -a will do before as well
+    asm = "after" if showasm else None
+
+    grammar = dict(PARSER_DEFAULT_DEBUG)
+    if showgrammar:
+        grammar["reduce"] = True
+    debug_opts = {"asm": asm, "tree": showast, "grammar": grammar}
 
     try:
         if mapstream:
@@ -186,11 +192,11 @@ def decompile_file(
 
     if isinstance(co, list):
         deparsed = []
-        for con in co:
+        for bytecode in co:
             deparsed.append(
                 decompile(
+                    bytecode,
                     version,
-                    con,
                     outstream,
                     showasm,
                     showast,
@@ -206,8 +212,8 @@ def decompile_file(
     else:
         deparsed = [
             decompile(
-                version,
                 co,
+                version,
                 outstream,
                 showasm,
                 showast,
@@ -380,7 +386,6 @@ def main(
                         okay_files,
                         failed_files,
                         verify_failed_files,
-                        do_verify,
                     ),
                 )
             )
@@ -417,20 +422,12 @@ else:
         return ""
 
 
-def status_msg(
-    do_verify, tot_files, okay_files, failed_files, verify_failed_files, weak_verify
-):
-    if weak_verify == "weak":
-        verification_type = "weak "
-    elif weak_verify == "verify-run":
-        verification_type = "run "
-    else:
-        verification_type = ""
+def status_msg(do_verify, tot_files, okay_files, failed_files, verify_failed_files):
     if tot_files == 1:
         if failed_files:
             return "\n# decompile failed"
         elif verify_failed_files:
-            return f"\n# decompile {verification_type}verification failed"
+            return "\n# decompile run verification failed"
         else:
             return "\n# Successfully decompiled file"
             pass

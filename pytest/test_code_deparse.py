@@ -119,10 +119,10 @@ def test_lambda_mode():
 
             deparsed.showast = {"Full": True}
             maybe_show_tree(deparsed, deparsed.ast)
-        assert deparsed.text == expr
+        assert deparsed.text == expr + "\n" if deparsed.text.endswith("\n") else expr
 
 
 if __name__ == "__main__":
     # test_eval_mode()
-    # test_lambda_mode()
-    test_single_mode()
+    test_lambda_mode()
+    # test_single_mode()

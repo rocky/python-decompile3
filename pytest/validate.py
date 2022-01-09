@@ -7,8 +7,8 @@ import functools
 
 from io import StringIO
 
-from decompile_cfg import code_deparse
-from decompile_cfg.semantics.pysource import PARSER_DEFAULT_DEBUG
+from decompyle3 import code_deparse
+from decompyle3.semantics.pysource import PARSER_DEFAULT_DEBUG
 
 from xdis.version_info import PYTHON_VERSION_TRIPLE, IS_PYPY
 

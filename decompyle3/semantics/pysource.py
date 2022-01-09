@@ -141,7 +141,7 @@ import decompyle3.parsers.parse_heads as heads
 import decompyle3.parsers.main as python_parser
 from decompyle3.parsers.main import get_python_parser
 from decompyle3.parsers.treenode import SyntaxTree
-from spark_parser import GenericASTTraversal, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+from spark_parser import GenericASTTraversal
 from decompyle3.scanner import Code, get_scanner
 from decompyle3.semantics.make_function36 import make_function36
 from decompyle3.semantics.parser_error import ParserError
@@ -177,7 +177,22 @@ from decompyle3.util import better_repr
 
 from io import StringIO
 
-DEFAULT_DEBUG_OPTS = {"asm": False, "tree": False, "grammar": False}
+PARSER_DEFAULT_DEBUG = {
+    "rules": False,
+    "transition": False,
+    "reduce": False,
+    "errorstack": "full",
+    "context": True,
+    "dups": False,
+}
+
+TREE_DEFAULT_DEBUG = {"before": False, "after": False}
+
+DEFAULT_DEBUG_OPTS = {
+    "asm": False,
+    "tree": TREE_DEFAULT_DEBUG,
+    "grammar": dict(PARSER_DEFAULT_DEBUG),
+}
 
 
 class SourceWalkerError(Exception):
@@ -196,7 +211,7 @@ class SourceWalker(GenericASTTraversal, object):
         version,
         out,
         scanner,
-        showast=False,
+        showast=TREE_DEFAULT_DEBUG,
         debug_parser=PARSER_DEFAULT_DEBUG,
         compile_mode="exec",
         is_pypy=IS_PYPY,
@@ -291,17 +306,21 @@ class SourceWalker(GenericASTTraversal, object):
         customize_for_version(self, is_pypy, version)
         return
 
-    def maybe_show_tree(self, ast):
-        if self.showast and self.treeTransform.showast:
+    def maybe_show_tree(self, ast, phase):
+        if self.showast.get("before", False):
             self.println(
                 """
 ---- end before transform
+"""
+            )
+        if self.showast.get("after", False):
+            self.println(
+                """
 ---- begin after transform
 """
-                + "    "
+                + " "
             )
-
-        if isinstance(self.showast, dict) and self.showast.get:
+        if self.showast.get(phase, False):
             maybe_show_tree(self, ast)
 
     def str_with_template(self, ast) -> str:
@@ -587,6 +606,7 @@ class SourceWalker(GenericASTTraversal, object):
         # print(self.f.getvalue())
 
         if p < self.prec:
+            # print(f"PREC {p}, {node[0].kind}")
             self.write("(")
             self.preorder(node[0])
             self.write(")")
@@ -1019,6 +1039,7 @@ class SourceWalker(GenericASTTraversal, object):
         code_obj = node[code_index].attr
         assert iscode(code_obj), node[code_index]
         self.debug_opts["asm"]
+
         code = Code(code_obj, self.scanner, self.currentclass, self.debug_opts["asm"])
 
         ast = self.build_ast(
@@ -2117,11 +2138,8 @@ class SourceWalker(GenericASTTraversal, object):
             self.println(self.indent, "pass")
         else:
             self.customize(customize)
-            if is_lambda:
-                self.write(self.traverse(ast, is_lambda=is_lambda))
-            else:
-                self.text = self.traverse(ast, is_lambda=is_lambda)
-                self.println(self.text)
+            self.text = self.traverse(ast, is_lambda=is_lambda)
+            self.println(self.text)
         self.name = old_name
         self.return_none = rn
 
@@ -2159,10 +2177,11 @@ class SourceWalker(GenericASTTraversal, object):
                 p.offset2inst_index = self.scanner.offset2inst_index
                 ast = python_parser.parse(p, tokens, customize, is_lambda)
                 self.customize(customize)
+
             except (heads.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens, self.p.debug["reduce"])
             transform_ast = self.treeTransform.transform(ast, code)
-            self.maybe_show_tree(ast)
+            self.maybe_show_tree(ast, phase="after")
             del ast  # Save memory
             return transform_ast
 
@@ -2194,6 +2213,7 @@ class SourceWalker(GenericASTTraversal, object):
             self.p.offset2inst_index = self.scanner.offset2inst_index
             self.p.opc = self.scanner.opc
             ast = python_parser.parse(self.p, tokens, customize, is_lambda=is_lambda)
+
             self.p.insts = p_insts
         except (heads.ParserError, AssertionError) as e:
             raise ParserError(e, tokens, self.p.debug["reduce"])
@@ -2203,7 +2223,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.customize(customize)
         transform_ast = self.treeTransform.transform(ast, code)
 
-        self.maybe_show_tree(ast)
+        self.maybe_show_tree(ast, phase="before")
 
         del ast  # Save memory
         return transform_ast
@@ -2234,16 +2254,13 @@ def code_deparse(
         version = PYTHON_VERSION_TRIPLE
 
     # store final output stream for case of error
-    scanner = get_scanner(version, is_pypy=is_pypy)
+    scanner = get_scanner(version, is_pypy=is_pypy, show_asm=debug_opts["asm"])
 
     tokens, customize = scanner.ingest(
         co, code_objects=code_objects, show_asm=debug_opts["asm"]
     )
 
-    debug_parser = dict(PARSER_DEFAULT_DEBUG)
-    if debug_opts.get("grammar", None):
-        debug_parser["reduce"] = debug_opts["grammar"]
-        debug_parser["errorstack"] = "full"
+    debug_parser = debug_opts.get("grammar", dict(PARSER_DEFAULT_DEBUG))
 
     #  Build Syntax Tree from disassembly.
     linestarts = dict(scanner.opc.findlinestarts(co))
@@ -2251,7 +2268,7 @@ def code_deparse(
         version,
         out,
         scanner,
-        showast=debug_opts.get("ast", None),
+        showast=debug_opts.get("tree", TREE_DEFAULT_DEBUG),
         debug_parser=debug_parser,
         compile_mode=compile_mode,
         is_pypy=is_pypy,
@@ -2307,7 +2324,11 @@ def code_deparse(
 
     # What we've been waiting for: Generate source from Syntax Tree!
     deparsed.gen_source(
-        deparsed.ast, name=co.co_name, customize=customize, debug_opts=debug_opts
+        deparsed.ast,
+        name=co.co_name,
+        customize=customize,
+        is_lambda=compile_mode == "lambda",
+        debug_opts=debug_opts,
     )
 
     for g in sorted(deparsed.mod_globs):
