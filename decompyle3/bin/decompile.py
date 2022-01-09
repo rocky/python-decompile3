@@ -85,6 +85,12 @@ def main_bin():
     timestamp = False
     timestampfmt = "# %Y.%m.%d %H:%M:%S %Z"
 
+    tree = False
+    tree_plus = False
+    show_asm = False
+    show_grammar = False
+    verify = False
+
     try:
         opts, pyc_paths = getopt.getopt(
             sys.argv[1:],
@@ -108,7 +114,7 @@ def main_bin():
             print("%s %s" % (program, __version__))
             sys.exit(0)
         elif opt == "--syntax-verify":
-            options["do_verify"] = "weak"
+            verify = True
         elif opt == "--fragments":
             options["do_fragments"] = True
         elif opt == "--verify-run":
@@ -116,8 +122,8 @@ def main_bin():
         elif opt == "--linemaps":
             options["do_linemaps"] = True
         elif opt in ("--asm", "-a"):
-            options["showasm"] = "after"
-            options["do_verify"] = None
+            show_asm = True
+            verify = False
         elif opt in ("--tree", "-t"):
             if "showast" not in options:
                 options["showast"] = {}
@@ -127,14 +133,16 @@ def main_bin():
                 options["showast"][val] = True
             else:
                 options["showast"]["before"] = True
-            options["do_verify"] = None
+            verify = False
         elif opt in ("--tree+", "-T"):
+            tree = True
+            tree_plus = True
             if "showast" not in options:
                 options["showast"] = {}
             options["showast"]["Full"] = True
             options["do_verify"] = None
         elif opt in ("--grammar", "-g"):
-            options["showgrammar"] = True
+            show_grammar = True
         elif opt == "-o":
             outfile = val
         elif opt in ("--timestamp", "-d"):
@@ -190,6 +198,19 @@ def main_bin():
 
     if numproc <= 1:
         try:
+            show_ast = {"before": tree or tree_plus, "after": tree_plus}
+            result = main(
+                src_base,
+                out_base,
+                pyc_paths,
+                source_paths,
+                outfile,
+                showasm=show_asm,
+                showgrammar=show_grammar,
+                showast=show_ast,
+                do_verify=verify,
+            )
+
             result = main(src_base, out_base, pyc_paths, source_paths, outfile,)
             result = list(result) + [options.get("do_verify", None)]
             if len(pyc_paths) > 1:

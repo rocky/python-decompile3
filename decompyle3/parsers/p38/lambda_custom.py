@@ -256,10 +256,10 @@ class Python38LambdaCustom(Python38BaseParser):
                     # FIXME: should this be parameterized by EX value?
                     self.addRule(
                         """expr        ::= call_ex_kw2
-                                    call_ex_kw2 ::= expr
-                                                    build_tuple_unpack_with_call
-                                                    build_map_unpack_with_call
-                                                    CALL_FUNCTION_EX_KW
+                           call_ex_kw2 ::= expr
+                                           build_tuple_unpack_with_call
+                                           build_map_unpack_with_call
+                                           CALL_FUNCTION_EX_KW
                              """,
                         nop_func,
                     )
@@ -267,10 +267,10 @@ class Python38LambdaCustom(Python38BaseParser):
         elif opname == "CALL_FUNCTION_EX":
             self.addRule(
                 """
-                         expr        ::= call_ex
-                         starred     ::= expr
-                         call_ex     ::= expr starred CALL_FUNCTION_EX
-                         """,
+                expr        ::= call_ex
+                starred     ::= expr
+                call_ex     ::= expr starred CALL_FUNCTION_EX
+                """,
                 nop_func,
             )
             if "BUILD_MAP_UNPACK_WITH_CALL" in self.seen_ops:
