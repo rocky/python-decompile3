@@ -5,15 +5,18 @@ import subprocess
 import tempfile
 import functools
 
-# decompyle3 / xdis
-from decompyle3 import PYTHON_VERSION_TRIPLE, IS_PYPY, code_deparse
+from io import StringIO
+
+from decompile_cfg import code_deparse
+from decompile_cfg.semantics.pysource import PARSER_DEFAULT_DEBUG
+
+from xdis.version_info import PYTHON_VERSION_TRIPLE, IS_PYPY
 
 # TODO : I think we can get xdis to support the dis api (python 3 version) by doing something like this there
 from xdis import Bytecode, get_opcode
 
 opc = get_opcode(PYTHON_VERSION_TRIPLE, IS_PYPY)
 Bytecode = functools.partial(Bytecode, opc=opc)
-import six
 
 
 def _dis_to_text(co):
@@ -117,19 +120,25 @@ def validate_decompile(text, mode="exec"):
     original_code = compile(text, "<string>", mode)
     original_dis = _dis_to_text(original_code)
     original_text = text
+    debug_opts = {
+        "asm": None,
+        "ast": {"before": False, "after": False},
+        "grammar": PARSER_DEFAULT_DEBUG,
+    }
 
     deparsed = code_deparse(
         original_code,
-        out=six.StringIO(),
+        out=StringIO(),
         version=PYTHON_VERSION_TRIPLE,
+        debug_opts=debug_opts,
         compile_mode=mode,
     )
-    uncompyled_text = deparsed.text
-    uncompyled_code = compile(uncompyled_text, "<string>", "exec")
+    decompiled_text = deparsed.text
+    decompiled_code = compile(decompiled_text, "<string>", "exec")
 
-    if not are_code_objects_equal(uncompyled_code, original_code):
+    if not are_code_objects_equal(decompiled_code, original_code):
 
-        uncompyled_dis = _dis_to_text(uncompyled_text)
+        decompiled_dis = _dis_to_text(decompiled_text)
 
         def output(text, dis):
             width = 60
@@ -143,7 +152,5 @@ def validate_decompile(text, mode="exec"):
             )
 
         original = output(original_text, original_dis)
-        uncompyled = output(uncompyled_text, uncompyled_dis)
-        print_diff(original, uncompyled)
-
-        assert "original" == "uncompyled"
+        decompiled = output(decompiled_text, decompiled_dis)
+        print_diff(original, decompiled)

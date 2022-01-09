@@ -1,6 +1,7 @@
 import pytest
 from xdis.version_info import PYTHON_VERSION_TRIPLE
 from decompyle3 import code_deparse
+from decompyle3.semantics.pysource import DEFAULT_DEBUG_OPTS
 
 from io import StringIO
 
@@ -8,10 +9,10 @@ out = StringIO()
 
 
 def run_deparse(expr: str, compile_mode: bool, debug=False) -> object:
+    debug_opts = dict(DEFAULT_DEBUG_OPTS)
     if debug:
-        debug_opts = {"asm": "both", "tree": True, "grammar": True}
-    else:
-        debug_opts = {"asm": False, "tree": False, "grammar": False}
+        debug_opts["reduce"] = True
+        debug_opts["asm"] = "both"
 
     orig_compile_mode = compile_mode
     if compile_mode == "lambda":
@@ -22,7 +23,7 @@ def run_deparse(expr: str, compile_mode: bool, debug=False) -> object:
 
         print(dis.dis(code))
     deparsed = code_deparse(
-        code, out=out, compile_mode=orig_compile_mode, debug_opts=debug_opts
+        code, out=out, compile_mode=orig_compile_mode, debug_opts=DEFAULT_DEBUG_OPTS
     )
     return deparsed
 
