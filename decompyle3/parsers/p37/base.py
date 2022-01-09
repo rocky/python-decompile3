@@ -974,25 +974,6 @@ class Python37BaseParser(PythonBaseParser):
                 )
                 self.add_unique_rule(rule, opname, token.attr, customize)
 
-            elif opname == "MAKE_FUNCTION_8":
-                if "LOAD_DICTCOMP" in self.seen_ops:
-                    # Is there something general going on here?
-                    rule = """
-                       expr      ::= dict_comp
-                       dict_comp ::= load_closure LOAD_DICTCOMP LOAD_STR
-                                     MAKE_FUNCTION_8 expr
-                                     GET_ITER CALL_FUNCTION_1
-                       """
-                    self.addRule(rule, nop_func)
-                elif "LOAD_SETCOMP" in self.seen_ops:
-                    self.addRule("expr ::= set_comp", nop_func)
-                    rule = """
-                       set_comp ::= load_closure LOAD_SETCOMP LOAD_STR
-                                    MAKE_FUNCTION_8 expr
-                                    GET_ITER CALL_FUNCTION_1
-                       """
-                    self.addRule(rule, nop_func)
-
             elif opname == "RETURN_VALUE_LAMBDA":
                 self.addRule(
                     """

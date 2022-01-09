@@ -1,4 +1,4 @@
-#  Copyright (c) 2020-2021 Rocky Bernstein
+#  Copyright (c) 2020-2022 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@ from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from decompyle3.parsers.p37.base import Python37BaseParser
 from decompyle3.parsers.parse_heads import PythonBaseParser
 from decompyle3.parsers.reducecheck import break_check, for38_check, pop_return_check
-from decompyle3.scanners.tok import Token
 
 
 class Python38BaseParser(PythonBaseParser):

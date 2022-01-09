@@ -1,4 +1,4 @@
-#  Copyright (c) 2020-2021 Rocky Bernstein
+#  Copyright (c) 2020-2022 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -221,45 +221,47 @@ class Python37LambdaCustom(Python37BaseParser):
             values = "expr " * token.attr
             rule = "call_kw36 ::= expr {values} LOAD_CONST {opname}".format(**locals())
             self.add_unique_rule(rule, token.kind, token.attr, customize)
+
         elif opname == "CALL_FUNCTION_EX_KW":
-            # Note: this doesn't exist in 3.7 and later
+            # Note that we don't add to customize token.kind here. Instead, the non-terminal
+            # names call_ex_kw... are is in semantic actions.
             self.addRule(
                 """expr        ::= call_ex_kw4
-                            call_ex_kw4 ::= expr
-                                            expr
-                                            expr
-                                            CALL_FUNCTION_EX_KW
-                         """,
+                                   call_ex_kw4 ::= expr
+                                   expr
+                                   expr
+                                   CALL_FUNCTION_EX_KW
+                """,
                 nop_func,
             )
             if "BUILD_MAP_UNPACK_WITH_CALL" in self.seen_op_basenames:
                 self.addRule(
                     """expr        ::= call_ex_kw
-                                call_ex_kw  ::= expr expr build_map_unpack_with_call
-                                                CALL_FUNCTION_EX_KW
-                             """,
+                       call_ex_kw  ::= expr expr build_map_unpack_with_call
+                                       CALL_FUNCTION_EX_KW
+                    """,
                     nop_func,
                 )
             if "BUILD_TUPLE_UNPACK_WITH_CALL" in self.seen_op_basenames:
                 # FIXME: should this be parameterized by EX value?
                 self.addRule(
                     """expr        ::= call_ex_kw3
-                                call_ex_kw3 ::= expr
-                                                build_tuple_unpack_with_call
-                                                expr
-                                                CALL_FUNCTION_EX_KW
-                             """,
+                                       call_ex_kw3 ::= expr
+                                       build_tuple_unpack_with_call
+                                       expr
+                                       CALL_FUNCTION_EX_KW
+                    """,
                     nop_func,
                 )
                 if "BUILD_MAP_UNPACK_WITH_CALL" in self.seen_op_basenames:
                     # FIXME: should this be parameterized by EX value?
                     self.addRule(
                         """expr        ::= call_ex_kw2
-                                    call_ex_kw2 ::= expr
-                                                    build_tuple_unpack_with_call
-                                                    build_map_unpack_with_call
-                                                    CALL_FUNCTION_EX_KW
-                             """,
+                                           call_ex_kw2 ::= expr
+                                           build_tuple_unpack_with_call
+                                           build_map_unpack_with_call
+                                           CALL_FUNCTION_EX_KW
+                        """,
                         nop_func,
                     )
 
