@@ -906,7 +906,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             self.set_pos_info(node[0], start - 1, start)
             self.comprehension_walk3(node, 1, 0)
         elif node[0].kind == "load_closure":
-            self.setcomprehension_walk3(node, collection_index=4)
+            self.closure_walk(node, collection_index=4)
         else:
             self.comprehension_walk(node, iter_index=4)
         self.write("}")
@@ -962,10 +962,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.write("]")
         self.prune()
 
-    def setcomprehension_walk3(self, node, collection_index):
-        """Set comprehensions the way they are done in Python3.
-        They're more other comprehensions, e.g. set comprehensions
-        See if we can combine code.
+    def closure_walk(self, node, collection_index):
+        """Dictionary and Set comprehensions using closures.
         """
         p = self.prec
         self.prec = 27

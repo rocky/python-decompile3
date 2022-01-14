@@ -1020,7 +1020,7 @@ class SourceWalker(GenericASTTraversal, object):
         if node[0] in ["LOAD_SETCOMP", "LOAD_DICTCOMP"]:
             self.comprehension_walk_newer(node, 1, 0)
         elif node[0].kind == "load_closure":
-            self.setcomprehension_walk3(node, collection_index=4)
+            self.closure_walk(node, collection_index=4)
         else:
             self.comprehension_walk(node, iter_index=4)
         self.write("}")
@@ -1212,10 +1212,8 @@ class SourceWalker(GenericASTTraversal, object):
 
     n_list_comp_async = n_list_comp
 
-    def setcomprehension_walk3(self, node, collection_index: int):
-        """Set comprehensions the way they are done in Python3.
-        They're more other comprehensions, e.g. set comprehensions
-        See if we can combine code.
+    def closure_walk(self, node, collection_index: int):
+        """Dictionary and Set comprehensions using closures.
         """
         p = self.prec
         self.prec = 27
