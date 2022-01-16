@@ -962,14 +962,14 @@ class SourceWalker(GenericASTTraversal, object):
         assert iscode(cn.attr)
 
         code = Code(cn.attr, self.scanner, self.currentclass)
-        ast = self.build_ast(code._tokens, code._customize, code)
+        tree = self.build_ast(code._tokens, code._customize, code)
         self.customize(code._customize)
 
         # Remove single reductions as in ("stmts", "sstmt"):
-        while len(ast) == 1:
-            ast = ast[0]
+        while len(tree) == 1:
+            tree = tree[0]
 
-        n = ast[iter_index]
+        n = tree[iter_index]
 
         assert n == "comp_iter", n.kind
         # Find the comprehension body. It is the inner-most
@@ -995,7 +995,7 @@ class SourceWalker(GenericASTTraversal, object):
         else:
             iter_var_index = iter_index - 1
         self.write(" for ")
-        self.preorder(ast[iter_var_index])
+        self.preorder(tree[iter_var_index])
         self.write(" in ")
         if node[2] == "expr":
             iter_expr = node[2]
@@ -1003,7 +1003,7 @@ class SourceWalker(GenericASTTraversal, object):
             iter_expr = node[-3]
         assert iter_expr == "expr"
         self.preorder(iter_expr)
-        self.preorder(ast[iter_index])
+        self.preorder(tree[iter_index])
         self.prec = p
 
     def n_generator_exp(self, node):
@@ -1042,16 +1042,16 @@ class SourceWalker(GenericASTTraversal, object):
 
         code = Code(code_obj, self.scanner, self.currentclass, self.debug_opts["asm"])
 
-        ast = self.build_ast(
+        tree = self.build_ast(
             code._tokens, code._customize, code, is_lambda=self.is_lambda
         )
         self.customize(code._customize)
 
         # skip over: sstmt, stmt, return, return_expr
         # and other singleton derivations
-        while len(ast) == 1 or (ast in ("sstmt", "return", "return_expr")):
+        while len(tree) == 1 or (tree in ("sstmt", "return", "return_expr")):
             self.prec = 100
-            ast = ast[0]
+            tree = tree[0]
 
         # Pick out important parts of the comprehension:
         # * the variable we iterate over: "store"
@@ -1059,17 +1059,17 @@ class SourceWalker(GenericASTTraversal, object):
 
         store = None
         if node == "list_comp_async":
-            n = ast[2][1]
+            n = tree[2][1]
         else:
-            n = ast[iter_index]
+            n = tree[iter_index]
 
-        if ast in (
+        if tree in (
             "set_comp_func",
             "dict_comp_func",
             "list_comp",
             "set_comp_func_header",
         ):
-            for k in ast:
+            for k in tree:
                 if k == "comp_iter":
                     n = k
                 elif k == "store":
@@ -1077,8 +1077,8 @@ class SourceWalker(GenericASTTraversal, object):
                     pass
                 pass
             pass
-        elif ast == "list_comp_async":
-            store = ast[2][1]
+        elif tree == "list_comp_async":
+            store = tree[2][1]
         else:
             # FIXME: we get this when we parse lambda's explicitly.
             # And here we've already printed/handled the list comprehension
@@ -1098,7 +1098,7 @@ class SourceWalker(GenericASTTraversal, object):
         comp_store = None
         if n == "comp_iter":
             comp_for = n
-            comp_store = ast[3]
+            comp_store = tree[3]
 
         have_not = False
 
@@ -1174,8 +1174,8 @@ class SourceWalker(GenericASTTraversal, object):
         self.preorder(node[in_node_index])
 
         # Here is where we handle nested list iterations.
-        if ast == "list_comp":
-            list_iter = ast[1]
+        if tree == "list_comp":
+            list_iter = tree[1]
             assert list_iter == "list_iter"
             if list_iter[0] == "list_for":
                 self.preorder(list_iter[0][3])
@@ -1219,17 +1219,17 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec = 27
 
         code = Code(node[1].attr, self.scanner, self.currentclass)
-        ast = self.build_ast(code._tokens, code._customize, code)
+        tree = self.build_ast(code._tokens, code._customize, code)
         self.customize(code._customize)
 
         # Remove single reductions as in ("stmts", "sstmt"):
-        while len(ast) == 1:
-            ast = ast[0]
+        while len(tree) == 1:
+            tree = tree[0]
 
-        store = ast[3]
+        store = tree[3]
         collection = node[collection_index]
 
-        n = ast[4]
+        n = tree[4]
         list_if = None
         assert n == "comp_iter"
 
@@ -1257,7 +1257,7 @@ class SourceWalker(GenericASTTraversal, object):
                 pass
             pass
 
-        assert n == "comp_body", ast
+        assert n == "comp_body", tree
 
         self.preorder(n[0])
         self.write(" for ")
