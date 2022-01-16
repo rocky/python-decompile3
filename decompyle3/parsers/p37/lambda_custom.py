@@ -33,7 +33,19 @@ class Python37LambdaCustom(Python37BaseParser):
         # include instructions that don't need customization,
         # but we'll do a finer check after the rough breakout.
         customize_instruction_basenames = frozenset(
-            ("BEFORE", "BUILD", "GET", "FORMAT", "LOAD", "MAKE", "SETUP",)
+            (
+                "BEFORE",
+                "BUILD",
+                "CALL",
+                "DICT",
+                "GET",
+                "FORMAT",
+                "LIST",
+                "LOAD",
+                "MAKE",
+                "SETUP",
+                "UNPACK",
+            )
         )
 
         # Opcode names in the custom_ops_processed set have rules that get added
@@ -57,7 +69,78 @@ class Python37LambdaCustom(Python37BaseParser):
             ):
                 continue
 
-            if opname == "GET_ITER":
+            if opname.startswith("BUILD_LIST"):
+                v = token.attr
+                if v == 0:
+                    rule_str = """
+                       list        ::= BUILD_LIST_0
+                       list_unpack ::= BUILD_LIST_0 expr LIST_EXTEND
+                       list        ::= list_unpack
+                    """
+                    self.add_unique_doc_rules(rule_str, customize)
+                else:
+                    rule_str = f"""
+                     list  ::= {'expr ' * v}{opname}
+                    """
+                    self.add_unique_doc_rules(rule_str, customize)
+
+            elif opname.startswith("BUILD_STRING"):
+                v = token.attr
+                rules_str = """
+                    expr                 ::= joined_str
+                    joined_str           ::= %sBUILD_STRING_%d
+                """ % (
+                    "expr " * v,
+                    v,
+                )
+                self.add_unique_doc_rules(rules_str, customize)
+                if "FORMAT_VALUE_ATTR" in self.seen_ops:
+                    rules_str = """
+                      formatted_value_attr ::= expr expr FORMAT_VALUE_ATTR expr BUILD_STRING
+                      expr                 ::= formatted_value_attr
+                    """
+                    self.add_unique_doc_rules(rules_str, customize)
+
+            elif opname.startswith("BUILD_MAP_UNPACK_WITH_CALL"):
+                v = token.attr
+                rule = "build_map_unpack_with_call ::= %s%s" % ("expr " * v, opname)
+                self.addRule(rule, nop_func)
+
+            elif opname.startswith("BUILD_TUPLE_UNPACK_WITH_CALL"):
+                v = token.attr
+                rule = (
+                    "build_tuple_unpack_with_call ::= "
+                    + "expr1024 " * int(v // 1024)
+                    + "expr32 " * int((v // 32) % 32)
+                    + "expr " * (v % 32)
+                    + opname
+                )
+                self.addRule(rule, nop_func)
+                rule = "starred ::= %s %s" % ("expr " * v, opname)
+                self.addRule(rule, nop_func)
+
+            elif opname == "FORMAT_VALUE":
+                rules_str = """
+                    expr              ::= formatted_value1
+                    formatted_value1  ::= expr FORMAT_VALUE
+                """
+                self.add_unique_doc_rules(rules_str, customize)
+
+            elif opname == "FORMAT_VALUE_ATTR":
+                rules_str = """
+                expr              ::= formatted_value2
+                formatted_value2  ::= expr expr FORMAT_VALUE_ATTR
+                """
+                self.add_unique_doc_rules(rules_str, customize)
+
+            elif opname == "GET_AWAITABLE":
+                rule_str = """
+                    await_expr ::= expr GET_AWAITABLE LOAD_CONST YIELD_FROM
+                    expr       ::= await_expr
+                """
+                self.add_unique_doc_rules(rule_str, customize)
+
+            elif opname == "GET_ITER":
                 self.addRule(
                     """
                     expr      ::= get_iter
@@ -73,18 +156,17 @@ class Python37LambdaCustom(Python37BaseParser):
                     stmt ::= JUMP_IF_NOT_DEBUG stmts COME_FROM
                     """
                     self.add_unique_doc_rules(rules_str, customize)
-            elif opname == "FORMAT_VALUE":
-                rules_str = """
-                    expr              ::= formatted_value1
-                    formatted_value1  ::= expr FORMAT_VALUE
-                """
-                self.add_unique_doc_rules(rules_str, customize)
-            elif opname == "FORMAT_VALUE_ATTR":
-                rules_str = """
-                expr              ::= formatted_value2
-                formatted_value2  ::= expr expr FORMAT_VALUE_ATTR
-                """
-                self.add_unique_doc_rules(rules_str, customize)
+
+            elif opname == "LOAD_ATTR":
+                self.addRule(
+                    """
+                  expr      ::= attribute
+                  attribute ::= expr LOAD_ATTR
+                  """,
+                    nop_func,
+                )
+                custom_ops_processed.add(opname)
+
             elif opname == "MAKE_FUNCTION_8":
                 if "LOAD_DICTCOMP" in self.seen_ops:
                     # Is there something general going on here?
@@ -132,38 +214,6 @@ class Python37LambdaCustom(Python37BaseParser):
                 """
                 self.addRule(rules_str, nop_func)
 
-            elif opname.startswith("BUILD_STRING"):
-                v = token.attr
-                rules_str = """
-                    expr                 ::= joined_str
-                    joined_str           ::= %sBUILD_STRING_%d
-                """ % (
-                    "expr " * v,
-                    v,
-                )
-                self.add_unique_doc_rules(rules_str, customize)
-                if "FORMAT_VALUE_ATTR" in self.seen_ops:
-                    rules_str = """
-                      formatted_value_attr ::= expr expr FORMAT_VALUE_ATTR expr BUILD_STRING
-                      expr                 ::= formatted_value_attr
-                    """
-                    self.add_unique_doc_rules(rules_str, customize)
-            elif opname.startswith("BUILD_MAP_UNPACK_WITH_CALL"):
-                v = token.attr
-                rule = "build_map_unpack_with_call ::= %s%s" % ("expr " * v, opname)
-                self.addRule(rule, nop_func)
-            elif opname.startswith("BUILD_TUPLE_UNPACK_WITH_CALL"):
-                v = token.attr
-                rule = (
-                    "build_tuple_unpack_with_call ::= "
-                    + "expr1024 " * int(v // 1024)
-                    + "expr32 " * int((v // 32) % 32)
-                    + "expr " * (v % 32)
-                    + opname
-                )
-                self.addRule(rule, nop_func)
-                rule = "starred ::= %s %s" % ("expr " * v, opname)
-                self.addRule(rule, nop_func)
             elif opname == "SETUP_WITH":
                 rules_str = """
                 with       ::= expr SETUP_WITH POP_TOP suite_stmts_opt COME_FROM_WITH
