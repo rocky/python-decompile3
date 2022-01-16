@@ -205,10 +205,10 @@ def customize_for_version37(self, version):
                 (1, PRECEDENCE["compare"] - 1),
             ),
             "c_try_except": ("%|try:\n%+%c%-%c\n\n", 1, (3, "c_except_handler")),
-            "if_exp37": (
+            "if_exp_compare": (
                 "%p if %c else %c",
                 (1, "expr", 27),
-                0,
+                (0, "expr"),
                 -2,  # Must be from end since beginnings might not match
             ),
             "except_return": ("%|except:\n%+%c%-", 3),

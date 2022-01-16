@@ -410,7 +410,7 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
 
     def p_37conditionals(self, args):
         """
-        expr                       ::= if_exp37
+        expr                       ::= if_exp_compare
         bool_op                    ::= and_cond
         bool_op                    ::= and_not_cond
         bool_op                    ::= and POP_JUMP_IF_TRUE expr
@@ -425,8 +425,8 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
 
         if_exp                     ::= expr_pjif expr jump_forward_else expr come_froms
 
-        if_exp37                   ::= expr expr    jf_cfs expr COME_FROM
-        if_exp37                   ::= bool_op expr jf_cfs expr COME_FROM
+        if_exp_compare             ::= expr expr jf_cfs expr COME_FROM
+        if_exp_compare             ::= bool_op expr jf_cfs expr COME_FROM
         jf_cfs                     ::= JUMP_FORWARD _come_froms
         list_iter                  ::= list_if37
         list_iter                  ::= list_if37_not
