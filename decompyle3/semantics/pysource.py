@@ -1032,8 +1032,17 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_generator_exp(self, node):
         self.write("(")
-        code_index = -6
-        self.comprehension_walk(node, iter_index=4, code_index=code_index)
+        if node[0].kind in ("load_closure", "load_genexpr") and self.version >= (3, 8):
+            is_lambda = self.is_lambda
+            if node[0].kind == "load_genexpr":
+                self.is_lambda = False
+                self.closure_walk(node, collection_index=4)
+            self.closure_walk(node, collection_index=4)
+            self.is_lambda = is_lambda
+        else:
+            code_index = -6
+            iter_index = 4 if self.version < (3, 8) else 3
+            self.comprehension_walk(node, iter_index=iter_index, code_index=code_index)
         self.write(")")
         self.prune()
 
@@ -1283,6 +1292,9 @@ class SourceWalker(GenericASTTraversal, object):
         """
         self.prec = 27
         code_node = node[code_index]
+        if code_node == "load_genexpr":
+            code_node = code_node[0]
+
         code_obj = code_node.attr
         assert iscode(code_obj), code_node
 
@@ -1325,7 +1337,8 @@ class SourceWalker(GenericASTTraversal, object):
         """
         p = self.prec
 
-        tree = self.get_comprehension_function(node, 1)
+        code_index = 0 if node[0] == "load_genexpr" else 1
+        tree = self.get_comprehension_function(node, code_index=code_index)
 
         # Remove single reductions as in ("stmts", "sstmt"):
         while len(tree) == 1:
@@ -1334,8 +1347,13 @@ class SourceWalker(GenericASTTraversal, object):
         store = tree[3]
         collection = node[collection_index]
 
-        n = tree[4]
+        iter_index = 3 if tree == "genexpr_func_async" else 4
+        n = tree[iter_index]
         list_if = None
+        if n != "comp_iter":
+            from trepan.api import debug
+
+            debug()
         assert n == "comp_iter"
 
         # Find inner-most node.
@@ -1363,8 +1381,12 @@ class SourceWalker(GenericASTTraversal, object):
                     list_if = n[1]
                     n = n[1]
                 else:
-                    list_if = n[1]
-                    n = n[2]
+                    if len(n) == 2:
+                        list_if = n[0]
+                        n = n[1]
+                    else:
+                        list_if = n[1]
+                        n = n[2]
                 pass
             pass
 

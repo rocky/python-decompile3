@@ -175,6 +175,11 @@ class Python38LambdaCustom(Python38BaseParser):
                                             store list_iter
                                             JUMP_BACK COME_FROM_FINALLY
                                             END_ASYNC_FOR
+
+                    genexpr_func_async  ::= LOAD_FAST func_async_prefix
+                                            store comp_iter
+                                            JUMP_BACK COME_FROM_FINALLY
+                                            END_ASYNC_FOR
                    """,
                     nop_func,
                 )
