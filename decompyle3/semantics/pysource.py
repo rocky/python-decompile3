@@ -1036,7 +1036,6 @@ class SourceWalker(GenericASTTraversal, object):
             is_lambda = self.is_lambda
             if node[0].kind == "load_genexpr":
                 self.is_lambda = False
-                self.closure_walk(node, collection_index=4)
             self.closure_walk(node, collection_index=4)
             self.is_lambda = is_lambda
         else:
@@ -1350,15 +1349,12 @@ class SourceWalker(GenericASTTraversal, object):
         iter_index = 3 if tree == "genexpr_func_async" else 4
         n = tree[iter_index]
         list_if = None
-        if n != "comp_iter":
-            from trepan.api import debug
-
-            debug()
         assert n == "comp_iter"
 
         # Find inner-most node.
         while n == "comp_iter":
             n = n[0]  # recurse one step
+
             # FIXME: adjust for set comprehension
             if n == "list_for":
                 store = n[2]
