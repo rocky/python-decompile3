@@ -165,6 +165,25 @@ class Python38LambdaCustom(Python38BaseParser):
                 self.addRule(rule, nop_func)
                 rule = "starred ::= %s %s" % ("expr " * v, opname)
                 self.addRule(rule, nop_func)
+            elif opname == "GET_ANEXT":
+                self.addRule(
+                    """
+                    func_async_prefix   ::= _come_froms SETUP_FINALLY GET_ANEXT LOAD_CONST YIELD_FROM POP_BLOCK
+                    func_async_middle   ::= JUMP_FORWARD COME_FROM_EXCEPT
+                                            DUP_TOP LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
+                    list_afor2          ::= func_async_prefix
+                                            store list_iter
+                                            JUMP_BACK COME_FROM_FINALLY
+                                            END_ASYNC_FOR
+
+                    genexpr_func_async  ::= LOAD_FAST func_async_prefix
+                                            store comp_iter
+                                            JUMP_BACK COME_FROM_FINALLY
+                                            END_ASYNC_FOR
+                   """,
+                    nop_func,
+                )
+                custom_ops_processed.add(opname)
             elif opname == "SETUP_WITH":
                 rules_str = """
                 with       ::= expr SETUP_WITH POP_TOP suite_stmts_opt COME_FROM_WITH

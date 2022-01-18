@@ -144,7 +144,7 @@ def customize_for_version3(self, version):
                 collections.append(n[0][0])
                 n = n[1]
                 stores.append(n[1][0])
-                n = n[3]
+                n = n[2] if n[2].kind == "list_iter" else n[3]
             pass
 
         assert n == "lc_body", ast
