@@ -36,6 +36,11 @@ class Python38LambdaParser(
         named_expr        ::= expr DUP_TOP store
         """
 
+    def p_lambda_start(self, args):
+        """
+        return_expr_lambda ::= genexpr_func LOAD_CONST RETURN_VALUE_LAMBDA
+        """
+
     def __init__(
         self,
         start_symbol: str = "lambda_start",

@@ -1033,11 +1033,7 @@ class SourceWalker(GenericASTTraversal, object):
     def n_generator_exp(self, node):
         self.write("(")
         if node[0].kind in ("load_closure", "load_genexpr") and self.version >= (3, 8):
-            is_lambda = self.is_lambda
-            if node[0].kind == "load_genexpr":
-                self.is_lambda = False
             self.closure_walk(node, collection_index=4)
-            self.is_lambda = is_lambda
         else:
             code_index = -6
             iter_index = 4 if self.version < (3, 8) else 3
@@ -1339,8 +1335,11 @@ class SourceWalker(GenericASTTraversal, object):
         code_index = 0 if node[0] == "load_genexpr" else 1
         tree = self.get_comprehension_function(node, code_index=code_index)
 
+        if tree.kind in ("stmts", "lambda_start"):
+            tree = tree[0]
+
         # Remove single reductions as in ("stmts", "sstmt"):
-        while len(tree) == 1:
+        while len(tree) == 1 or tree.kind in ("return_expr_lambda",):
             tree = tree[0]
 
         store = tree[3]

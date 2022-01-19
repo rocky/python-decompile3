@@ -194,8 +194,6 @@ class Python37Parser(Python37LambdaParser):
         returns ::= _stmts return
 
         stmt ::= genexpr_func
-        genexpr_func ::= LOAD_FAST _come_froms FOR_ITER store comp_iter
-                         JUMP_BACK _come_froms
         """
         pass
 
