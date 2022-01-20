@@ -186,25 +186,26 @@ class Python38LambdaCustom(Python38BaseParser):
                                              JUMP_LOOP bb_end_start
                                              POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
 
-                    genexpr_func_async  ::= LOAD_FAST func_async_prefix
-                                            store func_async_middle comp_iter
-                                            JUMP_BACK COME_FROM
-                                            POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
+                    genexpr_func_async   ::= LOAD_FAST func_async_prefix
+                                             store func_async_middle comp_iter
+                                             JUMP_BACK COME_FROM
+                                             POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
 
-                    get_aiter           ::= expr GET_AITER
+                    get_aiter            ::= expr GET_AITER
 
-                    list_afor2          ::= func_async_prefix
-                                            store func_async_middle list_iter
-                                            JUMP_BACK COME_FROM
-                                            POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
+                    list_afor            ::= get_aiter list_afor2
+                    list_afor2           ::= func_async_prefix
+                                             store func_async_middle list_iter
+                                             JUMP_BACK COME_FROM
+                                             POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
+
+                    list_comp_async      ::= BUILD_LIST_0 LOAD_FAST list_afor2
                     list_comp_async      ::= LOAD_LISTCOMP LOAD_STR MAKE_FUNCTION_0
                                              expr GET_AITER CALL_FUNCTION_1
                                              GET_AWAITABLE LOAD_CONST
                                              YIELD_FROM
 
-                    list_afor           ::= get_aiter list_afor2
-                    list_comp_async     ::= BUILD_LIST_0 LOAD_FAST list_afor2
-                    list_iter           ::= list_afor
+                    list_iter            ::= list_afor
 
                    """,
                     nop_func,
