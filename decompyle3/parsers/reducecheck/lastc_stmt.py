@@ -35,7 +35,7 @@ def lastc_stmt(
         "BREAK_LOOP",
         "COME_FROM_LOOP",
         "CONTINUE",
-        "JUMP_BACK",
+        "JUMP_LOOP",
         "POP_BLOCK",
         "RETURN_VALUE",
     )

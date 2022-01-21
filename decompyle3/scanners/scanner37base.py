@@ -434,11 +434,11 @@ class Scanner37Base(Scanner):
             elif op == self.opc.JUMP_ABSOLUTE:
                 #  Refine JUMP_ABSOLUTE further in into:
                 #
-                # * "JUMP_BACK"    - which are are used in loops. This is sometimes
+                # * "JUMP_LOOP"    - which are are used in loops. This is sometimes
                 #                   found at the end of a looping construct
                 # * "BREAK_LOOP"  - which are are used to break loops.
                 # * "CONTINUE"    - jumps which may appear in a "continue" statement.
-                #                   It is okay to confuse this with JUMP_BACK. The
+                #                   It is okay to confuse this with JUMP_LOOP. The
                 #                   grammar should tolerate this.
                 # * "JUMP_FORWARD - forward jumps that are not BREAK_LOOP jumps.
                 #
@@ -448,7 +448,7 @@ class Scanner37Base(Scanner):
                 # otherwise be turned into a "pass" statement because
                 # JUMPs are sometimes ignored in rules as just
                 # boundary overhead. Again, in comprehensions we might
-                # sometimes classify JUMP_BACK as CONTINUE, but that's
+                # sometimes classify JUMP_LOOP as CONTINUE, but that's
                 # okay since grammar rules should tolerate that.
                 pattr = argval
                 target = inst.argval
@@ -476,13 +476,13 @@ class Scanner37Base(Scanner):
                     ):
                         opname = "CONTINUE"
                     else:
-                        opname = "JUMP_BACK"
+                        opname = "JUMP_LOOP"
                         # FIXME: this is a hack to catch stuff like:
                         #   if x: continue
                         # the "continue" is not on a new line.
                         # There are other situations where we don't catch
                         # CONTINUE as well.
-                        if tokens[-1].kind == "JUMP_BACK" and tokens[-1].attr <= argval:
+                        if tokens[-1].kind == "JUMP_LOOP" and tokens[-1].attr <= argval:
                             if tokens[-2].kind == "BREAK_LOOP":
                                 del tokens[-1]
                             else:

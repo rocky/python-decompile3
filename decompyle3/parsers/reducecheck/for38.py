@@ -15,6 +15,7 @@
 
 from decompyle3.scanners.tok import off2int
 
+
 def for38_check(
     self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
 ) -> bool:
@@ -25,7 +26,7 @@ def for38_check(
     first_offset = tokens[first].off2int(prefer_last=False)
     last_offset = tokens[last].off2int(prefer_last=False)
     if last_offset == -1:
-        last_offset = tokens[last-1].off2int(prefer_last=False)
+        last_offset = tokens[last - 1].off2int(prefer_last=False)
 
     start = self.offset2inst_index[first_offset]
     end = off2int(self.offset2inst_index[last_offset], prefer_last=True)
@@ -44,8 +45,10 @@ def for38_check(
 
         if not for_body_end_offset and inst.opname == "FOR_ITER":
             # There can be some slop in "last" as to where the body ends. If the rule
-            # end in "JUMP_BACK", then "last" doesn't need adjusting.
-            for_body_end_offset = inst.argval if rule[1][-1] == "JUMP_BACK" else inst.argval - 2
+            # end in "JUMP_LOOP", then "last" doesn't need adjusting.
+            for_body_end_offset = (
+                inst.argval if rule[1][-1] == "JUMP_LOOP" else inst.argval - 2
+            )
             if self.insts[end].has_extended_arg:
                 last_offset += 2
             if last_offset < for_body_end_offset:
@@ -64,6 +67,8 @@ def for38_check(
             # The way we distinguish this is to check if the instruction after the body end
             # starts with a jump (the start of the encompassing if/else. The "else" part
             # of a "for/else" never starts with a jump.
-            body_end_next_inst = self.insts[self.offset2inst_index[for_body_end_offset + 2]]
+            body_end_next_inst = self.insts[
+                self.offset2inst_index[for_body_end_offset + 2]
+            ]
             return not body_end_next_inst.is_jump()
     return False

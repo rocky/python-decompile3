@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2021 by Rocky Bernstein
+#  Copyright (c) 2019-2022 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -50,14 +50,15 @@ class Scanner38(Scanner37):
             co, classname, code_objects, show_asm
         )
 
-        # Hacky way to detect loop ranges.
-        # The key in jump_back_targets is the start of the loop.
-        # The value is where the loop ends. In current Python,
-        # JUMP_BACKS are always to loops. And blocks are ordered so that the
-        # JUMP_BACK with the highest offset will be where the range ends.
+        # Hacky way to detect loop ranges.  The key in
+        # jump_back_targets is the start of the loop.  The value is
+        # where the loop ends. In current Python, to an earlier offset
+        # are always to loops. And blocks are ordered so that the
+        # JUMP_LOOP with the highest offset will be where the range
+        # ends.
         jump_back_targets: Dict[int, int] = {}
         for token in tokens:
-            if token.kind == "JUMP_BACK":
+            if token.kind == "JUMP_LOOP":
                 jump_back_targets[token.attr] = token.offset
                 pass
             pass
@@ -100,14 +101,14 @@ class Scanner38(Scanner37):
 
                 # We also want to avoid confusing BREAK_LOOPS with parts of the
                 # grammar rules for loops. (Perhaps we should change the grammar.)
-                # Try to find an adjacent JUMP_BACK which is part of the normal loop end.
+                # Try to find an adjacent JUMP_LOOP which is part of the normal loop end.
                 jump_back_index = self.offset2inst_index[
                     off2int(offset, prefer_last=False)
                 ]
 
                 if (
                     jump_back_index + 1 < len(self.insts)
-                    and self.insts[jump_back_index + 1].opname == "JUMP_BACK"
+                    and self.insts[jump_back_index + 1].opname == "JUMP_LOOP"
                 ):
                     # Sometimes the jump back is after the "break" instruction..
                     jump_back_index += 1
@@ -119,15 +120,15 @@ class Scanner38(Scanner37):
 
                 jump_back_inst = self.insts[jump_back_index]
 
-                # Is this a forward jump not next to a JUMP_BACK ? ...
+                # Is this a forward jump not next to a JUMP_LOOP ? ...
                 break_loop = (
-                    jump_back_inst.starts_line and jump_back_inst.opname != "JUMP_BACK"
+                    jump_back_inst.starts_line and jump_back_inst.opname != "JUMP_LOOP"
                 )
 
                 # or if there is looping jump back, then that loop
                 # should start before where the "break" instruction sits.
                 if break_loop or (
-                    jump_back_inst.opname == "JUMP_BACK"
+                    jump_back_inst.opname == "JUMP_LOOP"
                     and jump_back_inst.argval < token.off2int()
                 ):
                     token.kind = "BREAK_LOOP"

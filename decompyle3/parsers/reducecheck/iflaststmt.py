@@ -38,11 +38,10 @@ def iflaststmt(
             return True
 
     if rhs[0:2] in (
-            ("testexpr", "stmts"),
-            ("testexpr", "c_stmts"),
-            ("testexprc", "c_stmts")
-            ):
-
+        ("testexpr", "stmts"),
+        ("testexpr", "c_stmts"),
+        ("testexprc", "c_stmts"),
+    ):
 
         # "stmts" (end of then) should not end in a fallthough instruction
         # other wise this is just a plain ol' stmt.
@@ -52,7 +51,7 @@ def iflaststmt(
         then_end = self.off2inst(ltm1)
 
         # FIXME: fallthrough should be an xdis thing. Until then...
-        if then_end.opcode not in self.opc.nofollow and tokens[last] != "JUMP_BACK":
+        if then_end.opcode not in self.opc.nofollow and tokens[last] != "JUMP_LOOP":
             return True
 
         # If there is a trailing if-jump (forward) at the end of "testexp", it should
@@ -158,7 +157,7 @@ def iflaststmt(
             # jump_target equal tokens[last] is also okay: normal non-optimized non-loop jump
 
             if (last + 1) < n:
-                if tokens[last - 1] == "JUMP_BACK":
+                if tokens[last - 1] == "JUMP_LOOP":
                     if jump_target > first_offset:
                         # The end of the iflaststmt if test jumps backward to a loop
                         # but the false branch of the "if" doesn't also jump back.

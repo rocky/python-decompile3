@@ -1,4 +1,4 @@
-#  Copyright (c) 2020-2021 Rocky Bernstein
+#  Copyright (c) 2020-2022 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ def dump_and_check(p, version: tuple, modified_tokens: set) -> None:
 
         s = get_scanner(PYTHON_VERSION_TRIPLE, IS_PYPY)
         modified_tokens = set(
-            """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
+            """JUMP_LOOP CONTINUE RETURN_END_IF COME_FROM
                LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_CLASSNAME
                LAMBDA_MARKER RETURN_LAST
             """.split()

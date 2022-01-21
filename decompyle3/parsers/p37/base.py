@@ -365,7 +365,7 @@ class Python37BaseParser(PythonBaseParser):
                     # PyPy sometimes has no count. Sigh.
                     rule = (
                         "dict_comp_func ::= BUILD_MAP_n LOAD_FAST for_iter store "
-                        "comp_iter JUMP_BACK RETURN_VALUE RETURN_LAST"
+                        "comp_iter JUMP_LOOP RETURN_VALUE RETURN_LAST"
                     )
                     self.add_unique_rule(rule, "dict_comp_func", 1, customize)
 

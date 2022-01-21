@@ -64,7 +64,7 @@ if __name__ == "__main__":
 
     p = Python38LambdaParser()
     modified_tokens = set(
-        """JUMP_BACK CONTINUE RETURN_END_IF COME_FROM
+        """JUMP_LOOP CONTINUE RETURN_END_IF COME_FROM
            LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_CLASSNAME
            LAMBDA_MARKER RETURN_LAST
         """.split()

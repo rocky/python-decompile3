@@ -7,7 +7,7 @@ def while1stmt(
 
     # If there is a fall through to the COME_FROM_LOOP, then this is
     # not a while 1. So the instruction before should either be a
-    # JUMP_BACK or the instruction before should not be the target of a
+    # JUMP_LOOP or the instruction before should not be the target of a
     # jump. (Well that last clause i not quite right; that target could be
     # from dead code. Ugh. We need a more uniform control flow analysis.)
     if last == n or tokens[last - 1] == "COME_FROM_LOOP":
@@ -19,12 +19,12 @@ def while1stmt(
     for loop_end in range(cfl - 1, first, -1):
         if tokens[loop_end] != "POP_BLOCK":
             break
-    if tokens[loop_end].kind not in ("JUMP_BACK", "RETURN_VALUE", "RAISE_VARARGS_1"):
+    if tokens[loop_end].kind not in ("JUMP_LOOP", "RETURN_VALUE", "RAISE_VARARGS_1"):
         if not tokens[loop_end].kind.startswith("COME_FROM"):
             return True
     # Check that the SETUP_LOOP jumps to the offset after the
     # COME_FROM_LOOP
-    if 0 <= last and tokens[last] in ("COME_FROM_LOOP", "JUMP_BACK"):
+    if 0 <= last and tokens[last] in ("COME_FROM_LOOP", "JUMP_LOOP"):
         # jump_back should be right before COME_FROM_LOOP?
         last += 1
     if last == n:
@@ -33,10 +33,10 @@ def while1stmt(
     assert tokens[first] == "SETUP_LOOP"
 
     # Scan for jumps out of the loop. Skip the initial "SETUP_LOOP" instruction.
-    # If there is a JUMP_BACK at the end, jumping to that is not breaking out
+    # If there is a JUMP_LOOP at the end, jumping to that is not breaking out
     # of the loop. However after that, any "POP_BLOCK"s or "COME_FROM_LOOP"s
     # are considered to break out of the loop.
-    if tokens[loop_end] == "JUMP_BACK":
+    if tokens[loop_end] == "JUMP_LOOP":
         loop_end += 1
     loop_end_offset = tokens[loop_end].off2int(prefer_last=False)
     for t in range(first + 1, loop_end):

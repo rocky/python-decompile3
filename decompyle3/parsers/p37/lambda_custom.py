@@ -146,7 +146,7 @@ class Python37LambdaCustom(Python37BaseParser):
                                             END_FINALLY COME_FROM
                     genexpr_func_async  ::= LOAD_FAST func_async_prefix
                                             store func_async_middle comp_iter
-                                            JUMP_BACK COME_FROM
+                                            JUMP_LOOP COME_FROM
                                             POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
 
                     expr                ::= list_comp_async
@@ -158,7 +158,7 @@ class Python37LambdaCustom(Python37BaseParser):
                     expr                ::= list_comp_async
                     list_afor2          ::= func_async_prefix
                                             store func_async_middle list_iter
-                                            JUMP_BACK COME_FROM
+                                            JUMP_LOOP COME_FROM
                                             POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
                     list_comp_async     ::= BUILD_LIST_0 LOAD_FAST list_afor2
                     get_aiter           ::= expr GET_AITER

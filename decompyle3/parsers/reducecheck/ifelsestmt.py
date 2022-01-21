@@ -219,7 +219,7 @@ def ifelsestmt(
             # tokens[last].
             if jump_else_end in ("jb_elsec", "jb_cfs") and tokens[last].kind not in (
                 "COME_FROM",
-                "JUMP_BACK",
+                "JUMP_LOOP",
                 "COME_FROM_LOOP",
             ):
                 return True

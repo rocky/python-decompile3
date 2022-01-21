@@ -12,7 +12,7 @@ def while1elsestmt(
         last -= 1
     elif tokens[last - 1] == "COME_FROM_LOOP":
         last -= 2
-    if tokens[last] in ("JUMP_BACK", "CONTINUE"):
+    if tokens[last] in ("JUMP_LOOP", "CONTINUE"):
         # These indicate inside a loop, but token[last]
         # should not be in a loop.
         # FIXME: Not quite right: refine by using target

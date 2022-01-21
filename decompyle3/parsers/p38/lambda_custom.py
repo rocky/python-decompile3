@@ -188,7 +188,7 @@ class Python38LambdaCustom(Python38BaseParser):
 
                     genexpr_func_async   ::= LOAD_FAST func_async_prefix
                                              store func_async_middle comp_iter
-                                             JUMP_BACK COME_FROM
+                                             JUMP_LOOP COME_FROM
                                              POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
 
                     get_aiter            ::= expr GET_AITER
@@ -196,7 +196,7 @@ class Python38LambdaCustom(Python38BaseParser):
                     list_afor            ::= get_aiter list_afor2
                     list_afor2           ::= func_async_prefix
                                              store func_async_middle list_iter
-                                             JUMP_BACK COME_FROM
+                                             JUMP_LOOP COME_FROM
                                              POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
 
                     list_comp_async      ::= BUILD_LIST_0 LOAD_FAST list_afor2
@@ -220,12 +220,12 @@ class Python38LambdaCustom(Python38BaseParser):
                                             DUP_TOP LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
                     list_afor2          ::= func_async_prefix
                                             store list_iter
-                                            JUMP_BACK COME_FROM_FINALLY
+                                            JUMP_LOOP COME_FROM_FINALLY
                                             END_ASYNC_FOR
 
                     genexpr_func_async  ::= LOAD_FAST func_async_prefix
                                             store comp_iter
-                                            JUMP_BACK COME_FROM_FINALLY
+                                            JUMP_LOOP COME_FROM_FINALLY
                                             END_ASYNC_FOR
                    """,
                     nop_func,

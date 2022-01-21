@@ -52,7 +52,7 @@ class Python38BaseParser(PythonBaseParser):
                                   SETUP_EXCEPT GET_ANEXT
                                   LOAD_CONST YIELD_FROM
                                   store
-                                  POP_BLOCK JUMP_BACK COME_FROM_EXCEPT DUP_TOP
+                                  POP_BLOCK JUMP_LOOP COME_FROM_EXCEPT DUP_TOP
                                   LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
                                   END_FINALLY for_block COME_FROM
                                   POP_TOP POP_TOP POP_TOP POP_EXCEPT
@@ -75,7 +75,7 @@ class Python38BaseParser(PythonBaseParser):
            for                ::= setup_loop expr get_for_iter store for_block POP_BLOCK
            for                ::= setup_loop expr get_for_iter store for_block POP_BLOCK NOP
 
-           for_block          ::= c_stmts_opt COME_FROM_LOOP JUMP_BACK
+           for_block          ::= c_stmts_opt COME_FROM_LOOP JUMP_LOOP
            forelsestmt        ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suite
            forelselaststmt    ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suitec
            forelselaststmtc   ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suitec

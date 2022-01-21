@@ -180,7 +180,7 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
     def p_jump(self, args):
         """
         jump               ::= JUMP_FORWARD
-        jump               ::= JUMP_BACK
+        jump               ::= JUMP_LOOP
         jump_or_break      ::= jump
         jump_or_break      ::= BREAK_LOOP
 
@@ -277,15 +277,15 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         compare_chained2           ::= expr COMPARE_OP RETURN_VALUE_LAMBDA
 
         compare_chained2_false_37  ::= chained_parts
-                                      compare_chained2a_false_37 POP_TOP JUMP_BACK COME_FROM
+                                      compare_chained2a_false_37 POP_TOP JUMP_LOOP COME_FROM
         c_compare_chained2_false_37  ::= chained_parts
-                                         c_compare_chained2a_false_37 POP_TOP JUMP_BACK COME_FROM
+                                         c_compare_chained2a_false_37 POP_TOP JUMP_LOOP COME_FROM
 
         compare_chained2a_37       ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_TRUE JUMP_FORWARD
         c_compare_chained2a_37     ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_TRUE_BACK JUMP_FORWARD
 
 
-        compare_chained2a_37       ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_TRUE JUMP_BACK
+        compare_chained2a_37       ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_TRUE JUMP_LOOP
         compare_chained2a_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE jf_cfs
 
 
@@ -361,7 +361,7 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         c_compare         ::= c_compare_chained
 
         genexpr_func      ::= LOAD_FAST _come_froms FOR_ITER store comp_iter
-                              JUMP_BACK _come_froms
+                              JUMP_LOOP _come_froms
 
         load_genexpr      ::= LOAD_GENEXPR
         load_genexpr      ::= BUILD_TUPLE_1 LOAD_GENEXPR LOAD_STR
@@ -405,7 +405,7 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         list_if_end ::= pjump_iff _come_froms
         list_if     ::= expr list_if_end list_iter come_from_opt
 
-        jb_or_c ::= JUMP_BACK
+        jb_or_c ::= JUMP_LOOP
         jb_or_c ::= CONTINUE
 
 
@@ -455,12 +455,12 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         # Python3 scanner adds LOAD_LISTCOMP. Python3 does list comprehension like
         # other comprehensions (set, dictionary).
 
-        # Our "continue" heuristic -  in two successive JUMP_BACKS, the first
-        # one may be a continue - sometimes classifies a JUMP_BACK
+        # Our "continue" heuristic -  in two successive JUMP_LOOPS, the first
+        # one may be a continue - sometimes classifies a JUMP_LOOP
         # as a CONTINUE. The two are kind of the same in a comprehension.
 
         comp_for       ::= expr get_for_iter store comp_iter CONTINUE _come_froms
-        comp_for       ::= expr get_for_iter store comp_iter JUMP_BACK _come_froms
+        comp_for       ::= expr get_for_iter store comp_iter JUMP_LOOP _come_froms
         get_for_iter   ::= GET_ITER _come_froms FOR_ITER
 
         comp_body      ::= dict_comp_body
@@ -550,7 +550,7 @@ if __name__ == "__main__":
 
     p = Python37LambdaParser()
     modified_tokens = set(
-        """JUMP_BACK CONTINUE RETURN_END_IF_LAMBDA COME_FROM
+        """JUMP_LOOP CONTINUE RETURN_END_IF_LAMBDA COME_FROM
            LOAD_GENEXPR LOAD_ASSERT LOAD_SETCOMP LOAD_DICTCOMP LOAD_CLASSNAME
            LAMBDA_MARKER RETURN_VALUE_LAMBDA
         """.split()
