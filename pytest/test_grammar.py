@@ -49,7 +49,7 @@ def test_grammar():
             ("CONTINUE",),
             ("JUMP_ABSOLUTE",),
             ("LOAD_CONST",),
-            ("JUMP_BACK",),
+            ("JUMP_LOOP",),
             ("JUMP_FORWARD",),
         ]
     )
@@ -64,7 +64,7 @@ def test_grammar():
 
     # ignore_set = set(
     #     """
-    #         JUMP_BACK CONTINUE
+    #         JUMP_LOOP CONTINUE
     #         COME_FROM COME_FROM_EXCEPT
     #         COME_FROM_EXCEPT_CLAUSE
     #         COME_FROM_LOOP COME_FROM_WITH

@@ -1,5 +1,5 @@
 # Tests
-# while1stmt ::= SETUP_LOOP l_stmts JUMP_BACK POP_BLOCK COME_FROM
+# while1stmt ::= SETUP_LOOP l_stmts JUMP_LOOP POP_BLOCK COME_FROM
 # tryfinallystmt ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
 
 try:

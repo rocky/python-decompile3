@@ -6,13 +6,15 @@
 #  76 JUMP_ABSOLUTE           17 (to 17)
 
 # And getting:
-# list_for ::= expr _for store list_iter JUMP_BACK
-# list_iter ::= list_if JUMP_BACK
+# list_for ::= expr _for store list_iter JUMP_LOOP
+# list_iter ::= list_if JUMP_LOOP
 #                       ^^^^^^^^^ added to 2.6 grammar
 # list_iter ::= list_for
 
 
 def list_public_methods(obj):
-    return [member for member in dir(obj)
-                if not member.startswith('_') and
-                    hasattr(getattr(obj, member), '__call__')]
+    return [
+        member
+        for member in dir(obj)
+        if not member.startswith("_") and hasattr(getattr(obj, member), "__call__")
+    ]

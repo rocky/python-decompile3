@@ -11,14 +11,11 @@
 # gen_comp_body ::= expr YIELD_VALUE POP_TOP
 # comp_body ::= gen_comp_body
 # comp_iter ::= comp_body
-# comp_for ::= expr _for store comp_iter JUMP_BACK
+# comp_for ::= expr _for store comp_iter JUMP_LOOP
 # comp_iter ::= comp_for
-# genexpr_func ::= LOAD_FAST FOR_ITER store comp_iter JUMP_BACK
+# genexpr_func ::= LOAD_FAST FOR_ITER store comp_iter JUMP_LOOP
+
 
 def multi_genexpr(blog_posts):
 
-    return (
-        entry
-        for blog_post in blog_posts
-        for entry in blog_post.entry_set
-    )
+    return (entry for blog_post in blog_posts for entry in blog_post.entry_set)

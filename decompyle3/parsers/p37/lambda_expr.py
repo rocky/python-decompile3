@@ -190,10 +190,10 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         jump_forward_else  ::= come_froms jump COME_FROM
 
         pjump_ift          ::= POP_JUMP_IF_TRUE
-        pjump_ift          ::= POP_JUMP_IF_TRUE_BACK
+        pjump_ift          ::= POP_JUMP_IF_TRUE_LOOP
 
         pjump_iff          ::= POP_JUMP_IF_FALSE
-        pjump_iff          ::= POP_JUMP_IF_FALSE_BACK
+        pjump_iff          ::= POP_JUMP_IF_FALSE_LOOP
 
         # pjump              ::= pjump_iff
         # pjump              ::= pjump_ift
@@ -243,7 +243,7 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         chained_part               ::= expr DUP_TOP ROT_THREE COMPARE_OP come_from_opt POP_JUMP_IF_FALSE
 
         # c_chained_parts            ::= c_chained_part+
-        # c_chained_part             ::= expr DUP_TOP ROT_THREE COMPARE_OP come_from_opt POP_JUMP_IF_FALSE_BACK
+        # c_chained_part             ::= expr DUP_TOP ROT_THREE COMPARE_OP come_from_opt POP_JUMP_IF_FALSE_LOOP
         # c_chained_parts            ::= chained_parts
 
 
@@ -282,7 +282,7 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
                                          c_compare_chained2a_false_37 POP_TOP JUMP_LOOP COME_FROM
 
         compare_chained2a_37       ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_TRUE JUMP_FORWARD
-        c_compare_chained2a_37     ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_TRUE_BACK JUMP_FORWARD
+        c_compare_chained2a_37     ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_TRUE_LOOP JUMP_FORWARD
 
 
         compare_chained2a_37       ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_TRUE JUMP_LOOP
@@ -291,11 +291,11 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
 
         compare_chained2b_false_37   ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE
                                          jump_or_break COME_FROM
-        c_compare_chained2b_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE_BACK
+        c_compare_chained2b_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE_LOOP
                                          jump_or_break COME_FROM
-        c_compare_chained2a_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE_BACK
+        c_compare_chained2a_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE_LOOP
                                          jf_cfs
-        c_compare_chained2a_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE_BACK
+        c_compare_chained2a_false_37 ::= expr COMPARE_OP come_from_opt POP_JUMP_IF_FALSE_LOOP
         c_compare_chained2b_false_37 ::= expr COMPARE_OP come_from_opt JUMP_FORWARD COME_FROM
 
 
@@ -474,7 +474,7 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
     def p_dict_comp3(self, args):
         """
         or_jump_if_false_cf    ::= or POP_JUMP_IF_FALSE COME_FROM
-        c_or_jump_if_false_cf  ::= c_or POP_JUMP_IF_FALSE_BACK COME_FROM
+        c_or_jump_if_false_cf  ::= c_or POP_JUMP_IF_FALSE_LOOP COME_FROM
 
         c_or       ::= or
         c_or       ::= c_or_parts expr
