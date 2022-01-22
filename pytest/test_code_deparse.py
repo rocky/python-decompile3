@@ -53,8 +53,8 @@ def test_single_mode() -> None:
     )
 
     for expr in expressions:
+        # print("XXX", expr)
         try:
-            # print("XXX", expr)
             deparsed = run_deparse(expr, compile_mode="single", debug=False)
         except:
             assert False, expr

@@ -360,7 +360,7 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         compare_single    ::= expr expr COMPARE_OP
         c_compare         ::= c_compare_chained
 
-        genexpr_func      ::= LOAD_FAST _come_froms FOR_ITER store comp_iter
+        genexpr_func      ::= LOAD_ARG _come_froms FOR_ITER store comp_iter
                               JUMP_LOOP _come_froms
 
         load_genexpr      ::= LOAD_GENEXPR
@@ -392,7 +392,10 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         list_iter ::= lc_body
 
         lc_body   ::= expr LIST_APPEND
-        list_for  ::= expr for_iter store list_iter jb_or_c _come_froms
+        list_for  ::= expr_or_arg
+                      for_iter
+                      store list_iter
+                      jb_or_c _come_froms
         list_comp ::= BUILD_LIST_0 list_iter
 
         list_if_not_end ::= pjump_ift _come_froms
@@ -458,6 +461,9 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         # Our "continue" heuristic -  in two successive JUMP_LOOPS, the first
         # one may be a continue - sometimes classifies a JUMP_LOOP
         # as a CONTINUE. The two are kind of the same in a comprehension.
+
+        expr_or_arg     ::= LOAD_ARG
+        expr_or_arg     ::= expr
 
         comp_for       ::= expr get_for_iter store comp_iter CONTINUE _come_froms
         comp_for       ::= expr get_for_iter store comp_iter JUMP_LOOP _come_froms

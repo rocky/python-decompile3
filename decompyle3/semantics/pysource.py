@@ -1358,6 +1358,9 @@ class SourceWalker(GenericASTTraversal, object):
             if n == "list_for":
                 store = n[2]
                 n = n[3]
+            elif n[0].kind == "c_compare":
+                list_if = n
+                n = n[-1]
             elif n in (
                 "list_if",
                 "list_if_not",
@@ -1365,10 +1368,9 @@ class SourceWalker(GenericASTTraversal, object):
                 "comp_if",
                 "comp_if_not",
             ):
-                # FIXME: just a guess
                 if n[0].kind == "expr":
                     list_if = n
-                    n = n[2]
+                    n = n[-1]  # n -1 ?
                 elif n[0].kind in ("expr_pjif", "expr_pjiff"):
                     list_if = n
                     n = n[1]

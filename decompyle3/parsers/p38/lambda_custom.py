@@ -1,4 +1,4 @@
-#  Copyright (c) 2020-2021 Rocky Bernstein
+#  Copyright (c) 2020-2022 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -186,7 +186,7 @@ class Python38LambdaCustom(Python38BaseParser):
                                              JUMP_LOOP bb_end_start
                                              POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
 
-                    genexpr_func_async   ::= LOAD_FAST func_async_prefix
+                    genexpr_func_async   ::= LOAD_ARG func_async_prefix
                                              store func_async_middle comp_iter
                                              JUMP_LOOP COME_FROM
                                              POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
@@ -199,7 +199,7 @@ class Python38LambdaCustom(Python38BaseParser):
                                              JUMP_LOOP COME_FROM
                                              POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
 
-                    list_comp_async      ::= BUILD_LIST_0 LOAD_FAST list_afor2
+                    list_comp_async      ::= BUILD_LIST_0 LOAD_ARG list_afor2
                     list_comp_async      ::= LOAD_LISTCOMP LOAD_STR MAKE_FUNCTION_0
                                              expr GET_AITER CALL_FUNCTION_1
                                              GET_AWAITABLE LOAD_CONST
@@ -223,9 +223,11 @@ class Python38LambdaCustom(Python38BaseParser):
                                             JUMP_LOOP COME_FROM_FINALLY
                                             END_ASYNC_FOR
 
-                    genexpr_func_async  ::= LOAD_FAST func_async_prefix
-                                            store comp_iter
-                                            JUMP_LOOP COME_FROM_FINALLY
+                    genexpr_func_async  ::= LOAD_ARG func_async_prefix
+                                            store
+                                            comp_iter
+                                            JUMP_LOOP
+                                            COME_FROM_FINALLY
                                             END_ASYNC_FOR
                    """,
                     nop_func,
