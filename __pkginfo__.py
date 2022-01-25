@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2021 Rocky Bernstein <rocky@gnu.org>
+# Copyright (C) 2018-2022 Rocky Bernstein <rocky@gnu.org>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -43,6 +43,7 @@ author_email = "rb@dustyfeet.com"
 entry_points = {
     "console_scripts": [
         "decompyle3=decompyle3.bin.decompile:main_bin",
+        "decompyle3-code=decompyle3.bin.decompile_code_type:main",
         "py3disassemble=decompyle3.bin.py3disassemble:main",
     ]
 }

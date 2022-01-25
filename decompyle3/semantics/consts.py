@@ -160,8 +160,8 @@ TAB = " " * 4
 INDENT_PER_LEVEL = " "  # additional intent per pretty-print level
 
 TABLE_R = {
-    "STORE_ATTR": ("%c.%[1]{pattr}", 0),
     "DELETE_ATTR": ("%|del %c.%[-1]{pattr}\n", 0),
+    "STORE_ATTR":  ("%c.%[1]{pattr}", 0),
 }
 
 TABLE_DIRECT = {
