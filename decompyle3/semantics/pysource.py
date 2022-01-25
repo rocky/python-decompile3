@@ -1140,7 +1140,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         # Find the list comprehension body. It is the inner-most
         # node that is not list_.. .
-        if_node = None
+        if_nodes = []
         if_node_parent = None
         comp_for = None
         comp_store = None
@@ -1149,8 +1149,7 @@ class SourceWalker(GenericASTTraversal, object):
             if not store:
                 comp_store = tree[3]
 
-        have_not = False
-        for_node = None
+        collection_node = None
 
         # Iterate to find the inner-most "store".
         # We'll come back to the list iteration below.
@@ -1167,7 +1166,7 @@ class SourceWalker(GenericASTTraversal, object):
                 n = n[0]
 
             if n in ("list_for", "comp_for"):
-                for_node = n
+                collection_node = n
                 if n[2] == "store" and not store:
                     store = n[2]
                     if not comp_store:
@@ -1182,18 +1181,25 @@ class SourceWalker(GenericASTTraversal, object):
                 "comp_if",
                 "comp_if_not",
             ):
-                have_not = n in ("list_if_not", "comp_if_not", "list_if37_not")
                 if n in ("list_if37", "list_if37_not", "comp_if"):
                     if n == "comp_if":
-                        if_node = n[0]
+                        if_nodes.append(n)
+                    if n[1] == "store":
+                        store = n[1]
                     n = n[1]
                 else:
-                    if_node_parent = n
-                    if_node = n[0]
+                    if n in ("comp_if_not",):
+                        if_nodes.append(n)
+                    else:
+                        if_node_parent = n
+                        if_nodes.append(n[0])
                     if n[1] == "store":
                         store = n[1]
                     n = n[2]
                     pass
+            elif n.kind == "list_if_and_or":
+                if_nodes.append(n[-1][0])
+                n = n[-1]
             pass
 
         # Python 2.7+ starts including set_comp_body
@@ -1209,8 +1215,10 @@ class SourceWalker(GenericASTTraversal, object):
         # Another approach might be to be able to pass in the source name
         # for the dummy argument.
 
-        self.preorder(n[0])
-        if node == "list_comp_async":
+        if node != "list_afor":
+            self.preorder(n[0])
+
+        if node in ("list_comp_async", "list_afor"):
             self.write(" async")
             in_node_index = 3
         else:
@@ -1224,12 +1232,20 @@ class SourceWalker(GenericASTTraversal, object):
             self.preorder(store)
 
         self.write(" in ")
-        if self.compile_mode in ("dictcomp", "listcomp", "gencomp", "setcomp"):
-            if for_node is None:
+
+        if node == "list_afor":
+            list_afor2 = node[1]
+            assert list_afor2 == "list_afor2"
+            list_iter = list_afor2[2]
+            assert list_iter == "list_iter"
+            self.preorder(collection_node)
+            if_nodes = []
+        elif self.compile_mode in ("dictcomp", "listcomp", "gencomp", "setcomp"):
+            if collection_node is None:
                 assert node[3] == "expr"
                 self.preorder(node[3])
             else:
-                self.preorder(for_node[0])
+                self.preorder(collection_node[0])
         else:
             self.preorder(node[in_node_index])
 
@@ -1252,13 +1268,13 @@ class SourceWalker(GenericASTTraversal, object):
 
         if comp_store:
             self.preorder(comp_for)
-        if if_node:
+        for if_node in if_nodes:
             self.write(" if ")
-            if have_not:
+            if if_node in ("list_if_not", "comp_if_not", "list_if37_not"):
                 self.write("not ")
                 pass
             self.prec = 27
-            self.preorder(if_node)
+            self.preorder(if_node[0])
             pass
         self.prec = p
 
