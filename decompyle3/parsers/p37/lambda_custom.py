@@ -225,6 +225,34 @@ class Python37LambdaCustom(Python37BaseParser):
                        """
                     self.addRule(rule, nop_func)
 
+            elif opname == "MAKE_FUNCTION_9":
+                args_pos, args_kw, annotate_args, closure = token.attr
+                stack_count = args_pos + args_kw + annotate_args
+                if args_pos:
+                    # This was seen ion line 447 of Python 3.8
+                    # This is needed for Python 3.8 line 447 of site-packages/nltk/tgrep.py
+                    # line 447:
+                    #    lambda i: lambda n, m=None, l=None: ...
+                    # which has
+                    #  L. 447         0  LOAD_CONST               (None, None)
+                    #                 2  LOAD_CLOSURE             'i'
+                    #                 4  LOAD_CLOSURE             'predicate'
+                    #                 6  BUILD_TUPLE_2         2
+                    #                 8  LOAD_LAMBDA              '<code_object <lambda>>'
+                    #                10  LOAD_STR                 '_tgrep_relation_action.<locals>.<lambda>.<locals>.<lambda>'
+                    #                12  MAKE_FUNCTION_9          'default, closure'
+                    # FIXME: Possibly we need to generalize for more nested lambda's of lambda's?
+                    rule = """
+                         expr        ::= lambda_body
+                         lambda_body ::= %s%s%s%s
+                         """ % (
+                        "expr " * stack_count,
+                        "load_closure " * closure,
+                        "LOAD_LAMBDA LOAD_STR ",
+                        opname,
+                    )
+                    self.add_unique_rule(rule, opname, token.attr, customize)
+
             elif opname == "BEFORE_ASYNC_WITH":
                 rules_str = """
                   stmt               ::= async_with_stmt SETUP_ASYNC_WITH
