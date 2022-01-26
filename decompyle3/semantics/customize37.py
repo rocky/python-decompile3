@@ -129,6 +129,8 @@ def customize_for_version37(self, version):
             # nested await expressions like:
             #   return await (await bar())
             # need parenthesis.
+            # Note there are async dictionary expressions are like await expr's
+            # the below is just the default fersion
             "await_expr": ("await %p", (0, PRECEDENCE["await_expr"] - 1)),
             "await_stmt": ("%|%c\n", 0),
             "call_ex": ("%c(%p)", (0, "expr"), (1, 100)),
@@ -362,6 +364,20 @@ def customize_for_version37(self, version):
         return
 
     self.n_and_parts = n_and_parts
+
+    def n_await_expr(node):
+        dict_comp_async = node[0][0]
+        if dict_comp_async == "dict_comp_async":
+            compile_mode = self.compile_mode
+            self.compile_mode = "dictcomp"
+            self.n_set_comp(dict_comp_async)
+            self.compile_mode = compile_mode
+        else:
+            self.default(node)
+        self.prune()
+        return
+
+    self.n_await_expr = n_await_expr
 
     # FIXME: we should be able to compress this into a single template
     def n_or_parts(node):

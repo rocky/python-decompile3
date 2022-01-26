@@ -169,6 +169,17 @@ class Python38LambdaCustom(Python38BaseParser):
             elif opname == "GET_AITER":
                 self.addRule(
                     """
+                    dict_comp_async      ::= LOAD_DICTCOMP
+                                             LOAD_STR
+                                             MAKE_FUNCTION_0
+                                             expr
+                                             GET_AITER
+                                             CALL_FUNCTION_1
+
+                    dict_comp_async      ::= BUILD_MAP_0 LOAD_ARG
+                                             dict_comp_async
+
+                    expr                 ::= dict_comp_async
                     expr                 ::= generator_exp_async
                     expr                 ::= list_comp_async
 
@@ -183,13 +194,22 @@ class Python38LambdaCustom(Python38BaseParser):
 
                     generator_exp_async  ::= LOAD_ARG func_async_prefix
                                              store
-                                             JUMP_LOOP bb_end_start
+                                             JUMP_LOOP
+                                             COME_FROM
                                              POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
 
                     genexpr_func_async   ::= LOAD_ARG func_async_prefix
                                              store func_async_middle comp_iter
-                                             JUMP_LOOP COME_FROM
+                                             JUMP_LOOP
+                                             COME_FROM
                                              POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
+
+                    genexpr_func_async   ::= LOAD_ARG func_async_prefix
+                                             store
+                                             comp_iter
+                                             JUMP_LOOP
+                                             COME_FROM_FINALLY
+                                             END_ASYNC_FOR
 
                     get_aiter            ::= expr GET_AITER
 
@@ -215,6 +235,10 @@ class Python38LambdaCustom(Python38BaseParser):
             elif opname == "GET_ANEXT":
                 self.addRule(
                     """
+                    expr                 ::= genexpr_func_async
+                    expr                 ::= BUILD_MAP_0 genexpr_func_async
+                    expr                 ::= list_comp_async
+
                     func_async_prefix   ::= _come_froms SETUP_FINALLY GET_ANEXT LOAD_CONST YIELD_FROM POP_BLOCK
                     func_async_middle   ::= JUMP_FORWARD COME_FROM_EXCEPT
                                             DUP_TOP LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
