@@ -306,6 +306,14 @@ TABLE_DIRECT = {
         (0, "expr"),
         (-1, "return_expr_lambda"),
     ),
+
+    "if_exp_loop":    (
+        "%c if %c else %c",
+        (1, "expr"),
+        (0, ("expr_pjif")),
+        (-1, "expr"),
+    ),
+
     # The arg2 is dead-code
     "if_expr_true": ("%p if 1 else %c", (0, "expr", 27), 2),
     # The arg 1 is dead-code

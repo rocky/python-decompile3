@@ -321,6 +321,7 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         expr ::= or
         expr ::= or_expr
         expr ::= if_exp
+        expr ::= if_exp_loop
         expr ::= subscript
         expr ::= subscript2
         expr ::= unary_not
@@ -433,6 +434,14 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
 
         if_exp_compare             ::= expr expr jf_cfs expr COME_FROM
         if_exp_compare             ::= bool_op expr jf_cfs expr COME_FROM
+
+        if_exp_loop                ::= expr_pjif
+                                       expr
+                                       POP_JUMP_IF_FALSE_LOOP
+                                       JUMP_FORWARD
+                                       come_froms
+                                       expr
+
         jf_cfs                     ::= JUMP_FORWARD _come_froms
         list_iter                  ::= list_if37
         list_iter                  ::= list_if37_not
