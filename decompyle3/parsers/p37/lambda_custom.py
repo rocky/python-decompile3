@@ -61,6 +61,8 @@ class Python37LambdaCustom(Python37BaseParser):
         for i, token in enumerate(tokens):
             opname = token.kind
 
+            opname_base = opname[: opname.rfind("_")]
+
             # Do a quick breakout before testing potentially
             # each of the dozen or so instruction in if elif.
             if (
@@ -69,7 +71,7 @@ class Python37LambdaCustom(Python37BaseParser):
             ):
                 continue
 
-            if opname.startswith("BUILD_LIST"):
+            if opname_base == "BUILD_LIST":
                 v = token.attr
                 if v == 0:
                     rule_str = """
@@ -84,7 +86,7 @@ class Python37LambdaCustom(Python37BaseParser):
                     """
                     self.add_unique_doc_rules(rule_str, customize)
 
-            elif opname.startswith("BUILD_STRING"):
+            elif opname_base == "BUILD_STRING":
                 v = token.attr
                 rules_str = """
                     expr                 ::= joined_str
@@ -101,12 +103,12 @@ class Python37LambdaCustom(Python37BaseParser):
                     """
                     self.add_unique_doc_rules(rules_str, customize)
 
-            elif opname.startswith("BUILD_MAP_UNPACK_WITH_CALL"):
+            elif opname_base == "BUILD_MAP_UNPACK_WITH_CALL":
                 v = token.attr
                 rule = "build_map_unpack_with_call ::= %s%s" % ("expr " * v, opname)
                 self.addRule(rule, nop_func)
 
-            elif opname.startswith("BUILD_TUPLE_UNPACK_WITH_CALL"):
+            elif opname_base == "BUILD_TUPLE_UNPACK_WITH_CALL":
                 v = token.attr
                 rule = (
                     "build_tuple_unpack_with_call ::= "
