@@ -340,17 +340,18 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         bin_op            ::= expr expr binary_operator
 
         binary_operator   ::= BINARY_ADD
-        binary_operator   ::= BINARY_MULTIPLY
         binary_operator   ::= BINARY_AND
+        binary_operator   ::= BINARY_FLOOR_DIVIDE
+        binary_operator   ::= BINARY_LSHIFT
+        binary_operator   ::= BINARY_MATRIX_MULTIPLY
+        binary_operator   ::= BINARY_MODULO
+        binary_operator   ::= BINARY_MULTIPLY
         binary_operator   ::= BINARY_OR
-        binary_operator   ::= BINARY_XOR
+        binary_operator   ::= BINARY_POWER
+        binary_operator   ::= BINARY_RSHIFT
         binary_operator   ::= BINARY_SUBTRACT
         binary_operator   ::= BINARY_TRUE_DIVIDE
-        binary_operator   ::= BINARY_FLOOR_DIVIDE
-        binary_operator   ::= BINARY_MODULO
-        binary_operator   ::= BINARY_LSHIFT
-        binary_operator   ::= BINARY_RSHIFT
-        binary_operator   ::= BINARY_POWER
+        binary_operator   ::= BINARY_XOR
 
         # FIXME: the below is to work around test_grammar expecting a "call" to be
         # on the LHS because it is also somewhere on in a rule.
