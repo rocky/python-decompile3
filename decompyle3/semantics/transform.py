@@ -48,8 +48,8 @@ class TreeTransform(GenericASTTraversal, object):
         self.version = version
         return
 
-    def maybe_show_tree(self, ast):
-        if isinstance(self.showast, dict) and self.showast:
+    def maybe_show_tree(self, ast, phase: str):
+        if isinstance(self.showast, dict) and self.showast.get(phase, False):
             maybe_show_tree(self, ast)
 
     def preorder(self, node=None):
@@ -433,7 +433,7 @@ class TreeTransform(GenericASTTraversal, object):
         return node
 
     def transform(self, ast, code):
-        self.maybe_show_tree(ast)
+        self.maybe_show_tree(ast, "before")
         self.ast = copy(ast)
         self.ast = self.traverse(self.ast, is_lambda=False)
         n = len(self.ast)
