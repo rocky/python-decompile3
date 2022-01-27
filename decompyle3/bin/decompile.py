@@ -211,7 +211,6 @@ def main_bin():
                 do_verify=verify,
             )
 
-            result = main(src_base, out_base, pyc_paths, source_paths, outfile,)
             result = list(result) + [options.get("do_verify", None)]
             if len(pyc_paths) > 1:
                 mess = status_msg(do_verify, *result)
