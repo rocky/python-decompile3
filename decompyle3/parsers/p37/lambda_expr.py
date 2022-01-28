@@ -272,7 +272,6 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
                                        compare_chained2b_false_37 POP_TOP jump COME_FROM
 
         compare_chained2           ::= expr COMPARE_OP JUMP_FORWARD
-        compare_chained2           ::= expr COMPARE_OP JUMP_FORWARD
         compare_chained2           ::= expr COMPARE_OP RETURN_VALUE
         compare_chained2           ::= expr COMPARE_OP RETURN_VALUE_LAMBDA
 

@@ -90,7 +90,7 @@ class Scanner38(Scanner37):
                 loop_ends.append(next_end)
 
             # Turn JUMP opcodes into "BREAK_LOOP" opcodes.
-            # FIXME: this should be replaced by proper control flow.
+            # FIXME!!!!: this should be replaced by proper control flow.
             if opname in ("JUMP_FORWARD", "JUMP_ABSOLUTE") and len(loop_ends):
                 jump_target = token.attr
 
@@ -121,8 +121,11 @@ class Scanner38(Scanner37):
                 jump_back_inst = self.insts[jump_back_index]
 
                 # Is this a forward jump not next to a JUMP_LOOP ? ...
+                # COMPARE_OPs isn't at the start of any statement.
+                # Again, remove this when we start to use control-flow information
                 break_loop = (
-                    jump_back_inst.starts_line and jump_back_inst.opname != "JUMP_LOOP"
+                    jump_back_inst.starts_line
+                    and jump_back_inst.opname not in ("JUMP_LOOP", "COMPARE_OP")
                 )
 
                 # or if there is looping jump back, then that loop
