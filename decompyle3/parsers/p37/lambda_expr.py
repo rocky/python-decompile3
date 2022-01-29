@@ -462,32 +462,56 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         if_exp_37b                 ::= expr_pjif expr_pjif jump_forward_else expr
         """
 
-    def p_comprehension3(self, args):
+    def p_comprehension(self, args):
         """
         # Python3 scanner adds LOAD_LISTCOMP. Python3 does list comprehension like
         # other comprehensions (set, dictionary).
+
+        comp_body      ::= dict_comp_body
+        comp_body      ::= gen_comp_body
+        comp_body      ::= set_comp_body
 
         # Our "continue" heuristic -  in two successive JUMP_LOOPS, the first
         # one may be a continue - sometimes classifies a JUMP_LOOP
         # as a CONTINUE. The two are kind of the same in a comprehension.
 
-        expr_or_arg     ::= LOAD_ARG
-        expr_or_arg     ::= expr
+        comp_for       ::= expr get_for_iter store comp_iter
+                           CONTINUE
+                           _come_froms
 
-        comp_for       ::= expr get_for_iter store comp_iter CONTINUE _come_froms
-        comp_for       ::= expr get_for_iter store comp_iter JUMP_LOOP _come_froms
+        comp_for       ::= expr get_for_iter store comp_iter
+                           JUMP_LOOP
+                           _come_froms
+
         get_for_iter   ::= GET_ITER _come_froms FOR_ITER
 
-        comp_body      ::= dict_comp_body
-        comp_body      ::= set_comp_body
         dict_comp_body ::= expr expr MAP_ADD
         set_comp_body  ::= expr SET_ADD
 
         # See also common Python p_list_comprehension
-        """
 
-    def p_dict_comp3(self, args):
-        """
+        comp_if        ::= expr_pjif comp_iter
+        comp_if         ::= expr_pjiff comp_iter
+        comp_if         ::= c_compare comp_iter
+        comp_if         ::= or_jump_if_false_cf comp_iter
+        comp_if         ::= c_or_jump_if_false_cf comp_iter
+        comp_if_not     ::= expr pjump_ift comp_iter
+        comp_if_not_and ::= expr_pjif
+                            expr POP_JUMP_IF_TRUE_LOOP
+                            come_froms
+                            comp_iter
+        comp_if_not_or  ::= expr_pjif
+                            expr POP_JUMP_IF_FALSE_LOOP
+                            come_from_opt
+                            comp_iter
+
+        comp_iter     ::= dict_comp_body
+        comp_iter     ::= comp_body
+        comp_iter     ::= comp_if
+        comp_iter     ::= comp_if_not
+        comp_iter     ::= comp_if_not_and
+        comp_iter     ::= comp_if_not_or
+
         or_jump_if_false_cf    ::= or POP_JUMP_IF_FALSE COME_FROM
         c_or_jump_if_false_cf  ::= c_or POP_JUMP_IF_FALSE_LOOP COME_FROM
 
@@ -499,16 +523,8 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         # sort of "expr" and index 1 to be some sort of "comp_iter"
         c_compare     ::= compare
 
-        comp_if       ::= expr_pjif comp_iter
-        comp_if       ::= expr_pjiff comp_iter
-        comp_if       ::= c_compare comp_iter
-        comp_if       ::= or_jump_if_false_cf comp_iter
-        comp_if       ::= c_or_jump_if_false_cf comp_iter
-        comp_if_not   ::= expr pjump_ift comp_iter
-
-        comp_iter     ::= comp_body
-        comp_iter     ::= comp_if
-        comp_iter     ::= comp_if_not
+        expr_or_arg     ::= LOAD_ARG
+        expr_or_arg     ::= expr
         """
 
     def p_expr3(self, args):
@@ -532,7 +548,6 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
     def p_set_comp(self, args):
         """
         comp_iter     ::= comp_for
-        comp_body     ::= gen_comp_body
         gen_comp_body ::= expr YIELD_VALUE POP_TOP
         """
 
