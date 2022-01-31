@@ -150,6 +150,7 @@ from decompyle3.semantics.customize import customize_for_version
 from decompyle3.semantics.helper import (
     find_globals_and_nonlocals,
     flatten_list,
+    is_lambda_mode,
 )
 from decompyle3.semantics.transform import TreeTransform
 
@@ -978,13 +979,9 @@ class SourceWalker(GenericASTTraversal, object):
         code = Code(cn.attr, self.scanner, self.currentclass)
 
         # FIXME: is there a way we can avoid this?
-        # The problem is that in filterint top-level list comprehensions we can
+        # The problem is that in filter in top-level list comprehensions we can
         # encounter comprehensions of other kinds, and lambdas
-        if self.compile_mode in (
-            "dictcomp",
-            "listcomp",
-            "setcomp",
-        ):  # add other comprehensions to this list
+        if is_lambda_mode(self.compile_mode):
             p_save = self.p
             self.p = get_python_parser(
                 self.version, compile_mode="exec", is_pypy=self.is_pypy,
@@ -1285,7 +1282,7 @@ class SourceWalker(GenericASTTraversal, object):
             assert list_iter == "list_iter"
             self.preorder(collection_node)
             if_nodes = []
-        elif self.compile_mode in ("dictcomp", "listcomp", "gencomp", "setcomp"):
+        elif is_lambda_mode(self.compile_mode):
             if node == "list_comp_async":
                 self.preorder(node[1])
             elif collection_node is None:
@@ -1364,9 +1361,9 @@ class SourceWalker(GenericASTTraversal, object):
         code = Code(code_obj, self.scanner, self.currentclass, self.debug_opts["asm"])
 
         # FIXME: is there a way we can avoid this?
-        # The problem is that in filterint top-level list comprehensions we can
+        # The problem is that in filter in top-level list comprehensions we can
         # encounter comprehensions of other kinds, and lambdas
-        if self.compile_mode in ("listcomp",):  # add other comprehensions to this list
+        if is_lambda_mode(self.compile_mode):
             p_save = self.p
             self.p = get_python_parser(
                 self.version, compile_mode="exec", is_pypy=self.is_pypy,
@@ -2513,7 +2510,7 @@ def code_deparse(
         tokens,
         customize,
         co,
-        is_lambda=(compile_mode in ("lambda", "listcomp", "dictcomp", "setcomp")),
+        is_lambda=is_lambda_mode(compile_mode),
         isTopLevel=isTopLevel,
     )
 
@@ -2522,7 +2519,7 @@ def code_deparse(
         return None
 
     # FIXME use a lookup table here.
-    if compile_mode in ("dictcomp", "lambda", "listcomp", "setcomp"):
+    if is_lambda_mode(compile_mode):
         expected_start = "lambda_start"
     elif compile_mode == "eval":
         expected_start = "expr_start"
@@ -2558,7 +2555,7 @@ def code_deparse(
         deparsed.ast,
         name=co.co_name,
         customize=customize,
-        is_lambda=compile_mode in ("dictcomp", "lambda", "listcomp", "setcomp"),
+        is_lambda=is_lambda_mode(compile_mode),
         debug_opts=debug_opts,
     )
 

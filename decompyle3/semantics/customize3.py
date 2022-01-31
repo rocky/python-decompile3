@@ -1,4 +1,4 @@
-#  Copyright (c) 2018-2021 by Rocky Bernstein
+#  Copyright (c) 2018-2022 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ from decompyle3.scanner import Code
 from decompyle3.semantics.consts import TABLE_DIRECT
 from decompyle3.semantics.customize37 import customize_for_version37
 from decompyle3.semantics.customize38 import customize_for_version38
+from decompyle3.semantics.helper import is_lambda_mode
 
 
 def customize_for_version3(self, version):
@@ -85,7 +86,12 @@ def customize_for_version3(self, version):
         assert iscode(code_obj), node[1]
         code = Code(code_obj, self.scanner, self.currentclass, self.debug_opts["asm"])
 
-        ast = self.build_ast(code._tokens, code._customize, code)
+        ast = self.build_ast(
+            code._tokens,
+            code._customize,
+            code,
+            is_lambda=is_lambda_mode(self.compile_mode),
+        )
         self.customize(code._customize)
 
         # skip over: sstmt, stmt, return, return_expr
