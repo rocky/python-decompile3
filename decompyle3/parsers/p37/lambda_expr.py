@@ -525,6 +525,23 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
 
         expr_or_arg     ::= LOAD_ARG
         expr_or_arg     ::= expr
+
+        set_comp_func   ::= BUILD_SET_0
+                            expr_or_arg
+                            _come_froms
+                            for_iter store comp_iter
+                            JUMP_LOOP
+                            _come_froms
+                            RETURN_VALUE RETURN_LAST
+
+        set_comp_func   ::= BUILD_SET_0
+                            expr_or_arg
+                            for_iter store comp_iter
+                            COME_FROM
+                            JUMP_LOOP
+                            _come_froms
+                            RETURN_VALUE RETURN_LAST
+
         """
 
     def p_expr3(self, args):

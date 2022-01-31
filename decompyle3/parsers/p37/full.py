@@ -165,11 +165,6 @@ class Python37Parser(Python37LambdaParser):
                            comp_iter JUMP_LOOP _come_froms RETURN_VALUE RETURN_LAST
 
         stmt ::= set_comp_func
-        set_comp_func ::= BUILD_SET_0 LOAD_FAST for_iter store comp_iter
-                          JUMP_LOOP _come_froms RETURN_VALUE RETURN_LAST
-
-        set_comp_func ::= BUILD_SET_0 LOAD_FAST for_iter store comp_iter
-                          COME_FROM JUMP_LOOP _come_froms RETURN_VALUE RETURN_LAST
 
         # last_stmt is a Python statement for which
         # end is a "return" or raise statement and
