@@ -494,7 +494,7 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         comp_if         ::= expr_pjiff comp_iter
         comp_if         ::= c_compare comp_iter
         comp_if         ::= or_jump_if_false_cf comp_iter
-        comp_if         ::= c_or_jump_if_false_cf comp_iter
+        comp_if         ::= or_jump_if_false_loop_cf comp_iter
         comp_if_not     ::= expr pjump_ift comp_iter
         comp_if_not_and ::= expr_pjif
                             expr POP_JUMP_IF_TRUE_LOOP
@@ -512,12 +512,12 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         comp_iter     ::= comp_if_not_and
         comp_iter     ::= comp_if_not_or
 
-        or_jump_if_false_cf    ::= or POP_JUMP_IF_FALSE COME_FROM
-        c_or_jump_if_false_cf  ::= c_or POP_JUMP_IF_FALSE_LOOP COME_FROM
+        or_jump_if_false_cf      ::= or POP_JUMP_IF_FALSE COME_FROM
+        or_jump_if_false_loop_cf ::= or_loop POP_JUMP_IF_FALSE_LOOP COME_FROM
 
-        c_or       ::= or
-        c_or       ::= c_or_parts expr
-        c_or_parts ::= expr_pjift+
+        or_loop       ::= or
+        or_loop       ::= or_parts_loop expr
+        or_parts_loop ::= expr_pjift+
 
         # Semantic rules require "comp_if" to have index 0 be some
         # sort of "expr" and index 1 to be some sort of "comp_iter"
