@@ -198,6 +198,25 @@ def decompile_list_comprehensions(
     )
 
 
+def decompile_set_comprehensions(
+    filename: str,
+    code_type,
+    outstream=None,
+    showasm=None,
+    showast=TREE_DEFAULT_DEBUG,
+    showgrammar=PARSER_DEFAULT_DEBUG,
+) -> Optional[bool]:
+    """
+    decompile all of the lambda functions in a python byte-code file (.pyc)
+
+    If given a Python source file (".py") file, we'll
+    decompile all list_comprehensions of the corresponding compiled object.
+    """
+    return decompile_code_type(
+        filename, "setcomp", "<setcomp>", outstream, showasm, showast, showgrammar
+    )
+
+
 def _test() -> None:
     """Simple test program to disassemble a file."""
     argc = len(sys.argv)

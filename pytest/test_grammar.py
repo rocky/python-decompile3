@@ -80,8 +80,8 @@ def test_dup_rule():
     import inspect
 
     python_parser(
-        PYTHON_VERSION_TRIPLE,
         inspect.currentframe().f_code,
+        PYTHON_VERSION_TRIPLE,
         is_pypy=IS_PYPY,
         parser_debug={
             "dups": True,

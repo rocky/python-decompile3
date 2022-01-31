@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2021 Rocky Bernstein
+#  Copyright (c) 2019-2022 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -25,8 +25,8 @@ Note however all of this is imported from the __init__ module
 import sys
 
 from xdis import iscode
-from xdis.version_info import version_tuple_to_str
-from spark_parser import GenericASTBuilder, DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+from xdis.version_info import PYTHON_VERSION_TRIPLE, IS_PYPY, version_tuple_to_str
+from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
 from decompyle3.parsers.p37.heads import (
     Python37ParserLambda,
@@ -94,7 +94,7 @@ def get_python_parser(
         elif compile_mode == "expr":
             p = Python37ParserExpr(debug_parser=debug_parser)
         else:
-            p = Python37ParserSingle(debug_parser, compile_mode=compile_mode)
+            p = Python37ParserSingle(debug_parser)
     elif version == (3, 8):
         if compile_mode == "exec":
             p = Python38ParserExec(debug_parser=debug_parser)
@@ -107,7 +107,7 @@ def get_python_parser(
         elif compile_mode == "expr":
             p = Python38ParserExpr(debug_parser=debug_parser)
         else:
-            p = Python38ParserSingle(debug_parser, compile_mode=compile_mode)
+            p = Python38ParserSingle(debug_parser)
     elif version > (3, 8):
         raise RuntimeError(
             f"""Version {version_tuple_to_str(version)} is not supported."""
@@ -119,11 +119,12 @@ def get_python_parser(
 
 
 def python_parser(
-    version: str,
     co,
+    version: str = PYTHON_VERSION_TRIPLE,
     out=sys.stdout,
     showasm=False,
     parser_debug=PARSER_DEFAULT_DEBUG,
+    compile_mode="exec",
     is_pypy=False,
     is_lambda=False,
 ):
@@ -151,7 +152,9 @@ def python_parser(
     # For heavy grammar debugging
     # parser_debug = {'rules': True, 'transition': True, 'reduce' : True,
     #                 'showstack': 'full'}
-    p = get_python_parser(version, parser_debug)
+    p = get_python_parser(
+        version, parser_debug, compile_mode=compile_mode, is_pypy=IS_PYPY
+    )
 
     # FIXME: have p.insts update in a better way
     # modularity is broken here
@@ -167,8 +170,9 @@ if __name__ == "__main__":
     def parse_test(co) -> None:
         from decompyle3 import IS_PYPY
 
-        ast = python_parser((3, 8, 2), co, showasm=True, is_pypy=IS_PYPY)
+        ast = python_parser(co, (3, 8, 2), showasm=True, is_pypy=IS_PYPY)
         print(ast)
+        print("+" * 30)
         return
 
     parse_test(parse_test.__code__)

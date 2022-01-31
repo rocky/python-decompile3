@@ -10,8 +10,9 @@ import sys
 from xdis.version_info import version_tuple_to_str
 from decompyle3.code_fns import (
     decompile_dict_comprehensions,
-    decompile_list_comprehensions,
     decompile_lambda_fns,
+    decompile_list_comprehensions,
+    decompile_set_comprehensions,
 )
 from decompyle3.main import decompile_file
 from decompyle3.version import __version__
@@ -32,7 +33,13 @@ PATTERNS = ("*.pyc", "*.pyo")
     "-F",
     "code_format",
     type=click.Choice(
-        ["lambda", "dict-comprehension", "list-comprehension", "exec"],
+        [
+            "lambda",
+            "dict-comprehension",
+            "list-comprehension",
+            "set-comprehension",
+            "exec",
+        ],
         **case_sensitive,
     ),
 )
@@ -71,6 +78,8 @@ def main(code_format, show_asm, grammar, tree, tree_plus, outfile, files):
         decompile_fn = decompile_list_comprehensions
     elif code_format == "dict-comprehension":
         decompile_fn = decompile_dict_comprehensions
+    elif code_format == "set-comprehension":
+        decompile_fn = decompile_set_comprehensions
     elif code_format == "exec":
         decompile_fn = decompile_file
     else:

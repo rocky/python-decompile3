@@ -981,8 +981,9 @@ class SourceWalker(GenericASTTraversal, object):
         # The problem is that in filterint top-level list comprehensions we can
         # encounter comprehensions of other kinds, and lambdas
         if self.compile_mode in (
-            "listcomp",
             "dictcomp",
+            "listcomp",
+            "setcomp",
         ):  # add other comprehensions to this list
             p_save = self.p
             self.p = get_python_parser(
@@ -1078,7 +1079,9 @@ class SourceWalker(GenericASTTraversal, object):
 
     n_dict_comp = n_set_comp
 
-    def comprehension_walk_newer(self, node, iter_index: int, code_index: int = -5):
+    def comprehension_walk_newer(
+        self, node, iter_index: int, code_index: int = -5, collection_node=None
+    ):
         """Non-closure-based comprehensions the way they are done in Python3
         and some Python 2.7. Note: there are also other set comprehensions.
         Build the body of a comprehension function and then
@@ -1089,8 +1092,6 @@ class SourceWalker(GenericASTTraversal, object):
 
         # ? Is this needed
         p = self.prec
-
-        collection_node = None
 
         # FIXME? Nonterminals in grammar maybe should be split out better?
         # Maybe test on self.compile_mode?
@@ -1393,6 +1394,14 @@ class SourceWalker(GenericASTTraversal, object):
             self.prec = 100
             tree = tree[1] if tree[0] in ("dom_start", "dom_start_opt") else tree[0]
         return tree
+
+    def n_dict_comp_func(self, node):
+        self.write("{")
+        self.comprehension_walk_newer(node, 5, 0, collection_node=node[1])
+        self.write("}")
+        self.prune()
+
+    n_set_comp_func = n_dict_comp_func
 
     def closure_walk(self, node, collection_index: int):
         """Dictionary and Set comprehensions using closures.
@@ -2504,7 +2513,7 @@ def code_deparse(
         tokens,
         customize,
         co,
-        is_lambda=(compile_mode in ("lambda", "listcomp")),
+        is_lambda=(compile_mode in ("lambda", "listcomp", "dictcomp", "setcomp")),
         isTopLevel=isTopLevel,
     )
 
@@ -2513,7 +2522,7 @@ def code_deparse(
         return None
 
     # FIXME use a lookup table here.
-    if compile_mode in ("lambda", "listcomp"):
+    if compile_mode in ("dictcomp", "lambda", "listcomp", "setcomp"):
         expected_start = "lambda_start"
     elif compile_mode == "eval":
         expected_start = "expr_start"
@@ -2549,7 +2558,7 @@ def code_deparse(
         deparsed.ast,
         name=co.co_name,
         customize=customize,
-        is_lambda=compile_mode in ("lambda", "listcomp"),
+        is_lambda=compile_mode in ("dictcomp", "lambda", "listcomp", "setcomp"),
         debug_opts=debug_opts,
     )
 
