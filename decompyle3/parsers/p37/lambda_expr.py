@@ -495,7 +495,25 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         comp_if         ::= c_compare comp_iter
         comp_if         ::= or_jump_if_false_cf comp_iter
         comp_if         ::= or_jump_if_false_loop_cf comp_iter
+
+        # We need to have a reduction rule to disambiguate
+        # these "comp_if_not" and "comp_if". The difference is burried in the
+        # sense of the jump in
+        #     comp_iter -> comp_if_or -> or_parts_false_loop
+        # vs.:
+        #    comp_iter -> comp_if_or -> or_parts_true_loop
+        #
+        # If "true_loop then that goes with "comp_if_not"
+        # if "false_loop"  then that goes with comp_if"
+        #
+        # We might be able to do this in the grammar but it is a bit
+        # too pervasive and involved.
+
+        ## FIXME: we add this, per comment above later.
+        ## comp_if         ::= expr pjump_ift comp_iter
         comp_if_not     ::= expr pjump_ift comp_iter
+
+
         comp_if_not_and ::= expr_pjif
                             expr POP_JUMP_IF_TRUE_LOOP
                             come_froms
