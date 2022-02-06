@@ -1053,7 +1053,9 @@ class SourceWalker(GenericASTTraversal, object):
     def n_generator_exp(self, node):
         self.write("(")
         if node[0].kind in ("load_closure", "load_genexpr") and self.version >= (3, 8):
-            self.closure_walk(node, collection_index=4)
+            self.closure_walk(
+                node, collection_index=4 if isinstance(node[4], SyntaxTree) else 3
+            )
         else:
             code_index = -6
             iter_index = 4 if self.version < (3, 8) else 3

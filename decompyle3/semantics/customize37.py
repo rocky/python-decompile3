@@ -210,7 +210,7 @@ def customize_for_version37(self, version):
             "if_exp_compare": (
                 "%p if %c else %c",
                 (1, "expr", 27),
-                (0, "expr"),
+                (0, ("expr", "bool_op")),
                 -2,  # Must be from end since beginnings might not match
             ),
             "except_return": ("%|except:\n%+%c%-", 3),
