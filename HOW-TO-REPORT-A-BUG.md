@@ -1,6 +1,7 @@
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
 
+- [Ethics](#ethics)
 - [The difficulty of the problem](#the-difficulty-of-the-problem)
 - [Is it really a bug?](#is-it-really-a-bug)
     - [Do you have valid bytecode?](#do-you-have-valid-bytecode)
@@ -8,27 +9,36 @@
 - [What to send (minimum requirements)](#what-to-send-minimum-requirements)
 - [What to send (additional helpful information)](#what-to-send-additional-helpful-information)
     - [But I don't *have* the source code!](#but-i-dont-have-the-source-code)
-    - [But I don't *have* the source code and am incapable of figuring how how to do a hand disassembly!](#but-i-dont-have-the-source-code-and-am-incapable-of-figuring-how-how-to-do-a-hand-disassembly)
+        - [But I don't *have* the source code and am incapable of figuring how to do a hand disassembly!](#but-i-dont-have-the-source-code-and-am-incapable-of-figuring-how-to-do-a-hand-disassembly)
 - [Narrowing the problem](#narrowing-the-problem)
 - [Karma](#karma)
 - [Confidentiality of Bug Reports](#confidentiality-of-bug-reports)
-- [Ethics](#ethics)
 
 <!-- markdown-toc end -->
+
+TL;DR (too long; didn't read)
+
+* Don't do something illegal. And don't ask me to do something illegal or help you do something illegal
+* We already have an infinite supply of decompilation bugs that need fixing, and an automated mechanism for finding more. Decompilation bugs get addressed by easiness to fix and by whim. If you expect yours to be fixed ahead of those, you need to justify why.
+* When asking for help, you may be asked for what you've tried on your own first. There are plenty of sources of information about this code.
+* If you are looking for *timely* help or support, well, that is typically known paid service. I don't really have a mechanism for that since I have a full-time job. But supporting the project is an approximation.
+* Submitting a bug or issue report that is likely to get acted upon may require a bit of effort on your part to make it easy for the problem solver. If you are not willing to do that, please don't waste our time. As indicated above, supporting the project will increase the liklihood of your issue getting noticed and acted upon.
+
+# Ethics
+
+I do not condone using this program for unethical or illegal purposes. More detestable, at least to me, is asking for help to assist you in something that might not legitimate.
+
+Don't use the issue tracker for such solicitations. To try to stave off illegitimate behavior, you should note that the issue tracker, the code, and bugs mentioned in that are in the open: there is no
+confidentiality. You may be asked about the authorship or claimed ownership of the bytecode. If I think something is not quite right, I may label the issue questionable which may make the it easier those who are looking for illegal activity.
+
 # The difficulty of the problem
 
-This decompiler is a constant work in progress: Python keeps
-changing, and so does its code generation.
+This decompiler is a constant work in progress: Python keeps changing, and so does its code generation.
 
-There is no Python decompiler yet that I know about that will
-decompile everything. Overall, I think this one probably does the best
-job of *any* Python decompiler that handles such a wide range of
-versions.
+There is no Python decompiler yet that I know about that will decompile everything. Overall, I think this one probably does the best job of *any* Python decompiler that handles such a wide range of versions.
 
-But at any given time, there are a number of valid Python bytecode
-files that I know of that will cause problems. See, for example, the
-list in
-[`test/stdlib/runtests.sh`](https://github.com/rocky/python-decompile3/blob/master/test/stdlib/runtests.sh).
+But at any given time, there are a number of valid Python bytecode files that I know of that will cause problems. See, for example, the
+list in [`test/stdlib/runtests.sh`](https://github.com/rocky/python-decompile3/blob/master/test/stdlib/runtests.sh).
 
 There are far more bug reporters than there are bug fixers.
 
@@ -39,29 +49,13 @@ Unless you are a sponsor of this project, it may take a while, maybe a week or s
 
 ## Do you have valid bytecode?
 
-As mentioned in README.rst, this project doesn't handle obfuscated
-code. See README.rst for suggestions for how to remove some kinds of
-obfuscation.
+As mentioned in README.rst, this project doesn't handle obfuscated code. See README.rst for suggestions for how to remove some kinds of obfuscation.
 
-Checking if bytecode is valid is pretty simple: disassemble the code.
-Python comes with a disassembly module called `dis`. A prerequisite
-module for this package, `xdis` has a cross-python version
-disassembler called `pydisasm`.
+Checking if bytecode is valid is pretty simple: disassemble the code. Python comes with a disassembly module called `dis`. A prerequisite module for this package, `xdis` has a cross-python version disassembler called `pydisasm`.
 
 ## Semantic equivalence vs. exact source code
 
-Consider how Python compiles something like "(x*y) + 5". Early on
-Python creates an "abstract syntax tree" (AST) for this. And this is
-"abstract" in the sense that unimportant, redundant or unnecessary
-items have been removed. Here, this means that any notion that you
-wrote "x+y" in parenthesis is lost, since in this context they are
-unneeded. Also lost is the fact that the multiplication didn't have
-spaces around it while the addition did. It should not come as a
-surprise then that the bytecode which is derived from the AST also has
-no notion of such possible variation. Generally this kind of thing
-isn't noticed since the Python community has laid out a very rigid set
-of formatting guidelines; and it has largely beaten the community into
-compliance.
+Consider how Python compiles something like "(x*y) + 5". Early on Python creates an "abstract syntax tree" (AST) for this. And this is "abstract" in the sense that unimportant, redundant or unnecessary items have been removed. Here, this means that any notion that you wrote "x+y" in parenthesis is lost, since in this context they are unneeded. Also lost is the fact that the multiplication didn't have spaces around it while the addition did. It should not come as a surprise then that the bytecode which is derived from the AST also has no notion of such possible variation. Generally this kind of thing isn't noticed since the Python community has laid out a very rigid set of formatting guidelines; and it has largely beaten the community into compliance.
 
 Almost all versions of Python can perform some sort of code
 improvement that can't be undone. In earlier versions of Python it is
@@ -154,7 +148,7 @@ provide the input command and the output from that, please give:
 
 ## But I don't *have* the source code!
 
-There is Python assembly code on parse errors, so simply by hand decompile that. To get a full disassembly, use `pydisasm` from the [xdis](https://pypi.python.org/pypi/xdis) package. Opcodes are described in the documentation for the[dis](https://docs.python.org/3.6/library/dis.html) module.
+There is Python assembly code on parse errors, so simply by hand decompile that. To get a full disassembly, use `pydisasm` from the [xdis](https://pypi.python.org/pypi/xdis) package. Opcodes are described in the documentation for the [dis](https://docs.python.org/3.6/library/dis.html) module.
 
 ### But I don't *have* the source code and am incapable of figuring how to do a hand disassembly!
 
@@ -165,7 +159,7 @@ one fool can learn, so can another."
 If this is too difficult, or too time consuming, or not of interest to
 you, then you might consider sponsoring the project. [Crazy
 Compilers](http://www.crazy-compilers.com/decompyle/) offers a
-byte-code decompiler service for versions of Python up to 2.6. (If
+byte-code decompiler service. (If
 there are others around let me know and I'll list them here.)
 
 # Narrowing the problem
@@ -203,8 +197,8 @@ That said, bugs sometimes get fixed even though these instructions are not follo
 
 I may take into consideration is the bug reporter's karma.
 
-* Have you demonstrably contributed to open source? I may look at your  github profile to see what contributions you have made, how popular those contributions are, or how popular you are.
-* How appreciative are you? Have you starred this project that you are   seeking help from? Have you starred _any_ github project? And the above  two kind of feed into ...
+* Have you demonstrably contributed to open source? I may look at your github profile to see what contributions you have made, how popular those contributions are, or how popular you are.
+* How appreciative are you? Have you starred this project that you are  seeking help from? Have you starred _any_ github project? And the above  two kind of feed into ...
 * Attitude. Some people feel that they are doing me and the world a great favor by just pointing out that there is a problem whose solution would greatly benefit them. (This might account partially those that have this attitude often don't read or follow instructions such as those given here.)
 
 
@@ -219,17 +213,3 @@ However feel free to remove any comments, and modify variable names
 or constants in the source code.
 
 If there is some legitimate reason to keep confidentiality, you can contact me by email to explain the extenuating circumstances. However I tend to discard without reading anonymous email.
-
-# Ethics
-
-I do not condone using this program for unethical or illegal purposes.
-More detestable, at least to me, is asking for help to assist you in
-something that might not legitimate.
-
-Don't use the issue tracker for such solicitations. To try to stave
-off illegitimate behavior, you should note that the issue tracker, the
-code, and bugs mentioned in that are in the open: there is no
-confidentiality. You may be asked about the authorship or claimed
-ownership of the bytecode. If I think something is not quite right, I
-may label the issue questionable which may make the it easier those
-who are looking for illegal activity.
