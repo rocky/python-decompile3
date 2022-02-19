@@ -978,7 +978,7 @@ def customize_for_version37(self, version):
             # if a tuple item is some sort of slice.
             no_parens = False
             for n in node:
-                if n == "expr" and n[0].kind.startswith("build_slice"):
+                if n == "expr" and n[0].kind.startswith("slice"):
                     no_parens = True
                     break
                 pass

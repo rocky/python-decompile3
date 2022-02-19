@@ -502,6 +502,58 @@ class SourceWalker(GenericASTTraversal, object):
             "return", [SyntaxTree("return_expr", [NONE]), Token("RETURN_VALUE")]
         )
 
+    def n_bin_op(self, node):
+        """bin_op (formerly "binary_expr") is the Python AST BinOp"""
+        self.preorder(node[0])
+        self.write(" ")
+        self.preorder(node[-1])
+        self.write(" ")
+        # Try to avoid a trailing parentheses by lowering the priority a little
+        self.prec -= 1
+        self.preorder(node[1])
+        self.prec += 1
+        self.prune()
+
+    def n_delete_subscript(self, node):
+        if node[-2][0] == "build_list" and node[-2][0][-1].kind.startswith(
+            "BUILD_TUPLE"
+        ):
+            if node[-2][0][-1] != "BUILD_TUPLE_0":
+                node[-2][0].kind = "build_tuple2"
+        self.default(node)
+
+    n_store_subscript = n_subscript = n_delete_subscript
+
+    def n_expr(self, node):
+        first_child = node[0]
+        p = self.prec
+
+        if first_child.kind.startswith("bin_op"):
+            n = node[0][-1][0]
+        else:
+            n = node[0]
+
+        # if (hasattr(n, 'linestart') and n.linestart and
+        #     hasattr(self, 'current_line_number')):
+        #     self.source_linemap[self.current_line_number] = n.linestart
+
+        self.prec = PRECEDENCE.get(n.kind, -2)
+        if n == "LOAD_CONST" and repr(n.pattr)[0] == "-":
+            self.prec = 6
+
+        # print("XXX", n.kind, p, "<", self.prec)
+        # print(self.f.getvalue())
+
+        if p < self.prec:
+            # print(f"PREC {p}, {node[0].kind}")
+            self.write("(")
+            self.preorder(node[0])
+            self.write(")")
+        else:
+            self.preorder(node[0])
+        self.prec = p
+        self.prune()
+
     def n_return_call_lambda(self, node):
 
         # Understand where the non-psuedo instructions lie.
@@ -551,6 +603,16 @@ class SourceWalker(GenericASTTraversal, object):
             self.println()
             self.prune()  # stop recursing
 
+    def n_return_expr(self, node):
+        if len(node) == 1 and node[0] == "expr":
+            # If expr is yield we want parens.
+            self.prec = PRECEDENCE["yield"] - 1
+            self.n_expr(node[0])
+        else:
+            self.n_expr(node)
+
+    n_return_expr_or_cond = n_expr
+
     def n_return_if_stmt(self, node):
         if self.params["is_lambda"]:
             self.write(" return ")
@@ -564,20 +626,9 @@ class SourceWalker(GenericASTTraversal, object):
             self.println()
             self.prune()  # stop recursing
 
-    def n_yield(self, node):
-        if node != SyntaxTree("yield", [NONE, Token("YIELD_VALUE")]):
-            self.template_engine(("yield %c", 0), node)
-        elif self.version <= (2, 4):
-            # Early versions of Python don't allow a plain "yield"
-            self.write("yield None")
-        else:
-            self.write("yield")
-
-        self.prune()  # stop recursing
-
     # This could be a rule but we have handling to remove None
     # e.g. a[:5] rather than a[None:5]
-    def n_build_slice2(self, node):
+    def n_slice2(self, node):
         p = self.prec
         self.prec = 100
         if not node[0].isNone():
@@ -590,7 +641,7 @@ class SourceWalker(GenericASTTraversal, object):
 
     # This could be a rule but we have handling to remove None's
     # e.g. a[:] rather than a[None:None]
-    def n_build_slice3(self, node):
+    def n_slice3(self, node):
         p = self.prec
         self.prec = 100
         if not node[0].isNone():
@@ -604,57 +655,16 @@ class SourceWalker(GenericASTTraversal, object):
         self.prec = p
         self.prune()  # stop recursing
 
-    def n_expr(self, node):
-        first_child = node[0]
-        p = self.prec
-
-        if first_child.kind.startswith("bin_op"):
-            n = node[0][-1][0]
+    def n_yield(self, node):
+        if node != SyntaxTree("yield", [NONE, Token("YIELD_VALUE")]):
+            self.template_engine(("yield %c", 0), node)
+        elif self.version <= (2, 4):
+            # Early versions of Python don't allow a plain "yield"
+            self.write("yield None")
         else:
-            n = node[0]
+            self.write("yield")
 
-        # if (hasattr(n, 'linestart') and n.linestart and
-        #     hasattr(self, 'current_line_number')):
-        #     self.source_linemap[self.current_line_number] = n.linestart
-
-        self.prec = PRECEDENCE.get(n.kind, -2)
-        if n == "LOAD_CONST" and repr(n.pattr)[0] == "-":
-            self.prec = 6
-
-        # print("XXX", n.kind, p, "<", self.prec)
-        # print(self.f.getvalue())
-
-        if p < self.prec:
-            # print(f"PREC {p}, {node[0].kind}")
-            self.write("(")
-            self.preorder(node[0])
-            self.write(")")
-        else:
-            self.preorder(node[0])
-        self.prec = p
-        self.prune()
-
-    def n_return_expr(self, node):
-        if len(node) == 1 and node[0] == "expr":
-            # If expr is yield we want parens.
-            self.prec = PRECEDENCE["yield"] - 1
-            self.n_expr(node[0])
-        else:
-            self.n_expr(node)
-
-    n_return_expr_or_cond = n_expr
-
-    def n_bin_op(self, node):
-        """bin_op (formerly "binary_expr") is the Python AST BinOp"""
-        self.preorder(node[0])
-        self.write(" ")
-        self.preorder(node[-1])
-        self.write(" ")
-        # Try to avoid a trailing parentheses by lowering the priority a little
-        self.prec -= 1
-        self.preorder(node[1])
-        self.prec += 1
-        self.prune()
+        self.prune()  # stop recursing
 
     def n_str(self, node):
         self.write(node[0].pattr)
@@ -724,16 +734,6 @@ class SourceWalker(GenericASTTraversal, object):
             self.write(repr(data))
         # LOAD_CONST is a terminal, so stop processing/recursing early
         self.prune()
-
-    def n_delete_subscript(self, node):
-        if node[-2][0] == "build_list" and node[-2][0][-1].kind.startswith(
-            "BUILD_TUPLE"
-        ):
-            if node[-2][0][-1] != "BUILD_TUPLE_0":
-                node[-2][0].kind = "build_tuple2"
-        self.default(node)
-
-    n_store_subscript = n_subscript = n_delete_subscript
 
     def n_ifelsestmtr(self, node):
         if node[2] == "COME_FROM":
@@ -1891,7 +1891,7 @@ class SourceWalker(GenericASTTraversal, object):
             for n in node:
                 if n == "arg":
                     n = n[0]
-                if n == "expr" and n[0].kind.startswith("build_slice"):
+                if n == "expr" and n[0].kind.startswith("slice"):
                     no_parens = True
                     break
                 pass

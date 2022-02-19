@@ -490,10 +490,7 @@ class Python37BaseParser(PythonBaseParser):
             elif opname_base == "BUILD_SLICE":
                 if token.attr == 2:
                     self.add_unique_rules(
-                        [
-                            "expr ::= build_slice2",
-                            "build_slice2 ::= expr expr BUILD_SLICE_2",
-                        ],
+                        ["expr ::= slice2", "slice2 ::= expr expr BUILD_SLICE_2",],
                         customize,
                     )
                 else:
@@ -502,8 +499,8 @@ class Python37BaseParser(PythonBaseParser):
                     )
                     self.add_unique_rules(
                         [
-                            "expr ::= build_slice3",
-                            "build_slice3 ::= expr expr expr BUILD_SLICE_3",
+                            "expr   ::= slice3",
+                            "slice3 ::= expr expr expr BUILD_SLICE_3",
                         ],
                         customize,
                     )
