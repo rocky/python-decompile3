@@ -575,6 +575,21 @@ class SourceWalker(GenericASTTraversal, object):
 
         self.prune()  # stop recursing
 
+    # This could be a rule but we have handling to remove None
+    # e.g. a[:5] rather than a[None:5]
+    def n_build_slice2(self, node):
+        p = self.prec
+        self.prec = 100
+        if not node[0].isNone():
+            self.preorder(node[0])
+        self.write(":")
+        if not node[1].isNone():
+            self.preorder(node[1])
+        self.prec = p
+        self.prune()  # stop recursing
+
+    # This could be a rule but we have handling to remove None's
+    # e.g. a[:] rather than a[None:None]
     def n_build_slice3(self, node):
         p = self.prec
         self.prec = 100
@@ -586,17 +601,6 @@ class SourceWalker(GenericASTTraversal, object):
         self.write(":")
         if not node[2].isNone():
             self.preorder(node[2])
-        self.prec = p
-        self.prune()  # stop recursing
-
-    def n_build_slice2(self, node):
-        p = self.prec
-        self.prec = 100
-        if not node[0].isNone():
-            self.preorder(node[0])
-        self.write(":")
-        if not node[1].isNone():
-            self.preorder(node[1])
         self.prec = p
         self.prune()  # stop recursing
 
