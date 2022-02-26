@@ -393,7 +393,13 @@ class Scanner37Base(Scanner):
 
             elif opname in ("MAKE_FUNCTION", "MAKE_CLOSURE"):
                 flags = argval
-                opname = "MAKE_FUNCTION_%d" % (flags)
+                # FIXME: generalize this
+                if flags == 8:
+                    opname = "MAKE_FUNCTION_CLOSURE"
+                elif flags == 9:
+                    opname = "MAKE_FUNCTION_CLOSURE_POS"
+                else:
+                    opname = f"MAKE_FUNCTION_{flags}"
                 attr = []
                 for flag in self.MAKE_FUNCTION_FLAGS:
                     bit = flags & 1

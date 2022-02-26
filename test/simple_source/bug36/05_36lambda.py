@@ -5,7 +5,7 @@ def __init__(self, msg=None, digestmod=None):
 
 
 # From Python 3.6 functools.py
-# Bug was handling lambda for MAKE_FUNCTION_8 (closure)
+# Bug was handling lambda for MAKE_FUNCTION_CLOSURE (closure)
 # vs to MAKE_FUNCTION_9 (pos_args + closure)
 def bug():
     def register(cls, func=None):

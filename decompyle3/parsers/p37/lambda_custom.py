@@ -210,19 +210,19 @@ class Python37LambdaCustom(Python37BaseParser):
                 )
                 custom_ops_processed.add(opname)
 
-            elif opname == "MAKE_FUNCTION_8":
+            elif opname == "MAKE_FUNCTION_CLOSURE":
                 if "LOAD_DICTCOMP" in self.seen_ops:
                     # Is there something general going on here?
                     rule = """
                        dict_comp ::= load_closure LOAD_DICTCOMP LOAD_STR
-                                     MAKE_FUNCTION_8 expr
+                                     MAKE_FUNCTION_CLOSURE expr
                                      GET_ITER CALL_FUNCTION_1
                        """
                     self.addRule(rule, nop_func)
                 elif "LOAD_SETCOMP" in self.seen_ops:
                     rule = """
                        set_comp ::= load_closure LOAD_SETCOMP LOAD_STR
-                                    MAKE_FUNCTION_8 expr
+                                    MAKE_FUNCTION_CLOSURE expr
                                     GET_ITER CALL_FUNCTION_1
                        """
                     self.addRule(rule, nop_func)
