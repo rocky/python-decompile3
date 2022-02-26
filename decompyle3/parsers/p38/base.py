@@ -17,7 +17,12 @@ from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
 from decompyle3.parsers.p37.base import Python37BaseParser
 from decompyle3.parsers.parse_heads import PythonBaseParser
-from decompyle3.parsers.reducecheck import break_check, for38_check, pop_return_check
+from decompyle3.parsers.reducecheck import (
+    break_check,
+    for38_check,
+    pop_return_check,
+    whilestmt38_check,
+)
 
 
 class Python38BaseParser(PythonBaseParser):
@@ -106,3 +111,4 @@ class Python38BaseParser(PythonBaseParser):
         self.reduce_check_table["break"] = break_check
         self.reduce_check_table["for38"] = for38_check
         self.reduce_check_table["pop_return"] = pop_return_check
+        self.reduce_check_table["whilestmt38"] = whilestmt38_check
