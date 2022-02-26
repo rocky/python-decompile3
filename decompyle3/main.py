@@ -422,7 +422,13 @@ else:
         return ""
 
 
-def status_msg(do_verify, tot_files, okay_files, failed_files, verify_failed_files):
+def status_msg(
+    do_verify: bool,
+    tot_files: int,
+    okay_files: int,
+    failed_files: int,
+    verify_failed_files: int,
+):
     if tot_files == 1:
         if failed_files:
             return "\n# decompile failed"

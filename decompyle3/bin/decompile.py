@@ -211,7 +211,6 @@ def main_bin():
                 do_verify=verify,
             )
 
-            result = list(result) + [options.get("do_verify", None)]
             if len(pyc_paths) > 1:
                 mess = status_msg(do_verify, *result)
                 print("# " + mess)
