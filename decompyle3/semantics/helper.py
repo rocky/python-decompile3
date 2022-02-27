@@ -122,7 +122,7 @@ def flatten_list(node):
 
 
 def is_lambda_mode(compile_mode: str) -> bool:
-    return compile_mode in ("dictcomp", "lambda", "listcomp", "setcomp")
+    return compile_mode in ("dictcomp", "genexpr", "lambda", "listcomp", "setcomp")
 
 
 def strip_quotes(s: str) -> str:
