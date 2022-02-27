@@ -1034,7 +1034,7 @@ class SourceWalker(GenericASTTraversal, object):
             ):
                 n = n[-1]
 
-        assert n == "comp_body", n
+        assert n == "comp_body", n.kind
 
         self.preorder(n[0])
         if node == "generator_exp_async":
@@ -2585,7 +2585,7 @@ class SourceWalker(GenericASTTraversal, object):
         self.customize(customize)
         transform_ast = self.treeTransform.transform(ast, code)
 
-        self.maybe_show_tree(ast, phase="before")
+        self.maybe_show_tree(ast, phase="after")
 
         del ast  # Save memory
         return transform_ast
