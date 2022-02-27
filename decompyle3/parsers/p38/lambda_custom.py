@@ -120,11 +120,6 @@ class Python38LambdaCustom(Python38BaseParser):
                            list        ::= list_unpack
                         """
                         self.add_unique_doc_rules(rule_str, customize)
-                    else:
-                        rule_str = f"""
-                         list  ::= {'expr ' * v}{opname}
-                        """
-                        self.add_unique_doc_rules(rule_str, customize)
 
                 elif opname == "BUILD_TUPLE_UNPACK_WITH_CALL":
                     # FIXME: should this be parameterized by EX value?
@@ -386,24 +381,24 @@ class Python38LambdaCustom(Python38BaseParser):
                     """
                     self.add_unique_doc_rules(rules_str, customize)
 
-            elif opname == "MAKE_FUNCTION_8":
+            elif opname == "MAKE_FUNCTION_CLOSURE":
                 if "LOAD_DICTCOMP" in self.seen_ops:
                     # Is there something general going on here?
                     rule = """
                        dict_comp ::= load_closure LOAD_DICTCOMP LOAD_STR
-                                     MAKE_FUNCTION_8 expr
+                                     MAKE_FUNCTION_CLOSURE expr
                                      GET_ITER CALL_FUNCTION_1
                        """
                     self.addRule(rule, nop_func)
                 elif "LOAD_SETCOMP" in self.seen_ops:
                     rule = """
                        set_comp ::= load_closure LOAD_SETCOMP LOAD_STR
-                                    MAKE_FUNCTION_8 expr
+                                    MAKE_FUNCTION_CLOSURE expr
                                     GET_ITER CALL_FUNCTION_1
                        """
                     self.addRule(rule, nop_func)
 
-            elif opname == "MAKE_FUNCTION_9":
+            elif opname == "MAKE_FUNCTION_CLOSURE_POS":
 
                 args_pos, args_kw, annotate_args, closure = token.attr
                 stack_count = args_pos + args_kw + annotate_args
@@ -422,7 +417,7 @@ class Python38LambdaCustom(Python38BaseParser):
                         #                 6  BUILD_TUPLE_2         2
                         #                 8  LOAD_LAMBDA              '<code_object <lambda>>'
                         #                10  LOAD_STR                 '_tgrep_relation_action.<locals>.<lambda>.<locals>.<lambda>'
-                        #                12  MAKE_FUNCTION_9          'default, closure'
+                        #                12  MAKE_FUNCTION_CLOSURE_POS   'default, closure'
                         # FIXME: Possibly we need to generalize for more nested lambda's of lambda's?
                         rule = """
                              expr        ::= lambda_body

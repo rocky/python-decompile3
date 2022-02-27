@@ -80,11 +80,6 @@ class Python37LambdaCustom(Python37BaseParser):
                        list        ::= list_unpack
                     """
                     self.add_unique_doc_rules(rule_str, customize)
-                else:
-                    rule_str = f"""
-                     list  ::= {'expr ' * v}{opname}
-                    """
-                    self.add_unique_doc_rules(rule_str, customize)
 
             elif opname_base == "BUILD_STRING":
                 v = token.attr
@@ -227,7 +222,7 @@ class Python37LambdaCustom(Python37BaseParser):
                        """
                     self.addRule(rule, nop_func)
 
-            elif opname == "MAKE_FUNCTION_9":
+            elif opname == "MAKE_FUNCTION_CLOSURE_POS":
                 args_pos, args_kw, annotate_args, closure = token.attr
                 stack_count = args_pos + args_kw + annotate_args
                 if args_pos:
@@ -242,7 +237,7 @@ class Python37LambdaCustom(Python37BaseParser):
                     #                 6  BUILD_TUPLE_2         2
                     #                 8  LOAD_LAMBDA              '<code_object <lambda>>'
                     #                10  LOAD_STR                 '_tgrep_relation_action.<locals>.<lambda>.<locals>.<lambda>'
-                    #                12  MAKE_FUNCTION_9          'default, closure'
+                    #                12  MAKE_FUNCTION_CLOSURE_POS    'default, closure'
                     # FIXME: Possibly we need to generalize for more nested lambda's of lambda's?
                     rule = """
                          expr        ::= lambda_body
