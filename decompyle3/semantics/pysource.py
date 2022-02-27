@@ -1348,6 +1348,10 @@ class SourceWalker(GenericASTTraversal, object):
         ):
             self.write(" async")
             in_node_index = 5 if len(node) > 6 and node[5] == "expr" else 3
+        elif len(node) >= 3 and node[3] == "expr":
+            in_node_index = 3
+            collection_node = node[3]
+            assert collection_node == "expr"
         else:
             in_node_index = -3
 

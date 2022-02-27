@@ -444,35 +444,39 @@ class Python37BaseParser(PythonBaseParser):
                 "BUILD_TUPLE",
                 "BUILD_TUPLE_UNPACK",
             ):
-                v = token.attr
+                collection_size = token.attr
 
                 is_LOAD_CLOSURE = False
                 if opname_base == "BUILD_TUPLE":
                     # If is part of a "load_closure", then it is not part of a
                     # "list".
                     is_LOAD_CLOSURE = True
-                    for j in range(v):
+                    for j in range(collection_size):
                         if tokens[i - j - 1].kind != "LOAD_CLOSURE":
                             is_LOAD_CLOSURE = False
                             break
                     if is_LOAD_CLOSURE:
-                        rule = "load_closure ::= %s%s" % (("LOAD_CLOSURE " * v), opname)
+                        rule = "load_closure ::= %s%s" % (
+                            ("LOAD_CLOSURE " * collection_size),
+                            opname,
+                        )
                         self.add_unique_rule(rule, opname, token.attr, customize)
-                if not is_LOAD_CLOSURE or v == 0:
+                if not is_LOAD_CLOSURE or collection_size == 0:
                     # We do this complicated test to speed up parsing of
                     # pathelogically long literals, especially those over 1024.
-                    build_count = token.attr
-                    thousands = build_count // 1024
-                    thirty32s = (build_count // 32) % 32
+                    thousands = collection_size // 1024
+                    thirty32s = (collection_size // 32) % 32
                     if thirty32s > 0:
                         rule = "expr32 ::=%s" % (" expr" * 32)
-                        self.add_unique_rule(rule, opname_base, build_count, customize)
+                        self.add_unique_rule(
+                            rule, opname_base, collection_size, customize
+                        )
                         pass
                     if thousands > 0:
                         self.add_unique_rule(
                             "expr1024 ::=%s" % (" expr32" * 32),
                             opname_base,
-                            build_count,
+                            collection_size,
                             customize,
                         )
                         pass
@@ -481,7 +485,7 @@ class Python37BaseParser(PythonBaseParser):
                         ("%s ::= " % collection)
                         + "expr1024 " * thousands
                         + "expr32 " * thirty32s
-                        + "expr " * (build_count % 32)
+                        + "expr " * (collection_size % 32)
                         + opname
                     )
                     self.add_unique_rules(["expr ::= %s" % collection, rule], customize)
