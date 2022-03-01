@@ -21,7 +21,7 @@ Step 1) Edit this file and add a new entry to 'test_options', eg.
   test_options['mylib'] = ('/usr/lib/mylib', PYOC, 'mylib')
 Step 2: Run the test:
   test_pythonlib.py --mylib	  # decompile 'mylib'
-  test_pythonlib.py --mylib --syntaix-verify # decompile verify 'mylib'
+  test_pythonlib.py --mylib --syntax-verify # decompile verify 'mylib'
 """
 
 import getopt, os, py_compile, sys, shutil, tempfile, time
