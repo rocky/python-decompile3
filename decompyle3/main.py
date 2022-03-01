@@ -13,7 +13,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import ast, datetime, py_compile, os, sys, traceback
+import ast, datetime, py_compile, os, sys
 import os.path as osp
 import subprocess
 import tempfile
@@ -358,15 +358,17 @@ def main(
                             capture_output=True,
                         )
                         valid = result.returncode == 0
-                        if valid:
-                            verify_failed_files += 1
-                            print(result.stderr.decode())
                         output = result.stdout.decode()
                         if output:
                             print(output)
                         pass
                     else:
                         valid = syntax_check(deparsed_object.f.name)
+
+                    if not valid:
+                        verify_failed_files += 1
+                        print(result.stderr.decode())
+
                     # sys.stderr.write(f"Ran {deparsed_object.f.name}\n")
             tot_files += 1
         except (ValueError, SyntaxError, ParserError, pysource.SourceWalkerError) as e:
@@ -475,10 +477,10 @@ def status_msg(
         elif verify_failed_files:
             return "\n# decompile run verification failed"
         elif do_verify:
-            return "\n# Successfully decompiled and ran file"
+            return "\n# Successfully decompiled and ran or syntax-checked file"
         else:
             return "\n# Successfully decompiled file"
             pass
         pass
-    mess = f"decompiled {tot_files} files: {okay_files} okay, {failed_files} failed"
+    mess = f"decompiled {tot_files} files: {okay_files} okay, {failed_files} failed, {verify_failed_files} failed verification"
     return mess
