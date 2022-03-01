@@ -274,7 +274,8 @@ def main(
     - files below out_base	out_base=...
     - stdout			out_base=None, outfile=None
     """
-    tot_files = okay_files = failed_files = verify_failed_files = 0
+    tot_files = okay_files = failed_files = 0
+    verify_failed_files = 0 if do_verify is not None else None
     current_outfile = outfile
     linemap_stream = None
 
@@ -469,7 +470,7 @@ def status_msg(
     tot_files: int,
     okay_files: int,
     failed_files: int,
-    verify_failed_files: int,
+    verify_failed_files: Optional[int],
 ):
     if tot_files == 1:
         if failed_files:
@@ -482,5 +483,7 @@ def status_msg(
             return "\n# Successfully decompiled file"
             pass
         pass
-    mess = f"decompiled {tot_files} files: {okay_files} okay, {failed_files} failed, {verify_failed_files} failed verification"
+    mess = f"decompiled {tot_files} files: {okay_files} okay, {failed_files} failed"
+    if do_verify:
+        mess += f", {verify_failed_files} failed verification"
     return mess
