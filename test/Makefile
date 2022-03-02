@@ -36,7 +36,6 @@ check-pypy37: check-bytecode
 #: Run working tests from Python 3.8
 check-3.8: check-bytecode
 	$(PYTHON) test_pythonlib.py --bytecode-3.8 --run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-3.8 --exec --verify-run
 
 check-3.9: check-bytecode
 	@echo "Note that we do not support decompiling Python 3.9 bytecode - no 3.9 tests run"
