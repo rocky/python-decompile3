@@ -28,7 +28,6 @@ check:
 
 #: Run working tests from Python 3.7
 check-3.7: check-bytecode
-	$(PYTHON) test_pythonlib.py --bytecode-3.7-run --verify-run
 	$(PYTHON) test_pythonlib.py --bytecode-3.7 --syntax-verify $(COMPILE)
 
 check-pypy37: check-bytecode
@@ -36,8 +35,7 @@ check-pypy37: check-bytecode
 
 #: Run working tests from Python 3.8
 check-3.8: check-bytecode
-	$(PYTHON) test_pythonlib.py --bytecode-3.8-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-3.8 --syntax-verify $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.8 --run --verify-run
 
 check-3.9: check-bytecode
 	@echo "Note that we do not support decompiling Python 3.9 bytecode - no 3.9 tests run"
@@ -45,13 +43,26 @@ check-3.9: check-bytecode
 check-3.10: check-bytecode
 	@echo "Note that we do not support decompiling Python 3.10 bytecode - no 3.10 tests run"
 
+#: Check deparsing bytecode on all Python 2 and Python 3 versions
+check-bytecode: check-bytecode-3
+
 #: Check deparsing bytecode 3.x only
-check-bytecode-3:
+check-bytecode-3: check-code-fragments check-bytecode-3-run
 	$(PYTHON) test_pythonlib.py \
 	--bytecode-3.7 --bytecode-3.8
 
-#: Check deparsing bytecode on all Python 2 and Python 3 versions
-check-bytecode: check-bytecode-3
+check-bytecode-3-list-comprehension:
+	$(PYTHON) test_pythonlib.py \
+	--bytecode-3.8 --list-comprehension
+
+check-bytecode-3-run:
+	$(PYTHON) test_pythonlib.py \
+	--bytecode-3.7 --run --verify-run
+	$(PYTHON) test_pythonlib.py \
+	--bytecode-3.8 --run --verify-run
+
+check-code-fragments: \
+	check-bytecode-3-list-comprehension
 
 # FIXME
 #: pypy3.8-7.3.7
