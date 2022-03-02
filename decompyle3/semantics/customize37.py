@@ -26,12 +26,17 @@ from decompyle3.semantics.consts import (
     INDENT_PER_LEVEL,
     maxint,
 )
+from decompyle3.parsers.treenode import SyntaxTree
 from decompyle3.semantics.helper import flatten_list, escape_string, strip_quotes
 
 
 def escape_format(s):
     return s.replace("\r", "\\r").replace("\n", "\\n").replace("'''", '"""')
 
+
+EMPTY_DICT = SyntaxTree(
+    "dict", [Token("BUILD_MAP_0", attr=0, pattr="", offset=0, has_arg=True)]
+)
 
 #######################
 def customize_for_version37(self, version):
@@ -713,7 +718,10 @@ def customize_for_version37(self, version):
         else:
             self.write("**")
             try:
-                self.default(node)
+                if node == EMPTY_DICT:
+                    self.write("{}")
+                else:
+                    self.default(node)
             except GenericASTTraversalPruningException:
                 pass
 

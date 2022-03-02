@@ -350,10 +350,13 @@ def main(
                 pass
             if do_verify:
                 for deparsed_object in deparsed_objects:
+                    deparsed_object.f.close()
+                    check_type = "syntax check"
                     if (
                         do_verify == "run"
-                        and PYTHON_VERSION_TRIPLE[:2] == deparsed_object.version
+                        and PYTHON_VERSION_TRIPLE[:2] == deparsed_object.version[:2]
                     ):
+                        check_type = "run"
                         result = subprocess.run(
                             [sys.executable, deparsed_object.f.name],
                             capture_output=True,
@@ -363,12 +366,17 @@ def main(
                         if output:
                             print(output)
                         pass
+                        if not valid:
+                            print(result.stderr.decode())
+
                     else:
                         valid = syntax_check(deparsed_object.f.name)
 
                     if not valid:
                         verify_failed_files += 1
-                        print(result.stderr.decode())
+                        sys.stderr.write(
+                            f"\n# {check_type} failed on file {deparsed_object.f.name}\n"
+                        )
 
                     # sys.stderr.write(f"Ran {deparsed_object.f.name}\n")
             tot_files += 1
@@ -478,9 +486,9 @@ def status_msg(
         elif verify_failed_files:
             return "\n# decompile run verification failed"
         elif do_verify:
-            return "\n# Successfully decompiled and ran or syntax-checked file"
+            return "\n# Successfully decompiled and ran or syntax-checked all files"
         else:
-            return "\n# Successfully decompiled file"
+            return "\n# Successfully decompiled all files"
             pass
         pass
     mess = f"decompiled {tot_files} files: {okay_files} okay, {failed_files} failed"

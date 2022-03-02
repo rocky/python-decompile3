@@ -176,6 +176,8 @@ def do_tests(src_dir, obj_patterns, target_dir, opts):
         if failed_files != 0:
             sys.exit(2)
         elif failed_verify:
+            parent_dir = os.path.dirname(target_dir)
+            print("Verify failed, keeping %s" % parent_dir)
             sys.exit(3)
 
     except (KeyboardInterrupt, OSError):
