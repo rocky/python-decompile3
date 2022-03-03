@@ -276,8 +276,8 @@ def customize_for_version37(self, version):
             ),
             "import_as37": ("%|import %c as %c\n", 2, -2),
             "import_from37": ("%|from %[2]{pattr} import %c\n", (3, "importlist37")),
+            "import_one": ("%c", (0, "importlists"),),
             "importattr37": ("%c", (0, "IMPORT_NAME_ATTR")),
-            "importlist37": ("%C", (0, maxint, ", ")),
             "or_and_not": ("%c or %c", (0, "expr_pjit"), (1, "and_not"),),
             "or_cond": (
                 "%c or %c",
