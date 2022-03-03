@@ -19,9 +19,12 @@ import subprocess
 import tempfile
 from typing import Any, Optional, Tuple
 from xdis import iscode, load_module
-from xdis.version_info import version_tuple_to_str
+from xdis.version_info import (
+    IS_PYPY,
+    PYTHON_VERSION_TRIPLE,
+    version_tuple_to_str,
+)
 
-from decompyle3 import IS_PYPY, PYTHON_VERSION_TRIPLE
 from decompyle3.disas import check_object_path
 from decompyle3.semantics import pysource
 from decompyle3.parsers.parse_heads import ParserError
@@ -274,7 +277,7 @@ def main(
     - files below out_base	out_base=...
     - stdout			out_base=None, outfile=None
     """
-    tot_files = okay_files = failed_files = 0
+    tot_files = okay_files = failed_files = skipped = 0
     verify_failed_files = 0 if do_verify is not None else None
     current_outfile = outfile
     linemap_stream = None
@@ -287,6 +290,7 @@ def main(
         # print("XXX", infile)
         if not osp.exists(infile):
             sys.stderr.write("File '%s' doesn't exist. Skipped\n" % infile)
+            skipped += 1
             continue
 
         if do_linemaps:
@@ -351,32 +355,36 @@ def main(
             if do_verify:
                 for deparsed_object in deparsed_objects:
                     deparsed_object.f.close()
-                    check_type = "syntax check"
-                    if (
-                        do_verify == "run"
-                        and PYTHON_VERSION_TRIPLE[:2] == deparsed_object.version[:2]
-                    ):
-                        check_type = "run"
-                        result = subprocess.run(
-                            [sys.executable, deparsed_object.f.name],
-                            capture_output=True,
+                    if PYTHON_VERSION_TRIPLE[:2] != deparsed_object.version[:2]:
+                        sys.stdout.write(
+                            f"\n# skipping running {deparsed_object.f.name} "
+                            f"it is {version_tuple_to_str(deparsed_object.version, end=2)}, "
+                            f"and we are {version_tuple_to_str(PYTHON_VERSION_TRIPLE, end=2)}\n"
                         )
-                        valid = result.returncode == 0
-                        output = result.stdout.decode()
-                        if output:
-                            print(output)
-                        pass
-                        if not valid:
-                            print(result.stderr.decode())
-
                     else:
-                        valid = syntax_check(deparsed_object.f.name)
+                        check_type = "syntax check"
+                        if do_verify == "run":
+                            check_type = "run"
+                            result = subprocess.run(
+                                [sys.executable, deparsed_object.f.name],
+                                capture_output=True,
+                            )
+                            valid = result.returncode == 0
+                            output = result.stdout.decode()
+                            if output:
+                                print(output)
+                            pass
+                            if not valid:
+                                print(result.stderr.decode())
 
-                    if not valid:
-                        verify_failed_files += 1
-                        sys.stderr.write(
-                            f"\n# {check_type} failed on file {deparsed_object.f.name}\n"
-                        )
+                        else:
+                            valid = syntax_check(deparsed_object.f.name)
+
+                        if not valid:
+                            verify_failed_files += 1
+                            sys.stderr.write(
+                                f"\n# {check_type} failed on file {deparsed_object.f.name}\n"
+                            )
 
                     # sys.stderr.write(f"Ran {deparsed_object.f.name}\n")
             tot_files += 1
