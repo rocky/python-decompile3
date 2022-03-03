@@ -8,6 +8,7 @@ PHONY=check clean dist distclean test test-unit test-functional rmChangeLog clea
 
 GIT2CL ?= git2cl
 PYTHON ?= python
+PYTHONLIB_OPTS ?=
 
 PYTHON_VERSION = $(shell $(PYTHON) -V 2>&1 | cut -d ' ' -f 2 | cut -d'.' -f1,2 | head -1)
 NATIVE_CHECK = check-$(PYTHON_VERSION)
@@ -21,27 +22,33 @@ check-short:
 	@$(PYTHON) -V && PYTHON_VERSION=`$(PYTHON) -V 2>&1 | cut -d ' ' -f 2 | cut -d'.' -f1,2 | head -1`; \
 	$(MAKE) check-bytecode-$${PYTHON_VERSION}
 
-# Run all tests
-check:
+#: Run tests for a given version
+check: check-code-fragments
 	$(PYTHON) -V && PYTHON_VERSION=`$(PYTHON) -V 2>&1 | cut -d ' ' -f 2 | cut -d'.' -f1,2 | head -1`; \
 	$(MAKE) check-$(PYTHON_VERSION)
 
 #: Run working tests from Python 3.7
-check-3.7: check-bytecode
-	$(PYTHON) test_pythonlib.py --bytecode-3.7 --syntax-verify $(COMPILE)
+check-3.7:
+	$(PYTHON) test_pythonlib.py --bytecode-3.7 $(PYTHONLIB_OPTS) $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.8 $(COMPILE)
 
 check-pypy37: check-bytecode
-	$(PYTHON) test_pythonlib.py --bytecode-pypy37 --verify-run
+	$(PYTHON) test_pythonlib.py --bytecode-pypy37
 
 #: Run working tests from Python 3.8
-check-3.8: check-bytecode
-	$(PYTHON) test_pythonlib.py --bytecode-3.8 --run --verify-run
+check-3.8:
+	$(PYTHON) test_pythonlib.py --bytecode-3.8 $(PYTHONLIB_OPTS) $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.7 $(COMPILE)
 
 check-3.9: check-bytecode
 	@echo "Note that we do not support decompiling Python 3.9 bytecode - no 3.9 tests run"
+	$(PYTHON) test_pythonlib.py --bytecode-3.7 $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.8 $(COMPILE)
 
-check-3.10: check-bytecode
+check-3.10:
 	@echo "Note that we do not support decompiling Python 3.10 bytecode - no 3.10 tests run"
+	$(PYTHON) test_pythonlib.py --bytecode-3.7 $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.8 $(COMPILE)
 
 #: Check deparsing bytecode on all Python 2 and Python 3 versions
 check-bytecode: check-bytecode-3
@@ -51,13 +58,22 @@ check-bytecode-3: check-code-fragments check-bytecode-3-run
 	$(PYTHON) test_pythonlib.py \
 	--bytecode-3.7 --bytecode-3.8
 
+#: Check deparsing bytecode 3.x only
+check-bytecode-38: check-code-fragments check-bytecode-38-run
+	$(PYTHON) test_pythonlib.py \
+	--bytecode-3.7 --bytecode-3.8
+
 check-bytecode-3-list-comprehension:
 	$(PYTHON) test_pythonlib.py \
 	--bytecode-3.8 --list-comprehension
 
-check-bytecode-3-run:
+check-bytecode-3-run: check-bytecode-37-run check-bytecode-38-run
+
+check-bytecode-37-run:
 	$(PYTHON) test_pythonlib.py \
 	--bytecode-3.7 --run --verify-run
+
+check-bytecode-38-run:
 	$(PYTHON) test_pythonlib.py \
 	--bytecode-3.8 --run --verify-run
 
@@ -78,13 +94,11 @@ grammar-coverage-3.7:
 
 #: Check deparsing Python 3.7
 check-bytecode-3.7:
-	$(PYTHON) test_pythonlib.py --bytecode-3.7-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-3.7 --syntax-verify
+	$(PYTHON) test_pythonlib.py --bytecode-3.7 --run
 
 #: Check deparsing Python 3.8
 check-bytecode-3.8:
-	$(PYTHON) test_pythonlib.py --bytecode-3.8-run --verify-run
-	$(PYTHON) test_pythonlib.py --bytecode-3.8 --syntax-verify
+	$(PYTHON) test_pythonlib.py --bytecode-3.8 --run
 
 clean: clean-py-dis clean-dis clean-unverified
 

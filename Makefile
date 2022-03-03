@@ -27,8 +27,13 @@ test check:
 check-short: pytest
 	$(MAKE) -C test check-short
 
-check-3.7 check-3.8 check-3.9 check-3.10: pytest
-	$(MAKE) -C test check
+check-3.7 check-3.8: pytest
+	PYTHONLIB_OPTS="--run --verify-run" $(MAKE) -C test check
+
+check-3.9 check-3.10: pytest
+	$(MAKE) -C test check-bytecode-3.7
+
+check-3.9 check-3.10: pytest
 
 # FIXME
 #: pypy3.8-7.3.7
