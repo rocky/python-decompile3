@@ -1,4 +1,4 @@
-#  Copyright (c) 2018, 2020 by Rocky Bernstein
+#  Copyright (c) 2018, 2020, 2022 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -15,6 +15,7 @@
 
 import sys
 from decompyle3.semantics.consts import ASSIGN_DOC_STRING, RETURN_NONE
+from decompyle3.semantics.helper import find_globals
 from decompyle3.semantics.pysource import SourceWalker, SourceWalkerError
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
@@ -161,8 +162,10 @@ def code_deparse_align(
         is_pypy=is_pypy,
     )
 
-    isTopLevel = co.co_name == "<module>"
-    deparsed.ast = deparsed.build_ast(tokens, customize, co, isTopLevel=isTopLevel)
+    is_top_level_module = co.co_name == "<module>"
+    deparsed.ast = deparsed.build_ast(
+        tokens, customize, co, is_top_level_module=is_top_level_module
+    )
 
     assert deparsed.ast == "stmts", "Should have parsed grammar start"
 

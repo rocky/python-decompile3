@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2021 by Rocky Bernstein
+#  Copyright (c) 2015-2022 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -1135,7 +1135,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         code,
         is_lambda=False,
         noneInNames=False,
-        isTopLevel=False,
+        is_top_level_module=False,
     ):
 
         # FIXME: DRY with pysource.py
@@ -1163,11 +1163,11 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
             # FIXME: So as not to remove tokens with offsets,
             # remove this phase until we have a chance to go over,
-            # transform_ast = self.treeTransform.transform(ast)
+            # transform_tree = self.treeTransform.transform(ast)
             maybe_show_tree(self, ast)
             return ast
             # del ast # Save memory
-            # return transform_ast
+            # return transform_tree
 
         # The bytecode for the end of the main routine has a
         # "return None". However you can't issue a "return" statement in
@@ -1184,7 +1184,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 # Python 3.4's classes can add a "return None" which is
                 # invalid syntax.
                 if tokens[-2].kind == "LOAD_CONST":
-                    if isTopLevel or tokens[-2].pattr is None:
+                    if is_top_level_module or tokens[-2].pattr is None:
                         del tokens[-2:]
                     else:
                         tokens.append(Token("RETURN_LAST"))
@@ -1939,8 +1939,10 @@ def code_deparse(
         is_pypy=is_pypy,
     )
 
-    isTopLevel = co.co_name == "<module>"
-    deparsed.ast = deparsed.build_ast(tokens, customize, co, isTopLevel=isTopLevel)
+    is_top_level_module = co.co_name == "<module>"
+    deparsed.ast = deparsed.build_ast(
+        tokens, customize, co, is_top_level_module=is_top_level_module
+    )
 
     assert deparsed.ast == "stmts", "Should have parsed grammar start"
 

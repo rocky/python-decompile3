@@ -2513,7 +2513,7 @@ class SourceWalker(GenericASTTraversal, object):
         code,
         is_lambda=False,
         noneInNames=False,
-        isTopLevel=False,
+        is_top_level_module=False,
     ):
 
         # FIXME: DRY with fragments.py
@@ -2543,10 +2543,10 @@ class SourceWalker(GenericASTTraversal, object):
 
             except (heads.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens, self.p.debug["reduce"])
-            transform_ast = self.treeTransform.transform(ast, code)
+            transform_tree = self.treeTransform.transform(ast, code)
             self.maybe_show_tree(ast, phase="after")
             del ast  # Save memory
-            return transform_ast
+            return transform_tree
 
         # The bytecode for the end of the main routine has a
         # "return None". However you can't issue a "return" statement in
@@ -2559,7 +2559,7 @@ class SourceWalker(GenericASTTraversal, object):
                     # invalid syntax.
                     load_const = tokens[-2]
                     if load_const.kind == "LOAD_CONST":
-                        if isTopLevel or load_const.pattr is None:
+                        if is_top_level_module or load_const.pattr is None:
                             del tokens[-2:]
                         else:
                             tokens.append(Token("RETURN_LAST"))
@@ -2586,12 +2586,12 @@ class SourceWalker(GenericASTTraversal, object):
         checker(ast, False, self.ast_errors)
 
         self.customize(customize)
-        transform_ast = self.treeTransform.transform(ast, code)
+        transform_tree = self.treeTransform.transform(ast, code)
 
         self.maybe_show_tree(ast, phase="after")
 
         del ast  # Save memory
-        return transform_ast
+        return transform_tree
 
     @classmethod
     def _get_mapping(cls, node):
@@ -2640,7 +2640,7 @@ def code_deparse(
         linestarts=linestarts,
     )
 
-    isTopLevel = co.co_name == "<module>"
+    is_top_level_module = co.co_name == "<module>"
     if compile_mode == "eval":
         deparsed.hide_internal = False
     deparsed.compile_mode = compile_mode
@@ -2649,7 +2649,7 @@ def code_deparse(
         customize,
         co,
         is_lambda=is_lambda_mode(compile_mode),
-        isTopLevel=isTopLevel,
+        is_top_level_module=is_top_level_module,
     )
 
     #### XXX workaround for profiling
