@@ -165,6 +165,7 @@ from decompyle3.semantics.consts import (
     TABLE_R,
     MAP_DIRECT,
     MAP,
+    NO_PARENTHESIS_EVER,
     PRECEDENCE,
     escape,
     minint,
