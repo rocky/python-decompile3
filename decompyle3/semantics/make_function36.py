@@ -53,7 +53,7 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
         - handle format tuple parameters
         """
         value = default
-        maybe_show_tree_param_default(self.showast, name, value)
+        maybe_show_tree_param_default(self.showast.get("after", False), name, value)
         if annotation:
             result = "%s: %s=%s" % (name, annotation, value)
         else:

@@ -1152,7 +1152,6 @@ class SourceWalker(GenericASTTraversal, object):
             #   list_comp_async ::= LOAD_LISTCOMP LOAD_STR MAKE_FUNCTION_0 expr ...
             # and:
             #  list_comp_async  ::= BUILD_LIST_0 LOAD_ARG list_afor2
-
             if tree[0] == "expr" and tree[0][0] == "list_comp_async":
                 tree = tree[0][0]
             if tree[0] == "BUILD_LIST_0":
@@ -1160,7 +1159,7 @@ class SourceWalker(GenericASTTraversal, object):
                 assert list_afor2 == "list_afor2"
                 store = list_afor2[1]
                 assert store == "store"
-                n = list_afor2[2]
+                n = list_afor2[3] if list_afor2[3] == "list_iter" else list_afor2[2]
             else:
                 # ???
                 pass
@@ -1232,8 +1231,9 @@ class SourceWalker(GenericASTTraversal, object):
             # item again. Is this a larger duplicate parsing problem?
             # Not sure what the best this thing to do is.
 
-            if n.kind == "return_expr_lambda":
+            if n.kind in ("RETURN_VALUE_LAMBDA", "return_expr_lambda"):
                 self.prune()
+
             assert n.kind in ("list_iter", "comp_iter", "set_iter_async"), n
 
         # FIXME: I'm not totally sure this is right.
@@ -1268,7 +1268,7 @@ class SourceWalker(GenericASTTraversal, object):
             elif n in ("list_afor2", "set_afor2", "set_iter_async"):
                 if n[1] == "store":
                     store = n[1]
-                n = n[2]
+                n = n[3] if n[3] == "list_iter" else n[2]
             else:
                 n = n[0]
 
@@ -1348,7 +1348,12 @@ class SourceWalker(GenericASTTraversal, object):
             "set_comp_async",
         ):
             self.write(" async")
-            in_node_index = 5 if len(node) > 6 and node[5] == "expr" else 3
+            in_node_index = None
+            for i, child in enumerate(node):
+                if child.kind in ("expr", "expr_get_aiter", "get_aiter", "get_iter"):
+                    in_node_index = i
+                    break
+            assert in_node_index is not None
         elif len(node) >= 3 and node[3] == "expr":
             in_node_index = 3
             collection_node = node[3]
@@ -2514,7 +2519,6 @@ class SourceWalker(GenericASTTraversal, object):
         noneInNames=False,
         is_top_level_module=False,
     ):
-
         # FIXME: DRY with fragments.py
 
         # assert isinstance(tokens[0], Token)

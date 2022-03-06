@@ -131,6 +131,7 @@ class Python37LambdaCustom(Python37BaseParser):
                 self.add_unique_doc_rules(rules_str, customize)
 
             elif opname == "GET_AITER":
+                self.add_unique_doc_rules("get_aiter ::= expr GET_AITER", customize)
                 self.addRule(
                     """
                     expr                ::= generator_exp_async
@@ -142,8 +143,8 @@ class Python37LambdaCustom(Python37BaseParser):
 
                     func_async_prefix   ::= _come_froms SETUP_EXCEPT GET_ANEXT LOAD_CONST YIELD_FROM
 
-                    generator_exp_async ::= load_genexpr LOAD_STR MAKE_FUNCTION_0 expr
-                                            GET_AITER CALL_FUNCTION_1
+                    generator_exp_async ::= load_genexpr LOAD_STR MAKE_FUNCTION_0
+                                            get_aiter CALL_FUNCTION_1
 
                     genexpr_func_async  ::= LOAD_ARG func_async_prefix
                                             store func_async_middle comp_iter
@@ -151,6 +152,11 @@ class Python37LambdaCustom(Python37BaseParser):
                                             POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
 
                     get_aiter           ::= expr GET_AITER
+
+                    # FIXME this is a workaround for probalby some bug in the Earley parser
+                    # if we use get_aiter, then list_comp_async doesn't match, and I don't
+                    # understand why.
+                    expr_get_aiter      ::= expr GET_AITER
 
                     list_afor           ::= get_aiter list_afor2
 
@@ -161,7 +167,7 @@ class Python37LambdaCustom(Python37BaseParser):
 
                     list_comp_async     ::= BUILD_LIST_0 LOAD_ARG list_afor2
                     list_comp_async     ::= LOAD_LISTCOMP LOAD_STR MAKE_FUNCTION_0
-                                            expr GET_AITER CALL_FUNCTION_1
+                                            expr_get_aiter CALL_FUNCTION_1
                                             GET_AWAITABLE LOAD_CONST
                                             YIELD_FROM
 
