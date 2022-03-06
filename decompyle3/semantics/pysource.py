@@ -1418,7 +1418,7 @@ class SourceWalker(GenericASTTraversal, object):
             comp_for = comp_iter[0]
             if comp_for == "comp_for":
                 self.template_engine(
-                    ("for %c in %p", (2, "store"), (0, "expr", NO_PARENTHESIS_EVER)),
+                    (" for %c in %p", (2, "store"), (0, "expr", NO_PARENTHESIS_EVER)),
                     comp_for,
                 )
         if comp_store:
