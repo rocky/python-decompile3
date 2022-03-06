@@ -1413,7 +1413,7 @@ class SourceWalker(GenericASTTraversal, object):
             pass
 
         if tree == "set_comp_func":
-            comp_iter = tree[5]
+            comp_iter = tree[4]
             assert comp_iter == "comp_iter"
             comp_for = comp_iter[0]
             if comp_for == "comp_for":

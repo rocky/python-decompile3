@@ -55,6 +55,14 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         return_expr_lambda ::= if_exp_not_lambda
         return_expr_lambda ::= if_exp_not_lambda2
         return_expr_lambda ::= if_exp_dead_code
+        return_expr_lambda ::= dict_comp_func
+
+        ## FIXME: add rules for these
+        # return_expr_lambda ::= generator_exp
+        # return_expr_lambda ::= list_comp_func
+
+        return_expr_lambda ::= set_comp_func
+
 
         return_if_lambda   ::= RETURN_END_IF_LAMBDA COME_FROM
         return_if_lambda   ::= RETURN_END_IF_LAMBDA
@@ -544,13 +552,20 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         expr_or_arg     ::= LOAD_ARG
         expr_or_arg     ::= expr
 
+        ending_return  ::= RETURN_VALUE RETURN_LAST
+        ending_return  ::= RETURN_VALUE_LAMBDA LAMBDA_MARKER
+
+        for_iter       ::= _come_froms FOR_ITER
+        dict_comp_func ::= BUILD_MAP_0 LOAD_ARG for_iter store
+                           comp_iter JUMP_LOOP _come_froms
+                           ending_return
+
         set_comp_func   ::= BUILD_SET_0
                             expr_or_arg
-                            _come_froms
                             for_iter store comp_iter
                             JUMP_LOOP
                             _come_froms
-                            RETURN_VALUE RETURN_LAST
+                            ending_return
 
         set_comp_func   ::= BUILD_SET_0
                             expr_or_arg
@@ -558,7 +573,7 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
                             COME_FROM
                             JUMP_LOOP
                             _come_froms
-                            RETURN_VALUE RETURN_LAST
+                            ending_return
 
         """
 

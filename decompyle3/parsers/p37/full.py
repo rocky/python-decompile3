@@ -160,10 +160,6 @@ class Python37Parser(Python37LambdaParser):
 
         stmt ::= dict_comp_func
 
-        for_iter       ::= _come_froms FOR_ITER
-        dict_comp_func ::= BUILD_MAP_0 LOAD_ARG for_iter store
-                           comp_iter JUMP_LOOP _come_froms RETURN_VALUE RETURN_LAST
-
         stmt ::= set_comp_func
 
         # last_stmt is a Python statement for which
