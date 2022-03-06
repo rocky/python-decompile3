@@ -470,9 +470,12 @@ class Scanner37Base(Scanner):
                     # and the end of a block which follow with POP_BLOCK and COME_FROM_LOOP.
                     # If the JUMP_ABSOLUTE is to a FOR_ITER and it is followed by another JUMP_FORWARD
                     # then we'll take it as a "continue".
-                    is_continue = (
-                        self.insts[self.offset2inst_index[target]].opname == "FOR_ITER"
-                        and self.insts[i + 1].opname == "JUMP_FORWARD"
+                    next_inst = self.insts[i + 1]
+                    is_continue = self.insts[
+                        self.offset2inst_index[target]
+                    ].opname == "FOR_ITER" and next_inst.opname in (
+                        "JUMP_FORWARD",
+                        "JUMP_ABSOLUTE",
                     )
 
                     if self.version < (3, 8) and (
@@ -487,11 +490,21 @@ class Scanner37Base(Scanner):
                     ):
                         opname = "CONTINUE"
                     else:
+                        # "continue" versus "break_loop" dectection is more complicated beoause
+                        # "continue" to an outer loop is really a "break loop"
                         opname = "JUMP_LOOP"
+
                         # FIXME: this is a hack to catch stuff like:
                         #   if x: continue
                         # the "continue" is not on a new line.
-                        # There are other situations where we don't catch
+                        #
+                        # Another situation is where we have
+                        #   for method in methods:
+                        #      for B in method:
+                        #         if c:
+                        #           return
+                        #        break  # A "continue" but not the innermost one
+
                         # CONTINUE as well.
                         if tokens[-1].kind == "JUMP_LOOP" and tokens[-1].attr <= argval:
                             if tokens[-2].kind == "BREAK_LOOP":
@@ -499,7 +512,9 @@ class Scanner37Base(Scanner):
                             else:
                                 # intern is used because we are changing the *previous* token.
                                 # A POP_TOP suggests a "break" rather than a "continue"?
-                                if tokens[-2] == "POP_TOP":
+                                if tokens[-2] == "POP_TOP" and (
+                                    is_continue and next_inst.argval != tokens[-1].attr
+                                ):
                                     tokens[-1].kind = sys.intern("BREAK_LOOP")
                                 else:
                                     tokens[-1].kind = sys.intern("CONTINUE")

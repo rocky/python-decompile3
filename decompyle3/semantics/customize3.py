@@ -97,7 +97,9 @@ def customize_for_version3(self, version):
         # skip over: sstmt, stmt, return, return_expr
         # and other singleton derivations
         while len(ast) == 1 or (
-            ast in ("sstmt", "return") and ast[-1] in ("RETURN_LAST", "RETURN_VALUE")
+            ast in ("sstmt", "return", "return_expr_lambda", "lambda_start")
+            and ast[-1]
+            in ("LAMBDA_MARKER", "RETURN_VALUE_LAMBDA", "RETURN_LAST", "RETURN_VALUE")
         ):
             self.prec = 100
             ast = ast[0]

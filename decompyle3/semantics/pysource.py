@@ -1554,7 +1554,6 @@ class SourceWalker(GenericASTTraversal, object):
             collection = node[collection_index]
         n = tree[iter_index]
         list_if = None
-        write_if = False
 
         assert n in ("comp_iter", "set_iter")
 
@@ -1562,8 +1561,7 @@ class SourceWalker(GenericASTTraversal, object):
         while n == "comp_iter":
             n = n[0]  # recurse one step
 
-            # FIXME: adjust for set comprehension
-            if n == "list_for":
+            if n in ("list_for", "comp_for"):
                 store = n[2]
                 n = n[3]
             elif n[0].kind == "c_compare":
@@ -1595,7 +1593,7 @@ class SourceWalker(GenericASTTraversal, object):
                 pass
             pass
 
-        assert n == "comp_body", tree
+        assert n in ("comp_body", "set_iter"), n.kind
 
         self.preorder(n[0])
         self.write(" for ")
