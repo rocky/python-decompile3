@@ -119,7 +119,7 @@ def main_bin(
             )
 
             if len(pyc_paths) > 1:
-                mess = status_msg(do_verify, *result)
+                mess = status_msg(verify, *result)
                 print("# " + mess)
                 pass
         except ImportError as e:

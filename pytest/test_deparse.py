@@ -1,5 +1,5 @@
 from decompyle3.semantics.fragments import code_deparse as deparse, deparsed_find
-from decompyle3 import PYTHON_VERSION_TRIPLE
+from xdis import PYTHON_VERSION_TRIPLE
 
 
 def map_stmts(x, y):
