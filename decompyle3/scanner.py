@@ -184,9 +184,31 @@ class Scanner(object):
         # we assume that it was an instruction moved back.
         # We check that assumption though by looking at
         # self.code's opcode.
+        # Sadly instructions can get moved _forward too.
+        # So we have to check which direction we are going
+        offset_increment = instruction_size(self.opc.EXTENDED_ARG, self.opc)
         if offset not in self.offset2inst_index:
-            offset -= instruction_size(self.opc.EXTENDED_ARG, self.opc)
-            assert self.code[offset] == self.opc.EXTENDED_ARG
+            if self.code[offset] != self.opc.EXTENDED_ARG:
+                target_name = self.opc.opname[self.code[offset]]
+                # JUMP_ABSOLUTE can be like this where
+                # the inst offset is at what used to be an EXTENDED_ARG
+                # so find the first extended arg.
+                next_offset = offset - offset_increment
+                while next_offset not in self.offset2inst_index:
+                    next_offset -= offset_increment
+                    assert self.code[next_offset] == self.opc.EXTENDED_ARG
+                inst = self.insts[self.offset2inst_index[next_offset]]
+                assert inst.opname == target_name, inst
+            else:
+                next_offset = offset + offset_increment
+                while next_offset not in self.offset2inst_index:
+                    next_offset += offset_increment
+
+                inst = self.insts[self.offset2inst_index[next_offset]]
+
+            assert inst.has_extended_arg == True
+            return inst
+
         return self.insts[self.offset2inst_index[offset]]
 
     def get_target(self, offset: int, extended_arg: int = 0) -> int:
