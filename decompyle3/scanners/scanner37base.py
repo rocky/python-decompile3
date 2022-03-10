@@ -240,20 +240,22 @@ class Scanner37Base(Scanner):
             #   raise AssertionError
             #  and
             #   assert ...
-            # If we have a JUMP_FORWARD after the
-            # RAISE_VARARGS then we have a "raise" statement
-            # else we have an "assert" statement.
-            assert_can_follow = inst.opname == "POP_JUMP_IF_TRUE" and i + 1 < n
+            # If we have:
+            #    POP_JUMP_IF_TRUE
+            #    LOAD_GLOBAL AssertionError
+            #    RAISE_VARARGS
+            # then we have an "assert" statement.
+            # then we have a "raise" statement
+            assert_can_follow = inst.opname == "POP_JUMP_IF_TRUE" and i + 2 < n
             if assert_can_follow:
-                next_inst = self.insts[i + 1]
+                load_global_inst = self.insts[i + 1]
                 if (
-                    next_inst.opname == "LOAD_GLOBAL"
-                    and next_inst.argval == "AssertionError"
+                    load_global_inst.opname == "LOAD_GLOBAL"
+                    and load_global_inst.argval == "AssertionError"
                 ):
-                    raise_idx = self.offset2inst_index[self.prev_op[inst.argval]]
-                    raise_inst = self.insts[raise_idx]
+                    raise_inst = self.insts[i + 2]
                     if raise_inst.opname.startswith("RAISE_VARARGS"):
-                        self.load_asserts.add(next_inst.offset)
+                        self.load_asserts.add(load_global_inst.offset)
                     pass
                 pass
 
