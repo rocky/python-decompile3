@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2021 by Rocky Bernstein
+#  Copyright (c) 2015-2022 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
@@ -509,6 +509,7 @@ class Scanner37Base(Scanner):
                         if tokens[-1].kind == "JUMP_LOOP" and tokens[-1].attr <= argval:
                             if tokens[-2].kind == "BREAK_LOOP":
                                 del tokens[-1]
+                                j -= 1
                             else:
                                 # intern is used because we are changing the *previous* token.
                                 # A POP_TOP suggests a "break" rather than a "continue"?
