@@ -680,9 +680,9 @@ class Scanner37Base(Scanner):
                 ):
                     stmts.remove(stmt_offset)
                     continue
-                # Rewing ops till we encounter non-JUMP_ABSOLUTE one
+                # Scan back bytecode ops till we encounter non-JUMP_ABSOLUTE op
                 j = self.prev_op[stmt_offset]
-                while code[j] == self.opc.JUMP_ABSOLUTE:
+                while code[j] == self.opc.JUMP_ABSOLUTE and j > 0:
                     j = self.prev_op[j]
                 # If we got here, then it's list comprehension which
                 # is not a statement too
