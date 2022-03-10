@@ -257,6 +257,7 @@ class Python37Parser(Python37LambdaParser):
     def p_await(self, args):
         # Python 3.5+ Await things
         """
+        # Can move this after have a p37/full_custom.py
         expr       ::= await_expr
         await_expr ::= expr GET_AWAITABLE LOAD_CONST YIELD_FROM
 

@@ -227,6 +227,10 @@ class Python38LambdaCustom(Python38BaseParser):
                 if not {"MAKE_FUNCTION_0", "MAKE_FUNCTION_CLOSURE"} in self.seen_ops:
                     self.addRule(
                         """
+                        expr                ::= dict_comp_async
+                        expr                ::= generator_exp_async
+                        expr                ::= list_comp_async
+
                         dict_comp_async     ::= LOAD_DICTCOMP
                                                 LOAD_STR
                                                 MAKE_FUNCTION_0
@@ -235,10 +239,6 @@ class Python38LambdaCustom(Python38BaseParser):
 
                         dict_comp_async     ::= BUILD_MAP_0 LOAD_ARG
                                                 dict_comp_async
-
-                        expr                ::= dict_comp_async
-                        expr                ::= generator_exp_async
-                        expr                ::= list_comp_async
 
                         generator_exp_async ::= load_genexpr LOAD_STR MAKE_FUNCTION_0
                                                 get_aiter CALL_FUNCTION_1

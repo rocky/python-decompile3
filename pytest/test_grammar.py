@@ -20,7 +20,8 @@ def test_grammar():
 
     expect_lhs = set([])
 
-    # We have custom rules that create the below
+    # We have custom rules that create the below.
+    # await_expr can be remove after we create a p37/full_custom.py
     unused_rhs = set(["mkfunc"])
 
     expect_right_recursive = set([("designList", ("store", "DUP_TOP", "designList"))])
