@@ -517,6 +517,31 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         # We might be able to do this in the grammar but it is a bit
         # too pervasive and involved.
 
+        # We have a bunch of these comp_if_<logic expression>
+        # because the logic operation bleeds into the
+        # "if" of the comprehension. Note thet specific position of
+        # POP_JUMP_IF_xxx_LOOP stays the same.
+        comp_if_or      ::= or_parts
+                            expr POP_JUMP_IF_FALSE_LOOP
+                            come_froms
+                            comp_iter
+        # comp_if_or      ::= or_parts_true_loop
+        #                     expr POP_JUMP_IF_FALSE_LOOP
+        #                     come_froms
+        #                     comp_iter
+
+        # comp_if_or      ::= or_parts_false_loop
+        #                     expr POP_JUMP_IF_FALSE_LOOP
+        #                     come_froms
+        #                     comp_iter
+
+        # Here, the "or" is melded a little into the "comp_if" test
+        comp_if_or2     ::= compare compare_chained37_false comp_iter
+
+        comp_if_or_not  ::= or_parts
+                            expr POP_JUMP_IF_TRUE_LOOP
+                            come_froms
+                            comp_iter
         ## FIXME: we add this, per comment above later.
         ## comp_if         ::= expr pjump_ift comp_iter
         comp_if_not     ::= expr pjump_ift comp_iter
@@ -537,6 +562,9 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         comp_iter     ::= comp_if_not
         comp_iter     ::= comp_if_not_and
         comp_iter     ::= comp_if_not_or
+        comp_iter     ::= comp_if_or
+        comp_iter     ::= comp_if_or_not
+        comp_iter     ::= comp_if_or2
 
         or_jump_if_false_cf      ::= or POP_JUMP_IF_FALSE COME_FROM
         or_jump_if_false_loop_cf ::= or_loop POP_JUMP_IF_FALSE_LOOP COME_FROM
