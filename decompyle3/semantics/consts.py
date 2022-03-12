@@ -258,8 +258,17 @@ TABLE_DIRECT = {
         (3, "list_iter"),
     ),
     "lc_body": ("",),  # ignore when recursing
+
     "comp_iter": ("%c", 0),
     "comp_if": (" if %c%c", 0, 1),
+
+    # Note: Adding "if" is handled inside the
+    # comprehension
+    "comp_if_or": (
+        "%p or %p ",
+        (0, ("or_parts", "or_parts_true_loop", "or_parts_false_loop"), PRECEDENCE["or"] ),
+        (1, "expr", PRECEDENCE["or"] ),
+        ),
 
     "comp_if_not": (
         " if not %p%c",
