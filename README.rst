@@ -1,5 +1,7 @@
 |TravisCI| |CircleCI| |Pypi Installs|
 
+.. contents::
+
 decompyle3
 ==========
 
