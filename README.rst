@@ -47,40 +47,36 @@ However it is clear that even this isn't enough. Control flow needs
 to be addressed by using dominators and reverse-dominators which
 the python-control-flow_ project can give.
 
-This hasn't started yet. It is a lot of work. And currently there
-isn't any funding for this or the other decompiler. So it may take
-time and is on the back burner. And if it were worked on, I expect it
-will be a while before an approach using control flow is as good as
-this is for Python 3.7. But if decompilation is to have a future
-and work in Python 3.9, I think this work is necessary.
-
+This I am *finally* slowly doing in yet another non-public project. It
+is a lot of work.  Funding in the form of sponsorhip while greatly
+appreciated isn't commensurate with the amount of effort, and
+currently I have a full-time job. So it may take time before it is
+available publicly.
 
 Requirements
 ------------
 
-The code here can be run on Python versions 3.7 or later. The bytecode
+The code here can be run on Python versions 3.7 or 3.8. The bytecode
 files it can read have been tested on Python bytecodes from versions
-3.7 and later.
+3.7 and 3.8.
 
 Installation
 ------------
 
-You can install from PyPy using the name `decompyle3`::
+You can install from PyPI using the name ``decompyle3``::
 
     pip install decompyle3
 
 
-To install from source, this is uses setup.py, so it follows the standard Python routine:
+To install from source code, this project uses setup.py, so it follows the standard Python routine::
 
-::
+    $ pip install -e .  # set up to run from source tree
 
-    pip install -e .  # set up to run from source tree
-                      # Or if you want to install instead
-or alternatively::
+or::
 
-    python setup.py install # may need sudo; use python3 if your python is python2
+    $ python setup.py install # may need sudo
 
-A GNU makefile is also provided so :code:`make install` (possibly as root or
+A GNU Makefile is also provided so :code:`make install` (possibly as root or
 sudo) will do the steps above.
 
 Running Tests
@@ -116,7 +112,7 @@ Verification
 ------------
 
 If you want Python syntax verification of the correctness of the
-decompilation process, add the `--syntax-verify` option. However since
+decompilation process, add the :code:`--syntax-verify` option. However since
 Python syntax changes, you should use this option if the bytecode is
 the right bytecode for the Python interpreter that will be checking
 the syntax.
@@ -130,7 +126,7 @@ available give stronger verification: those programs that when run
 test themselves. Our test suite includes these.
 
 And Python comes with another a set of programs like this: its test
-suite for the standard library. We have some code in `test/stdlib` to
+suite for the standard library. We have some code in :code:`test/stdlib` to
 facilitate this kind of checking too.
 
 Known Bugs/Restrictions
@@ -141,11 +137,14 @@ that the magic of a released version is usually the same as the *last* candidate
 
 We also don't handle PJOrion_ or otherwise obfuscated code. For
 PJOrion try: PJOrion Deobfuscator_ to unscramble the bytecode to get
-valid bytecode before trying this tool. This program can't decompile
-Microsoft Windows EXE files created by Py2EXE_, although we can
-probably decompile the code after you extract the bytecode
-properly. Handling pathologically long lists of expressions or
-statements is slow. We don't handle Cython_ or MicroPython_ which don't use bytecode.
+valid bytecode before trying this tool; pydecipher_ might help with that.
+
+This program can't decompile Microsoft Windows EXE files created by
+Py2EXE_, although we can probably decompile the code after you extract
+the bytecode properly. `Pydeinstaller <https://github.com/charles-dyfis-net/pydeinstaller>`_ may help with unpacking Pyinstaller bundlers.
+
+Handling pathologically long lists of expressions or statements is
+slow. We don't handle Cython_ or MicroPython which don't use bytecode.
 
 There are numerous bugs in decompilation. And that's true for every
 other CPython decompiler I have encountered, even the ones that
@@ -172,7 +171,6 @@ You may run across a bug, that you want to report. Please do so. But
 be aware that it might not get my attention for a while. If you
 sponsor or support the project in some way, I'll prioritize your
 issues above the queue of other things I might be doing instead.
-
 
 See Also
 --------

@@ -2,7 +2,8 @@
 **Table of Contents**
 
 - [Ethics](#ethics)
-- [The difficulty of the problem](#the-difficulty-of-the-problem)
+- [The importance of your bug report](#the-importance-of-your-bug-report)
+- [The difficulty of the problem and your bug](#the-difficulty-of-the-problem-and-your-bug)
 - [Is it really a bug?](#is-it-really-a-bug)
     - [Do you have valid bytecode?](#do-you-have-valid-bytecode)
     - [Semantic equivalence vs. exact source code](#semantic-equivalence-vs-exact-source-code)
@@ -22,7 +23,7 @@ TL;DR (too long; didn't read)
 * We already have an infinite supply of decompilation bugs that need fixing, and an automated mechanism for finding more. Decompilation bugs get addressed by easiness to fix and by whim. If you expect yours to be fixed ahead of those, you need to justify why.
 * When asking for help, you may be asked for what you've tried on your own first. There are plenty of sources of information about this code.
 * If you are looking for *timely* help or support, well, that is typically known paid service. I don't really have a mechanism for that since I have a full-time job. But supporting the project is an approximation.
-* Submitting a bug or issue report that is likely to get acted upon may require a bit of effort on your part to make it easy for the problem solver. If you are not willing to do that, please don't waste our time. As indicated above, supporting the project will increase the liklihood of your issue getting noticed and acted upon.
+* Submitting a bug or issue report that is likely to get acted upon may require a bit of effort on your part to make it easy for the problem solver. If you are not willing to do that, please don't waste our time. As indicated above, supporting the project will increase the likelihood of your issue getting noticed and acted upon.
 
 # Ethics
 
@@ -31,9 +32,26 @@ I do not condone using this program for unethical or illegal purposes. More dete
 Don't use the issue tracker for such solicitations. To try to stave off illegitimate behavior, you should note that the issue tracker, the code, and bugs mentioned in that are in the open: there is no
 confidentiality. You may be asked about the authorship or claimed ownership of the bytecode. If I think something is not quite right, I may label the issue questionable which may make the it easier those who are looking for illegal activity.
 
-# The difficulty of the problem
 
-This decompiler is a constant work in progress: Python keeps changing, and so does its code generation.
+# The importance of your bug report
+
+For many open-source projects bugs where the expectation is that bugs are rare, reporting bugs in a *thoughtful* way can be helpful. See also [How to Ask Questions the Smart Way](https://www.osadl.org/Eric-Raymond-How-to-ask-questions-the-s.questions-the-smart-way.0.html).
+
+In this project though, most of the bug reports boil down to the something like: I have I am trying to reverse engineer some code that I am not the author/owner and that person doesn't want me to have access to. I am hitting a problem somewhere along the line which might have to do with decompilation, but it could be something else like how the bytecode was extracted, some problem in deliberately obfuscated code, or the use some kind of Python bytecode version that isn't supported by the decompiler.
+
+While you are free to report these, unless you sponsor the project, I may close them with about the same amount of effort spent that I think was used to open the report for them. And if you spent a considerable amount of time to create the bug report but didn't follow instructions given here and in the issue template, I am sorry in advance. Just go back, read, and follow instructions.
+
+This project already has an infinite supply of bugs that have been narrowed to the most minimal form and where I have source code to compare against. And in the unlikely event this supply runs out, I have automated means for generating *another* infinite supply.
+
+In this project the task of justifying why addressing your bug is of use to the community, and why it should be prioritized over the others, is the bug reporter's responsibility.
+
+While in the abstract, I have no problem answering questions about how to read a Python traceback or install Python software, or trying to understand what is going wrong in your particular setup, I am not a paid support person and there other things I'd rather be doing with my limited volunteer time. So save us both time, effort, and aggravation: use other avenues like StackOverflow. Again, justifying why you should receive unpaid help is the help requester's responsibility.
+
+
+# The difficulty of the problem and your bug
+
+This decompiler is a constant work in progress: Python keeps
+changing, and so does its code generation.
 
 There is no Python decompiler yet that I know about that will decompile everything. Overall, I think this one probably does the best job of *any* Python decompiler that handles such a wide range of versions.
 
@@ -42,16 +60,21 @@ list in [`test/stdlib/runtests.sh`](https://github.com/rocky/python-decompile3/b
 
 There are far more bug reporters than there are bug fixers.
 
-Unless you are a sponsor of this project, it may take a while, maybe a week or so, before the bug report is noticed, let alone acted upon. Things eventually get fixed, but it may take years.
+Unless you are a sponsor of this project, it may take a while, maybe a week or so, before the bug report is noticed, let alone acted upon. Things eventually get fixed, but it may take years. And if your bug hasn't been narrowed, it might happen as a result of some other bug fix.
 
 # Is it really a bug?
 
 
 ## Do you have valid bytecode?
 
-As mentioned in README.rst, this project doesn't handle obfuscated code. See README.rst for suggestions for how to remove some kinds of obfuscation.
+As mentioned in README.rst, this project doesn't handle obfuscated
+code, release candidates, and the most recent versions of Python: version 3.9 and up. See README.rst for suggestions for how to remove some kinds of
+obfuscation.
 
-Checking if bytecode is valid is pretty simple: disassemble the code. Python comes with a disassembly module called `dis`. A prerequisite module for this package, `xdis` has a cross-python version disassembler called `pydisasm`.
+Checking if bytecode is valid is pretty simple: disassemble the code.
+Python comes with a disassembly module called `dis`. A prerequisite
+module for this package, `xdis` has a cross-python version
+disassembler called `pydisasm`.
 
 ## Semantic equivalence vs. exact source code
 
@@ -116,8 +139,7 @@ if False:
 
 Python will eliminate the entire "if" statement.
 
-So just because the text isn't the same, does not
-necessarily mean there's a bug.
+So just because the text isn't the same, this does not necessarily mean there's a bug.
 
 # What to send (minimum requirements)
 
@@ -138,7 +160,7 @@ Also try to narrow the bug. See below.
 Some kind folks also give the invocation they used and the output
 which usually includes an error message produced. This is
 helpful. From this, I can figure out what OS you are running this on
-and what version of *uncomplye6* was used. Therefore, if you _don't_
+and what version of *decompyle3* was used. Therefore, if you _don't_
 provide the input command and the output from that, please give:
 
 * _decompyle3_ version used
@@ -152,22 +174,14 @@ There is Python assembly code on parse errors, so simply by hand decompile that.
 
 ### But I don't *have* the source code and am incapable of figuring how to do a hand disassembly!
 
-Well, you could learn. No one is born into this world knowing how to
-disassemble Python bytecode. And as Richard Feynman once said, "What
-one fool can learn, so can another."
+Well, you could learn. No one is born into this world knowing how to disassemble Python bytecode. And as Richard Feynman once said, "What one fool can learn, so can another."
 
-If this is too difficult, or too time consuming, or not of interest to
-you, then you might consider sponsoring the project. [Crazy
-Compilers](http://www.crazy-compilers.com/decompyle/) offers a
-byte-code decompiler service. (If
-there are others around let me know and I'll list them here.)
+If this is too difficult, or too time consuming, or not of interest to you, then you might consider [sponsoring](https://github.com/sponsors/rocky) the project. [Crazy
+Compilers](http://www.crazy-compilers.com/decompyle/) offers a byte-code decompiler service for versions of Python up to 2.6. (If there are others around let me know and I'll list them here.) Don't be surprised if I ask you to pay for work (if I think the work is ethical) when you want me to work on your problem that I think isn't of interest or benefit to anyone but yourself or a small limited number of people, or I think the need is questionable.
 
 # Narrowing the problem
 
-I don't need or want the entire source code base for the file(s) or
-module(s) can't be decompiled. I just need those file(s) or module(s).
-If there are problems in several files, file a bug report for each
-file.
+I don't need or want the entire source code base for the file(s) or module(s) can't be decompiled. I just need those file(s) or module(s). If there are problems in several files, file a bug report for each file.
 
 Python modules can get quite large, and usually decompilation problems
 occur in a single function or maybe the main-line code but not any of
@@ -185,8 +199,11 @@ likely the problem will be fixed and fixed sooner.
 # Karma
 
 I realize that following the instructions given herein puts a bit of
-burden on the bug reporter. This is justified as attempts to balance somewhat the burden and effort needed to fix the bug and the attempts to balance number of would-be bug reporters with the number of bug fixers. Better bug reporters are more likely to move
-in the category of bug fixers.
+burden on the bug reporter. This is justified since it attempts to balance
+the burden and effort needed to fix the bug with the amount of effort to report the problem. And it attempts
+to balance number of would-be bug reporters with the number of bug
+fixers. Better bug reporters are more likely to move in the category
+of bug fixers.
 
 The barrier to reporting a big is pretty small: all you really need is
 a github account, and the ability to type something after clicking
@@ -198,8 +215,12 @@ That said, bugs sometimes get fixed even though these instructions are not follo
 I may take into consideration is the bug reporter's karma.
 
 * Have you demonstrably contributed to open source? I may look at your github profile to see what contributions you have made, how popular those contributions are, or how popular you are.
-* How appreciative are you? Have you starred this project that you are  seeking help from? Have you starred _any_ github project? And the above  two kind of feed into ...
-* Attitude. Some people feel that they are doing me and the world a great favor by just pointing out that there is a problem whose solution would greatly benefit them. (This might account partially those that have this attitude often don't read or follow instructions such as those given here.)
+* How appreciative are you? Have you starred this project that you are seeking help from? Have you starred _any_ github project? And the above two kind of feed into ...
+* Attitude. Some people feel that they are doing me and the world a
+  great favor by just pointing out that there is a problem whose
+  solution would greatly benefit them. (This might account partially
+  for the fact that those that have this attitude often don't read or
+  follow instructions such as those given here.)
 
 
 # Confidentiality of Bug Reports
