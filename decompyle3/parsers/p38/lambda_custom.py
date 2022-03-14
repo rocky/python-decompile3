@@ -76,6 +76,25 @@ class Python38LambdaCustom(Python38BaseParser):
                                          POP_BLOCK LOAD_CONST
                                          async_with_post
 
+                  async_with_stmt     ::= expr
+                                          async_with_pre
+                                          POP_TOP
+                                          c_suite_stmts
+                                          POP_BLOCK
+                                          BEGIN_FINALLY
+                                          WITH_CLEANUP_START GET_AWAITABLE LOAD_CONST YIELD_FROM
+                                          WITH_CLEANUP_FINISH POP_FINALLY POP_TOP JUMP_FORWARD
+                                          POP_BLOCK
+                                          BEGIN_FINALLY
+                                          COME_FROM_ASYNC_WITH
+                                          WITH_CLEANUP_START
+                                          GET_AWAITABLE
+                                          LOAD_CONST
+                                          YIELD_FROM
+                                          WITH_CLEANUP_FINISH
+                                          END_FINALLY
+
+
                  async_with_stmt     ::= expr
                                          async_with_pre
                                          POP_TOP

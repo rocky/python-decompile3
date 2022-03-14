@@ -294,17 +294,7 @@ class Python37BaseParser(PythonBaseParser):
                                                COME_FROM_ASYNC_WITH
                                                WITH_CLEANUP_START GET_AWAITABLE LOAD_CONST YIELD_FROM
                                                WITH_CLEANUP_FINISH END_FINALLY
-                      c_async_with_stmt   ::= expr
-                                              async_with_pre
-                                              POP_TOP
-                                              c_suite_stmts
-                                              POP_BLOCK
-                                              BEGIN_FINALLY
-                                              WITH_CLEANUP_START GET_AWAITABLE LOAD_CONST YIELD_FROM
-                                              WITH_CLEANUP_FINISH POP_FINALLY LOAD_CONST RETURN_VALUE
-                                              COME_FROM_ASYNC_WITH
-                                              WITH_CLEANUP_START GET_AWAITABLE LOAD_CONST YIELD_FROM
-                                              WITH_CLEANUP_FINISH END_FINALLY
+                      c_async_with_stmt   ::= async_with_stmt
                       async_with_as_stmt   ::= expr
                                                async_with_pre
                                                store suite_stmts

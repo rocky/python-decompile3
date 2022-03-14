@@ -55,7 +55,11 @@ def for38_check(
                 # "for" body isn't big enough
                 return True
             continue
-        if for_body_end_offset and inst.is_jump() and inst.argval > for_body_end_offset:
+        if (
+            for_body_end_offset
+            and inst.is_jump()
+            and inst.argval > for_body_end_offset + 2
+        ):
             # Another weird case. Guard against misclassifying things like:
             #   if a:
             #     for n in l:
