@@ -22,6 +22,7 @@ from decompyle3.parsers.reducecheck import (
     for38_check,
     pop_return_check,
     whilestmt38_check,
+    whileTruestmt38_check,
 )
 
 
@@ -104,7 +105,7 @@ class Python38BaseParser(PythonBaseParser):
         self.check_reduce["break"] = "tokens"
         self.check_reduce["for38"] = "tokens"
         self.check_reduce["pop_return"] = "tokens"
-        self.check_reduce["whileTruestmt38"] = "tokens"
+        self.check_reduce["whileTruestmt38"] = "AST"
         self.check_reduce["whilestmt38"] = "tokens"
         self.check_reduce["try_elsestmtl38"] = "AST"
 
@@ -112,3 +113,4 @@ class Python38BaseParser(PythonBaseParser):
         self.reduce_check_table["for38"] = for38_check
         self.reduce_check_table["pop_return"] = pop_return_check
         self.reduce_check_table["whilestmt38"] = whilestmt38_check
+        self.reduce_check_table["whileTruestmt38"] = whileTruestmt38_check

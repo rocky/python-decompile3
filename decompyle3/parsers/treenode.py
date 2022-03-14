@@ -67,7 +67,12 @@ class SyntaxTree(spark_AST):
 
     def last_child(self):
         if len(self) > 0:
+            child_index = -1
             child = self[-1]
+            while isinstance(child, SyntaxTree) and len(child) == 0:
+                # Skip over empty nonterminal reductions
+                child_index -= 1
+                child = self[child_index]
             if not isinstance(child, SyntaxTree):
                 return child
             return child.last_child()

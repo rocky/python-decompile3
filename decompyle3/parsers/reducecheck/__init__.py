@@ -22,3 +22,4 @@ from decompyle3.parsers.reducecheck.while1elsestmt import *
 from decompyle3.parsers.reducecheck.while1stmt import *
 from decompyle3.parsers.reducecheck.whilestmt import *
 from decompyle3.parsers.reducecheck.whilestmt38 import *
+from decompyle3.parsers.reducecheck.whileTruestmt38 import *

@@ -25,40 +25,36 @@ SKIP_TESTS=(
     [test_ftplib.py]=1 #
     [test_gc.py]=1 #
     [test_gzip.py]=1 #
-    [test_iter.py]=1 #
-    [test_itertools.py]=1 #
+    [test_iter.py]=1 # parse error
+    [test_itertools.py]=1 # parse error
 
-    [test_asynchat.py]=1 # FIXME: takes more than 15 seconds to run works in a795b2195 ?
-    [test_binascii.py]=1 # Killing test_binascii.py; takes more than 30 seconds to run
     [test_builtin.py]=1 # too long to run test; works on uncompyle6
-    [test_colorsys.py]=1 # too long to run test; works on uncompyle6
-    [test_contextlib_async.py]=1 # FIXME: parse error works on uncompyle6?
+
+    [test_contextlib_async.py]=1 # FIXME: parse error; works on uncompyle6?
     [test_capi.py]=1 # works on uncompyle6 ?
-    [test_codeccallbacks.py]=1 # works on uncompyle6 ?
+    [test_codeccallbacks.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6 ?
 
-    [test_dataclasses.py]=1 # works on uncompyle6 ?
-    [test_deque.py]=1 # works on uncompyle6 ?
-    [test_parser.py]=1 # works on uncompyle6 ?
-    [test_sysconfig.py]=1 # works on uncompyle6 ?
-    [test_thread.py]=1 # works on uncompyle6 ?
+    [test_dataclasses.py]=1 # parses but errors and runs for more than 30 seconds; works on uncompyle6 ?
+    [test_deque.py]=1 # parses and rouns some, but runs for more than 30 seconds; works on uncompyle6 ?
 
-    [test_fileio.py]=1 # works on uncompyle6
-    [test_fork1.py]=1 # works on uncompyle6
-    [test_format.py]=1 # works on uncompyle6?
-    [test_fractions.py]=1 # works on uncompyle6
+    test_parser.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6 ?
+    test_sysconfig.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6 ?
 
-    [test_heapq.py]=1 # works on uncompyle6
-    [test_marshal.py]=1 # works on uncompyle6
-    [test_pkgimport.py]=1 # works on uncompyle6
+    [test_fileio.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6 ?
+    [test_fork1.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6 ?
+    [test_format.py]=1 # assert failure works on uncompyle6?
+    [test_fractions.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6 ?
+
+    [test_heapq.py]=1 # parse error; works on uncompyle6
+    [test_marshal.py]=1 # runs some but errors and times out; works on uncompyle6
     [test_sched.py]=1 # works on uncompyle6
-    [test_smtplib.py]=1 # works on uncompyle6
-    [test_threadedtempfile.py]=1 # works on uncompyle6
-    [test_threadsignals.py]=1 # works on uncompyle6
-    [test_time.py]=1 # works on uncompyle6
-    [test_urllib2net.py]=1 # works on uncompyle6
-    [test_urllib.py]=1 # works on uncompyle6
-    [test_venv.py]=1 # works on uncompyle6
-    [test_zipimport.py]=1 # works on uncompyle6
+    [test_smtplib.py]=1 # parse error; works on uncompyle6
+    test_threadedtempfile.py]=1 # parse error; works on uncompyle6
+    [test_time.py]=1 # parse error; works on uncompyle6
+    [test_urllib2net.py]=1 # parse error; works on uncompyle6
+    [test_urllib.py]=1 # parser error; works on uncompyle6
+    [test_venv.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6
+    [test_zipimport.py]=1 # test failures; works on uncompyle6
 
     [test_embed.py]=1 # FIXME: parse error works in c28a3d1c
     [test_pathlib.py]=1 # FIXME: parse error works in c28a3d1c
