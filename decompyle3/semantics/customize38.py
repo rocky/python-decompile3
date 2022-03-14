@@ -141,7 +141,10 @@ def customize_for_version38(self, version):
             ),
             "try_except_as": (
                 "%|try:\n%+%c%-\n%|%-%c\n\n",
-                (-4, "suite_stmts"),  # Go from the end because of POP_BLOCK variation
+                (
+                    -4,
+                    ("suite_stmts", "_stmts"),
+                ),  # Go from the end because of POP_BLOCK variation
                 (-3, "except_handler_as"),
             ),
             "try_except_ret38": (

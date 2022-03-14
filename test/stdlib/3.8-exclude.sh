@@ -25,7 +25,6 @@ SKIP_TESTS=(
     [test_ftplib.py]=1 #
     [test_gc.py]=1 #
     [test_gzip.py]=1 #
-    [test_hashlib.py]=1 #
     [test_iter.py]=1 #
     [test_itertools.py]=1 #
 
