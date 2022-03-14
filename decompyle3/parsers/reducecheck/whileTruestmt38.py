@@ -32,9 +32,15 @@ def whileTruestmt38_check(
         last -= 1
     jump_loop = tokens[last]
     if jump_loop == "JUMP_LOOP":
+
+        # FIXME: come back to this.
+        return False
+
         jump_target = tokens[first].off2int(prefer_last=True)
+
         if jump_target > tokens[last].attr:
             return True
+
         if tree[0] == "_come_froms":
             tree = tree[1]
         # Check if first not single-reduction node is a "for"
