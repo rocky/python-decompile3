@@ -69,25 +69,25 @@ class Python38Parser(Python38LambdaParser, Python37Parser):
         stmt               ::= async_for_stmt38
         stmt               ::= async_forelse_stmt38
         stmt               ::= for38
-        stmt               ::= forelsestmt38
         stmt               ::= forelselaststmt38
         stmt               ::= forelselaststmtc38
-        stmt               ::= tryfinally38stmt
-        stmt               ::= tryfinally38rstmt
-        stmt               ::= tryfinally38rstmt2
-        stmt               ::= tryfinally38rstmt3
-        stmt               ::= tryfinally38rstmt4
-        stmt               ::= tryfinally38astmt
+        stmt               ::= forelsestmt38
         stmt               ::= try_elsestmtl38
-        stmt               ::= try_except_ret38
-        stmt               ::= try_except_ret38a
         stmt               ::= try_except38
         stmt               ::= try_except38r
         stmt               ::= try_except38r2
         stmt               ::= try_except38r3
         stmt               ::= try_except_as
-        stmt               ::= whilestmt38
+        stmt               ::= try_except_ret38
+        stmt               ::= try_except_ret38a
+        stmt               ::= tryfinally38astmt
+        stmt               ::= tryfinally38rstmt
+        stmt               ::= tryfinally38rstmt2
+        stmt               ::= tryfinally38rstmt3
+        stmt               ::= tryfinally38rstmt4
+        stmt               ::= tryfinally38stmt
         stmt               ::= whileTruestmt38
+        stmt               ::= whilestmt38
 
         # FIXME: "break"" should be isolated to loops
         stmt  ::= break
