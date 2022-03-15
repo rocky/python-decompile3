@@ -477,6 +477,8 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
 
         comp_body      ::= dict_comp_body
         comp_body      ::= gen_comp_body
+        # FIXME: decompile-cfg has this. We are missing a LHS rule?
+        # comp_body      ::= list_comp_body
         comp_body      ::= set_comp_body
 
         # Our "continue" heuristic -  in two successive JUMP_LOOPS, the first
@@ -603,6 +605,14 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
                             _come_froms
                             ending_return
 
+        await_expr       ::= expr GET_AWAITABLE LOAD_CONST YIELD_FROM
+        set_comp_func    ::= BUILD_SET_0
+                             expr_or_arg
+                             for_iter store await_expr
+                             SET_ADD
+                             JUMP_LOOP
+                             _come_froms
+                             ending_return
         """
 
     def p_expr3(self, args):

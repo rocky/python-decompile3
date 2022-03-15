@@ -1214,7 +1214,7 @@ class SourceWalker(GenericASTTraversal, object):
             "set_comp_func_header",
         ):
             for k in tree:
-                if k.kind in ("comp_iter", "list_iter", "set_iter"):
+                if k in ("comp_iter", "list_iter", "set_iter", "await_expr"):
                     n = k
                 elif k == "store":
                     store = k
@@ -1251,7 +1251,6 @@ class SourceWalker(GenericASTTraversal, object):
 
         # Iterate to find the inner-most "store".
         # We'll come back to the list iteration below.
-
         while n in (
             "list_iter",
             "list_afor",
@@ -1337,7 +1336,8 @@ class SourceWalker(GenericASTTraversal, object):
         # for the dummy argument.
 
         if node not in ("list_afor", "set_afor"):
-            self.preorder(n[0])
+            # FIXME decompile_cfg doesn't have to do this. Find out why.
+            self.preorder(n if n == "await_expr" else n[0])
 
         if node.kind in (
             "dict_comp_async",
@@ -1419,7 +1419,7 @@ class SourceWalker(GenericASTTraversal, object):
 
         if tree == "set_comp_func":
             comp_iter = tree[4]
-            assert comp_iter == "comp_iter"
+            assert comp_iter in ("comp_iter", "await_expr")
             comp_for = comp_iter[0]
             if comp_for == "comp_for":
                 self.template_engine(
