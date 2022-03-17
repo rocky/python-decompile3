@@ -9,7 +9,9 @@ import sys
 
 from xdis.version_info import version_tuple_to_str
 from decompyle3.code_fns import (
+    decompile_all_fragments,
     decompile_dict_comprehensions,
+    decompile_generators,
     decompile_lambda_fns,
     decompile_list_comprehensions,
     decompile_set_comprehensions,
@@ -34,11 +36,13 @@ PATTERNS = ("*.pyc", "*.pyo")
     "code_format",
     type=click.Choice(
         [
-            "lambda",
+            "code-fragments",
             "dict-comprehension",
+            "exec",
+            "generator",
+            "lambda",
             "list-comprehension",
             "set-comprehension",
-            "exec",
         ],
         **case_sensitive,
     ),
@@ -72,12 +76,16 @@ def main(code_format, show_asm, grammar, tree, tree_plus, outfile, files):
     if code_format is None:
         code_format = "lambda"
 
-    if code_format == "lambda":
+    if code_format == "code-fragments":
+        decompile_fn = decompile_all_fragments
+    elif code_format == "generator":
+        decompile_fn = decompile_generators
+    elif code_format == "lambda":
         decompile_fn = decompile_lambda_fns
-    elif code_format == "list-comprehension":
-        decompile_fn = decompile_list_comprehensions
     elif code_format == "dict-comprehension":
         decompile_fn = decompile_dict_comprehensions
+    elif code_format == "list-comprehension":
+        decompile_fn = decompile_list_comprehensions
     elif code_format == "set-comprehension":
         decompile_fn = decompile_set_comprehensions
     elif code_format == "exec":

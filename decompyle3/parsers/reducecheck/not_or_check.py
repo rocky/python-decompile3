@@ -17,7 +17,7 @@ def not_or_check(
 
     expr_pjif = ast[0]
 
-    end_token = tokens[last-1]
+    end_token = tokens[last - 1]
     if end_token.kind.startswith("POP_JUMP_IF_FALSE"):
 
         while expr_pjif == "and_parts":
@@ -39,7 +39,7 @@ def not_or_check(
             return True
         # Similarly if the test jump goes to another jump it is (probably?) an "and".
         jump_target_inst_index = self.offset2inst_index[end_token.attr]
-        inst = self.insts[jump_target_inst_index-1]
+        inst = self.insts[jump_target_inst_index - 1]
         return inst.is_jump()
         pass
     return False

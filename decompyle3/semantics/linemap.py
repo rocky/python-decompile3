@@ -27,7 +27,7 @@ class LineMapWalker(SourceWalker):
         for l in data:
             ## print("XXX write: '%s'" % l)
             for i in str(l):
-                if i == '\n':
+                if i == "\n":
                     self.current_line_number += 1
                     pass
                 pass
@@ -38,13 +38,13 @@ class LineMapWalker(SourceWalker):
 
     def default(self, node):
         """Augment write default routine to record line number changes"""
-        if hasattr(node, 'linestart'):
+        if hasattr(node, "linestart"):
             if node.linestart:
                 self.source_linemap[self.current_line_number] = node.linestart
         return super(LineMapWalker, self).default(node)
 
     def n_LOAD_CONST(self, node):
-        if hasattr(node, 'linestart'):
+        if hasattr(node, "linestart"):
             if node.linestart:
                 self.source_linemap[self.current_line_number] = node.linestart
         return super(LineMapWalker, self).n_LOAD_CONST(node)
@@ -56,52 +56,62 @@ class LineMapFragmentWalker(fragments.FragmentsWalker, LineMapWalker):
         self.source_linemap = {}
         self.current_line_number = 0
 
+
 def deparse_code_with_map(*args, **kwargs):
     """
     Like deparse_code but saves line number correspondences.
     Deprecated. Use code_deparse_with_map
     """
-    kwargs['walker'] = LineMapWalker
+    kwargs["walker"] = LineMapWalker
     return code_deparse(*args, **kwargs)
+
 
 def code_deparse_with_map(*args, **kwargs):
     """
     Like code_deparse but saves line number correspondences.
     """
-    kwargs['walker'] = LineMapWalker
+    kwargs["walker"] = LineMapWalker
     return code_deparse(*args, **kwargs)
+
 
 def deparse_code_with_fragments_and_map(*args, **kwargs):
     """
     Like deparse_code_with_map but saves fragments.
     Deprecated. Use code_deparse_with_fragments_and_map
     """
-    kwargs['walker'] = LineMapFragmentWalker
+    kwargs["walker"] = LineMapFragmentWalker
     return fragments.deparse_code(*args, **kwargs)
+
 
 def code_deparse_with_fragments_and_map(*args, **kwargs):
     """
     Like code_deparse_with_map but saves fragments.
     """
-    kwargs['walker'] = LineMapFragmentWalker
+    kwargs["walker"] = LineMapFragmentWalker
     return fragments.code_deparse(*args, **kwargs)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
+
     def deparse_test(co):
         "This is a docstring"
         deparsed = code_deparse_with_map(co)
-        a = 1; b = 2
+        a = 1
+        b = 2
         print("\n")
-        linemap = [(line_no, deparsed.source_linemap[line_no])
-                       for line_no in
-                       sorted(deparsed.source_linemap.keys())]
+        linemap = [
+            (line_no, deparsed.source_linemap[line_no])
+            for line_no in sorted(deparsed.source_linemap.keys())
+        ]
         print(linemap)
         deparsed = code_deparse_with_fragments_and_map(co)
         print("\n")
-        linemap2 = [(line_no, deparsed.source_linemap[line_no])
-                   for line_no in
-                   sorted(deparsed.source_linemap.keys())]
+        linemap2 = [
+            (line_no, deparsed.source_linemap[line_no])
+            for line_no in sorted(deparsed.source_linemap.keys())
+        ]
         print(linemap2)
         # assert linemap == linemap2
         return
+
     deparse_test(deparse_test.__code__)

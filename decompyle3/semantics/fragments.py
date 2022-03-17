@@ -963,8 +963,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.prune()
 
     def closure_walk(self, node, collection_index):
-        """Dictionary and Set comprehensions using closures.
-        """
+        """Dictionary and Set comprehensions using closures."""
         p = self.prec
         self.prec = 27
 
@@ -1711,12 +1710,12 @@ class FragmentsWalker(pysource.SourceWalker, object):
                     if isinstance(index[1], str):
                         assert node[index[0]] == index[1], (
                             "at %s[%d], expected %s node; got %s"
-                            % (node.kind, arg, node[index[0]].kind, index[1])
+                            % (node.kind, arg, node[index[0]].kind, index[1],)
                         )
                     else:
                         assert node[index[0]] in index[1], (
                             "at %s[%d], expected to be in '%s' node; got '%s'"
-                            % (node.kind, arg, index[1], node[index[0]].kind)
+                            % (node.kind, arg, index[1], node[index[0]].kind,)
                         )
 
                     index = index[0]
@@ -1737,7 +1736,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                     (index, nonterm_name, self.prec) = tup
                     assert node[index] == nonterm_name, (
                         "at %s[%d], expected '%s' node; got '%s'"
-                        % (node.kind, arg, nonterm_name, node[index].kind)
+                        % (node.kind, arg, nonterm_name, node[index].kind,)
                     )
                 else:
                     assert len(tup) == 2
@@ -2068,8 +2067,7 @@ def deparsed_find(tup, deparsed, code):
     """Return a NodeInfo nametuple for a fragment-deparsed `deparsed` at `tup`.
 
     `tup` is a name and offset tuple, `deparsed` is a fragment object
-    and `code` is instruction bytecode.
-"""
+    and `code` is instruction bytecode."""
     nodeInfo = None
     name, last_i = tup
     if not hasattr(deparsed, "offsets"):

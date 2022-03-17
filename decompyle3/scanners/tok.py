@@ -104,8 +104,8 @@ class Token:
             self.op = op
 
     def __eq__(self, o) -> bool:
-        """ '==' on kind and "pattr" attributes.
-            It is okay if offsets and linestarts are different"""
+        """'==' on kind and "pattr" attributes.
+        It is okay if offsets and linestarts are different"""
         if isinstance(o, Token):
             return (self.kind == o.kind) and (
                 (self.pattr == o.pattr) or self.attr == o.attr
@@ -115,7 +115,7 @@ class Token:
             return self.kind == o
 
     def __ne__(self, o) -> bool:
-        """ '!=', but it's okay if offsets and linestarts are different"""
+        """'!=', but it's okay if offsets and linestarts are different"""
         return not self.__eq__(o)
 
     def __repr__(self) -> str:

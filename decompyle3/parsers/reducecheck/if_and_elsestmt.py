@@ -12,6 +12,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
 def if_and_elsestmt(
     self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
 ) -> bool:
@@ -39,7 +40,6 @@ def if_and_elsestmt(
 
     if not ast:
         return False
-
 
     if rule[1][:2] == ("expr_pjif", "expr_pjif"):
         # The two POP_JUMP_IF_FALSE should go to the same place for an "and"

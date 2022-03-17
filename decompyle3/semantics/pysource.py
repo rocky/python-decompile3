@@ -1525,8 +1525,7 @@ class SourceWalker(GenericASTTraversal, object):
     n_set_comp_func = n_dict_comp_func
 
     def closure_walk(self, node, collection_index: int):
-        """Dictionary and Set comprehensions using closures.
-        """
+        """Dictionary and Set comprehensions using closures."""
         p = self.prec
 
         code_index = 0 if node[0] == "load_genexpr" else 1

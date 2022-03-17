@@ -116,7 +116,7 @@ class TreeTransform(GenericASTTraversal, object):
 
     def n_ifstmt(self, node):
         """Here we check if we can turn an `ifstmt` or 'iflaststmtc` into
-           some kind of `assert` statement"""
+        some kind of `assert` statement"""
 
         testexpr = node[0]
 

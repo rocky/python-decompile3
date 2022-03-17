@@ -39,16 +39,11 @@ def ifstmts_jump(
 
     pop_jump_offset = jump_token.off2int(prefer_last=False)
     if isinstance(come_froms, Token):
-        if (
-            jump_token.attr < pop_jump_offset and ast[0] != "pass"
-        ):
+        if jump_token.attr < pop_jump_offset and ast[0] != "pass":
             # This is a jump backwards to a loop. All bets are off here when there the
             # unless statement is "pass" which has no instructions associated with it.
             return False
-        return (
-            come_froms.attr is not None
-            and pop_jump_offset > come_froms.attr
-        )
+        return come_froms.attr is not None and pop_jump_offset > come_froms.attr
 
     elif len(come_froms) == 0:
         return False

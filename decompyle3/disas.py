@@ -97,7 +97,9 @@ def disassemble_file(filename: str, outstream=None) -> None:
     try to find the corresponding compiled object.
     """
     filename = check_object_path(filename)
-    (version, timestamp, magic_int, co, is_pypy, source_size, sip_hash) = load_module(filename)
+    (version, timestamp, magic_int, co, is_pypy, source_size, sip_hash) = load_module(
+        filename
+    )
     if type(co) == list:
         for con in co:
             disco(version, con, outstream)

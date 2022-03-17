@@ -44,7 +44,7 @@ from py_compile import PyCompileError
 
 
 def disco_deparse(
-    version: Optional[tuple], co, compile_mode, code_type, out, is_pypy, debug_opts
+    version: Optional[tuple], co, codename_map: dict, out, is_pypy, debug_opts
 ) -> None:
     """
     diassembles and deparses a given code block 'co'
@@ -62,31 +62,24 @@ def disco_deparse(
 
     queue = deque([co])
     disco_deparse_loop(
-        version,
-        scanner.ingest,
-        compile_mode,
-        code_type,
-        queue,
-        real_out,
-        is_pypy,
-        debug_opts,
+        version, scanner.ingest, codename_map, queue, real_out, is_pypy, debug_opts
     )
 
 
 def disco_deparse_loop(
     version: Optional[tuple],
     disasm,
-    compile_mode,
-    code_type,
+    codename_map: dict,
     queue,
     real_out,
     is_pypy,
     debug_opts,
 ):
+
     while len(queue) > 0:
         co = queue.popleft()
         skip_token_scan = False
-        if co.co_name == code_type:
+        if co.co_name in codename_map:
             print(
                 "\n# %s line %d of %s"
                 % (co.co_name, co.co_firstlineno, co.co_filename),
@@ -99,7 +92,7 @@ def disco_deparse_loop(
                 version=version,
                 debug_opts=debug_opts,
                 is_pypy=is_pypy,
-                compile_mode=compile_mode,
+                compile_mode=codename_map[co.co_name],
             )
             skip_token_scan = True
 
@@ -117,8 +110,7 @@ def disco_deparse_loop(
 
 def decompile_code_type(
     filename: str,
-    compile_mode,
-    code_type,
+    codename_map: dict,
     outstream=None,
     showasm=None,
     showast=TREE_DEFAULT_DEBUG,
@@ -146,38 +138,79 @@ def decompile_code_type(
     debug_opts = {"asm": showasm, "tree": showast, "grammar": showgrammar}
     if isinstance(co, list):
         for bytecode in co:
-            disco_deparse(
-                version, bytecode, compile_mode, code_type, is_pypy, debug_opts
-            )
+            disco_deparse(version, bytecode, codename_map, is_pypy, debug_opts)
     else:
-        disco_deparse(
-            version, co, compile_mode, code_type, outstream, is_pypy, debug_opts
-        )
+        disco_deparse(version, co, codename_map, outstream, is_pypy, debug_opts)
     return True
 
 
 def decompile_dict_comprehensions(
     filename: str,
-    code_type,
     outstream=None,
     showasm=None,
     showast=TREE_DEFAULT_DEBUG,
     showgrammar=PARSER_DEFAULT_DEBUG,
 ) -> Optional[bool]:
     """
-    decompile all of the lambda functions in a python byte-code file (.pyc)
+    decompile all of the dictionary-comprehension functions in a python byte-code file (.pyc)
 
     If given a Python source file (".py") file, we'll
     decompile all dict_comprehensions of the corresponding compiled object.
     """
     return decompile_code_type(
-        filename, "listcomp", "<dictcomp>", outstream, showasm, showast, showgrammar
+        filename, {"<dictcomp>": "dictcomp"}, outstream, showasm, showast, showgrammar
+    )
+
+
+def decompile_all_fragments(
+    filename: str,
+    outstream=None,
+    showasm=None,
+    showast=TREE_DEFAULT_DEBUG,
+    showgrammar=PARSER_DEFAULT_DEBUG,
+) -> Optional[bool]:
+    """
+    decompile all of comprehensions, generators, and lambda in a python byte-code file (.pyc)
+
+    If given a Python source file (".py") file, we'll
+    decompile all dict_comprehensions of the corresponding compiled object.
+    """
+    return decompile_code_type(
+        filename,
+        {
+            "<dictcomp>": "dictcomp",
+            "<genexpr>": "genexpr",
+            "<lambda>": "lambda",
+            "<listcomp>": "listcomp",
+            "<setcomp>": "setcomp",
+        },
+        outstream,
+        showasm,
+        showast,
+        showgrammar,
+    )
+
+
+def decompile_generators(
+    filename: str,
+    outstream=None,
+    showasm=None,
+    showast=TREE_DEFAULT_DEBUG,
+    showgrammar=PARSER_DEFAULT_DEBUG,
+) -> Optional[bool]:
+    """
+    decompile all of the generator functions in a python byte-code file (.pyc)
+
+    If given a Python source file (".py") file, we'll
+    decompile all dict_comprehensions of the corresponding compiled object.
+    """
+    return decompile_code_type(
+        filename, {"<genexpr>": "genexpr"}, outstream, showasm, showast, showgrammar
     )
 
 
 def decompile_lambda_fns(
     filename: str,
-    code_type,
     outstream=None,
     showasm=None,
     showast=TREE_DEFAULT_DEBUG,
@@ -190,13 +223,12 @@ def decompile_lambda_fns(
     decompile all lambdas of the corresponding compiled object.
     """
     return decompile_code_type(
-        filename, "lambda", "<lambda>", outstream, showasm, showast, showgrammar
+        filename, {"<lambda>": "lambda"}, outstream, showasm, showast, showgrammar
     )
 
 
 def decompile_list_comprehensions(
     filename: str,
-    code_type,
     outstream=None,
     showasm=None,
     showast=TREE_DEFAULT_DEBUG,
@@ -209,7 +241,7 @@ def decompile_list_comprehensions(
     decompile all list_comprehensions of the corresponding compiled object.
     """
     return decompile_code_type(
-        filename, "listcomp", "<listcomp>", outstream, showasm, showast, showgrammar
+        filename, {"<listcomp>": "listcomp"}, outstream, showasm, showast, showgrammar
     )
 
 
@@ -228,7 +260,7 @@ def decompile_set_comprehensions(
     decompile all list_comprehensions of the corresponding compiled object.
     """
     return decompile_code_type(
-        filename, "setcomp", "<setcomp>", outstream, showasm, showast, showgrammar
+        filename, {"<setcomp>": "setcomp"}, outstream, showasm, showast, showgrammar
     )
 
 
@@ -243,7 +275,7 @@ def _test() -> None:
             sys.exit(2)
     else:
         fn = sys.argv[1]
-    decompile_lambda_fns(fn)
+    decompile_all_fragments(fn)
 
 
 if __name__ == "__main__":

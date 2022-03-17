@@ -32,7 +32,9 @@ def and_check(
     # phase.
     ltm1 = tokens[last - 1]
     rhs = rule[1]
-    if ltm1 == "LOAD_ASSERT" or (ltm1 == "LOAD_GLOBAL" and ltm1.attr == "AssertionError"):
+    if ltm1 == "LOAD_ASSERT" or (
+        ltm1 == "LOAD_GLOBAL" and ltm1.attr == "AssertionError"
+    ):
         return True
 
     expr_pjif = ast[0]

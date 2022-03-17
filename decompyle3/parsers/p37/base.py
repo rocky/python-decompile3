@@ -67,7 +67,7 @@ class Python37BaseParser(PythonBaseParser):
                         expr
                         call
                         CALL_FUNCTION_3
-         """
+        """
         # FIXME: I bet this can be simplified
         # look for next MAKE_FUNCTION
         for i in range(i + 1, len(tokens)):
