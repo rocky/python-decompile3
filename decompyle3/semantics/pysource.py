@@ -1418,14 +1418,19 @@ class SourceWalker(GenericASTTraversal, object):
             pass
 
         if tree == "set_comp_func":
+            # Handle nested comp_for iterations.
             comp_iter = tree[4]
             assert comp_iter in ("comp_iter", "await_expr")
-            comp_for = comp_iter[0]
-            if comp_for == "comp_for":
-                self.template_engine(
-                    (" for %c in %p", (2, "store"), (0, "expr", NO_PARENTHESIS_EVER)),
-                    comp_for,
-                )
+            while comp_iter == "comp_iter":
+                comp_for = comp_iter[0]
+                if comp_for != "comp_for":
+                    break
+                self.preorder(comp_iter)
+                if len(comp_for) < 4:
+                    break
+                comp_iter = comp_for[3]
+            assert comp_store is None
+
         if comp_store:
             self.preorder(comp_for)
         for if_node in if_nodes:
