@@ -383,6 +383,14 @@ class Python38LambdaCustom(Python38BaseParser):
                 )
                 custom_ops_processed.add(opname)
 
+            elif opname == "GET_AWAITABLE":
+                rule_str = """
+                    await      ::= GET_AWAITABLE LOAD_CONST YIELD_FROM
+                    await_expr ::= expr await
+                    expr       ::= await_expr
+                """
+                self.add_unique_doc_rules(rule_str, customize)
+
             elif opname == "GET_ITER":
                 self.addRule(
                     """
@@ -507,12 +515,6 @@ class Python38LambdaCustom(Python38BaseParser):
         uniq_param = args_kw + args_pos
 
         if frozenset(("GET_AWAITABLE", "YIELD_FROM")).issubset(self.seen_ops):
-            rule_str = """
-                await      ::= GET_AWAITABLE LOAD_CONST YIELD_FROM
-                await_expr ::= expr await
-                expr       ::= await_expr
-            """
-            self.add_unique_doc_rules(rule_str, customize)
             rule = (
                 "async_call ::= expr "
                 + ("expr " * args_pos)
