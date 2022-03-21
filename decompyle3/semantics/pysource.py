@@ -1358,6 +1358,8 @@ class SourceWalker(GenericASTTraversal, object):
             in_node_index = 3
             collection_node = node[3]
             assert collection_node == "expr"
+        elif node == "comp_body":
+            collection_node = node
         else:
             in_node_index = -3
 
@@ -1387,7 +1389,7 @@ class SourceWalker(GenericASTTraversal, object):
                 assert node[3] == "expr"
                 self.preorder(node[3])
             else:
-                self.preorder(collection_node[0])
+                self.preorder(collection_node)
         else:
             if not collection_node:
                 collection_node = node[in_node_index]
@@ -1518,7 +1520,7 @@ class SourceWalker(GenericASTTraversal, object):
 
     def n_dict_comp_func(self, node):
         self.write("{")
-        self.comprehension_walk_newer(node, 5, 0, collection_node=node[1])
+        self.comprehension_walk_newer(node, 4, 0, collection_node=node[1])
         self.write("}")
         self.prune()
 
@@ -1542,7 +1544,7 @@ class SourceWalker(GenericASTTraversal, object):
             store = tree[2]
             iter_index = 3
             collection_index = 3
-        elif tree in ("genexpr_func", "set_comp_func"):
+        elif tree in ("genexpr_func", "dict_comp_func", "set_comp_func"):
             store = tree[3]
             iter_index = 4
         elif tree == "set_comp":
