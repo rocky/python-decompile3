@@ -44,19 +44,21 @@ def customize_for_version37(self, version):
     # Python 3.7+ changes
     #######################
 
-    PRECEDENCE["attribute37"] = 2
-    PRECEDENCE["call_ex"] = 1
-    PRECEDENCE["call_ex_kw"] = 1
-    PRECEDENCE["call_ex_kw2"] = 1
-    PRECEDENCE["call_ex_kw3"] = 1
-    PRECEDENCE["call_ex_kw4"] = 1
-    PRECEDENCE["call_kw"] = 0
-    PRECEDENCE["call_kw36"] = 1
+    # fmt: off
+    PRECEDENCE["attribute37"]      =   2
+    PRECEDENCE["call_ex"]          =   1
+    PRECEDENCE["call_ex_kw"]       =   1
+    PRECEDENCE["call_ex_kw2"]      =   1
+    PRECEDENCE["call_ex_kw3"]      =   1
+    PRECEDENCE["call_ex_kw4"]      =   1
+    PRECEDENCE["call_kw"]          =   0
+    PRECEDENCE["call_kw36"]        =   1
     PRECEDENCE["formatted_value1"] = 100
-    PRECEDENCE["if_exp_37a"] = 28
-    PRECEDENCE["if_exp_37b"] = 28
-    PRECEDENCE["dict_unpack"] = 0  # **{...}
+    PRECEDENCE["if_exp_37a"]       =  28
+    PRECEDENCE["if_exp_37b"]       =  28
+    PRECEDENCE["dict_unpack"]      =   0  # **{...}
 
+    # fmt: on
     TABLE_DIRECT.update(
         {
             "and_or_expr": (
@@ -319,6 +321,7 @@ def customize_for_version37(self, version):
                 (0, -1, "or ", PRECEDENCE["or"]),
                 (1, "expr_pjif"),
             ),
+            "store_async_iter_end": ("%c", (0, "store")),
             "testfalsec": (
                 "not %c",
                 (

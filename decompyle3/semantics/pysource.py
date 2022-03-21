@@ -1174,7 +1174,7 @@ class SourceWalker(GenericASTTraversal, object):
                 genexpr_func_async = tree[1]
                 if genexpr_func_async == "genexpr_func_async":
                     store = genexpr_func_async[2]
-                    assert store == "store"
+                    assert store.kind.startswith("store")
                     n = genexpr_func_async[3]
                 else:
                     set_afor2 = genexpr_func_async

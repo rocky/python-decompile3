@@ -241,12 +241,18 @@ class Python37LambdaCustom(Python37BaseParser):
                     async_iter           ::= _come_froms
                                              SETUP_EXCEPT GET_ANEXT LOAD_CONST YIELD_FROM
 
+                    store_async_iter_end ::= store
+                                             POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT
+                                             DUP_TOP LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
+                                             END_FINALLY COME_FROM
+
+                    # We use store_async_iter_end to make comp_iter come out in the right position,
+                    # (after the logical "store")
                     genexpr_func_async   ::= LOAD_ARG async_iter
-                                             store
+                                             store_async_iter_end
                                              comp_iter
-                                             JUMP_LOOP
-                                             COME_FROM_FINALLY
-                                             END_ASYNC_FOR
+                                             JUMP_LOOP COME_FROM
+                                             POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
 
                     list_afor2           ::= async_iter
                                              store

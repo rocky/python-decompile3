@@ -302,7 +302,7 @@ class Python38LambdaCustom(Python38BaseParser):
 
                     func_async_middle   ::= POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT
                                             DUP_TOP LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
-                                            END_FINALLY bb_end_start
+                                            END_FINALLY _come_froms
 
                     # async_iter         ::= block_break SETUP_EXCEPT GET_ANEXT LOAD_CONST YIELD_FROM
 
