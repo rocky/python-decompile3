@@ -1074,9 +1074,11 @@ class SourceWalker(GenericASTTraversal, object):
         if node[0] in ["LOAD_SETCOMP", "LOAD_DICTCOMP"]:
             self.comprehension_walk_newer(node, 1, 0)
         elif node[0].kind == "load_closure":
-            self.closure_walk(node, collection_index=4)
+            assert node[-2].kind in ("get_iter", "get_aiter")
+            self.closure_walk(node, collection_index=-2)
         else:
-            self.comprehension_walk(node, iter_index=4)
+            assert node[-2].kind in ("get_iter", "get_aiter")
+            self.comprehension_walk(node, iter_index=-2)
         self.write("}")
         self.prune()
 
@@ -1585,12 +1587,16 @@ class SourceWalker(GenericASTTraversal, object):
                 "comp_if",
                 "comp_if_not",
             ):
+                # FIXME: most of the grammar start with expr_...
+                # Some of the older ones can be: expr <jump> <iter>
+                # This may disappear though.
                 if n[0].kind == "expr":
                     list_if = n
                     n = n[-1]  # n -1 ?
                 elif n[0].kind in ("expr_pjif", "expr_pjiff"):
                     list_if = n
                     n = n[1]
+                    assert n == "comp_iter"
                 elif n[0].kind in ("or_jump_if_false_cf", "or_jump_if_false_loop_cf"):
                     list_if = n[1]
                     n = n[1]
