@@ -71,17 +71,142 @@ class Python37LambdaCustom(Python37BaseParser):
             ):
                 continue
 
-            if opname_base == "BUILD_LIST":
-                v = token.attr
-                if v == 0:
-                    rule_str = """
-                       list        ::= BUILD_LIST_0
-                       list_unpack ::= BUILD_LIST_0 expr LIST_EXTEND
-                       list        ::= list_unpack
-                    """
-                    self.add_unique_doc_rules(rule_str, customize)
+            if opname == "BEFORE_ASYNC_WITH":
+                rules_str = """
+                  stmt               ::= async_with_stmt SETUP_ASYNC_WITH
+                  async_with_pre     ::= BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM SETUP_ASYNC_WITH
+                  async_with_post    ::= COME_FROM_ASYNC_WITH
+                                         WITH_CLEANUP_START GET_AWAITABLE LOAD_CONST YIELD_FROM
+                                         WITH_CLEANUP_FINISH END_FINALLY
 
-            elif opname_base == "BUILD_STRING":
+                  stmt               ::= async_with_as_stmt
+                  async_with_as_stmt ::= expr
+                                         async_with_pre
+                                         store
+                                         suite_stmts_opt
+                                         POP_BLOCK LOAD_CONST
+                                         async_with_post
+
+                  async_with_stmt     ::= expr
+                                          async_with_pre
+                                          POP_TOP
+                                          c_suite_stmts
+                                          POP_BLOCK
+                                          BEGIN_FINALLY
+                                          WITH_CLEANUP_START GET_AWAITABLE LOAD_CONST YIELD_FROM
+                                          WITH_CLEANUP_FINISH POP_FINALLY POP_TOP JUMP_FORWARD
+                                          POP_BLOCK
+                                          BEGIN_FINALLY
+                                          COME_FROM_ASYNC_WITH
+                                          WITH_CLEANUP_START
+                                          GET_AWAITABLE
+                                          LOAD_CONST
+                                          YIELD_FROM
+                                          WITH_CLEANUP_FINISH
+                                          END_FINALLY
+
+
+                 async_with_stmt     ::= expr
+                                         async_with_pre
+                                         POP_TOP
+                                         suite_stmts_opt
+                                         POP_BLOCK LOAD_CONST
+                                         async_with_post
+                 async_with_stmt     ::= expr
+                                         async_with_pre
+                                         POP_TOP
+                                         suite_stmts_opt
+                                         async_with_post
+                """
+                self.addRule(rules_str, nop_func)
+
+            elif opname_base in (
+                "BUILD_LIST",
+                "BUILD_SET",
+                "BUILD_SET_UNPACK",
+                "BUILD_TUPLE",
+                "BUILD_TUPLE_UNPACK",
+            ):
+                v = token.attr
+
+                is_LOAD_CLOSURE = False
+                if opname_base == "BUILD_TUPLE":
+                    # If is part of a "load_closure", then it is not part of a
+                    # "list".
+                    is_LOAD_CLOSURE = True
+                    for j in range(v):
+                        if tokens[i - j - 1].kind != "LOAD_CLOSURE":
+                            is_LOAD_CLOSURE = False
+                            break
+                    if is_LOAD_CLOSURE:
+                        rule = "load_closure ::= %s%s" % (("LOAD_CLOSURE " * v), opname)
+                        self.add_unique_rule(rule, opname, token.attr, customize)
+
+                elif opname_base == "BUILD_LIST":
+                    v = token.attr
+                    if v == 0:
+                        rule_str = """
+                           list        ::= BUILD_LIST_0
+                           list_unpack ::= BUILD_LIST_0 expr LIST_EXTEND
+                           list        ::= list_unpack
+                        """
+                        self.add_unique_doc_rules(rule_str, customize)
+
+                elif opname == "BUILD_TUPLE_UNPACK_WITH_CALL":
+                    # FIXME: should this be parameterized by EX value?
+                    self.addRule(
+                        """expr        ::= call_ex_kw3
+                           call_ex_kw3 ::= expr
+                                           build_tuple_unpack_with_call
+                                           expr
+                                           CALL_FUNCTION_EX_KW
+                        """,
+                        nop_func,
+                    )
+
+                is_LOAD_CLOSURE = False
+                if opname_base == "BUILD_TUPLE":
+                    # If is part of a "load_closure", then it is not part of a
+                    # "list".
+                    is_LOAD_CLOSURE = True
+                    for j in range(v):
+                        if tokens[i - j - 1].kind != "LOAD_CLOSURE":
+                            is_LOAD_CLOSURE = False
+                            break
+                    if is_LOAD_CLOSURE:
+                        rule = "load_closure ::= %s%s" % (("LOAD_CLOSURE " * v), opname)
+                        self.add_unique_rule(rule, opname, token.attr, customize)
+                if not is_LOAD_CLOSURE or v == 0:
+                    # We do this complicated test to speed up parsing of
+                    # pathelogically long literals, especially those over 1024.
+                    build_count = token.attr
+                    thousands = build_count // 1024
+                    thirty32s = (build_count // 32) % 32
+                    if thirty32s > 0:
+                        rule = "expr32 ::=%s" % (" expr" * 32)
+                        self.add_unique_rule(rule, opname_base, build_count, customize)
+                        pass
+                    if thousands > 0:
+                        self.add_unique_rule(
+                            "expr1024 ::=%s" % (" expr32" * 32),
+                            opname_base,
+                            build_count,
+                            customize,
+                        )
+                        pass
+                    collection = opname_base[opname_base.find("_") + 1 :].lower()
+                    rule = (
+                        ("%s ::= " % collection)
+                        + "expr1024 " * thousands
+                        + "expr32 " * thirty32s
+                        + "expr " * (build_count % 32)
+                        + opname
+                    )
+                    self.add_unique_rules(["expr ::= %s" % collection, rule], customize)
+                    continue
+                continue
+
+            elif opname.startswith("BUILD_STRING"):
                 v = token.attr
                 rules_str = """
                     expr                 ::= joined_str

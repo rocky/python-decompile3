@@ -34,7 +34,19 @@ class Python38LambdaCustom(Python38BaseParser):
         # include instructions that don't need customization,
         # but we'll do a finer check after the rough breakout.
         customize_instruction_basenames = frozenset(
-            ("BEFORE", "BUILD", "GET", "FORMAT", "LOAD", "MAKE", "SETUP",)
+            (
+                "BEFORE",
+                "BUILD",
+                "CALL",
+                "DICT",
+                "GET",
+                "FORMAT",
+                "LIST",
+                "LOAD",
+                "MAKE",
+                "SETUP",
+                "UNPACK",
+            )
         )
 
         # Opcode names in the custom_ops_processed set have rules that get added
@@ -42,13 +54,55 @@ class Python38LambdaCustom(Python38BaseParser):
         # only once and if we see the opcode a second we don't have to consider
         # adding more rules.
         #
-        # Note: BUILD_TUPLE_UNPACK_WITH_CALL gets considered by
-        # default because it starts with BUILD. So we'll set to ignore it from
-        # the start.
-        custom_ops_processed = set(("BUILD_TUPLE_UNPACK_WITH_CALL",))
+        custom_ops_processed = frozenset()
+
+        # A set of instruction operation names that exist in the token stream.
+        # We use this customize the grammar that we create.
+        # 2.6-compatible set comprehensions
+        self.seen_ops = frozenset([t.kind for t in tokens])
+        self.seen_op_basenames = frozenset(
+            [opname[: opname.rfind("_")] for opname in self.seen_ops]
+        )
+
+        custom_ops_processed = set(["DICT_MERGE"])
+
+        # Loop over instructions adding custom grammar rules based on
+        # a specific instruction seen.
+
+        if "PyPy" in customize:
+            is_pypy = True
+            self.addRule(
+                """
+              stmt ::= assign3_pypy
+              stmt ::= assign2_pypy
+              assign3_pypy       ::= expr expr expr store store store
+              assign2_pypy       ::= expr expr store store
+              """,
+                nop_func,
+            )
+
+        n = len(tokens)
+
+        # Determine if we have an iteration CALL_FUNCTION_1.
+        has_get_iter_call_function1 = False
+        for i, token in enumerate(tokens):
+            if (
+                token == "GET_ITER"
+                and i < n - 2
+                and self.call_fn_name(tokens[i + 1]) == "CALL_FUNCTION_1"
+            ):
+                has_get_iter_call_function1 = True
 
         for i, token in enumerate(tokens):
             opname = token.kind
+
+            # Do a quick breakout before testing potentially
+            # each of the dozen or so instruction in if elif.
+            if (
+                opname[: opname.find("_")] not in customize_instruction_basenames
+                or opname in custom_ops_processed
+            ):
+                continue
 
             opname_base = opname[: opname.rfind("_")]
 
@@ -112,6 +166,7 @@ class Python38LambdaCustom(Python38BaseParser):
             elif opname_base in (
                 "BUILD_LIST",
                 "BUILD_SET",
+                "BUILD_SET_UNPACK",
                 "BUILD_TUPLE",
                 "BUILD_TUPLE_UNPACK",
             ):
@@ -152,18 +207,6 @@ class Python38LambdaCustom(Python38BaseParser):
                         nop_func,
                     )
 
-                is_LOAD_CLOSURE = False
-                if opname_base == "BUILD_TUPLE":
-                    # If is part of a "load_closure", then it is not part of a
-                    # "list".
-                    is_LOAD_CLOSURE = True
-                    for j in range(v):
-                        if tokens[i - j - 1].kind != "LOAD_CLOSURE":
-                            is_LOAD_CLOSURE = False
-                            break
-                    if is_LOAD_CLOSURE:
-                        rule = "load_closure ::= %s%s" % (("LOAD_CLOSURE " * v), opname)
-                        self.add_unique_rule(rule, opname, token.attr, customize)
                 if not is_LOAD_CLOSURE or v == 0:
                     # We do this complicated test to speed up parsing of
                     # pathelogically long literals, especially those over 1024.
@@ -407,6 +450,70 @@ class Python38LambdaCustom(Python38BaseParser):
                     stmt ::= JUMP_IF_NOT_DEBUG stmts COME_FROM
                     """
                     self.add_unique_doc_rules(rules_str, customize)
+
+            elif opname == "LOAD_ATTR":
+                self.addRule(
+                    """
+                  expr      ::= attribute
+                  attribute ::= expr LOAD_ATTR
+                  """,
+                    nop_func,
+                )
+                custom_ops_processed.add(opname)
+
+            elif opname == "LOAD_CLOSURE":
+                self.addRule("""load_closure ::= LOAD_CLOSURE+""", nop_func)
+
+            elif opname == "LOAD_DICTCOMP":
+                if has_get_iter_call_function1:
+                    rule_pat = "dict_comp ::= LOAD_DICTCOMP %sMAKE_FUNCTION_0 get_iter CALL_FUNCTION_1"
+                    self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+                    pass
+                custom_ops_processed.add(opname)
+
+            elif opname == "LOAD_GENEXPR":
+                self.addRule("load_genexpr ::= LOAD_GENEXPR", nop_func)
+                custom_ops_processed.add(opname)
+
+            elif opname == "LOAD_LISTCOMP":
+                self.add_unique_rule(
+                    "expr ::= list_comp", opname, token.attr, customize
+                )
+                custom_ops_processed.add(opname)
+
+            elif opname == "LOAD_NAME":
+                if (
+                    token.attr == "__annotations__"
+                    and "SETUP_ANNOTATIONS" in self.seen_ops
+                ):
+                    token.kind = "LOAD_ANNOTATION"
+                    self.addRule(
+                        """
+                        stmt       ::= SETUP_ANNOTATIONS
+                        stmt       ::= ann_assign
+                        ann_assign ::= expr LOAD_ANNOTATION LOAD_STR STORE_SUBSCR
+                        """,
+                        nop_func,
+                    )
+                    pass
+            elif opname == "LOAD_SETCOMP":
+                # Should this be generalized and put under MAKE_FUNCTION?
+                if has_get_iter_call_function1:
+                    self.addRule("expr ::= set_comp", nop_func)
+                    rule_pat = "set_comp ::= LOAD_SETCOMP %sMAKE_FUNCTION_0 get_iter CALL_FUNCTION_1"
+                    self.add_make_function_rule(rule_pat, opname, token.attr, customize)
+                    pass
+                custom_ops_processed.add(opname)
+            elif opname == "LOOKUP_METHOD":
+                # A PyPy speciality - DRY with parse3
+                self.addRule(
+                    """
+                             expr      ::= attribute
+                             attribute ::= expr LOOKUP_METHOD
+                             """,
+                    nop_func,
+                )
+                custom_ops_processed.add(opname)
 
             elif opname == "MAKE_FUNCTION_CLOSURE":
                 if "LOAD_DICTCOMP" in self.seen_ops:
