@@ -1434,10 +1434,12 @@ class SourceWalker(GenericASTTraversal, object):
         if node[0] in ["LOAD_SETCOMP", "LOAD_DICTCOMP"]:
             self.comprehension_walk_newer(node, 1, 0)
         elif node[0].kind == "load_closure":
-            assert node[-2].kind in ("get_iter", "get_aiter")
+            # Token GET_ITER forms or nonterminal "get_iter" forms
+            assert node[-2].kind.lower() in ("get_iter", "get_aiter")
             self.closure_walk(node, collection_index=-2)
         else:
-            assert node[-2].kind in ("get_iter", "get_aiter")
+            # Token GET_ITER forms or nonterminal "get_iter" forms
+            assert node[-2].kind.lower() in ("get_iter", "get_aiter")
             self.comprehension_walk(node, iter_index=-2)
         self.write("}")
         self.prune()
