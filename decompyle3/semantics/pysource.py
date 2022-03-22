@@ -2690,7 +2690,16 @@ def code_deparse(
         deparsed.ast, set(), set(), co, version
     )
 
-    if compile_mode not in ("lambda", "listcomp"):
+    deparsed.is_module = compile_mode not in (
+        "dictcomp",
+        "gencomp",
+        "genexpr",
+        "lambda",
+        "listcomp",
+        "setcomp",
+    )
+
+    if deparsed.is_module:
         assert not nonlocals
 
     deparsed.FUTURE_UNICODE_LITERALS = (
