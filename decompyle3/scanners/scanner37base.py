@@ -246,17 +246,14 @@ class Scanner37Base(Scanner):
             #    RAISE_VARARGS
             # then we have an "assert" statement.
             # then we have a "raise" statement
-            assert_can_follow = inst.opname == "POP_JUMP_IF_TRUE" and i + 2 < n
+            assert_can_follow = inst.opname.startswith("POP_JUMP_IF_") and i + 2 < n
             if assert_can_follow:
                 load_global_inst = self.insts[i + 1]
                 if (
                     load_global_inst.opname == "LOAD_GLOBAL"
                     and load_global_inst.argval == "AssertionError"
                 ):
-                    raise_inst = self.insts[i + 2]
-                    if raise_inst.opname.startswith("RAISE_VARARGS"):
-                        self.load_asserts.add(load_global_inst.offset)
-                    pass
+                    self.load_asserts.add(load_global_inst.offset)
                 pass
 
         # Operand values in Python wordcode are small. As a result,

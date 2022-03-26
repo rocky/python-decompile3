@@ -34,15 +34,15 @@ def maybe_show_asm(showasm: Any, tokens: list) -> None:
             stream.write("\n")
 
 
-def maybe_show_tree(walker, ast) -> None:
+def maybe_show_tree(walker, tree) -> None:
     """
-    Show the ast based on the showast flag (or file object), writing to the
+    Show the tree based on the tree flag (or file object), writing to the
     appropriate stream depending on the type of the flag.
 
     :param show_tree: Flag which determines whether the parse tree is
                       written to sys.stdout or not. (It is also to pass a file
                       like object, into which the ast will be written).
-    :param ast:     The ast to show.
+    :param tree:     The tree to show.
     """
     if walker.showast:
         if hasattr(walker.showast, "write"):
@@ -54,9 +54,9 @@ def maybe_show_tree(walker, ast) -> None:
             and walker.showast.get("after", False)
             and hasattr(walker, "str_with_template")
         ):
-            walker.str_with_template(ast)
+            walker.str_with_template(tree)
         else:
-            stream.write(str(ast))
+            stream.write(str(tree))
         stream.write("\n")
 
 

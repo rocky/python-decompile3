@@ -201,6 +201,7 @@ class TreeTransform(GenericASTTraversal, object):
                         return node
                     if isinstance(call[1], SyntaxTree):
                         expr = call[1][0]
+                        assert_expr.transformed_by = "n_ifstmt"
                         node = SyntaxTree(
                             kind,
                             [
@@ -210,6 +211,7 @@ class TreeTransform(GenericASTTraversal, object):
                                 expr,
                                 RAISE_VARARGS_1,
                             ],
+                            transformed_by="n_ifstmt",
                         )
                         pass
                     pass
@@ -227,6 +229,7 @@ class TreeTransform(GenericASTTraversal, object):
                     #             1.   RAISE_VARARGS_1
                     # becomes:
                     # assert ::= assert_expr POP_JUMP_IF_TRUE LOAD_ASSERT RAISE_VARARGS_1 COME_FROM
+                    assert_expr.transformed_by = "n_ifstmt"
                     if jump_cond in (
                         "POP_JUMP_IF_TRUE",
                         "POP_JUMP_IF_TRUE_LOOP",

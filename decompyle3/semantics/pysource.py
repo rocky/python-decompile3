@@ -351,11 +351,8 @@ class SourceWalker(GenericASTTraversal, object):
             pass
 
         if tree.transformed_by is not None:
-            if tree.transformed_by is True:
-                rv += " transformed"
-            else:
-                rv += " transformed by %s" % tree.transformed_by
-                pass
+            if tree.transformed_by:
+                rv += f" (transformed by {tree.transformed_by})"
             pass
         if key.kind in table:
             rv += ": %s" % str(table[key.kind])

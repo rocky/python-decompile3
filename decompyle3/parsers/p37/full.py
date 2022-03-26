@@ -547,9 +547,14 @@ class Python37Parser(Python37LambdaParser):
         stmt ::= classdefdeco
         classdefdeco ::= classdefdeco1 store
 
-        # In 3.7 there are some LOAD_GLOBALs we don't convert to LOAD_ASSERT
-        stmt    ::= assert2
-        assert2 ::= expr POP_JUMP_IF_TRUE LOAD_GLOBAL expr CALL_FUNCTION_1 RAISE_VARARGS_1
+        # Some LOAD_GLOBALs we don't convert to LOAD_ASSERT because
+        # of the intevening "expr CALL_FUNCTION1" which can be an arbitrary number
+        # of instructions
+        assert2     ::= expr
+                        POP_JUMP_IF_TRUE LOAD_GLOBAL expr CALL_FUNCTION_1 RAISE_VARARGS_1
+
+        assert2_not ::= expr
+                        POP_JUMP_IF_FALSE LOAD_GLOBAL expr CALL_FUNCTION_1 RAISE_VARARGS_1
 
         # "assert_invert" tests on the negative of the condition given
         stmt          ::= assert_invert
@@ -765,6 +770,8 @@ class Python37Parser(Python37LambdaParser):
         jmp_abs ::= JUMP_LOOP
         jmp_abs ::= JUMP_FORWARD
 
+        stmt    ::= assert2
+        stmt    ::= assert2_not
         """
 
     def p_misc3(self, args):

@@ -27,10 +27,8 @@ class SyntaxTree(spark_AST):
             rv += " (%d)" % (len(self))
             enumerate_children = True
         if self.transformed_by is not None:
-            if self.transformed_by is True:
-                rv += " (transformed)"
-            else:
-                rv += " (transformed by %s)" % self.transformed_by
+            rv += f" (transformed by {self.transformed_by})"
+            pass
         rv = indent + rv
         indent += "    "
         i = 0
