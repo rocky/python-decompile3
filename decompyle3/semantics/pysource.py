@@ -1165,7 +1165,7 @@ class SourceWalker(GenericASTTraversal, object):
             "set_comp_func_header",
         ):
             for k in tree:
-                if k in ("comp_iter", "list_iter", "set_iter", "await_expr"):
+                if k.kind in ("comp_iter", "list_iter", "set_iter", "await_expr"):
                     n = k
                 elif k == "store":
                     store = k
@@ -1271,6 +1271,7 @@ class SourceWalker(GenericASTTraversal, object):
             elif n.kind == "list_if_and_or":
                 if_nodes.append(n[-1][0])
                 n = n[-1]
+                assert n == "list_iter"
             pass
 
         # Python 2.7+ starts including set_comp_body
@@ -1337,7 +1338,7 @@ class SourceWalker(GenericASTTraversal, object):
             if node == "list_comp_async":
                 self.preorder(node[1])
             elif collection_node is None:
-                assert node[3] == "expr"
+                assert node[3] in ("get_aiter", "get_iter"), node[3].kind
                 self.preorder(node[3])
             else:
                 self.preorder(collection_node)
@@ -1351,7 +1352,7 @@ class SourceWalker(GenericASTTraversal, object):
             list_iter = tree[1]
             assert list_iter in ("list_iter", "set_iter")
             list_for = list_iter[0]
-            if list_for == "list_for":
+            if list_for in ("list_for", "set_for"):
                 # In the grammar we have:
                 #    list_for ::= _  for_iter store list_iter ...
                 # or
@@ -1385,9 +1386,10 @@ class SourceWalker(GenericASTTraversal, object):
             assert comp_store is None
 
         if comp_store:
-            self.preorder(comp_for)
+            self.preorder(comp_store)
         for if_node in if_nodes:
-            self.write(" if ")
+            if if_node != "comp_if_or":
+                self.write(" if ")
             if if_node in (
                 "comp_if_not_and",
                 "comp_if_not_or",

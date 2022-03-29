@@ -318,7 +318,9 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         expr ::= LOAD_GLOBAL
         expr ::= LOAD_NAME
         expr ::= LOAD_STR
+
         expr ::= and
+        expr ::= attribute37
         expr ::= or_and
         expr ::= and_or
         expr ::= and_or_expr
@@ -329,13 +331,16 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         expr ::= or_expr
         expr ::= if_exp
         expr ::= if_exp_loop
+
+        expr ::= list_comp
+
+        expr ::= set_comp
         expr ::= subscript
         expr ::= subscript2
         expr ::= unary_not
         expr ::= unary_op
         expr ::= not
         expr ::= yield
-        expr ::= attribute37
 
         # Python 3.3+ adds yield from.
         expr          ::= yield_from
@@ -390,22 +395,33 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         yield             ::= expr YIELD_VALUE
         """
 
-    def p_list_comprehension(self, args):
+    def p_comprehension_list(self, args):
         """
-        expr ::= list_comp
+        lc_body         ::= expr LIST_APPEND
+        list_comp       ::= BUILD_LIST_0 list_iter
 
-        list_iter ::= list_for
-        list_iter ::= list_if
-        list_iter ::= list_if_not
-        list_iter ::= list_if_or_not
-        list_iter ::= lc_body
+        list_iter       ::= list_for
+        list_iter       ::= list_if
+        list_iter       ::= list_if_not
+        list_iter       ::= list_if_or_not
+        list_iter       ::= lc_body
 
-        lc_body   ::= expr LIST_APPEND
+        set_iter        ::= set_for
+        set_iter        ::= list_if
+        # set_iter        ::= list_if_and_or
+        # set_iter        ::= list_if_chained
+        set_iter        ::= list_if_not
+        set_iter        ::= set_comp_body
+
         list_for  ::= expr_or_arg
                       for_iter
                       store list_iter
                       jb_or_c _come_froms
-        list_comp ::= BUILD_LIST_0 list_iter
+
+        set_for   ::= expr_or_arg
+                      for_iter
+                      store set_iter
+                      jb_or_c _come_froms
 
         list_if_not_end ::= pjump_ift _come_froms
         list_if_not ::= expr list_if_not_end list_iter come_from_opt
@@ -637,6 +653,7 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         """
         comp_iter     ::= comp_for
         gen_comp_body ::= expr YIELD_VALUE POP_TOP
+        set_comp      ::= BUILD_SET_0 set_iter
         """
 
     def p_store(self, args):

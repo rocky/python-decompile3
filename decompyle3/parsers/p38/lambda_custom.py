@@ -374,6 +374,7 @@ class Python38LambdaCustom(Python38BaseParser):
                     expr                 ::= genexpr_func_async
                     expr                 ::= BUILD_MAP_0 genexpr_func_async
                     expr                 ::= list_comp_async
+                    expr                 ::= set_comp_async
 
                     dict_comp_async      ::= BUILD_MAP_0 genexpr_func_async
 
