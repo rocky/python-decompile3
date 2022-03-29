@@ -223,10 +223,31 @@ TABLE_DIRECT = {
     "unary_not": ("not %c", (0, "expr")),
     "unary_convert": ("`%c`", (0, "expr"),),
     "get_iter": ("iter(%c)", (0, "expr"),),
-    "slice0": ("%c[:]", (0, "expr"),),
-    "slice1": ("%c[%p:]", (0, "expr"), (1, NO_PARENTHESIS_EVER)),
-    "slice2": ("%c[:%p]", (0, "expr"), (1, NO_PARENTHESIS_EVER)),
-    "slice3": ("%c[%p:%p]", (0, "expr"), (1, NO_PARENTHESIS_EVER), (2, NO_PARENTHESIS_EVER)),
+
+    "set_iter":        ( "%c", 0 ),
+
+    "slice0": (
+        "%c[:]",
+        (0, "expr"),
+        ),
+    "slice1": (
+        "%c[%p:]",
+        (0, "expr"),
+        (1, NO_PARENTHESIS_EVER)
+        ),
+
+    "slice2": ( "[%c:%p]",
+        (0, "expr"),
+        (1, NO_PARENTHESIS_EVER)
+        ),
+
+    "slice3": (
+        "%c[%p:%p]",
+        (0, "expr"),
+        (1, NO_PARENTHESIS_EVER),
+        (2, NO_PARENTHESIS_EVER)
+        ),
+
     "IMPORT_FROM": ("%{pattr}",),
     "IMPORT_NAME_ATTR": ("%{pattr}",),
     "attribute": ("%c.%[1]{pattr}", (0, "expr")),
@@ -235,8 +256,20 @@ TABLE_DIRECT = {
         (0, "expr", PRECEDENCE["subscript"]),
         (1, "expr"),
     ),
-    "subscript": ("%p[%c]", (0, "expr", PRECEDENCE["subscript"]), (1, "expr")),
-    "subscript2": ("%p[%c]", (0, "expr", PRECEDENCE["subscript"]), (1, "expr")),
+
+    "subscript": (
+        "%p[%p]",
+        (0, "expr", PRECEDENCE["subscript"]),
+        (1, "expr", NO_PARENTHESIS_EVER)
+    ),
+
+    "subscript2": (
+        "%p[%p]",
+        (0, "expr", PRECEDENCE["subscript"]),
+        (1, "expr", NO_PARENTHESIS_EVER)
+    ),
+
+
     "store_subscript": ("%p[%c]", (0, "expr", PRECEDENCE["subscript"]), (1, "expr")),
     "unpack": ("%C%,", (1, maxint, ", ")),
     # This nonterminal we create on the fly in semantic routines

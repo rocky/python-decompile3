@@ -1773,7 +1773,7 @@ class SourceWalker(GenericASTTraversal, object):
                     pass
             pass
         elif node == "dict_comp_async":
-            # Handled this condition above
+            # Handled this condition above.
             pass
         else:
             if node[0] == "LOAD_STR":

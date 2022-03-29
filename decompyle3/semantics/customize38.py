@@ -111,6 +111,7 @@ def customize_for_version38(self, version):
             "pop_return": ("%|return %c\n", (1, "return_expr")),
             "popb_return": ("%|return %c\n", (0, "return_expr")),
             "pop_ex_return": ("%|return %c\n", (0, "return_expr")),
+            "set_for": (" for %c in %c", (2, "store"), (0, "expr_or_arg"),),
             "whilestmt38": (
                 "%|while %c:\n%+%c%-\n\n",
                 (1, "testexpr"),
@@ -216,6 +217,22 @@ def customize_for_version38(self, version):
         self.prune()
 
     self.n_try_except38r3 = try_except38r3
+
+    def n_set_afor(node):
+        if len(node) == 2:
+            self.template_engine(
+                (" async for %[1]{%c} in %c", (1, "store"), (0, "get_aiter")), node
+            )
+        else:
+            self.template_engine(
+                " async for %[1]{%c} in %c%c",
+                (1, "store"),
+                (0, "get_aiter"),
+                (2, "set_iter"),
+            )
+        self.prune()
+
+    self.n_set_afor = n_set_afor
 
     def suite_stmts_return(node):
         if len(node) > 1:

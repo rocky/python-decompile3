@@ -61,6 +61,11 @@ def customize_for_version37(self, version):
     # fmt: on
     TABLE_DIRECT.update(
         {
+            "and_parts": (
+                "%P and %c",
+                (0, -1, "and ", PRECEDENCE["and"]),
+                (1, "expr_pjif"),
+            ),
             "and_or_expr": (
                 "%c and %c or %c",
                 (0, "and_parts"),
@@ -307,11 +312,6 @@ def customize_for_version37(self, version):
             "not_or": (
                 "not %p or %c",
                 (0, "and_parts", PRECEDENCE["and"] - 1),
-                (1, "expr_pjif"),
-            ),
-            "and_parts": (
-                "%P and %c",
-                (0, -1, "and ", PRECEDENCE["and"]),
                 (1, "expr_pjif"),
             ),
             "nand": ("not (%c and %c)", (0, "and_parts"), (1, ("expr", "expr_pjit")),),
