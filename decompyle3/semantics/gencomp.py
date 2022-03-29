@@ -527,7 +527,8 @@ class ComprehensionMixin:
                 collection_node = node[in_node_index]
             self.preorder(collection_node)
 
-        # Here is where we handle nested list iterations.
+        # Here is where we handle nested list iterations which
+        # includes their corresponding "if" conditions.
         if tree in ("list_comp", "set_comp"):
             list_iter = tree[1]
             assert list_iter in ("list_iter", "set_iter")
@@ -549,6 +550,7 @@ class ComprehensionMixin:
                         self.prec = p
                         return
                 comp_store = None
+                if_nodes = []
             pass
 
         if tree == "set_comp_func":
