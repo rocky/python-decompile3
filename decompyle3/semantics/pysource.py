@@ -2212,7 +2212,6 @@ class SourceWalker(GenericASTTraversal, object):
                 index = entry[arg]
                 if isinstance(index, tuple):
                     if isinstance(index[1], str):
-
                         assert node[index[0]] == index[1], (
                             "at %s[%d], expected '%s' node; got '%s'"
                             % (node.kind, arg, index[1], node[index[0]].kind,)

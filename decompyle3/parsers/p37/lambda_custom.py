@@ -390,10 +390,7 @@ class Python37LambdaCustom(Python37BaseParser):
 
                     set_afor2            ::= async_iter
                                              store
-                                             set_iter
-                                             JUMP_LOOP
-                                             COME_FROM_FINALLY
-                                             END_ASYNC_FOR
+                                             func_async_middle
 
                     set_afor2            ::= expr_or_arg
                                              set_iter_async

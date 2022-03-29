@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2021 by Rocky Bernstein
+#  Copyright (c) 2019-2022 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -217,6 +217,25 @@ def customize_for_version38(self, version):
         self.prune()
 
     self.n_try_except38r3 = try_except38r3
+
+    def n_list_afor(node):
+        if len(node) == 2:
+            # list_afor ::= get_iter list_afor
+            self.comprehension_walk_newer(node, 0)
+            self.prune()
+        else:
+            list_iter_index = 2 if node[2] == "list_iter" else 3
+            self.template_engine(
+                (
+                    " async for %[1]{%c} in %c%[1]{%c}",
+                    (1, "store"),
+                    (0, "get_aiter"),
+                    (list_iter_index, "list_iter"),
+                ),
+                node,
+            )
+
+    self.n_list_afor = n_list_afor
 
     def n_set_afor(node):
         if len(node) == 2:
