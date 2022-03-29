@@ -61,9 +61,9 @@ def customize_for_version37(self, version):
     TABLE_DIRECT.update(
         {
             "and_parts": (
-                "%P and %c",
+                "%P and %p",
                 (0, -1, "and ", PRECEDENCE["and"]),
-                (1, "expr_pjif"),
+                (1, "expr_pjif", PRECEDENCE["and"]),
             ),
             "and_or_expr": (
                 "%c and %c or %c",
@@ -77,7 +77,11 @@ def customize_for_version37(self, version):
                 (1, "expr"),
                 (4, "expr"),
             ),
-            "or_and1": ("%c or (%c)", (0, "or_parts"), (1, "and_parts"),),
+            "or_and1": (
+                "%p or %p",
+                (0, "or_parts", PRECEDENCE["or"]),
+                (1, "and_parts", PRECEDENCE["or"]),
+            ),
             "and_or": (
                 "%c and (%c or %c)",
                 (0, "expr_jifop"),
@@ -316,9 +320,9 @@ def customize_for_version37(self, version):
             "nand": ("not (%c and %c)", (0, "and_parts"), (1, ("expr", "expr_pjit")),),
             "c_nand": ("not (%c and %c)", (0, "and_parts"), (1, "expr_pjitt"),),
             "or_parts": (
-                "%P or %c",
+                "%P or %p",
                 (0, -1, "or ", PRECEDENCE["or"]),
-                (1, "expr_pjif"),
+                (1, "expr_pjif", PRECEDENCE["or"]),
             ),
             "store_async_iter_end": ("%c", (0, "store")),
             "testfalsec": (
