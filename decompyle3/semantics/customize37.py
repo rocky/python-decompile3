@@ -24,7 +24,6 @@ from decompyle3.semantics.consts import (
     TABLE_DIRECT,
     TABLE_R,
     INDENT_PER_LEVEL,
-    maxint,
 )
 from decompyle3.parsers.treenode import SyntaxTree
 from decompyle3.semantics.helper import flatten_list, escape_string, strip_quotes
@@ -1387,29 +1386,12 @@ def customize_for_version37(self, version):
 
     self.n_joined_str = n_joined_str
 
-    # FIXME: The following adjusts I guess a bug in the parser.
-    # It might be as simple as renaming grammar symbol "testtrue" to "testtrue_or_false"
-    # and then keeping this as is with the name change.
-    # Fixing in the parsing by inspection is harder than doing it here.
-    def n_testtrue(node):
-        compare_chained37 = node[0]
-        if (
-            compare_chained37 == "compare_chained37"
-            and compare_chained37[1] == "compare_chained1b_37"
-        ):
-            compare_chained1b_37 = compare_chained37[1]
-            if (
-                len(compare_chained1b_37) > 2
-                and compare_chained1b_37[-2] == "JUMP_FORWARD"
-            ):
-                node.kind = "testfalse"
-                pass
-            pass
-        self.default(node)
+    def return_closure(node):
+        # Nothing should be output here
+        self.prune()
         return
 
-    self.n_testtrue = n_testtrue
-
+    self.n_return_closure = return_closure
     # def kwargs_only_36(node):
     #     keys = node[-1].attr
     #     num_kwargs = len(keys)
@@ -1455,9 +1437,41 @@ def customize_for_version37(self, version):
 
     self.n_starred = n_starred
 
-    def return_closure(node):
-        # Nothing should be output here
+    def n_set_afor(node):
+        if len(node) == 2:
+            self.template_engine(
+                (" async for %[1]{%c} in %c", (1, "store"), (0, "get_aiter")), node
+            )
+        else:
+            self.template_engine(
+                " async for %[1]{%c} in %c%c",
+                (1, "store"),
+                (0, "get_aiter"),
+                (2, "set_iter"),
+            )
         self.prune()
+
+    self.n_set_afor = n_set_afor
+
+    # FIXME: The following adjusts I guess a bug in the parser.
+    # It might be as simple as renaming grammar symbol "testtrue" to "testtrue_or_false"
+    # and then keeping this as is with the name change.
+    # Fixing in the parsing by inspection is harder than doing it here.
+    def n_testtrue(node):
+        compare_chained37 = node[0]
+        if (
+            compare_chained37 == "compare_chained37"
+            and compare_chained37[1] == "compare_chained1b_37"
+        ):
+            compare_chained1b_37 = compare_chained37[1]
+            if (
+                len(compare_chained1b_37) > 2
+                and compare_chained1b_37[-2] == "JUMP_FORWARD"
+            ):
+                node.kind = "testfalse"
+                pass
+            pass
+        self.default(node)
         return
 
-    self.n_return_closure = return_closure
+    self.n_testtrue = n_testtrue

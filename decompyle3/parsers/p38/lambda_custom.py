@@ -359,7 +359,6 @@ class Python38LambdaCustom(Python38BaseParser):
 
                     set_afor             ::= get_aiter set_afor2
                     set_iter             ::= set_afor
-
                     set_comp_async       ::= BUILD_SET_0 LOAD_ARG
                                              set_comp_async
 

@@ -1218,7 +1218,7 @@ class SourceWalker(GenericASTTraversal, object):
             elif n in ("list_afor2", "set_afor2", "set_iter_async"):
                 if n[1] == "store":
                     store = n[1]
-                n = n[3] if n[3] == "list_iter" else n[2]
+                n = n[3] if n[3] in ("list_iter", "set_iter") else n[2]
             else:
                 n = n[0]
 

@@ -423,6 +423,11 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
                       store set_iter
                       jb_or_c _come_froms
 
+        set_for   ::= expr_or_arg
+                      for_iter
+                      store set_iter
+                      jb_or_c _come_froms
+
         list_if_not_end ::= pjump_ift _come_froms
         list_if_not ::= expr list_if_not_end list_iter come_from_opt
 
