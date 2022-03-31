@@ -2,7 +2,7 @@
 items = [True, False, True]
 control = True
 
-# We use weird line break to assist in
+# We use weird line breaks to assist in
 # checkint decompilation correspondences
 # fmt: off
 result = [
