@@ -489,7 +489,7 @@ class Python37BaseParser(PythonBaseParser):
                     )
                 else:
                     assert token.attr == 3, (
-                        "BUILD_SLICE value must be 2 or 3; is %s" % v
+                        "BUILD_SLICE value must be 2 or 3; is %s" % token.attr
                     )
                     self.add_unique_rules(
                         [
