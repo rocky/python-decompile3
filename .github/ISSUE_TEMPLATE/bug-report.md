@@ -22,14 +22,14 @@ Funding the project was added to partially address the problem that there are
 lots of people seeking help and reporting bugs, but few people who are
 willing or capable of providing help or fixing bugs.
 
-Tasks or the kinds of things others can do but you can't or don't want
-to do yourself are typically the kind of thing that you pay someone to
-do, especially when you are the primary beneficiary of the work, or
-the task is complex, long, or tedious. If your code is over 30 lines
-long, it fits into this category.
+Tasks or the kinds of things others can do but you can't do or don't
+want to do yourself are typically the kind of thing that you pay
+someone to do, especially when you are the primary beneficiary of the
+work, or the task is complex, long, or tedious. If your code is over
+30 lines long, it fits into this category.
 
 
-Finally https://github.com/rocky/python-decompile3/blob/master/HOW-TO-REPORT-A-BUG.md ?
+See alos https://github.com/rocky/python-decompile3/blob/master/HOW-TO-REPORT-A-BUG.md ?
 -->
 
 <!--
@@ -47,7 +47,6 @@ Prerequisites/Caveats
   personal and private help that you are requesting.
 * If the legitimacy of the activity is deemed suspicous, I may flag it as suspicious,
   making the issue even more easy to detect.
-* Long and tedious tasks or the kinds of things others can do but you can't do yourself are typically the kind of thing that you pay someone to do because you want something done, especially when you are the primary beneficiary of the work.
 
 Bug reports that violate the above may be discarded.
 
@@ -55,7 +54,7 @@ Bug reports that violate the above may be discarded.
 
 ## Description
 
-<!-- Add a clear and concise description of the bug. -->
+<!-- Please add a clear and concise description of the bug. -->
 
 ## How to Reproduce
 
@@ -76,6 +75,16 @@ can add that too.
 
 -->
 
+## Output Given
+
+<!--
+Please include not just the error message but all output leading to the message which includes echoing input and messages up to the error.
+For a command-line environment include command invocation and all the output produced.
+
+If this is too long, then try narrowing the problem to something short.
+-->
+
+
 ## Expected behavior
 
 <!-- Add a clear and concise description of what you expected to happen. -->
@@ -87,12 +96,20 @@ can add that too.
 Please modify for your setup
 
 - Decompyle3 version: output from  `decompyle3 --version` or `pip show decompyle3`
-- Python version for the version of Python the byte-compiled the file: `python -c "import sys; print(sys.version)"` where `python` is the correct Cpython or Pypy binary.
+- Python version for the version of Python the byte-compiled the file: `python -c "import sys; print(sys.version)"` where `python` is the correct CPython or PyPy binary.
 - OS and Version: [e.g. Ubuntu bionic]
 
 -->
 
-## Additional Environment or Context
+## Workarounds
+
+<!-- If there is a workaround for the problem, describe that here. -->
+
+## Priority
+
+<!-- If this is blocking some important activity let us know what activity it blocks. -->
+
+## Additional Context
 
 <!-- _This section is optional._
 
