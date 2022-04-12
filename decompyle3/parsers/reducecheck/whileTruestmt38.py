@@ -33,27 +33,14 @@ def whileTruestmt38_check(
     jump_loop = tokens[last]
     if jump_loop == "JUMP_LOOP":
 
-        # FIXME: come back to this.
-        return False
-
-        jump_target = tokens[first].off2int(prefer_last=True)
-
-        if jump_target > tokens[last].attr:
+        jump_target = jump_loop.attr
+        if jump_target < tokens[first].off2int(prefer_last=False):
             return True
 
-        if tree[0] == "_come_froms":
-            tree = tree[1]
-        # Check if first not single-reduction node is a "for"
-        while tree[0] in ("c_stmts", "_stmts", "stmts"):
-            tree = tree[0]
-        first_stmt = tree[0]
-        kind = first_stmt.kind
-        last_child = first_stmt.last_child()
-        if kind.startswith("for") or kind.startswith("if"):
-            # No good if JUMP_LOOP is last instruction or comes right after last instruction.
-            last_child_offset = last_child.off2int()
-            return 0 <= (jump_loop.off2int() - last_child_offset) <= 2
-        else:
-            # JUMP loop has to jump *before* the first statement proper
-            return jump_target >= first_stmt.first_child().off2int()
-    return True
+        c_stmts = tree[1]
+        if c_stmts == "c_stmts":
+            c_stmts_offset = c_stmts.first_child().off2int()
+            return c_stmts_offset != jump_target
+
+        # FIXME: come back to this.
+    return False

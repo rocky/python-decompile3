@@ -96,6 +96,7 @@ class Python38Parser(Python38LambdaParser, Python37Parser):
         break ::= POP_BLOCK POP_TOP BREAK_LOOP
         break ::= POP_TOP BREAK_LOOP
         break ::= POP_EXCEPT BREAK_LOOP
+        break ::= POP_TOP CONTINUE JUMP_LOOP
 
         # FIXME: this should be restricted to being inside a try block
         stmt               ::= except_ret38
