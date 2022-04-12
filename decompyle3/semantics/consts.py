@@ -432,7 +432,13 @@ TABLE_DIRECT = {
         # the named_expr should have parenthesis around it.
         (0, PRECEDENCE["named_expr"] - 1),
     ),
-    "expr_stmt": ("%|%c\n", (0, "expr")),
+
+    "expr_stmt": (
+        "%|%p\n",
+        # When a statment contains only a named_expr (:=)
+        # the named_expr should have parenthesis around it.
+        (0, "expr", PRECEDENCE["named_expr"] - 1)
+    ),
     "break": ("%|break\n",),
     "continue": ("%|continue\n",),
     "raise_stmt0": ("%|raise\n",),

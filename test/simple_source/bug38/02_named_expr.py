@@ -1,7 +1,8 @@
 # From 3.8 test_named_expressions.py
 # Bug was not putting parenthesis around := below
-
 # RUNNABLE!
+
+"""This program is self-checking!"""
 (a := 10)
 assert a == 10
 
