@@ -42,7 +42,6 @@ maxint = sys.maxsize
 # say to 100, to make sure we avoid additional prenthesis in
 # call((.. op ..)).
 
-# fmt: off
 NO_PARENTHESIS_EVER = 100
 
 # fmt: off
@@ -50,52 +49,55 @@ PRECEDENCE = {
     "named_expr":             40,  # :=
     "yield":                  38,  # Needs to be below named_expr
     "yield_from":             38,
+    "tuple_list_starred":     38,  # *x, *y, *z - about at the level of yield?
+    "dict_unpack":            38,  # **kwargs
+    "list_unpack":            38,  # *args
 
     "lambda_body":            30,  # lambda ... : lambda_body
 
-    "if_exp":                 28, # IfExp ( a if x else b)
-    "if_exp_lambda":          28, # IfExp involving a lambda expression
-    "if_exp_not_lambda":      28, # negated IfExp involving a lambda expression
-    "if_exp_not":             28, # IfExp ( a if not x else b)
-    "if_exp_true":            28, # (a if True else b)
+    "if_exp":                 28,  # IfExp ( a if x else b)
+    "if_exp_lambda":          28,  # IfExp involving a lambda expression
+    "if_exp_not_lambda":      28,  # negated IfExp involving a lambda expression
+    "if_exp_not":             28,  # IfExp ( a if not x else b)
+    "if_exp_true":            28,  # (a if True else b)
     "if_exp_ret":             28,
 
-    "or":                     26, # Boolean OR
+    "or":                     26,  # Boolean OR
     "ret_or":                 26,
 
-    "and":                    24, # Boolean AND
+    "and":                    24,  # Boolean AND
     "ret_and":                24,
-    "not":                    22, # Boolean NOT
-    "unary_not":              22, # Boolean NOT
-    "compare":                20, # in, not in, is, is not, <, <=, >, >=, !=, ==
+    "not":                    22,  # Boolean NOT
+    "unary_not":              22,  # Boolean NOT
+    "compare":                20,  # in, not in, is, is not, <, <=, >, >=, !=, ==
 
-    "BINARY_AND":             14, # Bitwise AND
-    "BINARY_OR":              18, # Bitwise OR
-    "BINARY_XOR":             16, # Bitwise XOR
+    "BINARY_AND":             14,  # Bitwise AND
+    "BINARY_OR":              18,  # Bitwise OR
+    "BINARY_XOR":             16,  # Bitwise XOR
 
-    "BINARY_LSHIFT":          12, # Shifts <<
-    "BINARY_RSHIFT":          12, # Shifts >>
+    "BINARY_LSHIFT":          12,  # Shifts <<
+    "BINARY_RSHIFT":          12,  # Shifts >>
 
-    "BINARY_ADD":             10, # -
-    "BINARY_SUBTRACT":        10, # +
+    "BINARY_ADD":             10,  # -
+    "BINARY_SUBTRACT":        10,  # +
 
-    "BINARY_DIVIDE":          8,  # /
-    "BINARY_FLOOR_DIVIDE":    8,  # //
-    "BINARY_MATRIX_MULTIPLY": 8,  # @
-    "BINARY_MODULO":          8,  # Remainder, %
-    "BINARY_MULTIPLY":        8,  # *
-    "BINARY_TRUE_DIVIDE":     8,  # Division /
+    "BINARY_DIVIDE":          8,   # /
+    "BINARY_FLOOR_DIVIDE":    8,   # //
+    "BINARY_MATRIX_MULTIPLY": 8,   # @
+    "BINARY_MODULO":          8,   # Remainder, %
+    "BINARY_MULTIPLY":        8,   # *
+    "BINARY_TRUE_DIVIDE":     8,   # Division /
 
-    "unary_op":               6,  # Positive, negative, bitwise NOT: +x, -x, ~x
+    "unary_op":               6,   # Positive, negative, bitwise NOT: +x, -x, ~x
 
-    "BINARY_POWER":           4,  # Exponentiation: *
+    "BINARY_POWER":           4,   # Exponentiation: **
 
-    "await_expr":             3,  # await x, *
+    "await_expr":             3,   # await x, *
 
-    "attribute":              2,  # x.attribute
-    "buildslice2":            2,  # x[index]
-    "buildslice3":            2,  # x[index:index]
-    "call":                   2,  # x(arguments...)
+    "attribute":              2,   # x.attribute
+    "buildslice2":            2,   # x[index]
+    "buildslice3":            2,   # x[index:index]
+    "call":                   2,   # x(arguments...)
     "delete_subscript":       2,
     "slice0":                 2,
     "slice1":                 2,
@@ -103,12 +105,11 @@ PRECEDENCE = {
     "slice3":                 2,
     "store_subscript":        2,
     "subscript":              2,
-    "subscript2":             2,
 
-    "dict":                   0,  # {expressions...}
+    "dict":                   0,   # {expressions...}
     "dict_comp":              0,
-    "generator_exp":          0,  # (expressions...)
-    "list":                   0,  # [expressions...]
+    "generator_exp":          0,   # (expressions...)
+    "list":                   0,   # [expressions...]
     "list_comp":              0,
     "set_comp":               0,
     "set_comp_expr":          0,
@@ -120,22 +121,15 @@ LINE_LENGTH = 80
 # Some parse trees created below are used for comparing code
 # fragments (like "return None" at the end of functions).
 
-NONE = SyntaxTree("expr", [NoneToken])
-
-RETURN_NONE = SyntaxTree("stmt",
-                  [ SyntaxTree("return",
-                        [ NONE, Token("RETURN_VALUE")]) ])
-
-PASS = SyntaxTree("stmts",
-           [ SyntaxTree("sstmt",
-                 [ SyntaxTree("stmt",
-                       [ SyntaxTree("pass", [])])])])
-
 ASSIGN_DOC_STRING = lambda doc_string, doc_load: SyntaxTree(
     "assign",
     [
         SyntaxTree(
-            "expr", [Token(doc_load, pattr=doc_string, attr=doc_string)]
+            "expr", [
+                SyntaxTree(
+                    "constant",
+                    [ Token(doc_load, pattr=doc_string, attr=doc_string) ],
+                    )]
         ),
         SyntaxTree("store", [Token("STORE_NAME", pattr="__doc__")]),
     ],
@@ -152,6 +146,25 @@ NAME_MODULE = SyntaxTree(
         ),
     ],
 )
+
+NONE = SyntaxTree("expr", [NoneToken])
+
+RETURN_LOCALS = SyntaxTree(
+    "return",
+    [
+        SyntaxTree("return_expr", [SyntaxTree("expr", [Token("LOAD_LOCALS")])]),
+        Token("RETURN_VALUE"),
+    ],
+)
+
+RETURN_NONE = SyntaxTree("stmt",
+                  [ SyntaxTree("return",
+                        [ NONE, Token("RETURN_VALUE")]) ])
+
+PASS = SyntaxTree("stmts",
+           [ SyntaxTree("sstmt",
+                 [ SyntaxTree("stmt",
+                       [ SyntaxTree("pass", [])])])])
 
 # God intended \t, but Python has decided to use 4 spaces.
 # If you want real tabs, use Go.
@@ -328,18 +341,34 @@ TABLE_DIRECT = {
     "set_comp_body": ("%c", 0),
     "gen_comp_body": ("%c", 0),
     "dict_comp_body": ("%c:%c", 1, 0),
-    "assign": ("%|%c = %p\n", -1, (0, 200)),
-    # The 2nd parameter should have a = suffix.
-    # There is a rule with a 4th parameter "store"
-    # which we don't use here.
-    "aug_assign1": ("%|%c %c %c\n", 0, 2, 1),
-    "aug_assign2": ("%|%c.%[2]{pattr} %c %c\n", 0, -3, -4),
-    "designList": ("%c = %c", 0, -1),
+
     "and": (
         "%c and %c",
         (0, ("and_parts", "expr", "expr_pjif", "expr_jifop_cfs", "not")),
         (1, ("expr", "expr_pjif", "expr_jifop_cfs")),
     ),
+
+    "assign": (
+        "%|%c = %p\n",
+        -1,
+        (0, ("expr", "branch_op"), PRECEDENCE["tuple_list_starred"] + 1)
+        ),
+
+    # The 2nd parameter should have a = suffix.
+    # The 2nd parameter should have a = suffix.
+    # There is a rule with a 4th parameter "store"
+    # which we don't use here.
+    "aug_assign1":  (
+        "%|%c %c %c\n", 0, 2, 1
+        ),
+
+    # There is a rule with a 4th parameter "store"
+    # which we don't use here.
+    "aug_assign2": (
+        "%|%c.%[2]{pattr} %c %c\n", 0, -3, -4
+        ),
+
+    "designList": ("%c = %c", 0, -1),
     "ret_and": ("%c and %c", 0, 2),
     "and2": ("%c", 3),
     "or": ("%c or %c", 0, 1),
