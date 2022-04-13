@@ -94,11 +94,11 @@ grammar-coverage-3.7:
 
 #: Check deparsing Python 3.7
 check-bytecode-3.7:
-	$(PYTHON) test_pythonlib.py --bytecode-3.7 --run
+	$(PYTHON) test_pythonlib.py --bytecode-3.7 --run --verify
 
 #: Check deparsing Python 3.8
 check-bytecode-3.8:
-	$(PYTHON) test_pythonlib.py --bytecode-3.8 --run
+	$(PYTHON) test_pythonlib.py --bytecode-3.8 --run --verify
 
 clean: clean-py-dis clean-dis clean-unverified
 
