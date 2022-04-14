@@ -188,6 +188,10 @@ class ComprehensionMixin:
                 tree = tree[1]
             pass
 
+        if tree in ("genexpr_func_async",):
+            if tree[3] == "comp_iter":
+                iter_index = 3
+
         n = tree[iter_index]
         assert n == "comp_iter", n
 
@@ -215,7 +219,7 @@ class ComprehensionMixin:
         self.preorder(n[0])
         if node == "generator_exp_async":
             self.write(" async")
-            iter_var_index = iter_index - 2
+            iter_var_index = 2
         else:
             iter_var_index = iter_index - 1
         self.write(" for ")
@@ -223,9 +227,11 @@ class ComprehensionMixin:
         self.write(" in ")
         if node[2] == "expr":
             iter_expr = node[2]
+        elif node[3] == "get_aiter":
+            iter_expr = node[3]
         else:
             iter_expr = node[-3]
-        assert iter_expr == "expr"
+        assert iter_expr in ("expr", "get_aiter"), iter_expr
         self.preorder(iter_expr)
         self.preorder(tree[iter_index])
         self.prec = p
