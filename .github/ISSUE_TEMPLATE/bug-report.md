@@ -29,7 +29,7 @@ work, or the task is complex, long, or tedious. If your code is over
 30 lines long, it fits into this category.
 
 
-See alos https://github.com/rocky/python-decompile3/blob/master/HOW-TO-REPORT-A-BUG.md ?
+See also https://github.com/rocky/python-decompile3/blob/master/HOW-TO-REPORT-A-BUG.md
 -->
 
 <!--
