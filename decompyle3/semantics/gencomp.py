@@ -13,7 +13,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-Generators and comprehenison functions
+Generators and comprehension functions
 """
 
 
@@ -78,6 +78,7 @@ class ComprehensionMixin:
             collection = node[collection_index]
         n = tree[iter_index]
         list_if = None
+        write_if = False
 
         assert n in ("comp_iter", "set_iter")
 
@@ -124,11 +125,15 @@ class ComprehensionMixin:
         assert n in ("comp_body", "set_iter"), n.kind
 
         self.preorder(n[0])
+        if node == "generator_exp_async":
+            self.write(" async")
         self.write(" for ")
         self.preorder(store)
         self.write(" in ")
         self.preorder(collection)
         if list_if:
+            if write_if:
+                self.write(" if ")
             self.preorder(list_if)
         self.prec = p
 
@@ -212,7 +217,9 @@ class ComprehensionMixin:
                 "comp_if_not_or",
                 "comp_if_or",
             ):
+                write_if = True
                 n = n[-1]
+                assert n == "comp_iter"
 
         assert n == "comp_body", n.kind
 
@@ -592,7 +599,7 @@ class ComprehensionMixin:
                 if if_node in ("list_if_not", "comp_if_not", "list_if37_not"):
                     self.write("not ")
                     pass
-                self.prec = 27
+                self.prec = PRECEDENCE["lambda_body"] - 1
                 self.preorder(if_node[0])
             pass
         self.prec = p
@@ -603,7 +610,7 @@ class ComprehensionMixin:
         find the comprehension node buried in the tree which may
         be surrounded with start-like symbols or dominiators,.
         """
-        self.prec = 27
+        self.prec = PRECEDENCE["lambda_body"] - 1
         code_node = node[code_index]
         if code_node == "load_genexpr":
             code_node = code_node[0]

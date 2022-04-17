@@ -13,7 +13,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-Custom Nontermal action functions
+Custom Nonterminal action functions
 """
 
 from xdis import iscode
@@ -984,17 +984,6 @@ class NonterminalActions:
         self.write(node[0].pattr)
         self.prune()
 
-    def n_yield(self, node):
-        if node != SyntaxTree("yield", [NONE, Token("YIELD_VALUE")]):
-            self.template_engine(("yield %c", 0), node)
-        elif self.version <= (2, 4):
-            # Early versions of Python don't allow a plain "yield"
-            self.write("yield None")
-        else:
-            self.write("yield")
-
-        self.prune()  # stop recursing
-
     def n_store(self, node):
         expr = node[0]
         if expr == "expr" and expr[0] == "LOAD_CONST" and node[1] == "STORE_ATTR":
@@ -1031,6 +1020,17 @@ class NonterminalActions:
         self.default(node)
 
     n_unpack_w_parens = n_unpack
+
+    def n_yield(self, node):
+        if node != SyntaxTree("yield", [NONE, Token("YIELD_VALUE")]):
+            self.template_engine(("yield %c", 0), node)
+        elif self.version <= (2, 4):
+            # Early versions of Python don't allow a plain "yield"
+            self.write("yield None")
+        else:
+            self.write("yield")
+
+        self.prune()  # stop recursing
 
     def n_LOAD_CONST(self, node):
         attr = node.attr
