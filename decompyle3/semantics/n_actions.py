@@ -174,6 +174,47 @@ class NonterminalActions:
 
     n_classdefdeco2 = n_classdef
 
+    def n_const_list(self, node):
+        """
+        prettyprint a constant dict, list, set or tuple.
+        """
+        p = self.prec
+
+        lastnodetype = node[2].kind
+        flat_elems = node[1]
+
+        if lastnodetype.endswith("LIST"):
+            self.write("[")
+            endchar = "]"
+        elif lastnodetype.endswith("SET"):
+            self.write("{")
+            endchar = "}"
+        else:
+            # from trepan.api import debug; debug()
+            raise TypeError(
+                "Internal Error: n_build_list expects list, tuple, set, or unpack"
+            )
+
+        self.indent_more(INDENT_PER_LEVEL)
+        sep = ""
+        for elem in flat_elems:
+            assert elem.kind == "ADD_CONST"
+            line_number = self.line_number
+            value = elem.pattr
+            if line_number != self.line_number:
+                sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+            else:
+                if sep != "":
+                    sep += " "
+            self.write(sep, value)
+            sep = ","
+        self.write(endchar)
+        self.indent_less(INDENT_PER_LEVEL)
+
+        self.prec = p
+        self.prune()
+        return
+
     def n_delete_subscript(self, node):
         if node[-2][0] == "build_list" and node[-2][0][-1].kind.startswith(
             "BUILD_TUPLE"

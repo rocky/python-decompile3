@@ -24,6 +24,8 @@ scanner routine for Python 3.
 
 from decompyle3.scanners.scanner37base import Scanner37Base
 
+from decompyle3.scanner import Token
+
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_37 as opc
 
@@ -39,14 +41,78 @@ class Scanner37(Scanner37Base):
 
     pass
 
+    def bound_collection(
+        self, tokens: list, t: Token, i: int, collection_type: str, collection_enum: 0
+    ):
+        count = t.attr
+        assert isinstance(count, int)
+
+        n = len(tokens)
+        assert count <= i
+        collection_start = i - count
+
+        # For small lists don't bother
+        if count < 5:
+            return tokens[: i + 1]
+
+        for j in range(collection_start, count):
+            if tokens[j].kind != "LOAD_CONST":
+                return tokens
+        # If we go there all instructions before tokens[i] are LOAD_CONST and we can replace
+        # add a boundary marker and change LOAD_CONST to something else
+        new_tokens = tokens[:collection_start]
+        start_offset = tokens[collection_start].offset
+        new_tokens.append(
+            Token(
+                opname="COLLECTION_START",
+                attr=collection_enum,
+                pattr=collection_type,
+                offset=f"{start_offset}_0",
+                has_arg=True,
+                opc=self.opc,
+                has_extended_arg=False,
+            )
+        )
+        for j in range(collection_start, i):
+            new_tokens.append(
+                Token(
+                    opname="ADD_CONST",
+                    attr=tokens[j].attr,
+                    pattr=tokens[j].pattr,
+                    offset=tokens[j].offset,
+                    has_arg=True,
+                    linestart=tokens[j].linestart,
+                    opc=self.opc,
+                    has_extended_arg=False,
+                )
+            )
+        new_tokens.append(
+            Token(
+                opname=f"BUILD_{collection_type}",
+                attr=t.attr,
+                pattr=t.pattr,
+                offset=t.offset,
+                has_arg=t.has_arg,
+                linestart=t.linestart,
+                opc=t.opc,
+                has_extended_arg=False,
+            )
+        )
+        return new_tokens
+
     def ingest(self, co, classname=None, code_objects={}, show_asm=None) -> tuple:
         tokens, customize = Scanner37Base.ingest(
             self, co, classname, code_objects, show_asm
         )
-        for t in tokens:
+        new_tokens = []
+        for i, t in enumerate(tokens):
+            # things that smash new_tokens like BUILD_LIST have to come first.
+            if t.op == self.opc.BUILD_LIST:
+                new_tokens = self.bound_collection(tokens, t, i, "CONSTLIST", 0)
+                continue
             # The lowest bit of flags indicates whether the
             # var-keyword argument is placed at the top of the stack
-            if t.op == self.opc.CALL_FUNCTION_EX and t.attr & 1:
+            elif t.op == self.opc.CALL_FUNCTION_EX and t.attr & 1:
                 t.kind = "CALL_FUNCTION_EX_KW"
                 pass
             elif t.op == self.opc.BUILD_STRING:
@@ -61,8 +127,9 @@ class Scanner37(Scanner37Base):
                 t.kind = "BUILD_MAP_UNPACK_WITH_CALL_%d" % t.attr
             elif (not self.is_pypy) and t.op == self.opc.BUILD_TUPLE_UNPACK_WITH_CALL:
                 t.kind = "BUILD_TUPLE_UNPACK_WITH_CALL_%d" % t.attr
-            pass
-        return tokens, customize
+            new_tokens.append(t)
+
+        return new_tokens, customize
 
 
 if __name__ == "__main__":

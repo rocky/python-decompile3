@@ -90,7 +90,7 @@ class Token:
                     pass
                 else:
                     if version_tuple > (3, 9):
-                        print(f"Python versions 3.9 and greater are not supported.")
+                        print("Python versions 3.9 and greater are not supported.")
                     else:
                         print(f"xdis might need to be informed about version {e}")
                 return
