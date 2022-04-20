@@ -284,8 +284,18 @@ def customize_for_version37(self, version):
             ),
             "import_as37": ("%|import %c as %c\n", 2, -2),
             "import_from37": ("%|from %[2]{pattr} import %c\n", (3, "importlist37")),
+            "import_from_as37": (
+                "%|from %c as %c\n",
+                (2, "importattr37a"),
+                (3, "store"),
+            ),
             "import_one": ("%c", (0, "importlists"),),
             "importattr37": ("%c", (0, "IMPORT_NAME_ATTR")),
+            "importattr37a": (
+                "%c import %c",
+                (0, "IMPORT_NAME_ATTR"),
+                (1, "IMPORT_FROM"),
+            ),
             "list_afor": (
                 " async for %[1]{%c} in %c%[1]{%c}",
                 (1, "store"),
