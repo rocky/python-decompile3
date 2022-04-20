@@ -391,14 +391,20 @@ class Python37Parser(Python37LambdaParser):
         import_as37   ::= LOAD_CONST LOAD_CONST importlist37 store POP_TOP
         import_from   ::= LOAD_CONST LOAD_CONST importlist POP_TOP
         import_from37 ::= LOAD_CONST LOAD_CONST IMPORT_NAME_ATTR importlist37 POP_TOP
-        import_from_as37 ::= LOAD_CONST LOAD_CONST importattr37a store POP_TOP
+        import_from_as37 ::= LOAD_CONST LOAD_CONST import_from_attr37 store POP_TOP
 
         # A single entry in a dotted import a.b.c.d
         import_one    ::= importlists ROT_TWO IMPORT_FROM
         import_one    ::= importlists ROT_TWO POP_TOP IMPORT_FROM
 
-        importattr37  ::= IMPORT_NAME_ATTR IMPORT_FROM
-        importattr37a ::= IMPORT_NAME_ATTR IMPORT_FROM
+        # Semantic checks distinguish importattr37 from import_from_attr37
+        # in the former the "from" slot in a prior LOAD_CONST is null.
+
+        # Used in: import .. as ..
+        importattr37       ::= IMPORT_NAME_ATTR IMPORT_FROM
+
+        # Used in: from xx import .. as ..
+        import_from_attr37 ::= IMPORT_NAME_ATTR IMPORT_FROM
 
         importlist37  ::= import_one
         importlist37  ::= importattr37
