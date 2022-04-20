@@ -13,6 +13,9 @@ assert time1.time() > 0
 import os.path as osp
 
 assert osp == path
+from os.path import join as jj
+
+assert path.join == jj
 
 if len(__file__) == 0:
     # a.b.c should force consecutive LOAD_ATTRs
