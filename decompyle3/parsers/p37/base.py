@@ -656,15 +656,6 @@ class Python37BaseParser(PythonBaseParser):
                     self.add_make_function_rule(rule_pat, opname, token.attr, customize)
                     pass
                 custom_ops_processed.add(opname)
-            elif opname == "LOAD_ATTR":
-                self.addRule(
-                    """
-                  expr      ::= attribute
-                  attribute ::= expr LOAD_ATTR
-                  """,
-                    nop_func,
-                )
-                custom_ops_processed.add(opname)
             elif opname == "LOAD_LISTCOMP":
                 self.add_unique_rule(
                     "expr ::= list_comp", opname, token.attr, customize

@@ -182,33 +182,51 @@ class NonterminalActions:
 
         lastnodetype = node[2].kind
         flat_elems = node[1]
+        is_dict = lastnodetype.endswith("DICT")
 
         if lastnodetype.endswith("LIST"):
             self.write("[")
             endchar = "]"
-        elif lastnodetype.endswith("SET"):
+        elif lastnodetype.endswith("SET") or is_dict:
             self.write("{")
             endchar = "}"
         else:
             # from trepan.api import debug; debug()
             raise TypeError(
-                "Internal Error: n_build_list expects list, tuple, set, or unpack"
+                f"Internal Error: n_const_list expects dict, list set, or set; got {lastnodetype}"
             )
 
         self.indent_more(INDENT_PER_LEVEL)
         sep = ""
-        for elem in flat_elems:
-            assert elem.kind == "ADD_CONST"
-            value = elem.pattr
-            if elem.linestart is not None:
-                if elem.linestart != self.line_number:
-                    sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
-                    self.line_number = elem.linestart
-                else:
-                    if sep != "":
-                        sep += " "
-            self.write(sep, value)
-            sep = ","
+        if is_dict:
+            keys = flat_elems[-1].attr
+            assert isinstance(keys, tuple)
+            assert len(keys) == len(flat_elems) - 1
+            for i, elem in enumerate(flat_elems[:-1]):
+                assert elem.kind == "ADD_VALUE"
+                value = elem.pattr
+                if elem.linestart is not None:
+                    if elem.linestart != self.line_number:
+                        sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+                        self.line_number = elem.linestart
+                    else:
+                        if sep != "":
+                            sep += " "
+                self.write(f"{sep} {keys[i]}: {value}")
+                sep = ","
+        else:
+            for elem in flat_elems:
+                assert elem.kind == "ADD_VALUE"
+                value = elem.pattr
+                if elem.linestart is not None:
+                    if elem.linestart != self.line_number:
+                        sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+                        self.line_number = elem.linestart
+                    else:
+                        if sep != "":
+                            sep += " "
+                self.write(sep, value)
+                sep = ","
         self.write(endchar)
         self.indent_less(INDENT_PER_LEVEL)
 
@@ -730,7 +748,6 @@ class NonterminalActions:
             endchar = ")"
 
         else:
-            # from trepan.api import debug; debug()
             raise TypeError(
                 "Internal Error: n_build_list expects list, tuple, set, or unpack"
             )
@@ -818,7 +835,6 @@ class NonterminalActions:
             endchar = ")"
 
         else:
-            # from trepan.api import debug; debug()
             raise TypeError(
                 "Internal Error: n_build_list expects list, tuple, set, or unpack"
             )

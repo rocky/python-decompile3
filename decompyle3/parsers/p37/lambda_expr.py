@@ -162,9 +162,6 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         #     i and (j or k)
 
         or        ::= expr_jitop expr come_from_opt
-
-
-        or        ::= expr_pjit expr COME_FROM
         or_expr   ::= expr JUMP_IF_TRUE expr COME_FROM
 
         jitop_come_from_expr ::= JUMP_IF_TRUE_OR_POP _come_froms expr
@@ -367,7 +364,7 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
 
         # FIXME: the below is to work around test_grammar expecting a "call" to be
         # on the LHS because it is also somewhere on in a rule.
-        call           ::= expr CALL_METHOD_0
+        call              ::= expr CALL_METHOD_0
 
         compare           ::= compare_chained
         compare           ::= compare_single
@@ -416,11 +413,6 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         list_for  ::= expr_or_arg
                       for_iter
                       store list_iter
-                      jb_or_c _come_froms
-
-        set_for   ::= expr_or_arg
-                      for_iter
-                      store set_iter
                       jb_or_c _come_froms
 
         set_for   ::= expr_or_arg

@@ -32,6 +32,8 @@ from xdis.opcodes import opcode_37 as opc
 # bytecode verification, verify(), uses JUMP_OPS from here
 JUMP_OPs = opc.JUMP_OPS
 
+CONST_COLLECTIONS = ("CONST_LIST", "CONST_SET", "CONST_DICT")
+
 
 class Scanner37(Scanner37Base):
     def __init__(self, show_asm=None, debug=False, is_pypy=False):
@@ -41,23 +43,36 @@ class Scanner37(Scanner37Base):
 
     pass
 
-    def bound_collection(
-        self, tokens: list, t: Token, i: int, collection_type: str, collection_enum: 0
-    ):
+    def bound_collection(self, tokens: list, t: Token, i: int, collection_type: str):
         count = t.attr
         assert isinstance(count, int)
 
-        n = len(tokens)
         assert count <= i
-        collection_start = i - count
 
         # For small lists don't bother
         if count < 5:
             return tokens[: i + 1]
 
-        for j in range(collection_start, count):
-            if tokens[j].kind != "LOAD_CONST":
-                return tokens
+        if collection_type == "CONST_DICT":
+            # constant dictonaries work via BUILD_CONST_KEY_MAP and
+            # handle the values() like sets and lists.
+            # However the keys() are an LOAD_CONST of the keys.
+            # adjust offset to account for this
+            count += 1
+
+        collection_start = i - count
+
+        for j in range(collection_start, i):
+            if tokens[j].kind not in (
+                "LOAD_CONST",
+                "LOAD_FAST",
+                "LOAD_GLOBAL",
+                "LOAD_NAME",
+            ):
+                return tokens[: i + 1]
+
+        collection_enum = CONST_COLLECTIONS.index(collection_type)
+
         # If we go there all instructions before tokens[i] are LOAD_CONST and we can replace
         # add a boundary marker and change LOAD_CONST to something else
         new_tokens = tokens[:collection_start]
@@ -76,7 +91,7 @@ class Scanner37(Scanner37Base):
         for j in range(collection_start, i):
             new_tokens.append(
                 Token(
-                    opname="ADD_CONST",
+                    opname="ADD_VALUE",
                     attr=tokens[j].attr,
                     pattr=tokens[j].pattr,
                     offset=tokens[j].offset,
@@ -107,10 +122,18 @@ class Scanner37(Scanner37Base):
         new_tokens = []
         for i, t in enumerate(tokens):
             # things that smash new_tokens like BUILD_LIST have to come first.
-            if t.op in (self.opc.BUILD_LIST, self.opc.BUILD_SET):
-                collection_type = t.kind.split("_")[1]
+            if t.op in (
+                self.opc.BUILD_CONST_KEY_MAP,
+                self.opc.BUILD_LIST,
+                self.opc.BUILD_SET,
+            ):
+                collection_type = (
+                    "DICT"
+                    if t.kind.startswith("BUILD_CONST_KEY_MAP")
+                    else t.kind.split("_")[1]
+                )
                 new_tokens = self.bound_collection(
-                    tokens, t, i, f"CONST{collection_type}", 0
+                    tokens, t, i, f"CONST_{collection_type}"
                 )
                 continue
             # The lowest bit of flags indicates whether the
