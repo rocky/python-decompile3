@@ -199,13 +199,14 @@ class NonterminalActions:
         sep = ""
         for elem in flat_elems:
             assert elem.kind == "ADD_CONST"
-            line_number = self.line_number
             value = elem.pattr
-            if line_number != self.line_number:
-                sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
-            else:
-                if sep != "":
-                    sep += " "
+            if elem.linestart is not None:
+                if elem.linestart != self.line_number:
+                    sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
+                    self.line_number = elem.linestart
+                else:
+                    if sep != "":
+                        sep += " "
             self.write(sep, value)
             sep = ","
         self.write(endchar)

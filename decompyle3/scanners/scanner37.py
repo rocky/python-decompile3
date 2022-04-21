@@ -107,8 +107,11 @@ class Scanner37(Scanner37Base):
         new_tokens = []
         for i, t in enumerate(tokens):
             # things that smash new_tokens like BUILD_LIST have to come first.
-            if t.op == self.opc.BUILD_LIST:
-                new_tokens = self.bound_collection(tokens, t, i, "CONSTLIST", 0)
+            if t.op in (self.opc.BUILD_LIST, self.opc.BUILD_SET):
+                collection_type = t.kind.split("_")[1]
+                new_tokens = self.bound_collection(
+                    tokens, t, i, f"CONST{collection_type}", 0
+                )
                 continue
             # The lowest bit of flags indicates whether the
             # var-keyword argument is placed at the top of the stack

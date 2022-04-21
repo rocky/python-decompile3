@@ -120,13 +120,12 @@ class Python37LambdaCustom(Python37BaseParser):
                 """
                 self.addRule(rules_str, nop_func)
 
-            elif opname == "BUILD_CONSTLIST":
+            elif opname in ("BUILD_CONSTLIST", "BUILD_CONSTSET"):
                 self.addRule(
-                    """
+                    f"""
                         add_consts          ::= ADD_CONST*
                         expr                ::= const_list
-                        const_list          ::= COLLECTION_START add_consts BUILD_CONSTLIST
-
+                        const_list          ::= COLLECTION_START add_consts {opname}
                     """,
                     nop_func,
                 )
