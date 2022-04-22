@@ -62,7 +62,7 @@ def syntax_check(filename: str) -> bool:
 
 def decompile(
     co,
-    bytecode_version: str = PYTHON_VERSION_TRIPLE,
+    bytecode_version: Tuple[int] = PYTHON_VERSION_TRIPLE,
     out=sys.stdout,
     showasm=None,
     showast={},
