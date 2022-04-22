@@ -250,6 +250,11 @@ class NonterminalActions:
         'dict' is something like k = {'a': 1, 'b': 42}"
         We will use source-code line breaks to guide us when to break.
         """
+        if len(node) == 1 and node[0] == "const_list":
+            self.preorder(node[0])
+            self.prune()
+            return
+
         p = self.prec
         self.prec = 100
 
