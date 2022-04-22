@@ -199,7 +199,7 @@ class NonterminalActions:
         self.indent_more(INDENT_PER_LEVEL)
         sep = ""
         if is_dict:
-            keys = flat_elems[-1].attr
+            keys = flat_elems[-1].pattr
             assert isinstance(keys, tuple)
             assert len(keys) == len(flat_elems) - 1
             for i, elem in enumerate(flat_elems[:-1]):
@@ -212,7 +212,7 @@ class NonterminalActions:
                     else:
                         if sep != "":
                             sep += " "
-                self.write(f"{sep} {keys[i]}: {value}")
+                self.write(f"{sep} {repr(keys[i])}: {value}")
                 sep = ","
         else:
             for elem in flat_elems:

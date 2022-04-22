@@ -29,7 +29,7 @@ check: check-code-fragments
 
 #: Run working tests from Python 3.7
 check-3.7:
-	$(PYTHON) test_pythonlib.py --bytecode-3.7 $(PYTHONLIB_OPTS) $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.7 $(PYTHONLIB_OPTS) $(COMPILE) --run --verify
 	$(PYTHON) test_pythonlib.py --bytecode-3.8 $(COMPILE)
 
 check-pypy37: check-bytecode
@@ -37,7 +37,7 @@ check-pypy37: check-bytecode
 
 #: Run working tests from Python 3.8
 check-3.8:
-	$(PYTHON) test_pythonlib.py --bytecode-3.8 $(PYTHONLIB_OPTS) $(COMPILE)
+	$(PYTHON) test_pythonlib.py --bytecode-3.8 $(PYTHONLIB_OPTS) $(COMPILE) --run --verify
 	$(PYTHON) test_pythonlib.py --bytecode-3.7 $(COMPILE)
 
 check-3.9: check-bytecode
