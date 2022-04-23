@@ -70,7 +70,6 @@ class Python38LambdaCustom(Python38BaseParser):
         # a specific instruction seen.
 
         if "PyPy" in customize:
-            is_pypy = True
             self.addRule(
                 """
               stmt ::= assign3_pypy
@@ -163,6 +162,21 @@ class Python38LambdaCustom(Python38BaseParser):
                 """
                 self.addRule(rules_str, nop_func)
 
+            elif opname in ("BUILD_CONST_LIST", "BUILD_CONST_DICT", "BUILD_CONST_SET"):
+                if opname == "BUILD_CONST_DICT":
+                    rule = f"""
+                            add_consts          ::= ADD_VALUE*
+                            const_list          ::= COLLECTION_START add_consts {opname}
+                            dict                ::= const_list
+                            expr                ::= dict
+                        """
+                else:
+                    rule = f"""
+                            add_consts          ::= ADD_VALUE*
+                            const_list          ::= COLLECTION_START add_consts {opname}
+                            expr                ::= const_list
+                        """
+                self.addRule(rule, nop_func)
             elif opname_base in (
                 "BUILD_LIST",
                 "BUILD_SET",
@@ -359,6 +373,7 @@ class Python38LambdaCustom(Python38BaseParser):
 
                     set_afor             ::= get_aiter set_afor2
                     set_iter             ::= set_afor
+
                     set_comp_async       ::= BUILD_SET_0 LOAD_ARG
                                              set_comp_async
 
@@ -373,7 +388,6 @@ class Python38LambdaCustom(Python38BaseParser):
                     expr                 ::= genexpr_func_async
                     expr                 ::= BUILD_MAP_0 genexpr_func_async
                     expr                 ::= list_comp_async
-                    expr                 ::= set_comp_async
 
                     dict_comp_async      ::= BUILD_MAP_0 genexpr_func_async
 
@@ -622,6 +636,12 @@ class Python38LambdaCustom(Python38BaseParser):
         uniq_param = args_kw + args_pos
 
         if frozenset(("GET_AWAITABLE", "YIELD_FROM")).issubset(self.seen_ops):
+            rule_str = """
+                await      ::= GET_AWAITABLE LOAD_CONST YIELD_FROM
+                await_expr ::= expr await
+                expr       ::= await_expr
+            """
+            self.add_unique_doc_rules(rule_str, customize)
             rule = (
                 "async_call ::= expr "
                 + ("expr " * args_pos)
@@ -641,44 +661,45 @@ class Python38LambdaCustom(Python38BaseParser):
             rule = "call_kw36 ::= expr {values} LOAD_CONST {opname}".format(**locals())
             self.add_unique_rule(rule, token.kind, token.attr, customize)
         elif opname == "CALL_FUNCTION_EX_KW":
-            # Note: this doesn't exist in 3.7 and later
+            # Note that we don't add to customize token.kind here. Instead, the non-terminal
+            # names call_ex_kw... are is in semantic actions.
             self.addRule(
                 """expr        ::= call_ex_kw4
-                            call_ex_kw4 ::= expr
-                                            expr
-                                            expr
-                                            CALL_FUNCTION_EX_KW
-                         """,
+                                   call_ex_kw4 ::= expr
+                                   expr
+                                   expr
+                                   CALL_FUNCTION_EX_KW
+                """,
                 nop_func,
             )
             if "BUILD_MAP_UNPACK_WITH_CALL" in self.seen_op_basenames:
                 self.addRule(
                     """expr        ::= call_ex_kw
-                                call_ex_kw  ::= expr expr build_map_unpack_with_call
-                                                CALL_FUNCTION_EX_KW
-                             """,
+                       call_ex_kw  ::= expr expr build_map_unpack_with_call
+                                       CALL_FUNCTION_EX_KW
+                    """,
                     nop_func,
                 )
             if "BUILD_TUPLE_UNPACK_WITH_CALL" in self.seen_op_basenames:
                 # FIXME: should this be parameterized by EX value?
                 self.addRule(
                     """expr        ::= call_ex_kw3
-                                call_ex_kw3 ::= expr
-                                                build_tuple_unpack_with_call
-                                                expr
-                                                CALL_FUNCTION_EX_KW
-                             """,
+                                       call_ex_kw3 ::= expr
+                                       build_tuple_unpack_with_call
+                                       expr
+                                       CALL_FUNCTION_EX_KW
+                    """,
                     nop_func,
                 )
                 if "BUILD_MAP_UNPACK_WITH_CALL" in self.seen_op_basenames:
                     # FIXME: should this be parameterized by EX value?
                     self.addRule(
                         """expr        ::= call_ex_kw2
-                           call_ex_kw2 ::= expr
+                                           call_ex_kw2 ::= expr
                                            build_tuple_unpack_with_call
                                            build_map_unpack_with_call
                                            CALL_FUNCTION_EX_KW
-                             """,
+                        """,
                         nop_func,
                     )
 

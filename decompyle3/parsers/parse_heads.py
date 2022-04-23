@@ -63,6 +63,7 @@ class PythonBaseParser(GenericASTBuilder):
         nt_list = [
             "and_parts",
             "attributes",
+            "add_consts",
             "dicts_unmap",
             "doms_end",
             "exprs",

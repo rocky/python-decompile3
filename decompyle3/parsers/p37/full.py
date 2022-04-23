@@ -258,9 +258,6 @@ class Python37Parser(Python37LambdaParser):
         # Python 3.5+ Await things
         """
         # Can move this after have a p37/full_custom.py
-        expr       ::= await_expr
-        await_expr ::= expr GET_AWAITABLE LOAD_CONST YIELD_FROM
-
         stmt       ::= await_stmt
         await_stmt ::= await_expr POP_TOP
         """
@@ -438,7 +435,6 @@ class Python37Parser(Python37LambdaParser):
     def p_35on(self, args):
         """
         inplace_op       ::= INPLACE_MATRIX_MULTIPLY
-        binary_operator  ::= BINARY_MATRIX_MULTIPLY
 
         # FIXME: do we need these?
         return_expr ::= expr
@@ -775,24 +771,14 @@ class Python37Parser(Python37LambdaParser):
         except  ::=  POP_TOP POP_TOP POP_TOP c_stmts_opt POP_EXCEPT JUMP_FORWARD
         except  ::=  POP_TOP POP_TOP POP_TOP returns
 
+        except_handler ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts
+                           come_froms END_FINALLY
         jmp_abs ::= JUMP_ABSOLUTE
         jmp_abs ::= JUMP_LOOP
         jmp_abs ::= JUMP_FORWARD
 
         stmt    ::= assert2
         stmt    ::= assert2_not
-        """
-
-    def p_misc3(self, args):
-        """
-        except_handler ::= JUMP_FORWARD COME_FROM_EXCEPT except_stmts
-                           come_froms END_FINALLY
-
-        c_except_handler ::= jmp_abs COME_FROM c_except_stmts
-                           _come_froms END_FINALLY
-        c_except_handler ::= jmp_abs COME_FROM_EXCEPT c_except_stmts
-                           _come_froms END_FINALLY
-        c_except_handler ::= jmp_abs COME_FROM_EXCEPT c_except_stmts
         """
 
     def p_come_from3(self, args):
