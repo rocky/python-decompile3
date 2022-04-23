@@ -61,6 +61,14 @@ class Python37LambdaCustom(Python37BaseParser):
         for i, token in enumerate(tokens):
             opname = token.kind
 
+            # Do a quick breakout before testing potentially
+            # each of the dozen or so instruction in if elif.
+            if (
+                opname[: opname.find("_")] not in customize_instruction_basenames
+                or opname in custom_ops_processed
+            ):
+                continue
+
             opname_base = opname[: opname.rfind("_")]
 
             # Do a quick breakout before testing potentially
@@ -179,18 +187,6 @@ class Python37LambdaCustom(Python37BaseParser):
                         nop_func,
                     )
 
-                is_LOAD_CLOSURE = False
-                if opname_base == "BUILD_TUPLE":
-                    # If is part of a "load_closure", then it is not part of a
-                    # "list".
-                    is_LOAD_CLOSURE = True
-                    for j in range(v):
-                        if tokens[i - j - 1].kind != "LOAD_CLOSURE":
-                            is_LOAD_CLOSURE = False
-                            break
-                    if is_LOAD_CLOSURE:
-                        rule = "load_closure ::= %s%s" % (("LOAD_CLOSURE " * v), opname)
-                        self.add_unique_rule(rule, opname, token.attr, customize)
                 if not is_LOAD_CLOSURE or v == 0:
                     # We do this complicated test to speed up parsing of
                     # pathelogically long literals, especially those over 1024.
@@ -237,13 +233,11 @@ class Python37LambdaCustom(Python37BaseParser):
                       expr                 ::= formatted_value_attr
                     """
                     self.add_unique_doc_rules(rules_str, customize)
-
-            elif opname_base == "BUILD_MAP_UNPACK_WITH_CALL":
+            elif opname.startswith("BUILD_MAP_UNPACK_WITH_CALL"):
                 v = token.attr
                 rule = "build_map_unpack_with_call ::= %s%s" % ("expr " * v, opname)
                 self.addRule(rule, nop_func)
-
-            elif opname_base == "BUILD_TUPLE_UNPACK_WITH_CALL":
+            elif opname.startswith("BUILD_TUPLE_UNPACK_WITH_CALL"):
                 v = token.attr
                 rule = (
                     "build_tuple_unpack_with_call ::= "
@@ -262,7 +256,6 @@ class Python37LambdaCustom(Python37BaseParser):
                     formatted_value1  ::= expr FORMAT_VALUE
                 """
                 self.add_unique_doc_rules(rules_str, customize)
-
             elif opname == "FORMAT_VALUE_ATTR":
                 rules_str = """
                 expr              ::= formatted_value2
@@ -346,7 +339,7 @@ class Python37LambdaCustom(Python37BaseParser):
 
                     func_async_middle   ::= POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT
                                             DUP_TOP LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
-                                            END_FINALLY bb_end_start
+                                            END_FINALLY _come_froms
 
                     # async_iter         ::= block_break SETUP_EXCEPT GET_ANEXT LOAD_CONST YIELD_FROM
 
@@ -605,7 +598,6 @@ class Python37LambdaCustom(Python37BaseParser):
             values = "expr " * token.attr
             rule = "call_kw36 ::= expr {values} LOAD_CONST {opname}".format(**locals())
             self.add_unique_rule(rule, token.kind, token.attr, customize)
-
         elif opname == "CALL_FUNCTION_EX_KW":
             # Note that we don't add to customize token.kind here. Instead, the non-terminal
             # names call_ex_kw... are is in semantic actions.
@@ -652,10 +644,10 @@ class Python37LambdaCustom(Python37BaseParser):
         elif opname == "CALL_FUNCTION_EX":
             self.addRule(
                 """
-                         expr        ::= call_ex
-                         starred     ::= expr
-                         call_ex     ::= expr starred CALL_FUNCTION_EX
-                         """,
+                expr        ::= call_ex
+                starred     ::= expr
+                call_ex     ::= expr starred CALL_FUNCTION_EX
+                """,
                 nop_func,
             )
             if "BUILD_MAP_UNPACK_WITH_CALL" in self.seen_ops:
