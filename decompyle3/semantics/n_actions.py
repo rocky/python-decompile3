@@ -246,7 +246,7 @@ class NonterminalActions:
 
     def n_dict(self, node):
         """
-        prettyprint a dict
+        Prettyprint a dict.
         'dict' is something like k = {'a': 1, 'b': 42}"
         We will use source-code line breaks to guide us when to break.
         """
