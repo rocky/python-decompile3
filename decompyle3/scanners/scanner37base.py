@@ -29,7 +29,7 @@ For example:
 Finally we save token information.
 """
 
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List, Set, Tuple
 
 from xdis import iscode, instruction_size, Instruction
 from xdis.bytecode import _get_const_info
@@ -48,7 +48,7 @@ globals().update(op3.opmap)
 
 
 class Scanner37Base(Scanner):
-    def __init__(self, version: float, show_asm=None, debug=False, is_pypy=False):
+    def __init__(self, version: Tuple[int], show_asm=None, debug="", is_pypy=False):
         super(Scanner37Base, self).__init__(version, show_asm, is_pypy)
         self.debug = debug
         self.is_pypy = is_pypy
