@@ -941,10 +941,10 @@ def customize_for_version37(self, version):
 
     def n_import_from(node):
         relative_path_index = 0
-        if node[relative_path_index].pattr > 0:
+        if node[relative_path_index].attr > 0:
             node[2].pattr = ("." * node[relative_path_index].pattr) + node[2].pattr
-        if isinstance(node[1].pattr, tuple):
-            imports = node[1].pattr
+        if isinstance(node[1].attr, tuple):
+            imports = node[1].attr
             for pattr in imports:
                 node[1].pattr = pattr
                 self.default(node)
