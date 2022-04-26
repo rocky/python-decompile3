@@ -20,6 +20,7 @@ from xdis import iscode
 
 from decompyle3.semantics.consts import (
     INDENT_PER_LEVEL,
+    NO_PARENTHESIS_EVER,
     NONE,
     PRECEDENCE,
     minint,
@@ -112,6 +113,31 @@ class NonterminalActions:
         self.preorder(node[1])
         self.prec += 1
         self.prune()
+
+    def n_build_slice2(self, node):
+        p = self.prec
+        self.prec = NO_PARENTHESIS_EVER
+        if not node[0].isNone():
+            self.preorder(node[0])
+        self.write(":")
+        if not node[1].isNone():
+            self.preorder(node[1])
+        self.prec = p
+        self.prune()  # stop recursing
+
+    def n_build_slice3(self, node):
+        p = self.prec
+        self.prec = NO_PARENTHESIS_EVER
+        if not node[0].isNone():
+            self.preorder(node[0])
+        self.write(":")
+        if not node[1].isNone():
+            self.preorder(node[1])
+        self.write(":")
+        if not node[2].isNone():
+            self.preorder(node[2])
+        self.prec = p
+        self.prune()  # stop recursing
 
     def n_classdef(self, node):
 
@@ -256,7 +282,7 @@ class NonterminalActions:
             return
 
         p = self.prec
-        self.prec = 100
+        self.prec = NO_PARENTHESIS_EVER
 
         self.indent_more(INDENT_PER_LEVEL)
         sep = INDENT_PER_LEVEL[:-1]
@@ -468,6 +494,12 @@ class NonterminalActions:
         self.prec = p
         self.prune()
 
+    # In the old days this node would never get called because
+    # it was embedded inside some sort of comprehension
+    # Nowadays, we allow starting any code object, not just
+    # a top-level module. In doing so we can
+    # now encounter this outside of the embedding of
+    # a comprehension.
     def n_dict_comp_func(self, node):
         self.write("{")
         self.comprehension_walk_newer(node, 4, 0, collection_node=node[1])
@@ -624,12 +656,20 @@ class NonterminalActions:
         self.prec = p
         self.prune()
 
+    # In the old days this node would never get called because
+    # it was embedded inside some sort of comprehension
+    # Nowadays, we allow starting any code object, not just
+    # a top-level module. In doing so we can
+    # now encounter this outside of the embedding of
+    # a comprehension.
     def n_generator_exp(self, node):
         self.write("(")
         if node[0].kind in ("load_closure", "load_genexpr") and self.version >= (3, 8):
+            is_lambda = self.is_lambda
             self.closure_walk(
                 node, collection_index=4 if isinstance(node[4], SyntaxTree) else 3
             )
+            self.is_lambda = is_lambda
         else:
             code_index = -6
             iter_index = 4 if self.version < (3, 8) else 3
@@ -1028,7 +1068,7 @@ class NonterminalActions:
     # e.g. a[:5] rather than a[None:5]
     def n_slice2(self, node):
         p = self.prec
-        self.prec = 100
+        self.prec = NO_PARENTHESIS_EVER
         if not node[0].isNone():
             self.preorder(node[0])
         self.write(":")
@@ -1041,7 +1081,7 @@ class NonterminalActions:
     # e.g. a[:] rather than a[None:None]
     def n_slice3(self, node):
         p = self.prec
-        self.prec = 100
+        self.prec = NO_PARENTHESIS_EVER
         if not node[0].isNone():
             self.preorder(node[0])
         self.write(":")
