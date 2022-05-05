@@ -273,14 +273,20 @@ class Python37LambdaCustom(Python37BaseParser):
                         expr                ::= generator_exp_async
                         expr                ::= list_comp_async
 
+                        dict_comp_async     ::= LOAD_DICTCOMP
+                                                LOAD_STR
+                                                MAKE_FUNCTION_0
+                                                get_aiter
+                                                CALL_FUNCTION_1
+
+                        dict_comp_async     ::= BUILD_MAP_0 LOAD_ARG
+                                                dict_comp_async
+
                         func_async_middle   ::= POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT
                                                 DUP_TOP LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
                                                 END_FINALLY COME_FROM
 
                         func_async_prefix   ::= _come_froms SETUP_EXCEPT GET_ANEXT LOAD_CONST YIELD_FROM
-
-                        dict_comp_async     ::= BUILD_MAP_0 LOAD_ARG
-                                                dict_comp_async
 
                         generator_exp_async ::= load_genexpr LOAD_STR MAKE_FUNCTION_0
                                                 get_aiter CALL_FUNCTION_1

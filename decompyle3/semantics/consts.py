@@ -341,7 +341,7 @@ TABLE_DIRECT = {
 
     "set_comp_body": ("%c", 0),
     "gen_comp_body": ("%c", 0),
-    "dict_comp_body": ("%c:%c", 1, 0),
+    "dict_comp_body": ("%c: %c", 1, 0),
 
     "and": (
         "%c and %c",
