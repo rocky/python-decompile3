@@ -432,7 +432,7 @@ class Python37Parser(Python37LambdaParser):
         """
         return
 
-    def p_35on(self, args):
+    def p_35_on(self, args):
         """
         inplace_op       ::= INPLACE_MATRIX_MULTIPLY
 
@@ -451,7 +451,7 @@ class Python37Parser(Python37LambdaParser):
         iflaststmt  ::= testexpr stmts_opt JUMP_FORWARD
         """
 
-    def p_37async(self, args):
+    def p_37_async(self, args):
         """
         stmt     ::= async_for_stmt37
         stmt     ::= async_for_stmt

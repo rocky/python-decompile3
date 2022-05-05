@@ -161,7 +161,7 @@ class ComprehensionMixin:
 
         assert iscode(cn.attr)
 
-        code = Code(cn.attr, self.scanner, self.currentclass)
+        code = Code(cn.attr, self.scanner, self.currentclass, self.debug_opts["asm"])
 
         # FIXME: is there a way we can avoid this?
         # The problem is that in filter in top-level list comprehensions we can
@@ -199,6 +199,8 @@ class ComprehensionMixin:
 
         n = tree[iter_index]
         assert n == "comp_iter", n
+        list_if = None
+        write_if = False
 
         # Find the comprehension body. It is the inner-most
         # node that is not list_.. .
@@ -217,6 +219,7 @@ class ComprehensionMixin:
                 "comp_if_not_or",
                 "comp_if_or",
             ):
+                list_if = n
                 write_if = True
                 n = n[-1]
                 assert n == "comp_iter"
@@ -241,6 +244,10 @@ class ComprehensionMixin:
         assert iter_expr in ("expr", "get_aiter"), iter_expr
         self.preorder(iter_expr)
         self.preorder(tree[iter_index])
+        if list_if:
+            if write_if:
+                self.write(" if ")
+            self.preorder(list_if)
         self.prec = p
 
     def comprehension_walk_newer(
@@ -374,6 +381,10 @@ class ComprehensionMixin:
             # this iteration is duplicate in seeing the list-comprehension code
             # item again. Is this a larger duplicate parsing problem?
             # Not sure what the best this thing to do is.
+            # try:
+            #     n
+            # except:
+            #     from trepan.api import debug; debug()
 
             if n.kind in ("RETURN_VALUE_LAMBDA", "return_expr_lambda"):
                 self.prune()
