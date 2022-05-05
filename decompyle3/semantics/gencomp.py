@@ -321,8 +321,13 @@ class ComprehensionMixin:
             # and:
             #  dict_comp_async  ::= BUILD_MAP_0 genexpr_func_async
             #  set_comp_async   ::= BUILD_SET_0 genexpr_func_async
-            if tree[0].kind in ("BUILD_MAP_0", "BUILD_SET_0"):
-                genexpr_func_async = tree[1]
+            t = tree[0]
+            if t == "expr":
+                t_kind = t[0].kind
+            else:
+                t_kind = t.kind
+            if t_kind in ("BUILD_MAP_0", "BUILD_SET_0"):
+                genexpr_func_async = t[1]
                 if genexpr_func_async == "genexpr_func_async":
                     store = genexpr_func_async[2]
                     assert store.kind.startswith("store")
