@@ -259,7 +259,7 @@ class ComprehensionMixin:
     ):
         """Non-closure-based comprehensions.
 
-        Note: there are also other set comprehensions.
+        Note: there are also other comprehensions.
         """
         # FIXME: DRY with listcomp_closure3
 

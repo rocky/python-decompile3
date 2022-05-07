@@ -30,6 +30,9 @@ def whileTruestmt38_check(
         return True
     while tokens[last] == "COME_FROM":
         last -= 1
+    if rule[-1][-1] == "\\e__come_froms" and rule[-1][-2] == "JUMP_LOOP":
+        while tokens[last] != "JUMP_LOOP":
+            last -= 1
     jump_loop = tokens[last]
     if jump_loop == "JUMP_LOOP":
 
@@ -42,5 +45,4 @@ def whileTruestmt38_check(
             c_stmts_offset = c_stmts.first_child().off2int()
             return c_stmts_offset != jump_target
 
-        # FIXME: come back to this.
     return False

@@ -106,7 +106,7 @@ SKIP_TESTS=(
     [test_compileall.py]=1 # fails on its own
     [test_concurrent_futures.py]=1 # too long
     [test_configparser.py]=1 # test failures
-    [test_coroutines.py]=1 # Parse error
+    # [test_coroutines.py]=1 # Parse error
     [test_ctypes.py]=1 # it fails on its own
     [test_curses.py]=1 # Parse error
 

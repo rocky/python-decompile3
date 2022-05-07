@@ -61,14 +61,6 @@ class Python37LambdaCustom(Python37BaseParser):
         for i, token in enumerate(tokens):
             opname = token.kind
 
-            # Do a quick breakout before testing potentially
-            # each of the dozen or so instruction in if elif.
-            if (
-                opname[: opname.find("_")] not in customize_instruction_basenames
-                or opname in custom_ops_processed
-            ):
-                continue
-
             opname_base = opname[: opname.rfind("_")]
 
             # Do a quick breakout before testing potentially
@@ -79,7 +71,42 @@ class Python37LambdaCustom(Python37BaseParser):
             ):
                 continue
 
-            if opname == "BEFORE_ASYNC_WITH":
+            if opname == "LOAD_ASSERT":
+                if "PyPy" in customize:
+                    rules_str = """
+                    stmt ::= JUMP_IF_NOT_DEBUG stmts COME_FROM
+                    """
+                    self.add_unique_doc_rules(rules_str, customize)
+            elif opname == "FORMAT_VALUE":
+                rules_str = """
+                    expr              ::= formatted_value1
+                    formatted_value1  ::= expr FORMAT_VALUE
+                """
+                self.add_unique_doc_rules(rules_str, customize)
+            elif opname == "FORMAT_VALUE_ATTR":
+                rules_str = """
+                expr              ::= formatted_value2
+                formatted_value2  ::= expr expr FORMAT_VALUE_ATTR
+                """
+                self.add_unique_doc_rules(rules_str, customize)
+            elif opname == "MAKE_FUNCTION_CLOSURE":
+                if "LOAD_DICTCOMP" in self.seen_ops:
+                    # Is there something general going on here?
+                    rule = """
+                       dict_comp ::= load_closure LOAD_DICTCOMP LOAD_STR
+                                     MAKE_FUNCTION_CLOSURE expr
+                                     GET_ITER CALL_FUNCTION_1
+                       """
+                    self.addRule(rule, nop_func)
+                elif "LOAD_SETCOMP" in self.seen_ops:
+                    rule = """
+                       set_comp ::= load_closure LOAD_SETCOMP LOAD_STR
+                                    MAKE_FUNCTION_CLOSURE expr
+                                    GET_ITER CALL_FUNCTION_1
+                       """
+                    self.addRule(rule, nop_func)
+
+            elif opname == "BEFORE_ASYNC_WITH":
                 rules_str = """
                   stmt               ::= async_with_stmt SETUP_ASYNC_WITH
                   async_with_pre     ::= BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM SETUP_ASYNC_WITH
@@ -510,36 +537,6 @@ class Python37LambdaCustom(Python37BaseParser):
                         opname,
                     )
                     self.add_unique_rule(rule, opname, token.attr, customize)
-
-            elif opname == "BEFORE_ASYNC_WITH":
-                rules_str = """
-                  stmt               ::= async_with_stmt SETUP_ASYNC_WITH
-                  async_with_pre     ::= BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM SETUP_ASYNC_WITH
-                  async_with_post    ::= COME_FROM_ASYNC_WITH
-                                         WITH_CLEANUP_START GET_AWAITABLE LOAD_CONST YIELD_FROM
-                                         WITH_CLEANUP_FINISH END_FINALLY
-
-                  stmt               ::= async_with_as_stmt
-                  async_with_as_stmt ::= expr
-                                         async_with_pre
-                                         store
-                                         suite_stmts_opt
-                                         POP_BLOCK LOAD_CONST
-                                         async_with_post
-
-                 async_with_stmt     ::= expr
-                                         async_with_pre
-                                         POP_TOP
-                                         suite_stmts_opt
-                                         POP_BLOCK LOAD_CONST
-                                         async_with_post
-                 async_with_stmt     ::= expr
-                                         async_with_pre
-                                         POP_TOP
-                                         suite_stmts_opt
-                                         async_with_post
-                """
-                self.addRule(rules_str, nop_func)
 
             elif opname == "SETUP_WITH":
                 rules_str = """

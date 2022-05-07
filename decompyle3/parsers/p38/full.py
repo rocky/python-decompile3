@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2021 Rocky Bernstein
+#  Copyright (c) 2017-2022 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -64,10 +64,11 @@ class Python38Parser(Python38LambdaParser, Python37Parser):
         ifelsestmtc        ::= testexpr c_stmts_opt JUMP_LOOP else_suitec JUMP_LOOP
         """
 
-    def p_38misc(self, args):
+    def p_38_misc(self, args):
         """
         stmt               ::= async_for_stmt38
         stmt               ::= async_forelse_stmt38
+        stmt               ::= async_with_stmt38
         stmt               ::= for38
         stmt               ::= forelselaststmt38
         stmt               ::= forelselaststmtc38
@@ -117,6 +118,24 @@ class Python38Parser(Python38LambdaParser, Python37Parser):
                                 COME_FROM_FINALLY
                                 END_ASYNC_FOR
                                 else_suite
+
+        async_with_stmt38    ::= LOAD_DEREF
+                                 BEFORE_ASYNC_WITH
+                                 GET_AWAITABLE
+                                 LOAD_CONST
+                                 YIELD_FROM
+                                 SETUP_ASYNC_WITH
+                                 POP_TOP
+                                 stmts
+                                 POP_BLOCK
+                                 BEGIN_FINALLY
+                                 COME_FROM_ASYNC_WITH
+                                 WITH_CLEANUP_START
+                                 GET_AWAITABLE
+                                 LOAD_CONST
+                                 YIELD_FROM
+                                 WITH_CLEANUP_FINISH
+                                 END_FINALLY
 
         # Seems to be used to discard values before a return in a "for" loop
         discard_top        ::= ROT_TWO POP_TOP
