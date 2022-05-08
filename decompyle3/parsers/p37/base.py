@@ -11,7 +11,7 @@ from decompyle3.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from spark_parser.spark import rule2str
 
-from decompyle3.parsers.reducecheck import (
+from decompyle3.parsers.reduce_check import (
     and_check,
     and_cond_check,
     and_not_check,

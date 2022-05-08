@@ -17,7 +17,7 @@ from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
 from decompyle3.parsers.p37.base import Python37BaseParser
 from decompyle3.parsers.parse_heads import PythonBaseParser
-from decompyle3.parsers.reducecheck import (
+from decompyle3.parsers.reduce_check import (
     break_check,
     for38_check,
     pop_return_check,
