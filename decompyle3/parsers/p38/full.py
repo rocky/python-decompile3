@@ -31,14 +31,18 @@ class Python38Parser(Python38LambdaParser, Python37Parser):
         Python38LambdaParser.__init__(self, start_symbol, debug_parser)
         self.customized = {}
 
-    def p_38walrus(self, args):
+    ###############################################
+    #  Python 3.8 grammar rules with statements
+    ###############################################
+
+    def p_38_full_walrus(self, args):
         """
         # named_expr is also known as the "walrus op" :=
         expr              ::= named_expr
         named_expr        ::= expr DUP_TOP store
         """
 
-    def p_38if_ifelse(self, args):
+    def p_38_full_if_ifelse(self, args):
         """
         # cf_pt introduced to keep indices the same in ifelsestmtc
         cf_pt              ::= COME_FROM POP_TOP
@@ -64,7 +68,7 @@ class Python38Parser(Python38LambdaParser, Python37Parser):
         ifelsestmtc        ::= testexpr c_stmts_opt JUMP_LOOP else_suitec JUMP_LOOP
         """
 
-    def p_38_misc(self, args):
+    def p_38_full_misc(self, args):
         """
         stmt               ::= async_for_stmt38
         stmt               ::= async_forelse_stmt38
