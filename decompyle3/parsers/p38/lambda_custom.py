@@ -27,7 +27,7 @@ class Python38LambdaCustom(Python38BaseParser):
         self.customized = {}
 
     def customize_grammar_rules_lambda38(self, tokens, customize):
-        Python38BaseParser.customize_grammar_rules38(self, tokens, customize)
+        Python37BaseParser.customize_grammar_rules37(self, tokens, customize)
         self.check_reduce["call_kw"] = "AST"
 
         # For a rough break out on the first word. This may
@@ -115,8 +115,6 @@ class Python38LambdaCustom(Python38BaseParser):
 
             if opname == "BEFORE_ASYNC_WITH":
                 rules_str = """
-                  stmt               ::= async_with_stmt SETUP_ASYNC_WITH
-                  async_with_pre     ::= BEFORE_ASYNC_WITH GET_AWAITABLE LOAD_CONST YIELD_FROM SETUP_ASYNC_WITH
                   async_with_post    ::= COME_FROM_ASYNC_WITH
                                          WITH_CLEANUP_START GET_AWAITABLE LOAD_CONST YIELD_FROM
                                          WITH_CLEANUP_FINISH END_FINALLY
@@ -394,12 +392,19 @@ class Python38LambdaCustom(Python38BaseParser):
                     async_iter           ::= _come_froms
                                              SETUP_FINALLY GET_ANEXT LOAD_CONST YIELD_FROM POP_BLOCK
 
+                    func_async_prefix    ::= _come_froms SETUP_EXCEPT GET_ANEXT LOAD_CONST YIELD_FROM
+
                     genexpr_func_async   ::= LOAD_ARG async_iter
                                              store
                                              comp_iter
                                              JUMP_LOOP
                                              COME_FROM_FINALLY
                                              END_ASYNC_FOR
+
+                    genexpr_func_async   ::= LOAD_ARG func_async_prefix
+                                             store func_async_middle comp_iter
+                                             JUMP_LOOP COME_FROM
+                                             POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
 
                     list_afor2           ::= async_iter
                                              store

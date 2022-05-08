@@ -313,15 +313,8 @@ class Python37LambdaCustom(Python37BaseParser):
                                                 DUP_TOP LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
                                                 END_FINALLY COME_FROM
 
-                        func_async_prefix   ::= _come_froms SETUP_EXCEPT GET_ANEXT LOAD_CONST YIELD_FROM
-
                         generator_exp_async ::= load_genexpr LOAD_STR MAKE_FUNCTION_0
                                                 get_aiter CALL_FUNCTION_1
-
-                        genexpr_func_async  ::= LOAD_ARG func_async_prefix
-                                                store func_async_middle comp_iter
-                                                JUMP_LOOP COME_FROM
-                                                POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
 
                         # FIXME this is a workaround for probalby some bug in the Earley parser
                         # if we use get_aiter, then list_comp_async doesn't match, and I don't
@@ -412,11 +405,18 @@ class Python37LambdaCustom(Python37BaseParser):
                                              DUP_TOP LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
                                              END_FINALLY COME_FROM
 
+                    func_async_prefix    ::= _come_froms SETUP_EXCEPT GET_ANEXT LOAD_CONST YIELD_FROM
+
                     # We use store_async_iter_end to make comp_iter come out in the right position,
                     # (after the logical "store")
                     genexpr_func_async   ::= LOAD_ARG async_iter
                                              store_async_iter_end
                                              comp_iter
+                                             JUMP_LOOP COME_FROM
+                                             POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
+
+                    genexpr_func_async   ::= LOAD_ARG func_async_prefix
+                                             store func_async_middle comp_iter
                                              JUMP_LOOP COME_FROM
                                              POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
 
