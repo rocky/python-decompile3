@@ -128,14 +128,14 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
                                 END_ASYNC_FOR
                                 else_suite
 
-        async_with_stmt38    ::= LOAD_DEREF
+        async_with_stmt38    ::= expr
                                  BEFORE_ASYNC_WITH
                                  GET_AWAITABLE
                                  LOAD_CONST
                                  YIELD_FROM
                                  SETUP_ASYNC_WITH
                                  POP_TOP
-                                 stmts
+                                 c_stmts_opt
                                  POP_BLOCK
                                  BEGIN_FINALLY
                                  COME_FROM_ASYNC_WITH
@@ -145,6 +145,25 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
                                  YIELD_FROM
                                  WITH_CLEANUP_FINISH
                                  END_FINALLY
+
+        async_with_stmt38    ::= expr
+                                 BEFORE_ASYNC_WITH
+                                 GET_AWAITABLE
+                                 LOAD_CONST
+                                 YIELD_FROM
+                                 SETUP_ASYNC_WITH
+                                 POP_TOP
+                                 c_stmts_opt
+                                 POP_BLOCK
+                                 BEGIN_FINALLY
+                                 WITH_CLEANUP_START
+                                 GET_AWAITABLE
+                                 LOAD_CONST
+                                 YIELD_FROM
+                                 WITH_CLEANUP_FINISH
+                                 POP_FINALLY
+
+
 
         # Seems to be used to discard values before a return in a "for" loop
         discard_top        ::= ROT_TWO POP_TOP
