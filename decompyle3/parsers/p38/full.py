@@ -89,6 +89,7 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         stmt               ::= try_except_as
         stmt               ::= try_except_ret38
         stmt               ::= try_except_ret38a
+        stmt               ::= tryfinallystmt_break
         stmt               ::= tryfinally38astmt
         stmt               ::= tryfinally38rstmt
         stmt               ::= tryfinally38rstmt2
@@ -300,6 +301,12 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
 
         tryfinallystmt     ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
                                BEGIN_FINALLY COME_FROM_FINALLY suite_stmts_opt
+                               END_FINALLY
+
+        tryfinallystmt_break ::=
+                               SETUP_FINALLY suite_stmts_opt POP_BLOCK POP_EXCEPT CALL_FINALLY
+                               JUMP_FORWARD POP_BLOCK
+                               BEGIN_FINALLY COME_FROM COME_FROM_FINALLY suite_stmts_opt
                                END_FINALLY
 
 
