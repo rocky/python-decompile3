@@ -46,8 +46,8 @@ def customize_for_version38(self, version):
             ),
             "async_with_stmt38": (
                 "%|async with %c:\n%+%c%-\n",
-                (0, "LOAD_DEREF"),
-                (7, "stmts"),
+                (0, "expr"),
+                (7, ("c_stmts_opt", "c_stmts")),
             ),
             "async_with_as_stmt38": (
                 "%|async with %c as %c:\n%+%|%c%-",
