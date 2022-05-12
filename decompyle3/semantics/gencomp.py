@@ -17,8 +17,8 @@ Generators and comprehension functions
 """
 
 
+from spark_parser.ast import GenericASTTraversalPruningException
 from typing import Optional
-
 from xdis import iscode
 
 from decompyle3.parsers.main import get_python_parser
@@ -93,18 +93,19 @@ class ComprehensionMixin:
                 list_if = n
                 n = n[-1]
             elif n in (
-                "list_if",
-                "list_if_not",
-                "list_if_and_or",
                 "comp_if",
                 "comp_if_not",
+                "list_if",
+                "list_if_and_or",
+                "list_if_not",
+                "list_if_or_not",
             ):
                 # FIXME: most of the grammar start with expr_...
                 # Some of the older ones can be: expr <jump> <iter>
                 # This may disappear though.
                 if n[0].kind == "expr":
                     list_if = n
-                    n = n[-1]  # n -1 ?
+                    n = n[-1]
                 elif n[0].kind in ("expr_pjif", "expr_pjiff"):
                     list_if = n
                     n = n[1]
@@ -278,7 +279,10 @@ class ComprehensionMixin:
                 self.compile_mode = "genexpr"
                 is_lambda = self.is_lambda
                 self.is_lambda = True
-                tree = self.get_comprehension_function(node, code_index)
+                try:
+                    tree = self.get_comprehension_function(node, code_index)
+                except GenericASTTraversalPruningException:
+                    pass
                 self.compile_mode = compile_mode
                 self.is_lambda = is_lambda
             else:
@@ -541,8 +545,13 @@ class ComprehensionMixin:
         elif node == "set_comp_async":
             self.preorder(collection_node)
             if_nodes = []
+        elif node == "list_comp_async":
+            self.preorder(node[in_node_index])
         elif is_lambda_mode(self.compile_mode):
             if node == "list_comp_async":
+                from trepan.api import debug
+
+                debug()
                 self.preorder(node[1])
             elif collection_node is None:
                 assert node[3] in ("get_aiter", "get_iter"), node[3].kind

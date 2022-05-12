@@ -522,7 +522,10 @@ def customize_for_version37(self, version):
         if dict_comp_async == "dict_comp_async":
             compile_mode = self.compile_mode
             self.compile_mode = "dictcomp"
-            self.n_set_comp(dict_comp_async)
+            try:
+                self.n_set_comp(dict_comp_async)
+            except GenericASTTraversalPruningException:
+                pass
             self.compile_mode = compile_mode
         else:
             self.default(node)

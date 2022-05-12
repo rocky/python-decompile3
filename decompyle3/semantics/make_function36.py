@@ -47,7 +47,7 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
 
     # Thank you, Python.
 
-    def build_param(ast, name, default, annotation=None):
+    def build_param(tree, name, default, annotation=None):
         """build parameters:
         - handle defaults
         - handle format tuple parameters
@@ -155,7 +155,7 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
     defparams.reverse()
 
     try:
-        ast = self.build_ast(
+        tree = self.build_ast(
             scanner_code._tokens,
             scanner_code._customize,
             scanner_code,
@@ -176,7 +176,7 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
         for i, defparam in enumerate(defparams):
             params.append(
                 build_param(
-                    ast, paramnames[i], defparam, annotate_dict.get(paramnames[i])
+                    tree, paramnames[i], defparam, annotate_dict.get(paramnames[i])
                 )
             )
 
@@ -219,16 +219,16 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
         # to have something to after the yield finishes.
         # FIXME: this is a bit hoaky and not general
         if (
-            len(ast) > 1
-            and self.traverse(ast[-1]) == "None"
-            and self.traverse(ast[-2]).strip().startswith("yield")
+            len(tree) > 1
+            and self.traverse(tree[-1]) == "None"
+            and self.traverse(tree[-2]).strip().startswith("yield")
         ):
-            del ast[-1]
+            del tree[-1]
             # Now pick out the expr part of the last statement
-            ast_expr = ast[-1]
-            while ast_expr.kind != "expr":
-                ast_expr = ast_expr[0]
-            ast[-1] = ast_expr
+            tree_expr = tree[-1]
+            while tree_expr.kind != "expr":
+                tree_expr = tree_expr[0]
+            tree[-1] = tree_expr
             pass
     else:
         self.write("(", ", ".join(params))
@@ -335,11 +335,11 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
         # docstring exists, dump it
         self.println(self.traverse(node[-2]))
 
-    assert ast in ("stmts", "lambda_start")
+    assert tree in ("stmts", "lambda_start")
 
-    all_globals = find_all_globals(ast, set())
+    all_globals = find_all_globals(tree, set())
     globals, nonlocals = find_globals_and_nonlocals(
-        ast, set(), set(), code, self.version
+        tree, set(), set(), code, self.version
     )
 
     for g in sorted((all_globals & self.mod_globs) | globals):
@@ -350,9 +350,9 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
 
     self.mod_globs -= all_globals
     has_none = "None" in code.co_names
-    rn = has_none and not find_none(ast)
+    rn = has_none and not find_none(tree)
     self.gen_source(
-        ast,
+        tree,
         code.co_name,
         scanner_code._customize,
         is_lambda=is_lambda,
