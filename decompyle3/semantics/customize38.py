@@ -42,7 +42,7 @@ def customize_for_version38(self, version):
                 (2, "store"),
                 (0, "expr"),
                 (3, "for_block"),
-                (-1, "else_suite"),
+                (6, "else_suite"),
             ),
             "async_with_stmt38": (
                 "%|async with %c:\n%+%c%-\n",

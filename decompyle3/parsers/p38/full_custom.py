@@ -467,7 +467,31 @@ class Python38FullCustom(Python38LambdaCustom, PythonBaseParser):
             elif opname == "GET_AITER":
                 self.addRule(
                     """
-                    stmt ::= generator_exp_async
+                    async_for          ::= GET_AITER _come_froms
+                                           SETUP_FINALLY GET_ANEXT LOAD_CONST YIELD_FROM POP_BLOCK
+                    async_for_stmt38   ::= expr async_for
+                                           store for_block
+                                           COME_FROM_FINALLY
+                                           END_ASYNC_FOR
+
+                    # FIXME: come froms after the else_suite or END_ASYNC_FOR distinguish which of
+                    # for / forelse is used. Add come froms and check of add up control-flow detection phase.
+                    async_forelse_stmt38 ::= expr async_for
+                                             store for_block
+                                             COME_FROM_FINALLY
+                                             END_ASYNC_FOR
+                                             else_suite
+
+                    async_forelse_stmt38 ::= expr async_for
+                                             store for_block
+                                             COME_FROM_FINALLY
+                                             END_ASYNC_FOR
+                                             else_suite
+                                             POP_TOP COME_FROM
+
+                    stmt                 ::= async_for_stmt38
+                    stmt                 ::= async_forelse_stmt38
+                    stmt                 ::= generator_exp_async
                    """,
                     nop_func,
                 )
