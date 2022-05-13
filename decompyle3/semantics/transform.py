@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2020 by Rocky Bernstein
+#  Copyright (c) 2019-2020, 2022 by Rocky Bernstein
 
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -76,6 +76,16 @@ class TreeTransform(GenericASTTraversal, object):
 
         for i, kid in enumerate(node):
             node[i] = self.preorder(kid)
+        return node
+
+    def n_await_expr(self, node):
+        """Here we check for await(await)"""
+
+        expr = node[0]
+        assert expr == "expr"
+        if expr[0] == "await_expr":
+            expr[0].transformed_by = "n_await_expr"
+            return expr[0]
         return node
 
     def n_mkfunc(self, node):
