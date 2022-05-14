@@ -382,6 +382,7 @@ class Scanner37Base(Scanner):
 
             argval = inst.argval
             op = inst.opcode
+
             if inst.opname == "EXTENDED_ARG":
                 # FIXME: The EXTENDED_ARG is used to signal annotation
                 # parameters

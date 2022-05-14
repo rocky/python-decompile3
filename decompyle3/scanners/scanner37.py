@@ -117,4 +117,4 @@ if __name__ == "__main__":
             print(t.format())
         pass
     else:
-        print(f"Need to be Python 3.7 to demo; I am version {version_tuple_to_str}.")
+        print(f"Need to be Python 3.7 to demo; I am version {version_tuple_to_str()}.")
