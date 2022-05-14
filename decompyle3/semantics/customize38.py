@@ -62,6 +62,11 @@ def customize_for_version38(self, version):
                 (3, "for_block"),
                 -1,
             ),
+            "c_tryfinallystmt38": (
+                "%|try:\n%+%c%-%|finally:\n%+%c%-\n\n",
+                (1, "c_suite_stmts_opt"),
+                (-2, "c_suite_stmts_opt"),
+            ),
             "except_cond1a": ("%|except %c:\n", (1, "expr"),),
             "except_cond_as": (
                 "%|except %c as %c:\n",

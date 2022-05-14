@@ -234,8 +234,30 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
                                else_suitec opt_come_from_except
         try_except         ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
                                except_handler38
+        try_except         ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
+                               except_handler38
+                               jump_excepts
+                               come_from_except_clauses
+
         c_try_except       ::= SETUP_FINALLY c_suite_stmts POP_BLOCK
                                except_handler38
+
+        c_stmt             ::= c_tryfinallystmt38
+        c_tryfinallystmt38 ::= SETUP_FINALLY c_suite_stmts_opt
+                               POP_BLOCK
+                               CALL_FINALLY
+                               POP_BLOCK
+                               POP_EXCEPT
+                               CALL_FINALLY
+                               JUMP_FORWARD
+                               POP_BLOCK BEGIN_FINALLY
+                               COME_FROM
+                               COME_FROM_FINALLY
+                               c_suite_stmts_opt END_FINALLY
+
+        c_tryfinallystmt38 ::= SETUP_FINALLY c_suite_stmts_opt
+                               POP_BLOCK BEGIN_FINALLY COME_FROM COME_FROM_FINALLY
+                               c_suite_stmts_opt END_FINALLY
 
         try_except38       ::= SETUP_FINALLY POP_BLOCK POP_TOP suite_stmts_opt
                                except_handler38a
