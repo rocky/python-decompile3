@@ -1132,7 +1132,7 @@ def code_deparse(
         is_top_level_module=is_top_level_module,
     )
 
-    #### XXX workaround for profiling
+    # XXX workaround for profiling
     if deparsed.ast is None:
         return None
 

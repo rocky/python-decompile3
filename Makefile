@@ -39,6 +39,9 @@ check-3.9 check-3.10: pytest
 #: pypy3.8-7.3.7
 7.3:
 
+#: pyston 3.8-2.3.3
+2.3:
+
 #: Run py.test tests
 pytest:
 	$(MAKE) -C pytest check

@@ -418,7 +418,7 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         try:
             if fn:
                 return fn(self, lhs, n, rule, ast, tokens, first, last)
-        except:
+        except Exception:
             import sys, traceback
 
             print(

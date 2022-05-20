@@ -206,7 +206,7 @@ class Scanner(object):
 
                 inst = self.insts[self.offset2inst_index[next_offset]]
 
-            assert inst.has_extended_arg == True
+            assert inst.has_extended_arg is True
             return inst
 
         return self.insts[self.offset2inst_index[offset]]
@@ -341,7 +341,7 @@ class Scanner(object):
         """
         try:
             None in instr
-        except:
+        except Exception:
             instr = [instr]
 
         first = self.offset2inst_index[start]

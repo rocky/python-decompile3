@@ -10,11 +10,11 @@ it checks.
 
 from decompyle3.parsers.reduce_check.and_check import and_check
 from decompyle3.parsers.reduce_check.and_cond_check import and_cond_check
-from decompyle3.parsers.reduce_check.and_not_check import *
+from decompyle3.parsers.reduce_check.and_not_check import and_not_check
 from decompyle3.parsers.reduce_check.break38 import break_check
-from decompyle3.parsers.reduce_check.if_and_stmt import *
+from decompyle3.parsers.reduce_check.if_and_stmt import if_and_stmt
 from decompyle3.parsers.reduce_check.if_and_elsestmt import *
-from decompyle3.parsers.reduce_check.ifelsestmt import *
+from decompyle3.parsers.reduce_check.ifelsestmt import ifelsestmt
 from decompyle3.parsers.reduce_check.iflaststmt import *
 from decompyle3.parsers.reduce_check.ifstmt import *
 from decompyle3.parsers.reduce_check.ifstmts_jump import *
@@ -35,4 +35,14 @@ from decompyle3.parsers.reduce_check.whilestmt38 import whilestmt38_check
 from decompyle3.parsers.reduce_check.whileTruestmt38 import *
 
 
-__all__ = ["break_check", "for38_check", "pop_return_check", "whilestmt38_check"]
+__all__ = [
+    "and_check",
+    "and_cond_check",
+    "and_not_check",
+    "break_check",
+    "for38_check",
+    "if_and_stmt",
+    "ifelsestmt",
+    "pop_return_check",
+    "whilestmt38_check",
+]

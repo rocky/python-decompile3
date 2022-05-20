@@ -155,9 +155,7 @@ def main_bin(
                     f = fqueue.get()
                     if f is None:
                         break
-                    (t, o, f, v) = main(
-                        src_base, out_base, [f], None, outfile, **options
-                    )
+                    (t, o, f, v) = main(src_base, out_base, [f], None, outfile)
                     tot_files += t
                     okay_files += o
                     failed_files += f

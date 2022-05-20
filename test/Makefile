@@ -84,6 +84,8 @@ check-code-fragments: \
 #: pypy3.8-7.3.7
 7.3:
 
+2.3: check-bytecode-3.8
+
 
 #: Get grammar coverage for Python 3.7
 grammar-coverage-3.7:

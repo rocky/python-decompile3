@@ -1256,7 +1256,7 @@ class Python37BaseParser(PythonBaseParser):
         try:
             if fn:
                 return fn(self, lhs, n, rule, ast, tokens, first, last)
-        except:
+        except Exception:
             import sys, traceback
 
             print(

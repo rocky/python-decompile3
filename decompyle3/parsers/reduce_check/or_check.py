@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 Rocky Bernstein
+#  Copyright (c) 2020, 2022 Rocky Bernstein
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation, either version 3 of the License, or
@@ -35,8 +35,6 @@ def or_check(
             expr_pjit = expr_pjit[0]
         if expr_pjit != "expr_pjit":
             return False
-
-        jump = expr_pjit[1]
 
         # See FIXME: above
         if tokens[last] in NOT_POP_FOLLOW_OPS or tokens[last - 1] in NOT_POP_FOLLOW_OPS:

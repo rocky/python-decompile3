@@ -451,14 +451,14 @@ def main(
             try:
                 # FIXME: Something is weird with Pypy here
                 sys.stdout.flush()
-            except:
+            except Exception:
                 pass
     if current_outfile:
         sys.stdout.write("\n")
         try:
             # FIXME: Something is weird with Pypy here
             sys.stdout.flush()
-        except:
+        except Exception:
             pass
         pass
     return (tot_files, okay_files, failed_files, verify_failed_files)

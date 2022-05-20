@@ -59,7 +59,6 @@ def and_check(
     else:
         # Probably not needed: was expr POP_JUMP_IF_FALSE
         jump = ast[1]
-        have_expr_jifpop = True
 
     if jump.kind.startswith("POP_JUMP_IF_"):
         if last == n:

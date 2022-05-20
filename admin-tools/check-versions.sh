@@ -21,7 +21,8 @@ for version in $PYVERSIONS; do
 	exit $?
     fi
     make clean && pip install -e .
-    if ! make check; then
+    # if ! remake -! check; then
+     if make check; then
 	exit $?
     fi
     echo === $version ===

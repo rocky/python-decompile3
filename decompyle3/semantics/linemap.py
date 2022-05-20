@@ -25,7 +25,7 @@ class LineMapWalker(SourceWalker):
     def write(self, *data):
         """Augment write routine to keep track of current line"""
         for l in data:
-            ## print("XXX write: '%s'" % l)
+            # print("XXX write: '%s'" % l)
             for i in str(l):
                 if i == "\n":
                     self.current_line_number += 1
@@ -98,7 +98,7 @@ if __name__ == "__main__":
         deparsed = code_deparse_with_map(co)
         a = 1
         b = 2
-        print("\n")
+        print("\n", a, b)
         linemap = [
             (line_no, deparsed.source_linemap[line_no])
             for line_no in sorted(deparsed.source_linemap.keys())

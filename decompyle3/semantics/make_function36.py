@@ -248,7 +248,7 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
                 self.write(", ")
                 ends_in_comma = True
 
-        ann_dict = kw_dict = default_tup = None
+        kw_dict = None
         fn_bits = node[-1].attr
         # Skip over:
         #  MAKE_FUNCTION,
@@ -259,13 +259,14 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
         if fn_bits[-1]:
             index -= 1
         if fn_bits[-2]:
-            ann_dict = node[index]
+            # ann_dict = node[index]
             index -= 1
         if fn_bits[-3]:
             kw_dict = node[index]
             index -= 1
         if fn_bits[-4]:
-            default_tup = node[index]
+            # default_tup = node[index]
+            pass
 
         if kw_dict == "expr":
             kw_dict = kw_dict[0]
@@ -297,7 +298,7 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
                 pass
             pass
         # handle others
-        other_kw = [c == None for c in kw_args]
+        other_kw = [c is None for c in kw_args]
 
         for i, flag in enumerate(other_kw):
             if flag:

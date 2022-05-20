@@ -53,11 +53,6 @@ def c_tryelsestmt(self, lhs, n, rule, ast, tokens, first, last):
     if isinstance(leading_jump, SyntaxTree):
         leading_jump = leading_jump.first_child()
 
-    leading_jump_offset = leading_jump.off2int()
-
-    if first_come_from and first_come_from.attr > except_handler_first_offset:
-        return True
-
     # If there is a jump in the except that goes to the same place as
     # except_handler_first_offset, then this is a "try" without an else.
     except_stmt = except_handler[2]

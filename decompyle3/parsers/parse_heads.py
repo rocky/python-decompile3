@@ -27,6 +27,7 @@ and start-symbol grammar rule.
 
 from decompyle3.parsers.treenode import SyntaxTree
 from spark_parser import GenericASTBuilder
+from typing import Union
 
 
 def nop_func(self, args):
@@ -103,11 +104,8 @@ class PythonBaseParser(GenericASTBuilder):
         self.start_symbol = start_symbol
         self.new_rules = set()
 
-    def ast_first_offset(self, ast):
-        if hasattr(ast, "offset"):
-            return ast.offset
-        else:
-            return self.ast_first_offset(ast[0])
+    def ast_first_offset(self, ast) -> Union[int, str]:
+        return ast.offset if hasattr(ast, "offset") else self.ast_first_offset(ast[0])
 
     def add_unique_rule(
         self, rule, opname: str, arg_count: int, customize: dict
