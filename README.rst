@@ -205,3 +205,4 @@ See Also
 .. |Latest Version| image:: https://badge.fury.io/py/decompyle3.svg
 		 :target: https://badge.fury.io/py/decompyle3
 .. |PyPI Installs| image:: https://pepy.tech/badge/decompyle3/month
+.. _pydecipher: https://github.com/mitre/pydecipher

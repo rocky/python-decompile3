@@ -1,3 +1,20 @@
+3.9.0
+=====
+
+* Speed up processing long literal collections: dictionary, list, set; we can also handle about 5K of them now
+* Improve handling of async comprehensions: async "for"/"forelse", "async with"
+* Reorganize semantic actions so that n_actions are separate; likewise for comprehensions and generators
+* Improve 3.8 decompilation
+* Support decompiling code fragment of comprehensions
+* Correct various operator precendence, and show operator precedence in -T/--tree++
+* Correct PyPy decompilation, suport pyston-3.8-2.3.3
+* Reorganize parsing modules and classes, to support fragment deparsing
+* Add `BINARY_MATRIX_MULTPILY` in grammar
+* Add psuedo opcode: LOAD_ARG; `JUMP_BACK` -> `JUMP_LOOP`; `MAKE_FUNCTION_8` -> `MAKE_FUNCTION_CLOSURE`
+* Numerous bugs fixed, especially comprehension bugs
+* Code cleanup
+* Black format more files
+
 3.8.0
 =====
 
