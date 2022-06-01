@@ -118,7 +118,11 @@ Please modify for your setup
 
 ## Priority
 
-<!-- If this is blocking some important activity let us know what activity it blocks. -->
+<!-- If this is important for a particular public good state that here.
+     If this is blocking some important activity let us know what activity it blocks.
+
+	 Otherwise, we'll assume this has the lowest priority in addressing.
+	 -->
 
 ## Additional Context
 
