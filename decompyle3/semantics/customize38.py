@@ -149,6 +149,12 @@ def customize_for_version38(self, version):
                 (8, "cond_except_stmts_opt"),
                 (10, "return"),
             ),
+            "try_except38r4": (
+                "%|try:\n%+%c\n%-%|except:\n%+%c%c%-\n\n",
+                (1, "returns_in_except"),
+                (3, "except_cond1"),
+                (4, "return"),
+            ),
             "try_except_as": (
                 "%|try:\n%+%c%-\n%|%-%c\n\n",
                 (
@@ -205,6 +211,15 @@ def customize_for_version38(self, version):
             ),
         }
     )
+
+    def except_return_value(node):
+        if node[0] == "POP_BLOCK":
+            self.default(node[1])
+        else:
+            self.template_engine(("%|return %c\n", (0, "expr")), node)
+        self.prune()
+
+    self.n_except_return_value = except_return_value
 
     # FIXME: now that we've split out cond_except_stmt,
     # we should be able to get this working as a pure transformation rule,

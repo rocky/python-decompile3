@@ -39,13 +39,6 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
     #  Python 3.8 grammar rules with statements
     ###############################################
 
-    def p_38_full_walrus(self, args):
-        """
-        # named_expr is also known as the "walrus op" :=
-        expr              ::= named_expr
-        named_expr        ::= expr DUP_TOP store
-        """
-
     def p_38_full_if_ifelse(self, args):
         """
         # cf_pt introduced to keep indices the same in ifelsestmtc
@@ -72,7 +65,7 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         ifelsestmtc        ::= testexpr c_stmts_opt JUMP_LOOP else_suitec JUMP_LOOP
         """
 
-    def p_38_full_misc(self, args):
+    def p_38_full_stmt(self, args):
         """
         stmt               ::= async_with_stmt38
         stmt               ::= for38
@@ -84,6 +77,7 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         stmt               ::= try_except38r
         stmt               ::= try_except38r2
         stmt               ::= try_except38r3
+        stmt               ::= try_except38r4
         stmt               ::= try_except_as
         stmt               ::= try_except_ret38
         stmt               ::= try_except_ret38a
@@ -203,6 +197,10 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         forelselaststmt38  ::= expr get_for_iter store for_block POP_BLOCK else_suitec
         forelselaststmtc38 ::= expr get_for_iter store for_block POP_BLOCK else_suitec
 
+        returns_in_except   ::= _stmts except_return_value
+        except_return_value ::= POP_BLOCK return
+        except_return_value ::= expr POP_BLOCK RETURN_VALUE
+
         whilestmt38        ::= _come_froms testexpr c_stmts_opt COME_FROM JUMP_LOOP POP_BLOCK
         whilestmt38        ::= _come_froms testexpr c_stmts_opt JUMP_LOOP POP_BLOCK
         whilestmt38        ::= _come_froms testexpr c_stmts_opt JUMP_LOOP come_froms
@@ -296,6 +294,14 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
                                COME_FROM
 
 
+        try_except38r4     ::= SETUP_FINALLY
+                               returns_in_except
+                               COME_FROM_FINALLY
+                               except_cond1
+                               return
+                               COME_FROM
+                               END_FINALLY
+
 
         try_except_as      ::= SETUP_FINALLY POP_BLOCK suite_stmts
                                except_handler_as END_FINALLY COME_FROM
@@ -356,6 +362,7 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         ss_end_finally     ::= suite_stmts END_FINALLY
         sf_pb_call_returns ::= SETUP_FINALLY POP_BLOCK CALL_FINALLY returns
         sf_pb_call_returns ::= SETUP_FINALLY POP_BLOCK POP_EXCEPT CALL_FINALLY returns
+
         suite_stmts_return ::= suite_stmts expr
         suite_stmts_return ::= expr
 
@@ -398,6 +405,13 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         tryfinally38astmt  ::= LOAD_CONST SETUP_FINALLY suite_stmts_opt POP_BLOCK
                                BEGIN_FINALLY COME_FROM_FINALLY
                                POP_FINALLY POP_TOP suite_stmts_opt END_FINALLY POP_TOP
+        """
+
+    def p_38_full_walrus(self, args):
+        """
+        # named_expr is also known as the "walrus op" :=
+        expr              ::= named_expr
+        named_expr        ::= expr DUP_TOP store
         """
 
     # FIXME: try this
