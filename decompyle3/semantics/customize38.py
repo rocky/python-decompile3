@@ -277,7 +277,7 @@ def customize_for_version38(self, version):
 
     self.n_set_afor = n_set_afor
 
-    def suite_stmts_return(node):
+    def n_suite_stmts_return(node):
         if len(node) > 1:
             assert len(node) == 2
             self.template_engine(
@@ -287,4 +287,4 @@ def customize_for_version38(self, version):
             self.template_engine(("%|return %c", (0, "expr")), node)
         self.prune()
 
-    self.n_suite_stmts_return = suite_stmts_return
+    self.n_suite_stmts_return = n_suite_stmts_return
