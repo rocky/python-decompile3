@@ -30,6 +30,8 @@ def whilestmt38_check(
         return True
     while tokens[last] == "COME_FROM":
         last -= 1
-    if tokens[last] == "JUMP_LOOP":
+    # In a "while" loop, (in contrast to "for" loop), the loop jump is
+    # always to the first offset
+    if tokens[last] == "JUMP_LOOP" and tokens[last].offset == tokens[first]:
         return False
     return True
