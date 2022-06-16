@@ -123,7 +123,7 @@ def customize_for_version38(self, version):
             "set_for": (" for %c in %c", (2, "store"), (0, "expr_or_arg"),),
             "whilestmt38": (
                 "%|while %c:\n%+%c%-\n\n",
-                (1, "testexpr"),
+                (1, ("testexpr", "bool_op")),
                 (2, ("c_stmts", "pass")),
             ),
             "whileTruestmt38": ("%|while True:\n%+%c%-\n\n", (1, ("c_stmts", "pass"),)),

@@ -207,6 +207,7 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         whilestmt38        ::= _come_froms testexpr returns               POP_BLOCK
         whilestmt38        ::= _come_froms testexpr c_stmts     JUMP_LOOP _come_froms
         whilestmt38        ::= _come_froms testexpr c_stmts     come_froms
+        whilestmt38        ::= _come_froms bool_op  c_stmts     JUMP_LOOP _come_froms
 
         # while1elsestmt   ::=          c_stmts     JUMP_LOOP
         whileTruestmt      ::= _come_froms c_stmts              JUMP_LOOP _come_froms POP_BLOCK

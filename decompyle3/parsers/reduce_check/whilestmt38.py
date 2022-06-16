@@ -32,6 +32,6 @@ def whilestmt38_check(
         last -= 1
     # In a "while" loop, (in contrast to "for" loop), the loop jump is
     # always to the first offset
-    if tokens[last] == "JUMP_LOOP" and tokens[last].offset == tokens[first]:
+    if tokens[last] == "JUMP_LOOP" and tokens[last].attr == tokens[first].off2int():
         return False
     return True
