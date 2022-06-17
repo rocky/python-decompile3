@@ -26,9 +26,9 @@ SKIP_TESTS=(
     [test_gc.py]=1 #
     [test_gzip.py]=1 #
     [test_iter.py]=1 # parse error
-    [test_itertools.py]=1 # parse error
+    [test_itertools.py]=1 # probably "while True" vs "while"
 
-    [test_builtin.py]=1 # too long to run test; works on uncompyle6
+    [test_builtin.py]=1 # too long to run test; works on uncompyle6 probably "while True" vs "while"
 
     [test_contextlib_async.py]=1 # FIXME: parse error; works on uncompyle6?
     [test_capi.py]=1 # works on uncompyle6 ?
@@ -38,15 +38,12 @@ SKIP_TESTS=(
     [test_deque.py]=1 # parses and rouns some, but runs for more than 30 seconds; works on uncompyle6 ?
 
     [test_parser.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6 ?
-    [test_sysconfig.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6 ?
 
     [test_fileio.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6 ?
     [test_fork1.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6 ?
     [test_format.py]=1 # assert failure works on uncompyle6?
 
-    [test_heapq.py]=1 # parse error; works on uncompyle6
     [test_marshal.py]=1 # runs some but errors and times out; works on uncompyle6
-    [test_sched.py]=1 # works on uncompyle6
     [test_smtplib.py]=1 # parse error; works on uncompyle6
     [test_threadedtempfile.py]=1 # parse error; works on uncompyle6
     [test_time.py]=1 # parse error; works on uncompyle6
@@ -55,19 +52,14 @@ SKIP_TESTS=(
     [test_venv.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6
     [test_zipimport.py]=1 # test failures; works on uncompyle6
 
-    [test_embed.py]=1 # FIXME: parse error works in c28a3d1c
     [test_pathlib.py]=1 # FIXME: parse error works in c28a3d1c
-    [test_platform.py]=1 # FIXME: parse error works in c28a3d1c
     [test_profile.py]=1 # FIXME: parse error works in c28a3d1c
     [test_shelve.py]=1 # FIXME: parse error works in c28a3d1c
     [test_type_comments.py]=1 # FIXME: parse error works in c28a3d1c
-    [test_wsgiref.py]=1 # FIXME: parse error works in c28a3d1c
+    [test_wsgire[f.py]=1 # FIXME: parse error works in c28a3d1c
     # And others!
 
     [test_c_locale_coercion.py]=1 # FIXME: parse error works in a810b68e
-
-    [test_httpservers.py]=1 # FIXME: works in master? 795b2195? test check failures
-    [test_pulldom.py]=1 # FIXME: works in master? 795b2195? test check failures
 
     [test_shlex.py]=1 # FIXME: "or" is getting generated in a "for" instead of "if"
     [test_nis.py]=1 # FIXME: works on ac5594b0; probably a "for38" reduction check
@@ -91,14 +83,11 @@ SKIP_TESTS=(
     [test_buffer.py]=1  # parse error; take a long time to decompile
     [test_bz2.py]=1  # parse error
 
-    [test_cap.py]=1  # takes too long to run before decompiling - 15 seconds
     [test_cgi.py]=1  # parse error
     [test_clinic.py]=1 # it fails on its own
     [test_cmath.py]=1 # parse error
-    [test_cmd.py]=1  # parse error
     [test_cmd_line.py]=1  # Interactive?
     [test_cmd_line_script.py]=1 # test check failures
-    [test_code_module.py]=1 # parse error
     [test_codecs.py]=1 # parse error
     [test_collections.py]=1 # parse error
     [test_compile.py]=1 # test check failures
@@ -110,7 +99,6 @@ SKIP_TESTS=(
     [test_curses.py]=1 # Parse error
 
     [test_datetime.py]=1   # Takes too long
-    [test_dbm.py]=1   # parse error
     [test_dbm_dumb.py]=1   # parse error
     [test_dbm_gnu.py]=1   # Takes too long
     [test_dbm_ndbm.py]=1 # it fails on its own

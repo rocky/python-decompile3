@@ -55,6 +55,15 @@ class Python38FullCustom(Python38LambdaCustom, PythonBaseParser):
            stmt               ::= try_except36
            stmt               ::= async_forelse_stmt
 
+           # There is no SETUP_LOOP
+           setup_loop         ::= SETUP_LOOP _come_froms
+           forelselaststmt    ::= SETUP_LOOP expr get_for_iter store
+                                  for_block POP_BLOCK else_suitec _come_froms
+
+           forelsestmt        ::= SETUP_LOOP expr get_for_iter store
+           whileTruestmt      ::= SETUP_LOOP c_stmts_opt JUMP_LOOP COME_FROM_LOOP
+                                  for_block POP_BLOCK else_suite _come_froms
+
            # async_for_stmt     ::= setup_loop expr
            #                        GET_AITER
            #                        SETUP_EXCEPT GET_ANEXT LOAD_CONST

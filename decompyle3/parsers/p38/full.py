@@ -194,8 +194,10 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         # And it can also appear at the end of the try except.
         continue           ::= POP_EXCEPT JUMP_LOOP
 
-        forelselaststmt38  ::= expr get_for_iter store for_block POP_BLOCK else_suitec
-        forelselaststmtc38 ::= expr get_for_iter store for_block POP_BLOCK else_suitec
+        forelselaststmt38    ::= expr get_for_iter store for_block else_suitec _come_froms
+        forelselaststmtc38   ::= expr get_for_iter store for_block else_suitec _come_froms
+        # forelselaststmt38  ::= expr get_for_iter store for_block POP_BLOCK else_suitec
+        # forelselaststmtc38 ::= expr get_for_iter store for_block POP_BLOCK else_suitec
 
         returns_in_except   ::= _stmts except_return_value
         except_return_value ::= POP_BLOCK return

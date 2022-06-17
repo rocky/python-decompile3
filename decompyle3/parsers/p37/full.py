@@ -292,7 +292,7 @@ class Python37Parser(Python37LambdaParser):
 
 
         forelselaststmt ::= SETUP_LOOP expr get_for_iter store
-                for_block POP_BLOCK else_suitec _come_froms
+                           for_block POP_BLOCK else_suitec _come_froms
 
         forelselaststmt  ::= setup_loop expr get_for_iter store for_block POP_BLOCK else_suitec
                               COME_FROM_LOOP
