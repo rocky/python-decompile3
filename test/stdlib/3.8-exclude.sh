@@ -37,19 +37,18 @@ SKIP_TESTS=(
     [test_dataclasses.py]=1 # parses but errors and runs for more than 30 seconds; works on uncompyle6 ?
     [test_deque.py]=1 # parses and rouns some, but runs for more than 30 seconds; works on uncompyle6 ?
 
-    test_parser.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6 ?
-    test_sysconfig.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6 ?
+    [test_parser.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6 ?
+    [test_sysconfig.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6 ?
 
     [test_fileio.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6 ?
     [test_fork1.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6 ?
     [test_format.py]=1 # assert failure works on uncompyle6?
-    [test_fractions.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6 ?
 
     [test_heapq.py]=1 # parse error; works on uncompyle6
     [test_marshal.py]=1 # runs some but errors and times out; works on uncompyle6
     [test_sched.py]=1 # works on uncompyle6
     [test_smtplib.py]=1 # parse error; works on uncompyle6
-    test_threadedtempfile.py]=1 # parse error; works on uncompyle6
+    [test_threadedtempfile.py]=1 # parse error; works on uncompyle6
     [test_time.py]=1 # parse error; works on uncompyle6
     [test_urllib2net.py]=1 # parse error; works on uncompyle6
     [test_urllib.py]=1 # parser error; works on uncompyle6

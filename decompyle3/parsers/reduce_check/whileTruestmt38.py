@@ -42,7 +42,33 @@ def whileTruestmt38_check(
 
         c_stmts = tree[1]
         if c_stmts == "c_stmts":
+
+            # Distingish:
+            #   while True:
+            #      if expr:
+            # from:
+            #   while expr:
+            #
+            # We distinguish by checking to see if the "if expr" jumps *outside* of
+            # the loop bound.
+
+            # First, see if we have "ifstmt" as the first statement inside "while True"
             c_stmts_offset = c_stmts.first_child().off2int()
+            first_stmt = c_stmts[0]
+            while first_stmt in ("_stmts", "stmts"):
+                first_stmt = first_stmt[0]
+            if first_stmt == "ifstmt":
+                # Next check for a testexpr and get the last instruction of that
+                testexpr = first_stmt[0]
+                if testexpr == "testexpr":
+                    pop_jump_if = testexpr.last_child()
+                    # Do we have POP_JUMP_IF with a jump outside of the loop?
+                    if (
+                        pop_jump_if.kind.startswith("POP_JUMP_IF")
+                        and pop_jump_if.attr > tokens[last].off2int()
+                    ):
+                        # Fail here, but we expect a "while expr" pattern to succeed elsewhere.
+                        return True
             return c_stmts_offset != jump_target
 
     return False
