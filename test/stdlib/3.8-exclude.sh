@@ -68,7 +68,6 @@ SKIP_TESTS=(
 
     [test___all__.py]=1 # it fails on its own
     [test_argparse.py]=1 #- it fails on its own
-    [test_array.py]=1 #- parse error
     [test_asdl_parser.py]=1 # it fails on its own
     [test_asyncgen.py]=1 # parse error
     [test_asyncore.py]=1 # test run takes more than 15 secs.
@@ -93,9 +92,8 @@ SKIP_TESTS=(
     [test_compileall.py]=1 # fails on its own
     [test_concurrent_futures.py]=1 # too long
     [test_configparser.py]=1 # test failures
-    # [test_coroutines.py]=1 # Parse error
+    [test_coroutines.py]=1 # Parse error
     [test_ctypes.py]=1 # it fails on its own
-    [test_curses.py]=1 # Parse error
 
     [test_datetime.py]=1   # Takes too long
     [test_dbm_dumb.py]=1   # parse error
@@ -204,7 +202,6 @@ SKIP_TESTS=(
     [test_socket.py]=1 # test takes too long to run before decompiling: 23 seconds
     [test_socketserver.py]=1 # parse error
     [test_ssl.py]=1 # parse error
-    [test_stat.py]=1 # parse error
     [test_statistics.py]=1 # Probably control flow; unintialized varaible
     [test_strftime.py]=1 # parse error
     [test_strptime.py]=1 # test check failure(s)
