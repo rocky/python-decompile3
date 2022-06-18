@@ -25,7 +25,6 @@ SKIP_TESTS=(
     [test_ftplib.py]=1 #
     [test_gc.py]=1 #
     [test_gzip.py]=1 #
-    [test_iter.py]=1 # parse error
     [test_itertools.py]=1 # probably "while True" vs "while"
 
     [test_builtin.py]=1 # too long to run test; works on uncompyle6 probably "while True" vs "while"
@@ -35,7 +34,7 @@ SKIP_TESTS=(
     [test_codeccallbacks.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6 ?
 
     [test_dataclasses.py]=1 # parses but errors and runs for more than 30 seconds; works on uncompyle6 ?
-    [test_deque.py]=1 # parses and rouns some, but runs for more than 30 seconds; works on uncompyle6 ?
+    [test_deque.py]=1 # parses and runs some, but runs for more than 30 seconds; works on uncompyle6 ?
 
     [test_parser.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6 ?
 

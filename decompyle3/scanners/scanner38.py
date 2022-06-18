@@ -148,7 +148,8 @@ class Scanner38(Scanner37):
                 # Again, remove this when we start to use control-flow information
                 break_loop = (
                     jump_back_inst.starts_line
-                    and jump_back_inst.opname not in ("JUMP_LOOP", "COMPARE_OP")
+                    and jump_back_inst.opname not in (
+                        "JUMP_LOOP", "COMPARE_OP", "POP_EXCEPT")
                 )
 
                 # or if there is looping jump back, then that loop
