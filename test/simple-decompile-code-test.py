@@ -6,6 +6,7 @@ from decompyle3.main import decompile
 from xdis import sysinfo2float
 import sys, inspect
 
+
 def decompile_test():
     frame = inspect.currentframe()
     try:
@@ -14,5 +15,6 @@ def decompile_test():
         print()
     finally:
         del frame
+
 
 decompile_test()

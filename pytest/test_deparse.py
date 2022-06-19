@@ -53,11 +53,11 @@ def check_expect(expect, parsed, fn_name):
 
         assert expect[i] == extractInfo.selectedLine, (
             "%s: line %s expect:\n%s\ngot:\n%s"
-            % (fn_name, i, expect[i], extractInfo.selectedLine)
+            % (fn_name, i, expect[i], extractInfo.selectedLine,)
         )
         assert expect[i + 1] == extractInfo.markerLine, (
             "line %s expect:\n%s\ngot:\n%s"
-            % (i + 1, expect[i + 1], extractInfo.markerLine)
+            % (i + 1, expect[i + 1], extractInfo.markerLine,)
         )
         i += 3
         if debug:
@@ -74,11 +74,11 @@ def check_expect(expect, parsed, fn_name):
                 print(extractInfo.markerLine)
             assert expect[i] == extractInfo.selectedLine, (
                 "parent line %s expect:\n%s\ngot:\n%s"
-                % (i, expect[i], extractInfo.selectedLine)
+                % (i, expect[i], extractInfo.selectedLine,)
             )
             assert expect[i + 1] == extractInfo.markerLine, (
                 "parent line %s expect:\n%s\ngot:\n%s"
-                % (i + 1, expect[i + 1], extractInfo.markerLine)
+                % (i + 1, expect[i + 1], extractInfo.markerLine,)
             )
             i += 3
         pass
