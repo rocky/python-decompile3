@@ -1035,7 +1035,10 @@ class NonterminalActions:
         elif node[0].kind == "load_closure":
             # Token GET_ITER forms or nonterminal "get_iter" forms
             assert node[-2].kind.lower() in ("get_iter", "get_aiter")
-            self.closure_walk(node, collection_index=-2)
+            collection_index = -2
+            if node[collection_index] == "GET_ITER":
+                collection_index -= 1
+            self.closure_walk(node, collection_index=collection_index)
         else:
             # Token GET_ITER forms or nonterminal "get_iter" forms
             assert node[-2].kind.lower() in ("get_iter", "get_aiter")
