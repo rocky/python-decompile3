@@ -20,6 +20,8 @@
 #######################
 
 from decompyle3.semantics.consts import PRECEDENCE, TABLE_DIRECT
+from decompyle3.semantics.customize37 import FSTRING_CONVERSION_MAP
+from decompyle3.semantics.helper import escape_string, strip_quotes
 
 
 def customize_for_version38(self, version):
@@ -282,6 +284,38 @@ def customize_for_version38(self, version):
         self.prune()
 
     self.n_set_afor = n_set_afor
+
+    def n_formatted_value_debug(node):
+        p = self.prec
+        self.prec = 100
+
+        # FIXME: we are not adding the "="
+        formatted_value2 = node[1]
+        assert formatted_value2 == "formatted_value2"
+        old_in_format_string = self.in_format_string
+        self.in_format_string = "formatted_value2"
+        value = self.traverse(formatted_value2, indent="")
+        format_value_attr = node[-1]
+        assert format_value_attr == "FORMAT_VALUE_ATTR"
+        attr = format_value_attr.attr
+        if attr & 4:
+            fmt = strip_quotes(self.traverse(node[3], indent=""))
+            attr_flags = attr & 3
+            if attr_flags:
+                conversion = "%s:%s" % (FSTRING_CONVERSION_MAP.get(attr_flags, ""), fmt)
+            else:
+                conversion = ":%s" % fmt
+        else:
+            conversion = FSTRING_CONVERSION_MAP.get(attr, "")
+
+        self.in_format_string = old_in_format_string
+        f_str = "f%s" % escape_string("{%s%s}" % (value, conversion))
+        self.write(f_str)
+
+        self.prec = p
+        self.prune()
+
+    self.n_formatted_value_debug = n_formatted_value_debug
 
     def n_suite_stmts_return(node):
         if len(node) > 1:

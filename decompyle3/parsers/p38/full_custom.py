@@ -24,6 +24,7 @@ from decompyle3.parsers.p37.base import Python37BaseParser
 from decompyle3.parsers.reduce_check import (
     break_check,
     for38_check,
+    joined_str_check,
     pop_return_check,
     whilestmt38_check,
     whileTruestmt38_check,
@@ -473,6 +474,17 @@ class Python38FullCustom(Python38LambdaCustom, PythonBaseParser):
                 )
                 custom_ops_processed.add(opname)
 
+            elif opname == "FORMAT_VALUE_ATTR":
+                self.addRule(
+                    """
+                      expr                  ::= formatted_value_debug
+                      formatted_value_debug ::= LOAD_STR formatted_value2 BUILD_STRING_2
+                                                expr FORMAT_VALUE_ATTR
+                    """,
+                    nop_func,
+                )
+                custom_ops_processed.add(opname)
+
             elif opname == "GET_AITER":
                 self.addRule(
                     """
@@ -718,6 +730,7 @@ class Python38FullCustom(Python38LambdaCustom, PythonBaseParser):
         self.check_reduce["break"] = "tokens"
         self.check_reduce["for38"] = "tokens"
         self.check_reduce["ifstmt"] = "AST"
+        self.check_reduce["joined_str"] = "AST"
         self.check_reduce["pop_return"] = "tokens"
         self.check_reduce["whileTruestmt38"] = "AST"
         self.check_reduce["whilestmt38"] = "tokens"
@@ -725,35 +738,10 @@ class Python38FullCustom(Python38LambdaCustom, PythonBaseParser):
 
         self.reduce_check_table["break"] = break_check
         self.reduce_check_table["for38"] = for38_check
+        self.reduce_check_table["joined_str"] = joined_str_check.joined_str_ok
         self.reduce_check_table["pop_return"] = pop_return_check
         self.reduce_check_table["whilestmt38"] = whilestmt38_check
         self.reduce_check_table["whileTruestmt38"] = whileTruestmt38_check
-
-        # self.reduce_check_table.update = {
-        #     "ifstmts_jump": ifstmts_jump,
-        #     "if_and_stmt": if_and_stmt,
-        #     "iflaststmt": iflaststmt,
-        #     "ifstmt": ifstmt,
-        #     "list_if_not": list_if_not,
-        #     "not_or": not_or_check,
-        #     "or": or_check,
-        #     "or_cond": or_cond_check,
-        #     "testtrue": testtrue,
-        #     "while1elsestmt": while1elsestmt,
-        #     "while1stmt": while1stmt,
-        #     "whilestmt": whilestmt,
-        # }
-
-        # self.check_reduce["annotate_tuple"] = "tokens"
-        # self.check_reduce["aug_assign2"] = "AST"
-        # self.check_reduce["if_and_stmt"] = "AST"
-        # self.check_reduce["iflaststmt"] = "AST"
-        # self.check_reduce["ifstmts_jump"] = "AST"
-        # self.check_reduce["lastc_stmt"] = "tokens"
-        # self.check_reduce["list_if_not"] = "AST"
-        # self.check_reduce["while1elsestmt"] = "tokens"
-        # self.check_reduce["while1stmt"] = "tokens"
-        # self.check_reduce["whilestmt"] = "tokens"
 
         # Use update we don't destroy entries from lambda.
         self.reduce_check_table.update(
