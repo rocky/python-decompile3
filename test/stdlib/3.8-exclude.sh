@@ -29,7 +29,7 @@ SKIP_TESTS=(
 
     [test_builtin.py]=1 # too long to run test; works on uncompyle6 probably "while True" vs "while"
 
-    [test_contextlib_async.py]=1 # FIXME: parse error; works on uncompyle6?
+    [test_contextlib_async.py]=1 # FIXME: parse error - self is not defined; works on uncompyle6?
     [test_capi.py]=1 # works on uncompyle6 ?
     [test_codeccallbacks.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6 ?
 
@@ -45,7 +45,7 @@ SKIP_TESTS=(
     [test_marshal.py]=1 # runs some but errors and times out; works on uncompyle6
     [test_smtplib.py]=1 # parse error; works on uncompyle6
     [test_threadedtempfile.py]=1 # parse error; works on uncompyle6
-    [test_time.py]=1 # parse error; works on uncompyle6
+    [test_time.py]=1 # parses but incorrect deparse; works on uncompyle6
     [test_urllib2net.py]=1 # parse error; works on uncompyle6
     [test_urllib.py]=1 # parser error; works on uncompyle6
     [test_venv.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6

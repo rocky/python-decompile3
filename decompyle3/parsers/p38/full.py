@@ -203,13 +203,14 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         except_return_value ::= POP_BLOCK return
         except_return_value ::= expr POP_BLOCK RETURN_VALUE
 
-        whilestmt38        ::= _come_froms testexpr c_stmts_opt COME_FROM JUMP_LOOP POP_BLOCK
-        whilestmt38        ::= _come_froms testexpr c_stmts_opt JUMP_LOOP POP_BLOCK
-        whilestmt38        ::= _come_froms testexpr c_stmts_opt JUMP_LOOP come_froms
-        whilestmt38        ::= _come_froms testexpr returns               POP_BLOCK
-        whilestmt38        ::= _come_froms testexpr c_stmts     JUMP_LOOP _come_froms
-        whilestmt38        ::= _come_froms testexpr c_stmts     come_froms
-        whilestmt38        ::= _come_froms bool_op  c_stmts     JUMP_LOOP _come_froms
+        whilestmt38        ::= _come_froms testexpr  c_stmts_opt COME_FROM JUMP_LOOP POP_BLOCK
+        whilestmt38        ::= _come_froms testexpr  c_stmts_opt JUMP_LOOP POP_BLOCK
+        whilestmt38        ::= _come_froms testexpr  c_stmts_opt JUMP_LOOP come_froms
+        whilestmt38        ::= _come_froms testexprc c_stmts_opt come_froms JUMP_LOOP _come_froms
+        whilestmt38        ::= _come_froms testexpr  returns               POP_BLOCK
+        whilestmt38        ::= _come_froms testexpr  c_stmts     JUMP_LOOP _come_froms
+        whilestmt38        ::= _come_froms testexpr  c_stmts     come_froms
+        whilestmt38        ::= _come_froms bool_op   c_stmts     JUMP_LOOP _come_froms
 
         # while1elsestmt   ::=          c_stmts     JUMP_LOOP
         whileTruestmt      ::= _come_froms c_stmts              JUMP_LOOP _come_froms POP_BLOCK
