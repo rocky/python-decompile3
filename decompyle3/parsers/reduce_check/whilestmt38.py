@@ -21,8 +21,9 @@ def whilestmt38_check(
     # so after the POP_BLOCK we have a JUMP_FORWARD which forms the "else" portion of the "if"
     # Check this.
     # print("XXX", first, last, rule)
-    # for t in range(first, last): print(tokens[t])
-    # print("="*40)
+    # for t in range(first, last):
+    #     print(tokens[t])
+    # print("=" * 40)
 
     if tokens[last] != "COME_FROM" and tokens[last - 1] == "COME_FROM":
         last -= 1
@@ -32,6 +33,9 @@ def whilestmt38_check(
         last -= 1
     # In a "while" loop, (in contrast to "for" loop), the loop jump is
     # always to the first offset
-    if tokens[last] == "JUMP_LOOP" and tokens[last].attr == tokens[first].off2int():
+    first_offset = tokens[first].off2int()
+    if tokens[last] == "JUMP_LOOP" and (
+        tokens[last].attr == first_offset or tokens[last - 1].attr == first_offset
+    ):
         return False
     return True

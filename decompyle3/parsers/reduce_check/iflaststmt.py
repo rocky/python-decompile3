@@ -84,7 +84,19 @@ def iflaststmt(
             target_offset = testexpr_last_inst.argval
             if target_offset != last_offset:
                 if target_offset < last_offset:
-                    return True
+                    # Look for this kind of situtation from: iflaststmtc ::= testexprc c_stmts
+                    #
+                    # L.  13        78  LOAD_NAME                ncols
+                    #               80  POP_JUMP_IF_FALSE_LOOP    40  'to 40'
+                    #
+                    # L.  14        82  POP_TOP
+                    #               84  CONTINUE             20  'to 20'
+                    #                   ^^^^^^^^^
+                    #
+                    #  L.  15        86  JUMP_LOOP            40  'to 40'
+                    #                    COME_FROM ...
+                    #                    ^^^ last
+                    return tokens[last - 2] != "CONTINUE"
 
                 # There is still this weird case:
                 # if a:
@@ -93,7 +105,7 @@ def iflaststmt(
                 #     # jumps to same place as "if a then.." end jump.
                 # else:
                 #    ...
-                # we are going to hack this my looking for another jump to the same target. Sigh.
+                # we are going to hack this by looking for another jump to the same target. Sigh.
                 i = inst_offset
                 inst = self.insts[i]
                 while inst.offset < target_offset:
