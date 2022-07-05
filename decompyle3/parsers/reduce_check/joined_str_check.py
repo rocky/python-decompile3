@@ -44,5 +44,4 @@ def joined_str_ok(
     if load_const != "LOAD_CONST":
         return False
     format_value2 = load_const.attr
-    print("XXX joined_str", str(format_value2) != format_value_equal[:-1])
     return str(format_value2) == format_value_equal[:-1]

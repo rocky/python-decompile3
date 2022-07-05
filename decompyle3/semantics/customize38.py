@@ -291,10 +291,10 @@ def customize_for_version38(self, version):
 
         # FIXME: we are not adding the "="
         formatted_value2 = node[1]
+        value_equal = node[0].attr
         assert formatted_value2 == "formatted_value2"
         old_in_format_string = self.in_format_string
         self.in_format_string = "formatted_value2"
-        value = self.traverse(formatted_value2, indent="")
         format_value_attr = node[-1]
         assert format_value_attr == "FORMAT_VALUE_ATTR"
         attr = format_value_attr.attr
@@ -309,7 +309,7 @@ def customize_for_version38(self, version):
             conversion = FSTRING_CONVERSION_MAP.get(attr, "")
 
         self.in_format_string = old_in_format_string
-        f_str = "f%s" % escape_string("{%s%s}" % (value, conversion))
+        f_str = "f%s" % escape_string("{%s%s}" % (value_equal, conversion))
         self.write(f_str)
 
         self.prec = p

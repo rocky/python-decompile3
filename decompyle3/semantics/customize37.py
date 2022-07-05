@@ -1294,15 +1294,6 @@ def customize_for_version37(self, version):
             node.string = fmt_node
         self.default(node)
 
-    def n_formatted_value_debug(node):
-        f_conversion(node)
-        fmt_node = node.data[3]
-        if fmt_node[0] == "LOAD_STR":
-            node.string = escape_format(fmt_node[0].attr)
-        else:
-            node.string = fmt_node
-        self.default(node)
-
     self.n_formatted_value_attr = n_formatted_value_attr
 
     def f_conversion(node):
@@ -1384,7 +1375,10 @@ def customize_for_version37(self, version):
             assert expr == "expr"
             value = self.traverse(expr, indent="")
             if expr[0].kind.startswith("formatted_value"):
-                result += value
+                # remove leading 'f'
+                if value.startswith("f"):
+                    value = value[1:]
+                pass
             else:
                 # {{ and }} in Python source-code format strings mean
                 # { and } respectively. But only when *not* part of a
