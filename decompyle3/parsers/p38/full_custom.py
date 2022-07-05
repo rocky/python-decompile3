@@ -396,6 +396,28 @@ class Python38FullCustom(Python38LambdaCustom, PythonBaseParser):
                     """
                 self.addRule(rules_str, nop_func)
 
+            elif opname == "BUILD_STRING_2":
+                self.addRule(
+                    """
+                      expr                  ::= formatted_value_debug
+                      formatted_value_debug ::= LOAD_STR formatted_value2 BUILD_STRING_2
+                      formatted_value_debug ::= LOAD_STR formatted_value1 BUILD_STRING_2
+                    """,
+                    nop_func,
+                )
+                custom_ops_processed.add(opname)
+
+            elif opname == "BUILD_STRING_3":
+                self.addRule(
+                    """
+                      expr                  ::= formatted_value_debug
+                      formatted_value_debug ::= LOAD_STR formatted_value2 LOAD_STR BUILD_STRING_3
+                      formatted_value_debug ::= LOAD_STR formatted_value1 LOAD_STR BUILD_STRING_3
+                    """,
+                    nop_func,
+                )
+                custom_ops_processed.add(opname)
+
             elif opname in frozenset(
                 (
                     "CALL_FUNCTION",
@@ -480,6 +502,8 @@ class Python38FullCustom(Python38LambdaCustom, PythonBaseParser):
                       expr                  ::= formatted_value_debug
                       formatted_value_debug ::= LOAD_STR formatted_value2 BUILD_STRING_2
                                                 expr FORMAT_VALUE_ATTR
+                      formatted_value_debug ::= LOAD_STR formatted_value2 BUILD_STRING_2
+                      formatted_value_debug ::= LOAD_STR formatted_value1 BUILD_STRING_2
                     """,
                     nop_func,
                 )

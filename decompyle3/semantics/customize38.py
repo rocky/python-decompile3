@@ -289,28 +289,44 @@ def customize_for_version38(self, version):
         p = self.prec
         self.prec = 100
 
-        # FIXME: we are not adding the "="
-        formatted_value2 = node[1]
+        formatted_value = node[1]
         value_equal = node[0].attr
-        assert formatted_value2 == "formatted_value2"
+        assert formatted_value.kind.startswith("formatted_value")
         old_in_format_string = self.in_format_string
-        self.in_format_string = "formatted_value2"
+        self.in_format_string = formatted_value.kind
         format_value_attr = node[-1]
-        assert format_value_attr == "FORMAT_VALUE_ATTR"
-        attr = format_value_attr.attr
-        if attr & 4:
-            fmt = strip_quotes(self.traverse(node[3], indent=""))
-            attr_flags = attr & 3
-            if attr_flags:
-                conversion = "%s:%s" % (FSTRING_CONVERSION_MAP.get(attr_flags, ""), fmt)
-            else:
-                conversion = ":%s" % fmt
-        else:
-            conversion = FSTRING_CONVERSION_MAP.get(attr, "")
 
-        self.in_format_string = old_in_format_string
-        f_str = "f%s" % escape_string("{%s%s}" % (value_equal, conversion))
+        post_str = ""
+        if node[-1] == "BUILD_STRING_3":
+            post_load_str = node[-2]
+            post_str = self.traverse(post_load_str, indent="")
+            post_str = strip_quotes(post_str)
+
+        if format_value_attr == "FORMAT_VALUE_ATTR":
+            attr = format_value_attr.attr
+            if attr & 4:
+                fmt = strip_quotes(self.traverse(node[3], indent=""))
+                attr_flags = attr & 3
+                if attr_flags:
+                    conversion = "%s:%s" % (
+                        FSTRING_CONVERSION_MAP.get(attr_flags, ""),
+                        fmt,
+                    )
+                else:
+                    conversion = ":%s" % fmt
+            else:
+                conversion = FSTRING_CONVERSION_MAP.get(attr, "")
+            f_str = "f%s" % escape_string(
+                "{%s%s}%s" % (value_equal, conversion, post_str)
+            )
+        else:
+            f_conversion = self.traverse(formatted_value, indent="")
+            # Remove leaving "f" and quotes
+            conversion = strip_quotes(f_conversion[1:])
+            f_str = "f%s" % escape_string(f"{value_equal}{conversion}" + post_str)
+
         self.write(f_str)
+        self.in_format_string = old_in_format_string
 
         self.prec = p
         self.prune()
