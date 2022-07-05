@@ -552,9 +552,6 @@ class ComprehensionMixin:
             self.preorder(node[in_node_index])
         elif is_lambda_mode(self.compile_mode):
             if node == "list_comp_async":
-                from trepan.api import debug
-
-                debug()
                 self.preorder(node[1])
             elif collection_node is None:
                 assert node[3] in ("get_aiter", "get_iter"), node[3].kind
