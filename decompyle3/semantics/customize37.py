@@ -37,6 +37,8 @@ EMPTY_DICT = SyntaxTree(
     "dict", [Token("BUILD_MAP_0", attr=0, pattr="", offset=0, has_arg=True)]
 )
 
+FSTRING_CONVERSION_MAP = {1: "!s", 2: "!r", 3: "!a", "X": ":X"}
+
 #######################
 def customize_for_version37(self, version):
     ########################
@@ -1253,8 +1255,6 @@ def customize_for_version37(self, version):
 
     self.format_pos_args = format_pos_args
 
-    FSTRING_CONVERSION_MAP = {1: "!s", 2: "!r", 3: "!a", "X": ":X"}
-
     def n_except_suite_finalize(node):
         if node[1] == "returns" and self.hide_internal:
             # Process node[1] only.
@@ -1389,8 +1389,8 @@ def customize_for_version37(self, version):
                 assert expr[0] == "LOAD_STR"
                 value = value.replace("{", "{{").replace("}", "}}")
 
-            # Remove leading quotes
-            result += strip_quotes(value)
+                # Remove leading quotes
+                result += strip_quotes(value)
             pass
         self.in_format_string = old_in_format_string
         if self.in_format_string:
