@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 Rocky Bernstein
+#  Copyright (c) 2020, 2022 Rocky Bernstein
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation, either version 3 of the License, or
@@ -16,9 +16,9 @@ from decompyle3.scanners.tok import Token
 
 
 def iflaststmt(
-    self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
+    self, lhs: str, n: int, rule, tree, tokens: list, first: int, last: int
 ) -> bool:
-    testexpr = ast[0]
+    testexpr = tree[0]
     rhs = rule[1]
 
     # print("XXX", first, last, rule)
@@ -60,10 +60,10 @@ def iflaststmt(
         # If there was backward jump, the LHS would be "iflaststmtc".
         # Note that there might not be a COME_FROM before "stmts" because there can be a fall
         # through to it.
-        stmt_offset = ast[1].first_child().off2int(prefer_last=False)
+        stmt_offset = tree[1].first_child().off2int(prefer_last=False)
         inst_offset = self.offset2inst_index[stmt_offset]
 
-        test_expr_offset = ast[0].first_child().off2int(prefer_last=False)
+        test_expr_offset = tree[0].first_child().off2int(prefer_last=False)
         test_inst_offset = self.offset2inst_index[test_expr_offset]
 
         last_offset = tokens[last].off2int(prefer_last=False)
