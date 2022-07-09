@@ -44,3 +44,4 @@ def if_and_elsestmt(
     if rule[1][:2] == ("expr_pjif", "expr_pjif"):
         # The two POP_JUMP_IF_FALSE should go to the same place for an "and"
         return ast[0][1].attr != ast[1][1].attr
+    return False

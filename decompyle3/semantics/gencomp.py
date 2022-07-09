@@ -41,7 +41,7 @@ class ComprehensionMixin:
 
     def closure_walk(self, node, collection_index: int):
         """Dictionary and Set comprehensions using closures."""
-        p = self.prec
+        p: int = self.prec
 
         code_index = 0 if node[0] == "load_genexpr" else 1
         tree = self.get_comprehension_function(node, code_index=code_index)
@@ -139,9 +139,12 @@ class ComprehensionMixin:
         self.prec = p
 
     def comprehension_walk(
-        self, node, iter_index: Optional[int], code_index: int = -5,
+        self,
+        node,
+        iter_index: Optional[int],
+        code_index: int = -5,
     ):
-        p = self.prec
+        p: int = self.prec
         self.prec = PRECEDENCE["lambda_body"] - 1
 
         # FIXME: clean this up
@@ -168,9 +171,11 @@ class ComprehensionMixin:
         # The problem is that in filter in top-level list comprehensions we can
         # encounter comprehensions of other kinds, and lambdas
         if is_lambda_mode(self.compile_mode):
-            p_save = self.p
+            p_save = p
             self.p = get_python_parser(
-                self.version, compile_mode="exec", is_pypy=self.is_pypy,
+                self.version,
+                compile_mode="exec",
+                is_pypy=self.is_pypy,
             )
             tree = self.build_ast(code._tokens, code._customize, code)
             self.p = p_save
@@ -649,7 +654,9 @@ class ComprehensionMixin:
         if is_lambda_mode(self.compile_mode):
             p_save = self.p
             self.p = get_python_parser(
-                self.version, compile_mode="exec", is_pypy=self.is_pypy,
+                self.version,
+                compile_mode="exec",
+                is_pypy=self.is_pypy,
             )
             tree = self.build_ast(
                 code._tokens, code._customize, code, is_lambda=self.is_lambda

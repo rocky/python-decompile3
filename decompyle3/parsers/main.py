@@ -120,7 +120,7 @@ def get_python_parser(
 
 def python_parser(
     co,
-    version: str = PYTHON_VERSION_TRIPLE,
+    version: tuple = PYTHON_VERSION_TRIPLE,
     out=sys.stdout,
     showasm=False,
     parser_debug=PARSER_DEFAULT_DEBUG,
@@ -170,8 +170,8 @@ if __name__ == "__main__":
     def parse_test(co) -> None:
         from decompyle3 import IS_PYPY
 
-        ast = python_parser(co, (3, 8, 2), showasm=True, is_pypy=IS_PYPY)
-        print(ast)
+        tree = python_parser(co, (3, 8, 2), showasm=True, is_pypy=IS_PYPY)
+        print(tree)
         print("+" * 30)
         return
 

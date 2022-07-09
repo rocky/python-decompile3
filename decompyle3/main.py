@@ -278,7 +278,7 @@ def main(
     - stdout			out_base=None, outfile=None
     """
     tot_files = okay_files = failed_files = skipped = 0
-    verify_failed_files = 0 if do_verify is not None else None
+    verify_failed_files = 0 if do_verify is not None else 0
     current_outfile = outfile
     linemap_stream = None
 
@@ -473,7 +473,6 @@ if sys.platform.startswith("linux") and os.uname()[2][:2] in ["2.", "3.", "4."]:
         mu = mi.readline().split()[22]
         mi.close()
         return int(mu) / 1000000
-
 
 else:
 

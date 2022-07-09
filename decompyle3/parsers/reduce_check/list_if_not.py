@@ -30,3 +30,4 @@ def list_if_not(
         list_iter = tree[2]
         assert list_iter == "list_iter"
         return list_iter[0] != "list_if"
+    return False
