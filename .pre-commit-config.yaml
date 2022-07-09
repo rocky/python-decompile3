@@ -1,13 +1,23 @@
+default_language_version:
+  python: python
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.0.0
+    rev: v4.0.1
     hooks:
     - id: check-merge-conflict
     - id: debug-statements
+      stages: [commit]
     - id: end-of-file-fixer
+      stages: [commit]
 -   repo: https://github.com/psf/black
-    rev: 19.10b0
+    rev: 22.6.0
     hooks:
     - id: black
-      exclude: version.py, test/simple_source
-      language_version: python3
+      language_version: python
+      stages: [commit]
+      additional_dependencies: ["click"]
+-   repo: https://github.com/pycqa/flake8
+    rev: 3.9.2
+    hooks:
+      - id: flake8
+        stages: [commit]
