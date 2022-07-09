@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 Rocky Bernstein
+#  Copyright (c) 2020, 2022 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 
 
 def ifstmt(
-    self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
+    self, lhs: str, n: int, rule, tree, tokens: list, first: int, last: int
 ) -> bool:
 
     # print("XXX", first, last, rule)
@@ -32,7 +32,11 @@ def ifstmt(
     #     print(tokens[t])
     # print("=" * 40)
 
-    ltm1 = tokens[last - 1]
+    ltm1_index = last - 1
+    while tokens[ltm1_index] == "COME_FROM":
+        ltm1_index -= 1
+    ltm1 = tokens[ltm1_index]
+
     first_offset = tokens[first].off2int(prefer_last=False)
 
     # The below doesn't work for Example A above
@@ -41,16 +45,16 @@ def ifstmt(
     # if ltm1 == "COME_FROM" and ltm1.attr < first_offset:
     #     return True
 
-    if not ast:
+    if not tree:
         return False
 
-    ifstmts_jump = ast[1]
+    ifstmts_jump = tree[1]
     if ifstmts_jump.kind.startswith("ifstmts_jump"):
         come_from = ifstmts_jump[0]
         if come_from == "COME_FROM" and come_from.attr < first_offset:
             return True
 
-    testexpr = ast[0]
+    testexpr = tree[0]
 
     test = testexpr[0]
     if test in ("testexpr", "testexprc"):
@@ -76,7 +80,7 @@ def ifstmt(
 
             if first_offset <= jump_target < endif_offset:
                 if rule[1] == ("testexpr", "stmts", "come_froms"):
-                    come_froms = ast[2]
+                    come_froms = tree[2]
 
                     if hasattr(come_froms, "first_child"):
                         come_from_offset = come_froms.first_child()
@@ -91,6 +95,12 @@ def ifstmt(
                 pass
 
             endif_inst_index = self.offset2inst_index[ltm1.off2int(prefer_last=False)]
+
+            # FIXME: RAISE_VARARGS is an instance of a no-follow instruction.
+            # Should this be generalized? For example for RETURN ?
+            if ltm1.kind.startswith("RAISE_VARARGS"):
+                endif_inst_index += 2
+
             if endif_inst_index + 1 == len(self.insts):
                 return False
             endif_next_inst = self.insts[endif_inst_index + 1]

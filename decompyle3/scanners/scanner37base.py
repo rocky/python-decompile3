@@ -1034,7 +1034,7 @@ class Scanner37Base(Scanner):
 if __name__ == "__main__":
     from xdis.version_info import PYTHON_VERSION_TRIPLE, version_tuple_to_str
 
-    if PYTHON_VERSION_TRIPLE[:2] == (3, 7):
+    if PYTHON_VERSION_TRIPLE[:2] >= (3, 7):
         import inspect
 
         co = inspect.currentframe().f_code  # type: ignore

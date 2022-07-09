@@ -28,7 +28,7 @@ class Python37Parser(Python37LambdaParser):
     ###############################################
     #  Python 3.7 grammar rules with statements
     ###############################################
-    def p_start(self, args):
+    def p_start37(self, args):
         """
         # The start or goal symbol
         stmts ::= sstmt+

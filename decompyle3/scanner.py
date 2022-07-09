@@ -359,7 +359,7 @@ class Scanner(object):
                         pass
                     pass
                 pass
-            if inst.offset >= end:
+            if isinstance(inst, int) and inst.offset >= end:
                 break
             pass
 
