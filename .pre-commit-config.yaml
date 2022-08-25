@@ -9,6 +9,7 @@ repos:
       stages: [commit]
     - id: end-of-file-fixer
       stages: [commit]
+    - id: trailing-whitespace
 -   repo: https://github.com/psf/black
     rev: 22.6.0
     hooks:
