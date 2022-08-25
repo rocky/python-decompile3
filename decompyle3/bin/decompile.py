@@ -48,7 +48,7 @@ def main_bin(
     show_asm, show_grammar, tree, tree_plus, verify, recurse_dirs, outfile, files
 ):
     """
-    Python byecode decompiler for 3.10 bytecode
+    Python bytecode decompiler for 3.10 bytecode
     """
     version_tuple = sys.version_info[0:2]
     if version_tuple < (3, 7):
