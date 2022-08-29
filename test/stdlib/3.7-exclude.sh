@@ -1,17 +1,9 @@
 SKIP_TESTS=(
-    # and/or expressions:
-    #   if ((module2, module3) not in ALT_IMPORT_MAPPING and
-    #      REVERSE_IMPORT_MAPPING.get(module3, None) != module2):
-    # comes out:
-    #   if module2, module3) not in ALT_IMPORT_MAPPING or
-    #      REVERSE_IMPORT_MAPPING.get(module3, None) != module2:
-    [test_pickle.py]=1
-
     # self._testCloneElementCopiesAttributes(root, clone, 'testCloneElement' + deep and 'Deep' or 'Shallow')
     # TypeError: can only concatenate str (not "int") to str
     [test_minidom.py]=1 # test errors; works on 5bbb74f3 (HEAD~10)
 
-    [test_modulefinder.py]=1 # works on 5bbb74f3 (HEAD~10)
+    test_modulefinder.py]=1 # works on 5bbb74f3 (HEAD~10)
     [test_wsgiref.py]=1 # works on 5bbb74f3 (HEAD~10)
 
     [test_format.py]=1 # works on 5bbb74f3 (HEAD~10)?
@@ -24,7 +16,7 @@ SKIP_TESTS=(
     [test_urllib2.py]=1 # test errors (1); works on 5bbb74f3 (HEAD~5)
 
     [test_httplib.py]=1 # test runs. kills after 15 seconds. works on f7e2064e
-    [test_grammar.py]=1 # assert failures
+    [test_grammar.py]=1 # running errors with undefined variables - look at
 
     [test___all__.py]=1 # it fails on its own
     [test_argparse.py]=1 # it fails on its own

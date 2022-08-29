@@ -18,6 +18,17 @@ def t2(x, y, z):
     return False
 
 
+# From 3.7.13 test_pickle.py line 442 test_reverse_name_mapping
+def test_reverse_name_mapping(x, y):
+    # Bug was using not (x or y) instead of (x and y)
+    # with negated internal conditions
+    if x not in "abc" and "abc" != y:
+        for m2 in __file__:
+            break
+        else:
+            print("foo")
+
+
 for triplet, expect in (
     ((True, True, True), True),
     ((True, True, False), False),

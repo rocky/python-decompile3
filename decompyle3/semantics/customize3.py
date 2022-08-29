@@ -86,7 +86,7 @@ def customize_for_version3(self, version):
         assert iscode(code_obj), node[1]
         code = Code(code_obj, self.scanner, self.currentclass, self.debug_opts["asm"])
 
-        ast = self.build_ast(
+        tree = self.build_ast(
             code._tokens,
             code._customize,
             code,
@@ -96,15 +96,15 @@ def customize_for_version3(self, version):
 
         # skip over: sstmt, stmt, return, return_expr
         # and other singleton derivations
-        while len(ast) == 1 or (
-            ast in ("sstmt", "return", "return_expr_lambda", "lambda_start")
-            and ast[-1]
+        while len(tree) == 1 or (
+            tree in ("sstmt", "return", "return_expr_lambda", "lambda_start")
+            and tree[-1]
             in ("LAMBDA_MARKER", "RETURN_VALUE_LAMBDA", "RETURN_LAST", "RETURN_VALUE")
         ):
             self.prec = 100
-            ast = ast[0]
+            tree = tree[0]
 
-        n = ast[1]
+        n = tree[1]
 
         # Pick out important parts of the comprehension:
         # * the variables we iterate over: "stores"
@@ -155,7 +155,7 @@ def customize_for_version3(self, version):
                 n = n[2] if n[2].kind == "list_iter" else n[3]
             pass
 
-        assert n == "lc_body", ast
+        assert n == "lc_body", tree
         self.preorder(n[0])
 
         # FIXME: add indentation around "for"'s and "in"'s
