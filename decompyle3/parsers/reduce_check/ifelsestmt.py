@@ -16,7 +16,7 @@ from decompyle3.scanners.tok import Token
 
 
 def ifelsestmt(
-    self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
+    self, lhs: str, n: int, rule, tree, tokens: list, first: int, last: int
 ) -> bool:
 
     if (last + 1) < n and tokens[last + 1] == "COME_FROM_LOOP":
@@ -33,7 +33,7 @@ def ifelsestmt(
     # If we have an optional else, then we *must* have a COME_FROM for it.
     # Otherwise this is fine as an "if" witout the "else"
     if rule[1][2:4] == ("jf_cfs", "\\e_else_suite_opt"):
-        jf_cfs = ast[2]
+        jf_cfs = tree[2]
         come_froms = jf_cfs[1]
         if isinstance(come_froms, Token):
             come_from_target = come_froms.attr
@@ -54,8 +54,8 @@ def ifelsestmt(
     # offset COME_FROM is last, it is sufficient to test
     # just the last one.
     # Note: We may find Example A defeats this rule.
-    if len(ast) == 5:
-        end_come_froms = ast[-1]
+    if len(tree) == 5:
+        end_come_froms = tree[-1]
         if end_come_froms == "opt_come_from_except" and len(end_come_froms) > 0:
             end_come_froms = end_come_froms[0]
             pass
@@ -67,7 +67,7 @@ def ifelsestmt(
             elif first_offset > end_come_froms.attr:
                 return True
 
-    testexpr = ast[0]
+    testexpr = tree[0]
 
     if_condition = testexpr[0]
 
@@ -78,8 +78,8 @@ def ifelsestmt(
     # portion.
     if if_condition in ("testtrue", "testfalse", "and_cond"):
 
-        then_end = ast[2]
-        else_suite = ast[3]
+        then_end = tree[2]
+        else_suite = tree[3]
         if else_suite == "else_suite_opt" and len(else_suite):
             else_suite = else_suite[0]
 
@@ -115,11 +115,11 @@ def ifelsestmt(
         # to jump *anywhere* in the else body instead of the first instruction.
         else_start_offset = else_suite.first_child().off2int(prefer_last=False)
 
-        then_start = ast[1].first_child()
+        then_start = tree[1].first_child()
         if then_start is None:
             return False
 
-        then_start_offset = ast[1].first_child().off2int(prefer_last=False)
+        then_start_offset = tree[1].first_child().off2int(prefer_last=False)
 
         i = self.offset2inst_index[then_start_offset]
         inst = self.insts[i]
@@ -138,7 +138,7 @@ def ifelsestmt(
             "jb_cfs",
             "jump_forward_else",
         ):
-            stmts = ast[1]
+            stmts = tree[1]
             jb_else = then_end
             come_from = jb_else[-1]
             if come_from in ("come_froms", "_come_froms") and len(come_from):
@@ -149,7 +149,7 @@ def ifelsestmt(
                 pass
             pass
         elif else_suite == "else_suite" and then_end == "jf_cfs":
-            stmts = ast[1]
+            stmts = tree[1]
             jf_cfs = then_end
             if jf_cfs[0].attr < last_offset:
                 return True
@@ -171,7 +171,7 @@ def ifelsestmt(
 
             # FIXME: the below logic for jf_cfs could probably be
             # simplified.
-            jump_else_end = ast[2]
+            jump_else_end = tree[2]
             if jump_else_end == "jf_cf_pop":
                 jump_else_end = jump_else_end[0]
 
