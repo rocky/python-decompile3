@@ -54,9 +54,10 @@ def customize_for_version37(self, version):
     PRECEDENCE["call_ex_kw4"]      =   1
     PRECEDENCE["call_kw"]          =   0
     PRECEDENCE["call_kw36"]        =   1
-    PRECEDENCE["formatted_value1"] =  38 # f"...". This has to be below "named_expr" to make
-                                         # f'{(x := 10)}' preserve parenthesis
-    PRECEDENCE["formatted_value2"] =  38 # See above
+    # f"...". This has to be below "named_expr" to make f'{(x := 10)}'
+    # preserve parenthesis
+    PRECEDENCE["formatted_value1"] =  38
+    PRECEDENCE["formatted_value2"] =  38  # See above
     PRECEDENCE["if_exp_37a"]       =  28
     PRECEDENCE["if_exp_37b"]       =  28
     PRECEDENCE["dict_unpack"]      =   0  # **{...}
@@ -98,8 +99,15 @@ def customize_for_version37(self, version):
                 (0, ("and_parts", "testfalse")),
                 (1, ("expr_pjif", "expr")),
             ),
-            "ann_assign": ("%|%[2]{attr}: %c\n", 0,),
-            "ann_assign_init": ("%|%[2]{attr}: %c = %c\n", 0, 1,),
+            "ann_assign": (
+                "%|%[2]{attr}: %c\n",
+                0,
+            ),
+            "ann_assign_init": (
+                "%|%[2]{attr}: %c = %c\n",
+                0,
+                1,
+            ),
             "async_for_stmt": (
                 "%|async for %c in %c:\n%+%c%-\n\n",
                 (8, "store"),
@@ -126,9 +134,9 @@ def customize_for_version37(self, version):
             ),
             "async_with_stmt": ("%|async with %c:\n%+%c%-", (0, "expr"), 3),
             "async_with_as_stmt": (
-                "%|async with %c as %c:\n%+%c%-",
+                "%|async with %c as %p:\n%+%c%-",
                 (0, "expr"),
-                (2, "store"),
+                (2, "store", PRECEDENCE["unpack"] - 1),
                 3,
             ),
             "async_forelse_stmt": (
@@ -293,7 +301,10 @@ def customize_for_version37(self, version):
                 (2, "import_from_attr37"),
                 (3, "store"),
             ),
-            "import_one": ("%c", (0, "importlists"),),
+            "import_one": (
+                "%c",
+                (0, "importlists"),
+            ),
             "importattr37": ("%c", (0, "IMPORT_NAME_ATTR")),
             "import_from_attr37": (
                 "%c import %c",
@@ -311,30 +322,60 @@ def customize_for_version37(self, version):
             # This is eliminated in the transform phase, but
             # we have it here to be logically complete and more robust
             # if something goes wrong.
-            "negated_testtrue": ("not %c", (0, "testtrue"),),
-            "not_and_not": ("%c and not %c", (0, "not"), (1, "expr_pjif"),),
-            "nor_cond": ("%c or %c", (0, ("or_parts", "and")), (1, "expr_pjif"),),
-            "or_and_not": ("%c or %c", (0, "expr_pjit"), (1, "and_not"),),
+            "negated_testtrue": (
+                "not %c",
+                (0, "testtrue"),
+            ),
+            "not_and_not": (
+                "%c and not %c",
+                (0, "not"),
+                (1, "expr_pjif"),
+            ),
+            "nor_cond": (
+                "%c or %c",
+                (0, ("or_parts", "and")),
+                (1, "expr_pjif"),
+            ),
+            "or_and_not": (
+                "%c or %c",
+                (0, "expr_pjit"),
+                (1, "and_not"),
+            ),
             "or_cond": (
                 "%c or %c",
                 (0, ("or_parts", "and", "not_and_not")),
                 (1, "expr_pjif"),
             ),
-            "or_cond1": ("%c or %c", (0, ("or_parts", "and")), (-2, "expr_pjif"),),
+            "or_cond1": (
+                "%c or %c",
+                (0, ("or_parts", "and")),
+                (-2, "expr_pjif"),
+            ),
             "and_or_cond": (
                 "%c and %c or %c",
                 (0, ("and_parts", "or_parts")),
                 (1, "expr"),
                 (4, "expr_pjif"),
             ),
-            "not": ("not %p", (0, "expr_pjit", PRECEDENCE["not"]),),
+            "not": (
+                "not %p",
+                (0, "expr_pjit", PRECEDENCE["not"]),
+            ),
             "not_or": (
                 "not %p or %c",
                 (0, "and_parts", PRECEDENCE["and"] - 1),
                 (1, "expr_pjif"),
             ),
-            "nand": ("not (%c and %c)", (0, "and_parts"), (1, ("expr", "expr_pjit")),),
-            "c_nand": ("not (%c and %c)", (0, "and_parts"), (1, "expr_pjitt"),),
+            "nand": (
+                "not (%c and %c)",
+                (0, "and_parts"),
+                (1, ("expr", "expr_pjit")),
+            ),
+            "c_nand": (
+                "not (%c and %c)",
+                (0, "and_parts"),
+                (1, "expr_pjitt"),
+            ),
             "or_parts": (
                 "%P or %p",
                 (0, -1, "or ", PRECEDENCE["or"]),
@@ -427,10 +468,10 @@ def customize_for_version37(self, version):
         if node[0].kind.startswith("kvlist"):
             # Python 3.5+ style key/value list in dict
             kv_node = node[0]
-            l = list(kv_node)
+            ll = list(kv_node)
             i = 0
 
-            length = len(l)
+            length = len(ll)
             # FIXME: Parser-speed improved grammars will have BUILD_MAP
             # at the end. So in the future when everything is
             # complete, we can do an "assert" instead of "if".
@@ -440,7 +481,7 @@ def customize_for_version37(self, version):
             # Respect line breaks from source
             while i < length:
                 self.write(sep)
-                name = self.traverse(l[i], indent="")
+                name = self.traverse(ll[i], indent="")
                 # Strip off beginning and trailing quotes in name
                 name = name[1:-1]
                 if i > 0:
@@ -450,7 +491,7 @@ def customize_for_version37(self, version):
                 line_number = self.line_number
                 self.write(name, "=")
                 value = self.traverse(
-                    l[i + 1], indent=self.indent + (len(name) + 2) * " "
+                    ll[i + 1], indent=self.indent + (len(name) + 2) * " "
                 )
                 self.write(value)
                 sep = ", "

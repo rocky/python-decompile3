@@ -626,9 +626,10 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         """
 
         # print("-----")
-        # print(startnode)
+        # print(startnode.kind)
         # print(entry[0])
         # print('======')
+
         fmt = entry[0]
         arg = 1
         i = 0

@@ -17,6 +17,7 @@ Custom Nonterminal action functions. See NonterminalActions docstring.
 """
 
 from xdis import iscode
+from spark_parser.ast import GenericASTTraversalPruningException
 
 from decompyle3.semantics.consts import (
     INDENT_PER_LEVEL,
@@ -294,8 +295,8 @@ class NonterminalActions:
             if node[0].kind.startswith("kvlist"):
                 # Python 3.5+ style key/value list in dict
                 kv_node = node[0]
-                l = list(kv_node)
-                length = len(l)
+                ll = list(kv_node)
+                length = len(ll)
                 if kv_node[-1].kind.startswith("BUILD_MAP"):
                     length -= 1
                 i = 0
@@ -303,7 +304,7 @@ class NonterminalActions:
                 # Respect line breaks from source
                 while i < length:
                     self.write(sep)
-                    name = self.traverse(l[i], indent="")
+                    name = self.traverse(ll[i], indent="")
                     if i > 0:
                         line_number = self.indent_if_source_nl(
                             line_number, self.indent + INDENT_PER_LEVEL[:-1]
@@ -311,7 +312,7 @@ class NonterminalActions:
                     line_number = self.line_number
                     self.write(name, ": ")
                     value = self.traverse(
-                        l[i + 1], indent=self.indent + (len(name) + 2) * " "
+                        ll[i + 1], indent=self.indent + (len(name) + 2) * " "
                     )
                     self.write(value)
                     sep = ", "
@@ -324,15 +325,15 @@ class NonterminalActions:
             elif len(node) > 1 and node[1].kind.startswith("kvlist"):
                 # Python 3.0..3.4 style key/value list in dict
                 kv_node = node[1]
-                l = list(kv_node)
-                if len(l) > 0 and l[0].kind == "kv3":
+                ll = list(kv_node)
+                if len(ll) > 0 and ll[0].kind == "kv3":
                     # Python 3.2 does this
                     kv_node = node[1][0]
-                    l = list(kv_node)
+                    ll = list(kv_node)
                 i = 0
-                while i < len(l):
+                while i < len(ll):
                     self.write(sep)
-                    name = self.traverse(l[i + 1], indent="")
+                    name = self.traverse(ll[i + 1], indent="")
                     if i > 0:
                         line_number = self.indent_if_source_nl(
                             line_number, self.indent + INDENT_PER_LEVEL[:-1]
@@ -341,7 +342,7 @@ class NonterminalActions:
                     line_number = self.line_number
                     self.write(name, ": ")
                     value = self.traverse(
-                        l[i], indent=self.indent + (len(name) + 2) * " "
+                        ll[i], indent=self.indent + (len(name) + 2) * " "
                     )
                     self.write(value)
                     sep = ", "
@@ -1133,7 +1134,20 @@ class NonterminalActions:
         for n in node[1:]:
             if n[0].kind == "unpack":
                 n[0].kind = "unpack_w_parens"
-        self.default(node)
+
+        unpack_prec = PRECEDENCE["unpack"]
+        old_prec = self.prec
+        need_parens = old_prec < unpack_prec
+        self.prec = unpack_prec
+        if need_parens:
+            self.write("(")
+        try:
+            self.default(node)
+        except GenericASTTraversalPruningException:
+            self.prec = old_prec
+            if need_parens:
+                self.write(")")
+            raise
 
     n_unpack_w_parens = n_unpack
 

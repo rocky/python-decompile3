@@ -50,6 +50,8 @@ PRECEDENCE = {
     "dict_unpack":            38,  # **kwargs
     "list_unpack":            38,  # *args
     "tuple_list_starred":     38,  # *x, *y, *z - about at the level of yield?
+    "unpack":                 38,  # A guess. Used in "async with ... as ...
+                                   # This might also get used in tuple assignment?
     "yield_from":             38,
 
     "lambda_body":            32,  # lambda ... : lambda_body
@@ -122,7 +124,7 @@ LINE_LENGTH = 80
 # Some parse trees created below are used for comparing code
 # fragments (like "return None" at the end of functions).
 
-ASSIGN_DOC_STRING = lambda doc_string, doc_load: SyntaxTree(
+ASSIGN_DOC_STRING = lambda doc_string, doc_load: SyntaxTree(    # noqa
     "assign",
     [
         SyntaxTree(
@@ -581,7 +583,7 @@ MAP = {
     "store": MAP_R,
 }
 
-ASSIGN_TUPLE_PARAM = lambda param_name: SyntaxTree(
+ASSIGN_TUPLE_PARAM = lambda param_name: SyntaxTree(  # noqa
     "expr", [Token("LOAD_FAST", pattr=param_name)]
 )
 

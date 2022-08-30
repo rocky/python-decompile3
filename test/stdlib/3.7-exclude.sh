@@ -3,7 +3,7 @@ SKIP_TESTS=(
     # TypeError: can only concatenate str (not "int") to str
     [test_minidom.py]=1 # test errors; works on 5bbb74f3 (HEAD~10)
 
-    test_modulefinder.py]=1 # works on 5bbb74f3 (HEAD~10)
+    [test_modulefinder.py]=1 # works on 5bbb74f3 (HEAD~10)
     [test_wsgiref.py]=1 # works on 5bbb74f3 (HEAD~10)
 
     [test_format.py]=1 # works on 5bbb74f3 (HEAD~10)?

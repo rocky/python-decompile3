@@ -52,9 +52,9 @@ def customize_for_version38(self, version):
                 (7, ("c_stmts_opt", "c_stmts", "pass")),
             ),
             "async_with_as_stmt38": (
-                "%|async with %c as %c:\n%+%|%c%-",
+                "%|async with %c as %p:\n%+%|%c%-",
                 (0, "expr"),
-                (6, "store"),
+                (6, "store", PRECEDENCE["unpack"] - 1),
                 (7, "suite_stmts"),
             ),
             "c_forelsestmt38": (
@@ -71,8 +71,15 @@ def customize_for_version38(self, version):
             ),
             # Python 3.8 reverses the order of keys and items
             # from all prior versions of Python.
-            "dict_comp_body": ("%c: %c", (0, "expr"), (1, "expr"),),
-            "except_cond1a": ("%|except %c:\n", (1, "expr"),),
+            "dict_comp_body": (
+                "%c: %c",
+                (0, "expr"),
+                (1, "expr"),
+            ),
+            "except_cond1a": (
+                "%|except %c:\n",
+                (1, "expr"),
+            ),
             "except_cond_as": (
                 "%|except %c as %c:\n",
                 (1, "expr"),
@@ -125,7 +132,11 @@ def customize_for_version38(self, version):
             "pop_return": ("%|return %c\n", (1, "return_expr")),
             "popb_return": ("%|return %c\n", (0, "return_expr")),
             "pop_ex_return": ("%|return %c\n", (0, "return_expr")),
-            "set_for": (" for %c in %c", (2, "store"), (0, "expr_or_arg"),),
+            "set_for": (
+                " for %c in %c",
+                (2, "store"),
+                (0, "expr_or_arg"),
+            ),
             "whilestmt38": (
                 "%|while %c:\n%+%c%-\n\n",
                 (1, ("bool_op", "testexpr", "testexprc")),
@@ -133,7 +144,10 @@ def customize_for_version38(self, version):
             ),
             "whileTruestmt38": (
                 "%|while True:\n%+%c%-\n\n",
-                (1, ("c_stmts", "pass"),),
+                (
+                    1,
+                    ("c_stmts", "pass"),
+                ),
             ),
             "try_elsestmtl38": (
                 "%|try:\n%+%c%-%c%|else:\n%+%c%-",
