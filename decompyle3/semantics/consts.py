@@ -66,6 +66,12 @@ PRECEDENCE = {
     "if_exp_ret":             28,
 
     "or":                     26,  # Boolean OR
+
+    # x and y or z. Note that although we may need
+    # parenthesis around (a and y or z) , inside the
+    # implied order is (a and y) or z.
+    "and_or_expr":            26,
+
     "ret_or":                 26,
 
     "and":                    24,  # Boolean AND

@@ -1,22 +1,44 @@
 SKIP_TESTS=(
-    # self._testCloneElementCopiesAttributes(root, clone, 'testCloneElement' + deep and 'Deep' or 'Shallow')
-    # TypeError: can only concatenate str (not "int") to str
-    [test_minidom.py]=1 # test errors; works on 5bbb74f3 (HEAD~10)
+    #  File "test_long.py", line 689, in check_truediv
+    # self.assertEqual(expected, got, 'Incorrectly rounded division {}/{}: expected {}, got {}'.format(a, b, expected, got))
+    # AssertionError: 'None' != '299212350987.4186'
+    # - None
+    # + 299212350987.4186
+    #  : Incorrectly rounded division 20701604927766528/69187: expected None, got 299212350987.4186
+    [test_long.py]=1 # test assert failure (1)
 
+    # Traceback (most recent call last):
+    # File "test_enum.py", line 1150, in test_multiple_mixin_mro
+    # class AutoNumberedEnum(Enum, metaclass=auto_enum):
+    # TypeError: metaclass conflict: the metaclass of a derived class must be a (non-strict) subclass of the metaclasses of all its bases
+    [test_enum.py]=1
+
+    # ofi.write(line.strip() + '\n')
+    # AttributeError: 'NoneType' object has no attribute 'write'
     [test_modulefinder.py]=1 # works on 5bbb74f3 (HEAD~10)
-    [test_wsgiref.py]=1 # works on 5bbb74f3 (HEAD~10)
 
+    # Improper use of "not or" in very complicatedf
+    # boolean expressions with several level of nested "if/else"
+    # and try/else
     [test_format.py]=1 # works on 5bbb74f3 (HEAD~10)?
+
+    # Syntax error:
+    #   File "test_dataclasses.py", line 227
+    #   builtins_names = sorted((b for b in builtins.__dict__.keys() if not b.startswith('__') if b not in exclusions if  if not b.startswith('__') if b not in exclusions))
     [test_dataclasses.py]=1 # works on 5bbb74f3 (HEAD~10)
 
-    [test_poplib.py]=1 # works on 5bbb74f3 (HEAD~10)
-    [test_codecs.py]=1 # test errors; works on 5bbb74f3 (HEAD~10)
+    [test_poplib.py]=1 # unit test failures works on 5bbb74f3 (HEAD~10)
+    [test_codecs.py]=1 # unit test errors; works on 5bbb74f3 (HEAD~10)
     [test_pyclbr.py]=1 # test errors; works on 5bbb74f3 (HEAD~10)
     [test_threaded_import.py]=1 # works on 5bbb74f3 (HEAD~10)
     [test_urllib2.py]=1 # test errors (1); works on 5bbb74f3 (HEAD~5)
 
-    [test_httplib.py]=1 # test runs. kills after 15 seconds. works on f7e2064e
-    [test_grammar.py]=1 # running errors with undefined variables - look at
+    [test_httplib.py]=1 # test runs. kills after 15 seconds. works on f7e2064e. hangs in test_read1
+
+    # There are variables defined via annotations. The annotations do not appear in the bytecode .
+    # The  program tests for UnboundError, but in decompiled code we get the error
+    # at compile time.
+    [test_grammar.py]=1
 
     [test___all__.py]=1 # it fails on its own
     [test_argparse.py]=1 # it fails on its own
@@ -42,8 +64,6 @@ SKIP_TESTS=(
     [test_dis.py]=1   # Introspects on line numbers; line numbers don't match in disassembly - duh!
     [test_doctest.py]=1   # fails on its own
 
-    [test_enum.py]=1   # test run errors (1); probably bad control flow
-
     [test_faulthandler.py]=1   # test takes too long before decompiling
     [test_fileinput.py]=1 # too long to run - control flow?
     [test_frame.py]=1 # Introspects line number
@@ -61,7 +81,7 @@ SKIP_TESTS=(
     [test_kqueue.py]=1 # it fails on its own
 
     [test_lib2to3.py]=1 # it fails on its own
-    [test_long.py]=1 # test assert failure (1)
+
     [test_logging.py]=1 # test errors; (takes a long time to run)
 
     [test_mailbox.py]=1 # probably control flow
@@ -81,7 +101,7 @@ SKIP_TESTS=(
     [test_optparse.py]=1 # test takes more than 15 seconds to run
 
     [test_pdb.py]=1 # Probably relies on comments
-    [test_peepholer.py]=1 # test assert error (2)
+    [test_peepholer.py]=1 # uncompyle test assert error (2 FF)
     [test_pkg.py]=1 # Investigate: lists differ
     [test_pkgutil.py]=1 # Investigate:
     [test_poll.py]=1 # Takes too long to run before decompiling 11 seconds
@@ -115,13 +135,10 @@ SKIP_TESTS=(
     [test_tracemalloc.py]=1 # test assert failures
     [test_ttk_guionly.py]=1  # implementation specfic and test takes too long to run: 19 seconds
     [test_types.py]=1 # test failure (1)
-    [test_typing.py]=1 # run errors
+    [test_typing.py]=1 # syntax error after decompilation on line 9
 
     [test_unicode.py]=1 # unicode thing
     [test_urllibnet.py]=1 # test errors
-
-    [test_weakref.py]=1 # takes too long to run
-    [test_with.py]=1 # test errors.
 
     [test_winconsoleio.py]=1 # it fails on its own
     [test_winreg.py]=1 # it fails on its own
