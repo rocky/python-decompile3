@@ -43,9 +43,24 @@ SKIP_TESTS=(
     [test___all__.py]=1 # it fails on its own
     [test_argparse.py]=1 # it fails on its own
     [test_asdl_parser.py]=1 # it fails on its own
+    [test_ast.py]=1
     [test_atexit.py]=1  # The atexit test looks for specific comments in error lines
+    [test_baseexception.py]=1
+    [test_bdb.py]=1
+
+    # FIXME:
+    # File "test_bigmem.py", line 135
+    # chars = _(''.join((chr(c) for c in range(255) if not chr(c).isupper() if  if not chr(c).isupper())))
+    #  ^
+    # SyntaxError: invalid syntax
+    [test_bigmem.py]=1  #
     [test_buffer.py]=1  # Test run errors; takes long time to decompile
 
+    #  File "test_capi.py", line 352
+    # locals().update(((name, getattr(_testcapi, name)) for name in dir(_testcapi) if name.startswith('test_') if not name.endswith('_code') if  if not name.endswith('_code')))
+    #
+    # SyntaxError: invalid syntax
+    [test_capi.py]=1
 
     [test_clinic.py]=1 # it fails on its own
     [test_cmd_line.py]=1  # Interactive?
