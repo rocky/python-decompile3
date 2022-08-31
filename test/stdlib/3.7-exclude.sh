@@ -48,19 +48,7 @@ SKIP_TESTS=(
     [test_baseexception.py]=1
     [test_bdb.py]=1
 
-    # FIXME:
-    # File "test_bigmem.py", line 135
-    # chars = _(''.join((chr(c) for c in range(255) if not chr(c).isupper() if  if not chr(c).isupper())))
-    #  ^
-    # SyntaxError: invalid syntax
-    [test_bigmem.py]=1  #
     [test_buffer.py]=1  # Test run errors; takes long time to decompile
-
-    #  File "test_capi.py", line 352
-    # locals().update(((name, getattr(_testcapi, name)) for name in dir(_testcapi) if name.startswith('test_') if not name.endswith('_code') if  if not name.endswith('_code')))
-    #
-    # SyntaxError: invalid syntax
-    [test_capi.py]=1
 
     [test_clinic.py]=1 # it fails on its own
     [test_cmd_line.py]=1  # Interactive?
@@ -76,6 +64,7 @@ SKIP_TESTS=(
     [test_decimal.py]=1   # test assertion failures
     [test_descr.py]=1   # test assertion failures
     [test_devpoll.py]=1 # it fails on its own
+    [test_dictcomps.py]=1
     [test_dis.py]=1   # Introspects on line numbers; line numbers don't match in disassembly - duh!
     [test_doctest.py]=1   # fails on its own
 

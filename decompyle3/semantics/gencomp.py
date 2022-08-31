@@ -250,7 +250,7 @@ class ComprehensionMixin:
         assert iter_expr in ("expr", "get_aiter"), iter_expr
         self.preorder(iter_expr)
         self.preorder(tree[iter_index])
-        if list_if:
+        if list_if and not tree[iter_index][0].kind.startswith("comp_if"):
             if write_if:
                 self.write(" if ")
             self.preorder(list_if)
