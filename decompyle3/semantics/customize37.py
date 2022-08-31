@@ -1422,6 +1422,8 @@ def customize_for_version37(self, version):
                 if value.startswith("f"):
                     value = value[1:]
                 pass
+                # Remove leading quotes
+                result += strip_quotes(value)
             else:
                 # {{ and }} in Python source-code format strings mean
                 # { and } respectively. But only when *not* part of a
