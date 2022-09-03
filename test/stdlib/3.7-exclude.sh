@@ -22,10 +22,10 @@ SKIP_TESTS=(
     # and try/else
     [test_format.py]=1 # works on 5bbb74f3 (HEAD~10)?
 
-    # Syntax error:
-    #   File "test_dataclasses.py", line 227
-    #   builtins_names = sorted((b for b in builtins.__dict__.keys() if not b.startswith('__') if b not in exclusions if  if not b.startswith('__') if b not in exclusions))
-    [test_dataclasses.py]=1 # works on 5bbb74f3 (HEAD~10)
+    # gen(), (lambda: yield)(), Gen(), MinimalGen()]
+    #                     ^
+    # SyntaxError: invalid syntax
+    [test_collections.py]=1
 
     [test_poplib.py]=1 # unit test failures works on 5bbb74f3 (HEAD~10)
     [test_codecs.py]=1 # unit test errors; works on 5bbb74f3 (HEAD~10)

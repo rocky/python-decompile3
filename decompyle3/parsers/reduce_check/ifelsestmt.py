@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 Rocky Bernstein
+#  Copyright (c) 2020, 2022 Rocky Bernstein
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation, either version 3 of the License, or
@@ -14,7 +14,7 @@
 
 from decompyle3.scanners.tok import Token
 
-
+# When we use dominators, presumbaly this will be a lto cleaner
 def ifelsestmt(
     self, lhs: str, n: int, rule, tree, tokens: list, first: int, last: int
 ) -> bool:
@@ -28,12 +28,23 @@ def ifelsestmt(
     # print("="*40)
 
     first_offset = tokens[first].off2int()
+    last_offset = tokens[last].off2int(prefer_last=False)
 
     # FIXME: It is conceivable the below could be handled strictly in the grammar.
     # If we have an optional else, then we *must* have a COME_FROM for it.
     # Otherwise this is fine as an "if" witout the "else"
-    if rule[1][2:4] == ("jf_cfs", "\\e_else_suite_opt"):
+
+    if rule[1][2] == "jf_cfs":
         jf_cfs = tree[2]
+        jump = jf_cfs[0]
+        # The jf_cfs should jump o the end of the ifelse, and not beyond it.
+        # Think about: should we also check that it isn't to the
+        # *interior* of the "else" part?
+        jump = jf_cfs[0]
+        if jump == "JUMP_FORWARD" and jump.attr > last_offset:
+            return True
+
+    if rule[1][2:4] == ("jf_cfs", "\\e_else_suite_opt"):
         come_froms = jf_cfs[1]
         if isinstance(come_froms, Token):
             come_from_target = come_froms.attr
@@ -45,6 +56,7 @@ def ifelsestmt(
                 # and these aren't caught by our "if/then" rules
                 return tokens[last].off2int() != jf_cfs[0].attr
             come_from_target = come_froms[-1].attr
+
         if come_from_target < first_offset:
             return True
 
@@ -129,7 +141,6 @@ def ifelsestmt(
             i += 1
             inst = self.insts[i]
 
-        last_offset = tokens[last].off2int(prefer_last=False)
         if last_offset == -1:
             last_offset = tokens[last - 1].off2int(prefer_last=False)
 
