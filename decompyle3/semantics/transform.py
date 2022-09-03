@@ -38,7 +38,7 @@ def is_not_docstring(call_stmt_node) -> bool:
             and call_stmt_node[0][0] == "LOAD_STR"
             and call_stmt_node[1] == "POP_TOP"
         )
-    except:
+    except Exception:
         return False
 
 
@@ -313,6 +313,9 @@ class TreeTransform(GenericASTTraversal, object):
                 pass
             pass
         else:
+            while n[0].kind in ("_stmts", "stmts"):
+                n = n[0]
+            len_n = len(n)
             if (
                 len_n > 1
                 and isinstance(n[0], SyntaxTree)
@@ -459,7 +462,7 @@ class TreeTransform(GenericASTTraversal, object):
                 call_stmt.kind = "string_at_beginning"
                 call_stmt.transformed_by = "transform"
                 pass
-        except:
+        except Exception:
             pass
         try:
 
@@ -486,7 +489,7 @@ class TreeTransform(GenericASTTraversal, object):
             if self.ast[-1] == RETURN_NONE:
                 self.ast.pop()  # remove last node
                 # todo: if empty, add 'pass'
-        except:
+        except Exception:
             pass
 
         return self.ast
