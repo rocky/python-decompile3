@@ -26,6 +26,7 @@ def ifelsestmt(
     # print("XXX", first, last, rule)
     # for t in range(first, last): print(tokens[t])
     # print("="*40)
+    # from trepan.api import debug; debug()
 
     first_offset = tokens[first].off2int()
     last_offset = tokens[last].off2int(prefer_last=False)
@@ -37,12 +38,25 @@ def ifelsestmt(
     if rule[1][2] == "jf_cfs":
         jf_cfs = tree[2]
         jump = jf_cfs[0]
-        # The jf_cfs should jump o the end of the ifelse, and not beyond it.
+        # The jf_cfs should jump to the end of the ifelse, and not beyond it.
         # Think about: should we also check that it isn't to the
         # *interior* of the "else" part?
         jump = jf_cfs[0]
         if jump == "JUMP_FORWARD" and jump.attr > last_offset:
-            return True
+            # There is one situation where jf_cfs does not jump to the end of ifelse,
+            # and that when this is inside *another* ifelse:
+            # if x:
+            #   if y:
+            #     ...
+            #   else:
+            #     jumps to the end of the *enclosing* ifelse
+            # else
+            # ...
+            #
+            # We can detect this because there is a JUMP_FORWARD a the end of the ifelese
+            # that also jumps to the same location
+            if not (tokens[last] == "JUMP_FORWARD" and tokens[last].attr == jump.attr):
+                return True
 
     if rule[1][2:4] == ("jf_cfs", "\\e_else_suite_opt"):
         come_froms = jf_cfs[1]

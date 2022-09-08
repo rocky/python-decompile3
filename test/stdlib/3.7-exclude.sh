@@ -27,6 +27,12 @@ SKIP_TESTS=(
     # SyntaxError: invalid syntax
     [test_collections.py]=1
 
+    # File "test_context.py", line 360
+    # self.error_on_eq_to is otherValueErrorf"cannot compare {self!r} to {other!r}"        if other.error_on_eq_to is not None:
+    # ^
+    # IndentationError: expected an indented block
+    [test_contextlib.py]=1
+
     [test_poplib.py]=1 # unit test failures works on 5bbb74f3 (HEAD~10)
     [test_codecs.py]=1 # unit test errors; works on 5bbb74f3 (HEAD~10)
     [test_pyclbr.py]=1 # test errors; works on 5bbb74f3 (HEAD~10)
