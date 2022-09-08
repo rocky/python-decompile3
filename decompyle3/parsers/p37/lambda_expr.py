@@ -372,7 +372,7 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         c_compare         ::= c_compare_chained
 
         genexpr_func      ::= LOAD_ARG _come_froms FOR_ITER store comp_iter
-                              JUMP_LOOP _come_froms
+                              _come_froms JUMP_LOOP _come_froms
 
         load_genexpr      ::= LOAD_GENEXPR
         load_genexpr      ::= BUILD_TUPLE_1 LOAD_GENEXPR LOAD_STR
