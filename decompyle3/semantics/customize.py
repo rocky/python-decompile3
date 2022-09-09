@@ -1,4 +1,4 @@
-#  Copyright (c) 2018-2021 by Rocky Bernstein
+#  Copyright (c) 2018-2022 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -44,7 +44,9 @@ def customize_for_version(self, is_pypy, version):
                 "assign2_pypy": ("%|%c, %c = %c, %c\n", 3, 2, 0, 1),
             }
         )
-        if version[:2] >= (3, 7):
+
+        # At one time PyPy did this but now follows CPython?
+        if False and version[:2] >= (3, 7):
 
             def n_call_kw_pypy37(node):
                 self.template_engine(("%p(", (0, 100)), node)
@@ -55,7 +57,7 @@ def customize_for_version(self, is_pypy, version):
 
                 flat_elems = flatten_list(node[1:-2])
                 n = len(flat_elems)
-                assert n == arg_count
+                assert n == arg_count, f"n: {n}, arg_count: {arg_count}\n{node}"
                 kwargs_names = kw_names[0].attr
                 kwarg_count = len(kwargs_names)
                 pos_argc = arg_count - kwarg_count
@@ -115,7 +117,10 @@ def customize_for_version(self, is_pypy, version):
 
     if version >= (3, 2):
         TABLE_DIRECT.update(
-            {"del_deref_stmt": ("%|del %c\n", 0), "DELETE_DEREF": ("%{pattr}", 0),}
+            {
+                "del_deref_stmt": ("%|del %c\n", 0),
+                "DELETE_DEREF": ("%{pattr}", 0),
+            }
         )
     from decompyle3.semantics.customize3 import customize_for_version3
 
