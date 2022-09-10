@@ -46,7 +46,7 @@ def customize_for_version(self, is_pypy, version):
         )
 
         # At one time PyPy did this but now follows CPython?
-        if False and version[:2] >= (3, 7):
+        if version[:2] >= (3, 7):
 
             def n_call_kw_pypy37(node):
                 self.template_engine(("%p(", (0, 100)), node)
@@ -55,12 +55,13 @@ def customize_for_version(self, is_pypy, version):
                 kw_names = node[-2]
                 assert kw_names == "pypy_kw_keys"
 
-                flat_elems = flatten_list(node[1:-2])
-                n = len(flat_elems)
-                assert n == arg_count, f"n: {n}, arg_count: {arg_count}\n{node}"
                 kwargs_names = kw_names[0].attr
                 kwarg_count = len(kwargs_names)
                 pos_argc = arg_count - kwarg_count
+
+                flat_elems = flatten_list(node[1:-2])
+                n = len(flat_elems)
+                assert n == arg_count, f"n: {n}, arg_count: {arg_count}\n{node}"
                 sep = ""
 
                 for i in range(pos_argc):

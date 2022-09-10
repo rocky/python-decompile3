@@ -43,18 +43,19 @@ from decompyle3.parsers.p38.heads import (
     Python38ParserExpr,
     Python38ParserSingle,
 )
+from decompyle3.parsers.treenode import SyntaxTree
 
 from decompyle3.show import maybe_show_asm
 
 
-def parse(p, tokens, customize, is_lambda):
+def parse(p, tokens, customize, is_lambda) -> SyntaxTree:
     was_lambda = p.is_lambda
     p.is_lambda = is_lambda
     p.customize_grammar_rules(tokens, customize)
-    ast = p.parse(tokens)
+    tree = p.parse(tokens)
     p.is_lambda = was_lambda
     #  p.cleanup()
-    return ast
+    return tree
 
 
 def get_python_parser(

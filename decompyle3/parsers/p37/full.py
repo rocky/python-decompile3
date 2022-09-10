@@ -137,9 +137,6 @@ class Python37Parser(Python37LambdaParser):
 
         stmt ::= classdef
         stmt ::= expr_stmt
-        stmt ::= call_stmt
-
-        call_stmt ::= call
 
         stmt ::= ifstmt
         stmt ::= if_or_stmt

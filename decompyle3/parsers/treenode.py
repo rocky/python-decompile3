@@ -15,10 +15,10 @@ class SyntaxTree(spark_AST):
         because SyntaxTree token offsets might be different"""
         return len(self.data) == 1 and NoneToken == self.data[0]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.__repr1__("", None)
 
-    def __repr1__(self, indent, sibNum=None):
+    def __repr1__(self, indent, sibNum=None) -> str:
         rv = str(self.kind)
         if sibNum is not None:
             rv = "%2d. %s" % (sibNum, rv)
