@@ -1,4 +1,8 @@
 SKIP_TESTS=(
+    # f = lambda: yield 1
+    # SyntaxError: invalid syntax
+    [test_generators.py]=1
+
     #  File "test_long.py", line 689, in check_truediv
     # self.assertEqual(expected, got, 'Incorrectly rounded division {}/{}: expected {}, got {}'.format(a, b, expected, got))
     # AssertionError: 'None' != '299212350987.4186'
@@ -31,6 +35,17 @@ SKIP_TESTS=(
     # ^
     # IndentationError: expected an indented block
     [test_context.py]=1
+
+    # These work in 321f8287d21130bea1e039890f0c27c78d07e420?
+    [test_asyncgen.py]=1
+    [test_base64.py]=1
+    [test_bigmem.py]=1
+    [test_binascii.py]=1
+    [test_compare.py]=1
+    [test_file_eintr.py]=1
+    [test_float.py]=1
+    [test_hash.py]=1
+    [test_hashlib.py]=1
 
     [test_functools.py]=1
 
@@ -77,12 +92,10 @@ SKIP_TESTS=(
     [test_dis.py]=1   # Introspects on line numbers; line numbers don't match in disassembly - duh!
     [test_doctest.py]=1   # fails on its own
 
-    [test_faulthandler.py]=1   # test takes too long before decompiling
     [test_fileinput.py]=1 # too long to run - control flow?
     [test_frame.py]=1 # Introspects line number
     [test_fstring.py]=1 # need to disambiguate leading fstrings from docstrings
 
-    [test_generators.py]=1  # Works if you run via Python. So possibly some test-framework problem
     [test_gdb.py]=1 # it fails on its own
     [test_glob.py]=1  # test errors (1), TypeError: join() argument must be str or bytes, not 'tuple'
     [test_grp.py]=1 # Running test doesn't terminate (killed)
@@ -136,7 +149,6 @@ SKIP_TESTS=(
     [test_ssl.py]=1 # Takes too long to run more than 15 seconds. Probably control flow; unintialized variable
     [test_statistics.py]=1 # test failure (1)
     [test_startfile.py]=1 # it fails on its own
-    [test_string_literals.py]=1 # unit test failure (in assert expression)
     [test_strptime.py]=1 # test check failure (1)
     [test_strtod.py]=1 # test assertions failed
     [test_struct.py]=1 # test assertions errors
@@ -171,8 +183,14 @@ SKIP_TESTS=(
     [test_zipimport.py]=1 # unit test failure
 )
 
+# 321f8287d21130bea1e039890f0c27c78d07e420
+#
 # Ran 295 unit-test files, 0 errors; Elapsed time: 12 minutes and 4 seconds
 # Skipped 113 test for known failures.
+
+# Ran 290 unit-test files, 51 errors; Elapsed time: 15 minutes and 18 seconds
+# Skipped 116 test for known failures.
+
 
 # 277 for unpyc37
 

@@ -484,7 +484,10 @@ class Python37BaseParser(PythonBaseParser):
             elif opname_base == "BUILD_SLICE":
                 if token.attr == 2:
                     self.add_unique_rules(
-                        ["expr ::= slice2", "slice2 ::= expr expr BUILD_SLICE_2",],
+                        [
+                            "expr ::= slice2",
+                            "slice2 ::= expr expr BUILD_SLICE_2",
+                        ],
                         customize,
                     )
                 else:
@@ -1120,6 +1123,7 @@ class Python37BaseParser(PythonBaseParser):
             "ifelsestmtc": ifelsestmt,
             "iflaststmt": iflaststmt,
             "iflaststmtc": iflaststmt,
+            "if_not_stmtc": ifstmt,
             "ifstmt": ifstmt,
             "ifstmtc": ifstmt,
             "lastc_stmt": lastc_stmt,
@@ -1146,6 +1150,7 @@ class Python37BaseParser(PythonBaseParser):
         self.check_reduce["c_tryelsestmt"] = "AST"
         self.check_reduce["if_and_stmt"] = "AST"
         self.check_reduce["if_and_elsestmtc"] = "AST"
+        self.check_reduce["if_not_stmtc"] = "AST"
         self.check_reduce["ifelsestmt"] = "AST"
         self.check_reduce["ifelsestmtc"] = "AST"
         self.check_reduce["iflaststmt"] = "AST"

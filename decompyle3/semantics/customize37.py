@@ -251,6 +251,11 @@ def customize_for_version37(self, version):
                 (0, "expr_pjif", 27),
                 (3, "expr", 27),
             ),
+            "if_not_stmtc": (
+                "%|if not %c:\n%+%c%-",
+                (0, "testexprc"),
+                (1, "ifstmts_jumpc"),
+            ),
             "ifstmt_bool": (
                 "%|if %c:\n%+%c%-",
                 (0, ("or_and_not", "or_and1")),

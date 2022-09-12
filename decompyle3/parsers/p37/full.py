@@ -74,6 +74,7 @@ class Python37Parser(Python37LambdaParser):
 
         # If statement inside a loop. The RHS may have looping jumps in them.
         c_stmt  ::= ifstmtc
+        c_stmt  ::= if_not_stmtc
         c_stmt  ::= if_and_elsestmtc
         c_stmt  ::= ifelsestmtc
         c_stmt  ::= c_tryfinallystmt
@@ -847,7 +848,13 @@ class Python37Parser(Python37LambdaParser):
         ifelsestmtc        ::= testexpr c_stmts_opt JUMP_FORWARD else_suite _come_froms
 
         ifstmtc            ::= testexpr ifstmts_jumpc
+
+        # We need a reduction rule to disambiguate ifstmtc from if_not_stmtc
+        # The difference is that when ifstmts_jumpc geos back to to a loop
+        # and testexprc is testtruec, then we have if_not_stmtc.
+
         ifstmtc            ::= testexprc ifstmts_jumpc _come_froms
+        if_not_stmtc       ::= testexprc ifstmts_jumpc _come_froms
 
         ifstmts_jumpc             ::= ifstmts_jump
         ifstmts_jumpc             ::= c_stmts_opt come_froms
