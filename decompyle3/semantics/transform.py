@@ -134,13 +134,17 @@ class TreeTransform(GenericASTTraversal, object):
             return node
 
         if node.kind in ("ifstmt", "ifstmtc"):
+            stmts = None
             ifstmts_jump = node[1]
 
             if ifstmts_jump == "ifstmts_jumpc" and ifstmts_jump[0] == "ifstmts_jump":
                 ifstmts_jump = ifstmts_jump[0]
+            elif ifstmts_jump in ("stmts",):
+                stmts = node[1]
             elif ifstmts_jump not in ("ifstmts_jump", "ifstmts_jumpc"):
                 return node
-            stmts = ifstmts_jump[0]
+            if stmts is None:
+                stmts = ifstmts_jump[0]
         else:
             # iflaststmt{c,} works this way
             stmts = node[1]
