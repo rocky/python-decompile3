@@ -42,7 +42,7 @@ class Scanner37(Scanner37Base):
     pass
 
     def ingest(
-        self, co, classname=None, code_objects={}, show_asm=None
+        self, bytecode, classname=None, code_objects={}, show_asm=None
     ) -> Tuple[list, dict]:
         """
         Create "tokens" the bytecode of an Python code object. Largely these
@@ -63,7 +63,7 @@ class Scanner37(Scanner37Base):
         cause specific rules for the specific number of arguments they take.
         """
         tokens, customize = Scanner37Base.ingest(
-            self, co, classname, code_objects, show_asm
+            self, bytecode, classname, code_objects, show_asm
         )
         new_tokens = []
         for i, t in enumerate(tokens):

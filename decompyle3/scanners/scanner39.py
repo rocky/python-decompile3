@@ -39,7 +39,7 @@ class Scanner39(Scanner38):
 
 
 if __name__ == "__main__":
-    from decompyle3 import PYTHON_VERSION
+    from xdis.version_info import PYTHON_VERSION
 
     if PYTHON_VERSION == 3.9:
         import inspect

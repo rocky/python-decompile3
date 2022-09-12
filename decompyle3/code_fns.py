@@ -117,7 +117,7 @@ def decompile_code_type(
     showgrammar=PARSER_DEFAULT_DEBUG,
 ) -> bool:
     """
-    decompile all of the lambda functions in a python byte-code file (.pyc)
+    decompile all lambda functions in a python byte-code file (.pyc)
 
     If given a Python source file (".py") file, we'll
     decompile all lambdas of the corresponding compiled object.
@@ -126,7 +126,7 @@ def decompile_code_type(
         filename = check_object_path(filename)
     except (PyCompileError, ValueError) as e:
         print(f"Skipping {filename}:\n{e}")
-        return None
+        return False
 
     (version, timestamp, magic_int, co, is_pypy, source_size, sip_hash) = load_module(
         filename
@@ -170,7 +170,7 @@ def decompile_all_fragments(
     showgrammar=PARSER_DEFAULT_DEBUG,
 ) -> Optional[bool]:
     """
-    decompile all of comprehensions, generators, and lambda in a python byte-code file (.pyc)
+    decompile all comprehensions, generators, and lambda in a python byte-code file (.pyc)
 
     If given a Python source file (".py") file, we'll
     decompile all dict_comprehensions of the corresponding compiled object.
@@ -254,7 +254,7 @@ def decompile_set_comprehensions(
     showgrammar=PARSER_DEFAULT_DEBUG,
 ) -> Optional[bool]:
     """
-    decompile all of the lambda functions in a python byte-code file (.pyc)
+    decompile all lambda functions in a python byte-code file (.pyc)
 
     If given a Python source file (".py") file, we'll
     decompile all list_comprehensions of the corresponding compiled object.
