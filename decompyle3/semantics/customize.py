@@ -28,6 +28,8 @@ def customize_for_version(self, is_pypy, version):
         TABLE_DIRECT.update(
             {
                 "assert": ("%|assert %c\n", 0),
+                # This can happen as a result of an if transformation
+                "assert2": ("%|assert %c, %c\n", 0, 3),
                 "assert_pypy": ("%|assert %c\n", (1, "assert_expr")),
                 "assert2_pypy": ("%|assert %c, %c\n", 1, 4),
                 # This is as a result of an if transformation
