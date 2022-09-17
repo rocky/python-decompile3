@@ -16,7 +16,12 @@
 """Isolate Python version-specific semantic actions here.
 """
 
-from decompyle3.semantics.consts import INDENT_PER_LEVEL, PRECEDENCE, TABLE_DIRECT
+from decompyle3.semantics.consts import (
+    INDENT_PER_LEVEL,
+    NO_PARENTHESIS_EVER,
+    PRECEDENCE,
+    TABLE_DIRECT,
+)
 from decompyle3.semantics.helper import flatten_list
 
 
@@ -25,14 +30,16 @@ def customize_for_version(self, is_pypy, version):
         ########################
         # PyPy changes
         #######################
+        # fmt: off
         TABLE_DIRECT.update(
             {
-                "assert": ("%|assert %c\n", 0),
+                "assert":       ("%|assert %c\n", 0),
                 # This can happen as a result of an if transformation
-                "assert2": ("%|assert %c, %c\n", 0, 3),
-                "assert_pypy": ("%|assert %c\n", (1, "assert_expr")),
+                "assert2":      ("%|assert %c, %c\n", 0, 3),
+                "assert_pypy":  ("%|assert %c\n", (1, "assert_expr")),
                 "assert2_pypy": ("%|assert %c, %c\n", 1, 4),
                 # This is as a result of an if transformation
+
                 "assert0_pypy": ("%|assert %c\n", (0, "assert_expr")),
                 "assert_not_pypy": ("%|assert not %c\n", (1, "assert_exp")),
                 "assert2_not_pypy": (
@@ -40,18 +47,20 @@ def customize_for_version(self, is_pypy, version):
                     (1, "assert_exp"),
                     (4, "expr"),
                 ),
+
                 "try_except_pypy": ("%|try:\n%+%c%-%c\n\n", 1, 2),
                 "tryfinallystmt_pypy": ("%|try:\n%+%c%-%|finally:\n%+%c%-\n\n", 1, 3),
                 "assign3_pypy": ("%|%c, %c, %c = %c, %c, %c\n", 5, 4, 3, 0, 1, 2),
                 "assign2_pypy": ("%|%c, %c = %c, %c\n", 3, 2, 0, 1),
             }
         )
+        # fmt: on
 
         # At one time PyPy did this but now follows CPython?
         if version[:2] >= (3, 7):
 
             def n_call_kw_pypy37(node):
-                self.template_engine(("%p(", (0, 100)), node)
+                self.template_engine(("%p(", (0, NO_PARENTHESIS_EVER)), node)
                 assert node[-1] == "CALL_METHOD_KW"
                 arg_count = node[-1].attr
                 kw_names = node[-2]
