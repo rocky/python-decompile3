@@ -1430,8 +1430,6 @@ def customize_for_version37(self, version):
                 if value.startswith("f"):
                     value = value[1:]
                 pass
-                # Remove leading quotes
-                result += strip_quotes(value)
             else:
                 # {{ and }} in Python source-code format strings mean
                 # { and } respectively. But only when *not* part of a
@@ -1442,8 +1440,8 @@ def customize_for_version37(self, version):
                 assert expr[0] == "LOAD_STR"
                 value = value.replace("{", "{{").replace("}", "}}")
 
-                # Remove leading quotes
-                result += strip_quotes(value)
+            # Remove leading quotes
+            result += strip_quotes(value)
             pass
         self.in_format_string = old_in_format_string
         if self.in_format_string:
