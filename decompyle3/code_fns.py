@@ -152,7 +152,7 @@ def decompile_dict_comprehensions(
     showgrammar=PARSER_DEFAULT_DEBUG,
 ) -> Optional[bool]:
     """
-    decompile all of the dictionary-comprehension functions in a python byte-code file (.pyc)
+    decompile all the dictionary-comprehension functions in a python byte-code file (.pyc)
 
     If given a Python source file (".py") file, we'll
     decompile all dict_comprehensions of the corresponding compiled object.

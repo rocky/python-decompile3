@@ -39,6 +39,7 @@ EMPTY_DICT = SyntaxTree(
 
 FSTRING_CONVERSION_MAP = {1: "!s", 2: "!r", 3: "!a", "X": ":X"}
 
+
 #######################
 def customize_for_version37(self, version):
     ########################
@@ -650,6 +651,8 @@ def customize_for_version37(self, version):
         if lastnodetype.startswith("BUILD_LIST"):
             self.write("[")
             endchar = "]"
+        else:
+            endchar = ""
 
         flat_elems = flatten_list(node)
 
@@ -1433,7 +1436,7 @@ def customize_for_version37(self, version):
             else:
                 # {{ and }} in Python source-code format strings mean
                 # { and } respectively. But only when *not* part of a
-                # formatted value. However in the LOAD_STR
+                # formatted value. However, in the LOAD_STR
                 # bytecode, the escaping of the braces has been
                 # removed. So we need to put back the braces escaping in
                 # reconstructing the source.
