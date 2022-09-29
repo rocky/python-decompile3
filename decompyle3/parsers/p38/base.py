@@ -17,8 +17,8 @@ from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
 from decompyle3.parsers.parse_heads import PythonBaseParser
 from decompyle3.parsers.reduce_check import (
-    break_check,
-    for38_check,
+    break_invalid,
+    for38_invalid,
     pop_return_check,
     whilestmt38_check,
     whileTruestmt38_check,
@@ -40,8 +40,8 @@ class Python38BaseParser(PythonBaseParser):
         self.check_reduce["whilestmt38"] = "tokens"
         self.check_reduce["try_elsestmtl38"] = "AST"
 
-        self.reduce_check_table["break"] = break_check
-        self.reduce_check_table["for38"] = for38_check
+        self.reduce_check_table["break"] = break_invalid
+        self.reduce_check_table["for38"] = for38_invalid
         self.reduce_check_table["pop_return"] = pop_return_check
         self.reduce_check_table["whilestmt38"] = whilestmt38_check
         self.reduce_check_table["whileTruestmt38"] = whileTruestmt38_check

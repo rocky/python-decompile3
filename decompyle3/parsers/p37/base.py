@@ -12,7 +12,7 @@ from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from spark_parser.spark import rule2str
 
 from decompyle3.parsers.reduce_check import (
-    and_check,
+    and_invalid,
     and_cond_check,
     and_not_check,
     c_tryelsestmt,
@@ -1114,7 +1114,7 @@ class Python37BaseParser(PythonBaseParser):
 
         self.reduce_check_table = {
             "ifstmts_jump": ifstmts_jump,
-            "and": and_check,
+            "and": and_invalid,
             "and_cond": and_cond_check,
             "and_not": and_not_check,
             "if_and_stmt": if_and_stmt,

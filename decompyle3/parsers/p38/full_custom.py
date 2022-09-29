@@ -22,8 +22,8 @@ from decompyle3.parsers.reduce_check.ifstmt import ifstmt
 # from decompyle3.parsers.reduce_check.import_from37 import import_from37_ok
 from decompyle3.parsers.p37.base import Python37BaseParser
 from decompyle3.parsers.reduce_check import (
-    break_check,
-    for38_check,
+    break_invalid,
+    for38_invalid,
     joined_str_check,
     pop_return_check,
     whilestmt38_check,
@@ -760,9 +760,9 @@ class Python38FullCustom(Python38LambdaCustom, PythonBaseParser):
         self.check_reduce["whilestmt38"] = "tokens"
         self.check_reduce["try_elsestmtl38"] = "AST"
 
-        self.reduce_check_table["break"] = break_check
-        self.reduce_check_table["for38"] = for38_check
-        self.reduce_check_table["joined_str"] = joined_str_check.joined_str_ok
+        self.reduce_check_table["break"] = break_invalid
+        self.reduce_check_table["for38"] = for38_invalid
+        self.reduce_check_table["joined_str"] = joined_str_check.joined_str_invalid
         self.reduce_check_table["pop_return"] = pop_return_check
         self.reduce_check_table["whilestmt38"] = whilestmt38_check
         self.reduce_check_table["whileTruestmt38"] = whileTruestmt38_check

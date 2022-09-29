@@ -13,7 +13,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-def break_check(
+def break_invalid(
     self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
 ) -> bool:
 
