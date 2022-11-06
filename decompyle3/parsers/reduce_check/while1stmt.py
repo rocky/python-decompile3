@@ -1,4 +1,4 @@
-#  Copyright (c) 2020 Rocky Bernstein
+#  Copyright (c) 2020, 2022 Rocky Bernstein
 
 
 def while1stmt(
@@ -42,9 +42,9 @@ def while1stmt(
     for t in range(first + 1, loop_end):
         token = tokens[t]
         # token could be a pseudo-op like "LOAD_STR", which is not in
-        # self.opc.  We will replace that with LOAD_CONST as an
-        # example of an instruction that is not in self.opc.JUMP_OPS
-        if self.opc.opmap.get(token.kind, "LOAD_CONST") in self.opc.JUMP_OPS:
+        # token.opc.  We will replace that with LOAD_CONST as an
+        # example of an instruction that is not in token.opc.JUMP_OPS
+        if token.opc.opmap.get(token.kind, "LOAD_CONST") in token.opc.JUMP_OPS:
             if token.attr >= loop_end_offset:
                 return True
 
