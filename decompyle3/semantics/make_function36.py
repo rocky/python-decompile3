@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2021 by Rocky Bernstein
+#  Copyright (c) 2019-2022 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -17,10 +17,10 @@ All the crazy things we have to do to handle Python functions.
 """
 from xdis import (
     iscode,
-    CO_GENERATOR,
-    CO_ASYNC_GENERATOR,
     code_has_star_arg,
     code_has_star_star_arg,
+    CO_GENERATOR,
+    CO_ASYNC_GENERATOR,
 )
 from decompyle3.scanner import Code
 from decompyle3.semantics.parser_error import ParserError
@@ -38,22 +38,23 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
     """Dump function definition, doc string, and function body in
     Python version 3.6 and above.
     """
+
     # MAKE_CLOSURE adds an additional closure slot
 
     # In Python 3.6 and above stack change again. I understand
     # 3.7 changes some of those changes, although I don't
-    # see it in this code yet. Yes, it is hard to follow
+    # see it in this code yet. Yes, it is hard to follow,
     # and I am sure I haven't been able to keep up.
 
     # Thank you, Python.
 
-    def build_param(tree, name, default, annotation=None):
+    def build_param(ast, name, default, annotation=None):
         """build parameters:
         - handle defaults
         - handle format tuple parameters
         """
         value = default
-        maybe_show_tree_param_default(self.showast.get("after", False), name, value)
+        maybe_show_tree_param_default(self.showast, name, value)
         if annotation:
             result = "%s: %s=%s" % (name, annotation, value)
         else:
@@ -84,9 +85,9 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
     args_attr = args_node.attr
 
     if len(args_attr) == 3:
-        pos_args, kw_args, annotate_argc = args_attr
+        _, kw_args, annotate_argc = args_attr
     else:
-        pos_args, kw_args, annotate_argc, closure = args_attr
+        _, kw_args, annotate_argc, closure = args_attr
 
     i = -4 if node[-2] != "docstring" else -5
     if annotate_argc:
@@ -100,9 +101,9 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
             ):
                 types = [self.traverse(n, indent="") for n in annotate_node[:-2]]
                 names = annotate_node[-2].attr
-                l = len(types)
-                assert l == len(names)
-                for i in range(l):
+                length = len(types)
+                assert length == len(names)
+                for i in range(length):
                     annotate_dict[names[i]] = types[i]
                 pass
             pass
@@ -112,11 +113,6 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
         # FIXME: fill in
         # annotate = node[i]
         i -= 1
-
-    if kw_args:
-        kw_node = node[pos_args]
-        if kw_node == "expr":
-            kw_node = kw_node[0]
 
     defparams = []
     # FIXME: DRY with code below
@@ -141,8 +137,8 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
         code = code_node.attr
 
     assert iscode(code)
-    debug_asm_opts = self.debug_opts["asm"] if self.debug_opts else None
-    scanner_code = Code(code, self.scanner, self.currentclass, debug_asm_opts)
+    debug_opts = self.debug_opts["asm"] if self.debug_opts else None
+    scanner_code = Code(code, self.scanner, self.currentclass, debug_opts)
 
     # add defaults values to parameter names
     argc = code.co_argcount
@@ -236,7 +232,7 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
 
     ends_in_comma = False
     if kwonlyargcount > 0:
-        if not (4 & code.co_flags):
+        if not 4 & code.co_flags:
             if argc > 0:
                 self.write(", *, ")
             else:
@@ -248,7 +244,9 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
                 self.write(", ")
                 ends_in_comma = True
 
+        # ann_dict = kw_dict = default_tup = None
         kw_dict = None
+
         fn_bits = node[-1].attr
         # Skip over:
         #  MAKE_FUNCTION,
