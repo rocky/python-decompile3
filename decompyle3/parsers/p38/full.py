@@ -45,7 +45,7 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         cf_pt              ::= COME_FROM POP_TOP
         ifelsestmtc        ::= testexpr c_stmts cf_pt else_suite
 
-        # 3.8 can push a looping JUMP_LOOP into into a JUMP_ from a statement that jumps to it
+        # 3.8 can push a looping JUMP_LOOP into a JUMP_ from a statement that jumps to it
         lastc_stmt         ::= ifpoplaststmtc
         ifpoplaststmtc     ::= testexpr POP_TOP c_stmts_opt
         ifelsestmtc        ::= testexpr c_stmts_opt jb_cfs else_suitec JUMP_LOOP come_froms
