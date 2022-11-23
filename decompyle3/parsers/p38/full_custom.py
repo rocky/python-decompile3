@@ -239,7 +239,7 @@ class Python38FullCustom(Python38LambdaCustom, PythonBaseParser):
         custom_ops_processed = set()
 
         # A set of instruction operation names that exist in the token stream.
-        # We use this customize the grammar that we create.
+        # We use this to customize the grammar that we create.
         # 2.6-compatible set comprehensions
 
         # The initial initialization is done in lambea_expr.py
