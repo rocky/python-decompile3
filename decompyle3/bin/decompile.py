@@ -28,10 +28,15 @@ def usage():
 @click.option("--tree/--no-tree", "-t", default=False)
 @click.option("--tree++/--no-tree++", "-T", "tree_plus", default=False)
 @click.option(
-    "--verify", type=click.Choice(["run", "syntax"]), default=None,
+    "--verify",
+    type=click.Choice(["run", "syntax"]),
+    default=None,
 )
 @click.option(
-    "--recurse/--no-recurse", "-r", "recurse_dirs", default=False,
+    "--recurse/--no-recurse",
+    "-r",
+    "recurse_dirs",
+    default=False,
 )
 @click.option(
     "--output",
@@ -48,7 +53,7 @@ def main_bin(
     show_asm, show_grammar, tree, tree_plus, verify, recurse_dirs, outfile, files
 ):
     """
-    Python bytecode decompiler for 3.10 bytecode
+    Python bytecode decompiler for Python 3.7-3.8 bytecode
     """
     version_tuple = sys.version_info[0:2]
     if version_tuple < (3, 7):
