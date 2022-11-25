@@ -9,7 +9,7 @@ The issue may flagged to make it easier for those looking for illegal activity.
 
 Bugs are not for asking questions about a problem you
 are trying to solve that involve the use of decompyle3 along the way,
-although I may be more tolerent of this if you sponsor the project.
+although I may be more tolerant of this if you sponsor the project.
 
 Bugs are also not for general or novice kind help on how to install
 this Python program in your environment in the way you would like to
@@ -56,8 +56,8 @@ Prerequisites/Caveats
   contact me by email and explain who you are and the need for privacy.
   But be mindful that you may be asked to sponsor the project for the
   personal and private help that you are requesting.
-* If the legitimacy of the activity is deemed suspicous, I may flag it as suspicious,
-  making the issue even more easy to detect.
+* If the legitimacy of the activity is deemed suspicious, I may flag it as suspicious,
+  making the issue even easier to detect.
 
 Bug reports that violate the above may be discarded.
 
@@ -80,7 +80,7 @@ $ decompyle3 <command-line-options>
 $
 ```
 
-Provide links to the Python bytecode. For example you can create a
+Provide links to the Python bytecode. For example, you can create a
 gist with the information. If you have the correct source code, you
 can add that too.
 

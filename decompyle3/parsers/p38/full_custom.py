@@ -13,14 +13,10 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from decompyle3.parsers.parse_heads import PythonBaseParser, nop_func
-from decompyle3.parsers.p38.lambda_custom import Python38LambdaCustom
-
-# from decompyle3.parsers.reduce_check.ifelsestmt_check import ifelsestmt_ok
-from decompyle3.parsers.reduce_check.ifstmt import ifstmt
-
 # from decompyle3.parsers.reduce_check.import_from37 import import_from37_ok
 from decompyle3.parsers.p37.base import Python37BaseParser
+from decompyle3.parsers.p38.lambda_custom import Python38LambdaCustom
+from decompyle3.parsers.parse_heads import PythonBaseParser, nop_func
 from decompyle3.parsers.reduce_check import (
     break_invalid,
     for38_invalid,
@@ -30,10 +26,13 @@ from decompyle3.parsers.reduce_check import (
     whileTruestmt38_check,
 )
 
+# from decompyle3.parsers.reduce_check.ifelsestmt_check import ifelsestmt_ok
+from decompyle3.parsers.reduce_check.ifstmt import ifstmt
+
 
 class Python38FullCustom(Python38LambdaCustom, PythonBaseParser):
     def add_make_function_rule(self, rule, opname, attr, customize):
-        """Python 3.3 added a an addtional LOAD_STR before MAKE_FUNCTION and
+        """Python 3.3 added an additional LOAD_STR before MAKE_FUNCTION and
         this has an effect on many rules.
         """
         new_rule = rule % "LOAD_STR "
@@ -816,10 +815,10 @@ class Python38FullCustom(Python38LambdaCustom, PythonBaseParser):
         custom_ops_processed = set()
 
         # A set of instruction operation names that exist in the token stream.
-        # We use this customize the grammar that we create.
+        # We use this to customize the grammar that we create.
         # 2.6-compatible set comprehensions
 
-        # The initial initialization is done in lambea_expr.py
+        # The initial initialization is done in lambda_expr.py
         self.seen_ops = frozenset([t.kind for t in tokens])
         self.seen_op_basenames = frozenset(
             [opname[: opname.rfind("_")] for opname in self.seen_ops]

@@ -4,17 +4,18 @@
 # Copyright (c) 2015-2017, 2019-2022 by Rocky Bernstein
 # Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
-import click
+
 import os
 import sys
 
+import click
 from xdis.version_info import version_tuple_to_str
-
-case_sensitive = {"case_sensitive": False}
-program = "decompyle3"
 
 from decompyle3.main import main, status_msg
 from decompyle3.version import __version__
+
+case_sensitive = {"case_sensitive": False}
+program = "decompyle3"
 
 
 def usage():
@@ -130,7 +131,7 @@ def main_bin(
         except ImportError as e:
             print(str(e))
             sys.exit(2)
-        except (KeyboardInterrupt):
+        except KeyboardInterrupt:
             pass
     else:
         from multiprocessing import Process, Queue
@@ -171,7 +172,7 @@ def main_bin(
             rqueue.close()
 
         try:
-            procs = [Process(target=process_func) for i in range(numproc)]
+            procs = [Process(target=process_func) for _ in range(numproc)]
             for p in procs:
                 p.start()
             for p in procs:

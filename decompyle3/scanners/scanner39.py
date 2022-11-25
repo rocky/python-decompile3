@@ -1,4 +1,4 @@
-#  Copyright (c) 2019, 2021 by Rocky Bernstein
+#  Copyright (c) 2019, 2021-2022 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -21,10 +21,10 @@ This sets up opcodes Python's 3.9 and calls a generalized
 scanner routine for Python 3.7 and up.
 """
 
-from decompyle3.scanners.scanner38 import Scanner38
-
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_38 as opc
+
+from decompyle3.scanners.scanner38 import Scanner38
 
 # bytecode verification, verify(), uses JUMP_OPS from here
 JUMP_OPs = opc.JUMP_OPS

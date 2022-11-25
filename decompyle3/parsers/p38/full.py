@@ -20,10 +20,9 @@ from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from spark_parser.spark import rule2str
 
 from decompyle3.parsers.p37.full import Python37Parser
-from decompyle3.parsers.parse_heads import ParserError
 from decompyle3.parsers.p38.full_custom import Python38FullCustom
 from decompyle3.parsers.p38.lambda_expr import Python38LambdaParser
-
+from decompyle3.parsers.parse_heads import ParserError
 from decompyle3.scanners.tok import Token
 
 
@@ -445,7 +444,8 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
             if fn:
                 return fn(self, lhs, n, rule, ast, tokens, first, last)
         except Exception:
-            import sys, traceback
+            import sys
+            import traceback
 
             print(
                 f"Exception in {fn.__name__} {sys.exc_info()[1]}\n"
