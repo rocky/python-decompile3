@@ -20,7 +20,7 @@ LOAD_ASSERT RAISE_VARARGS_1 STORE_FAST STORE_DEREF STORE_GLOBAL STORE_ATTR STORE
 
 
 def and_invalid(
-    self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
+    self, lhs: str, n: int, rule, tree, tokens: list, first: int, last: int
 ) -> bool:
 
     # print("XXX", first, last, rule)
@@ -37,7 +37,7 @@ def and_invalid(
     ):
         return True
 
-    expr_pjif = ast[0]
+    expr_pjif = tree[0]
     if expr_pjif == "expr_pjif":
         jump = expr_pjif[1]
     elif expr_pjif == "expr_jifop_cfs":
@@ -51,14 +51,14 @@ def and_invalid(
             if ftm1 == "JUMP_IF_TRUE_OR_POP" and ftm1.attr == jump.attr:
                 return True
         else:
-            jump = ast[1]
+            jump = tree[1]
 
     elif rhs == ("and_parts", "expr") and expr_pjif[0] == "expr_pjif":
         expr_pjif = expr_pjif[0]
         jump = expr_pjif[1]
     else:
         # Probably not needed: was expr POP_JUMP_IF_FALSE
-        jump = ast[1]
+        jump = tree[1]
 
     if jump.kind.startswith("POP_JUMP_IF_"):
         if last == n:
@@ -70,10 +70,10 @@ def and_invalid(
             return True
 
         if rule == ("and", ("expr_pjif", "expr_pjif")):
-            jump2_target = ast[1][1].attr
+            jump2_target = tree[1][1].attr
             return jump_target != jump2_target
         elif rule == ("and", ("expr_pjif", "expr", "POP_JUMP_IF_TRUE")):
-            jump2_target = ast[2].attr
+            jump2_target = tree[2].attr
             return jump_target == jump2_target
         elif rule == ("and", ("expr_pjif", "expr")):
             if tokens[last] == "POP_JUMP_IF_FALSE":
@@ -86,7 +86,7 @@ def and_invalid(
                     return jump_target != tokens[last + 1].off2int()
                 return jump_target + 2 != tokens[last].attr
         elif rule == ("and", ("expr_pjif", "expr", "COME_FROM")):
-            return ast[-1].attr != jump_offset
+            return tree[-1].attr != jump_offset
         elif (
             rule == ("and", ("and_parts", "expr"))
             and jump_target > tokens[last].off2int()
