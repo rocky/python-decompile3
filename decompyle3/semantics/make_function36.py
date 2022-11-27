@@ -137,8 +137,8 @@ def make_function36(self, node, is_lambda, nested=1, code_node=None):
         code = code_node.attr
 
     assert iscode(code)
-    debug_opts = self.debug_opts["asm"] if self.debug_opts else None
-    scanner_code = Code(code, self.scanner, self.currentclass, debug_opts)
+    debug_asm_opts = self.debug_opts["asm"] if self.debug_opts else None
+    scanner_code = Code(code, self.scanner, self.currentclass, debug_asm_opts)
 
     # add defaults values to parameter names
     argc = code.co_argcount
