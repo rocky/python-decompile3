@@ -307,6 +307,7 @@ class ComprehensionMixin:
         # * the results we accumulate: "n"
 
         store = None
+        collection_node_index = None
         if node == "list_comp_async":
             # We have two different kinds of grammar rules:
             #   list_comp_async ::= LOAD_LISTCOMP LOAD_STR MAKE_FUNCTION_0 expr ...
@@ -320,6 +321,7 @@ class ComprehensionMixin:
                 store = list_afor2[1]
                 assert store == "store"
                 n = list_afor2[3] if list_afor2[3] == "list_iter" else list_afor2[2]
+                collection_node_index = 1
             else:
                 # ???
                 pass
@@ -519,20 +521,30 @@ class ComprehensionMixin:
             "set_comp_async",
         ):
             self.write(" async")
-            in_node_index = None
-            for i, child in enumerate(node):
-                if child.kind in ("expr", "expr_get_aiter", "get_aiter", "get_iter"):
-                    in_node_index = i
-                    break
-            assert in_node_index is not None
+
+            # For listcomp, setcomp, etc., the collection is .0 and that's the best we can do.
+            # So don't try to find the collection node.
+            if not self.compile_mode.endswith("comp"):
+                collection_node_index = None
+            if collection_node_index is None:
+                for i, child in enumerate(node):
+                    if child.kind in (
+                        "expr",
+                        "expr_get_aiter",
+                        "get_aiter",
+                        "get_iter",
+                    ):
+                        collection_node_index = i
+                        break
+                assert collection_node_index is not None
         elif len(node) >= 3 and node[3] == "expr":
-            in_node_index = 3
+            collection_node_index = 3
             collection_node = node[3]
             assert collection_node == "expr"
         elif node == "comp_body":
             collection_node = node
         else:
-            in_node_index = -3
+            collection_node_index = -3
 
         self.write(" for ")
 
@@ -554,7 +566,7 @@ class ComprehensionMixin:
             self.preorder(collection_node)
             if_nodes = []
         elif node == "list_comp_async":
-            self.preorder(node[in_node_index])
+            self.preorder(node[collection_node_index])
         elif is_lambda_mode(self.compile_mode):
             if node == "list_comp_async":
                 self.preorder(node[1])
@@ -565,7 +577,7 @@ class ComprehensionMixin:
                 self.preorder(collection_node)
         else:
             if not collection_node:
-                collection_node = node[in_node_index]
+                collection_node = node[collection_node_index]
             self.preorder(collection_node)
 
         # Here is where we handle nested list iterations which
