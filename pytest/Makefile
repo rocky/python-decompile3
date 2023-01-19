@@ -4,4 +4,4 @@ PYTHON ?= python
 
 #: Run all tests
 test check pytest:
-	pytest
+	$(PYTHON) -m pytest
