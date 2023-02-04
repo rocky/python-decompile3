@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 by Rocky Bernstein
+#  Copyright (c) 2022-2023 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ from decompyle3.semantics.consts import (
     INDENT_PER_LEVEL,
     NO_PARENTHESIS_EVER,
     NONE,
+    PARENTHESIS_ALWAYS,
     PRECEDENCE,
     minint,
 )
@@ -640,7 +641,9 @@ class NonterminalActions:
         #     hasattr(self, 'current_line_number')):
         #     self.source_linemap[self.current_line_number] = n.linestart
 
-        self.prec = PRECEDENCE.get(n.kind, -2)
+        if n.kind != "expr":
+            self.prec = PRECEDENCE.get(n.kind, PARENTHESIS_ALWAYS)
+
         if n == "LOAD_CONST" and repr(n.pattr)[0] == "-":
             self.prec = 6
 

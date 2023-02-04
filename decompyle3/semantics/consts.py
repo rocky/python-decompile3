@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2020, 2022 by Rocky Bernstein
+#  Copyright (c) 2017-2020, 2022-2023 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -43,6 +43,7 @@ maxint = sys.maxsize
 # call((.. op ..)).
 
 NO_PARENTHESIS_EVER = 100
+PARENTHESIS_ALWAYS = -2
 
 # fmt: off
 PRECEDENCE = {
