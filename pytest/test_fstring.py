@@ -1,10 +1,12 @@
 # std
 # test
-from decompyle3 import PYTHON_VERSION, code_deparse
+from decompyle3 import code_deparse
+from xdis import PYTHON_VERSION_TRIPLE
+
 import os, sys
 import pytest
 
-pytestmark = pytest.mark.skipif("CI" in os.environ, reason="Running in CI is too slow") or PYTHON_VERSION >= 3.8
+pytestmark = pytest.mark.skipif("CI" in os.environ, reason="Running in CI is too slow") or PYTHON_VERSION_TRIPLE >= (3, 8, 0)
 
 import hypothesis
 from hypothesis import strategies as st
@@ -129,10 +131,9 @@ def test_format_specifiers(format_specifier):
 
 def run_test(text):
     hypothesis.assume(len(text))
-    hypothesis.assume("f'{" in text)
     expr = text + "\n"
     code = compile(expr, "<string>", "single")
-    deparsed = code_deparse(code, sys.stdout, PYTHON_VERSION, compile_mode="single")
+    deparsed = code_deparse(code, sys.stdout, PYTHON_VERSION_TRIPLE, compile_mode="single")
     recompiled = compile(deparsed.text, "<string>", "single")
     if recompiled != code:
         print(recompiled)
@@ -152,5 +153,21 @@ def test_uncompyle_fstring(fstring):
 
 @pytest.mark.parametrize("fstring", ["f'{abc}{abc!s}'", "f'{abc}0'"])
 def test_uncompyle_direct(fstring):
+    """useful for debugging"""
+    run_test(fstring)
+
+
+@pytest.mark.parametrize("fstring", [
+    "f'plain'",
+    "f'{abc=}'",
+    "f'a{abc=}'",
+    "f'{abc=}{a}{b}{c}{d}{e}'",
+    "f'{abc=}{a!r}{b!s}{c}{d}{e}'",
+    "f'{f}{g}{abc=}{a}{b}{c}{d}{e}'",
+    "f'{theta=}  {cos(radians(theta))=:.3f}'",
+    "f'{(x := 10)}'",
+    "f'{user=!s}  {delta.days=:,d}'",
+])
+def test_debug_conversion(fstring):
     """useful for debugging"""
     run_test(fstring)

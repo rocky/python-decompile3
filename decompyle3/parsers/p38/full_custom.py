@@ -395,27 +395,16 @@ class Python38FullCustom(Python38LambdaCustom, PythonBaseParser):
                     """
                 self.addRule(rules_str, nop_func)
 
-            elif opname == "BUILD_STRING_2":
-                self.addRule(
-                    """
-                      expr                  ::= formatted_value_debug
-                      formatted_value_debug ::= LOAD_STR formatted_value2 BUILD_STRING_2
-                      formatted_value_debug ::= LOAD_STR formatted_value1 BUILD_STRING_2
-                    """,
-                    nop_func,
+            elif opname.startswith("BUILD_STRING"):
+                v = token.attr
+                rules_str = """
+                    expr                  ::= formatted_value_debug
+                    formatted_value_debug ::= %s BUILD_STRING_%d
+                """ % (
+                    "expr " * (v),
+                    v,
                 )
-                custom_ops_processed.add(opname)
-
-            elif opname == "BUILD_STRING_3":
-                self.addRule(
-                    """
-                      expr                  ::= formatted_value_debug
-                      formatted_value_debug ::= LOAD_STR formatted_value2 LOAD_STR BUILD_STRING_3
-                      formatted_value_debug ::= LOAD_STR formatted_value1 LOAD_STR BUILD_STRING_3
-                    """,
-                    nop_func,
-                )
-                custom_ops_processed.add(opname)
+                self.addRule(rules_str, nop_func)
 
             elif opname in frozenset(
                 (

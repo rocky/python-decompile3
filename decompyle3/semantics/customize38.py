@@ -303,41 +303,53 @@ def customize_for_version38(self, version):
         p = self.prec
         self.prec = 100
 
-        formatted_value = node[1]
-        value_equal = node[0].attr
-        assert formatted_value.kind.startswith("formatted_value")
         old_in_format_string = self.in_format_string
-        self.in_format_string = formatted_value.kind
-        format_value_attr = node[-1]
+        self.in_format_string = "formatted_value_debug"
 
-        post_str = ""
-        if node[-1] == "BUILD_STRING_3":
-            post_load_str = node[-2]
-            post_str = self.traverse(post_load_str, indent="")
-            post_str = strip_quotes(post_str)
-
-        if format_value_attr == "FORMAT_VALUE_ATTR":
-            attr = format_value_attr.attr
-            if attr & 4:
-                fmt = strip_quotes(self.traverse(node[3], indent=""))
-                attr_flags = attr & 3
-                if attr_flags:
-                    conversion = "%s:%s" % (
-                        FSTRING_CONVERSION_MAP.get(attr_flags, ""),
-                        fmt,
-                    )
+        # Collect all expressions that we're formatting one by one
+        # Fragments is a list of parsed expressions, like ['a', '{a=}', 'b']
+        # Caveat: python merges strings on bytecode level, so for example
+        # f"user setting: {user=}" becomes f"settings: user={user!r}".
+        fragments = []
+        for expr in node[:-1]:
+            assert expr == "expr"
+            child = expr[0]
+            if child.kind == "formatted_value2":
+                fmt = child[1][0].attr
+            elif child.kind == "formatted_value1":
+                attr = child[1].attr
+                if attr & 4:
+                    fmt = strip_quotes(self.traverse(node[3], indent=""))
+                    attr_flags = attr & 3
+                    if attr_flags:
+                        fmt = "%s:%s" % (
+                            FSTRING_CONVERSION_MAP.get(attr_flags, ""),
+                            fmt,
+                        )
                 else:
-                    conversion = ":%s" % fmt
+                    fmt = FSTRING_CONVERSION_MAP.get(attr, "")
             else:
-                conversion = FSTRING_CONVERSION_MAP.get(attr, "")
-            f_str = "f%s" % escape_string(
-                "{%s%s}%s" % (value_equal, conversion, post_str)
-            )
-        else:
-            f_conversion = self.traverse(formatted_value, indent="")
-            # Remove leaving "f" and quotes
-            conversion = strip_quotes(f_conversion[1:])
-            f_str = "f%s" % escape_string(f"{value_equal}{conversion}" + post_str)
+                assert child == "LOAD_STR"
+                f_conversion = self.traverse(expr, indent="")
+                fragments.append(strip_quotes(f_conversion))
+                continue
+            varname = self.traverse(child[0])
+            suffix = varname + '='
+            if fragments and fragments[-1].endswith(suffix):
+                # Merge fragments "varname=" and "{varname:fmt}" into "{varname=:fmt}"
+                if fmt == "!r":
+                    fmt = ""  # ignore the default !r format
+                elif fmt == "!s":
+                    pass
+                else:
+                    fmt = f":{fmt}"
+                prefix = fragments[-1][:-len(suffix)]
+                debug_fmt = f"{prefix}{{{varname}={fmt}}}"
+                fragments = fragments[:-1] + [debug_fmt]
+            else:
+                fragments.append(f"{{{varname}{fmt}}}")
+
+        f_str = 'f' + escape_string("".join(fragments))
 
         self.write(f_str)
         self.in_format_string = old_in_format_string
