@@ -315,7 +315,7 @@ def customize_for_version38(self, version):
             assert expr == "expr"
             child = expr[0]
             if child.kind == "formatted_value2":
-                fmt = child[1][0].attr
+                fmt = ":" + strip_quotes(self.traverse(child[1]))
             elif child.kind == "formatted_value1":
                 attr = child[1].attr
                 if attr & 4:
@@ -339,10 +339,6 @@ def customize_for_version38(self, version):
                 # Merge fragments "varname=" and "{varname:fmt}" into "{varname=:fmt}"
                 if fmt == "!r":
                     fmt = ""  # ignore the default !r format
-                elif fmt == "!s":
-                    pass
-                else:
-                    fmt = f":{fmt}"
                 prefix = fragments[-1][:-len(suffix)]
                 debug_fmt = f"{prefix}{{{varname}={fmt}}}"
                 fragments = fragments[:-1] + [debug_fmt]
