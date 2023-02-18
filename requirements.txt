@@ -1,5 +1,5 @@
 # Pick up stuff from setup.py
-hypothesis==2.0.0
+hypothesis==6.24.2
 pytest~=7.1.3
 -e .
 
