@@ -309,7 +309,7 @@ def customize_for_version38(self, version):
         # Collect all expressions that we're formatting one by one
         # Fragments is a list of parsed expressions, like ['a', '{a=}', 'b']
         # Caveat: python merges strings on bytecode level, so for example
-        # f"user setting: {user=}" becomes f"settings: user={user!r}".
+        # f"user setting: {user=}" becomes f"setting: user={user!r}".
         fragments = []
         for expr in node[:-1]:
             assert expr == "expr"
