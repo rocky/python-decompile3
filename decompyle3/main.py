@@ -164,6 +164,7 @@ def decompile(
                 compile_mode=compile_mode,
             )
             pass
+        real_out.write("\n")
         return deparsed
     except pysource.SourceWalkerError as e:
         # deparsing failed
