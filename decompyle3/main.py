@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2022 Rocky Bernstein <rocky@gnu.org>
+# Copyright (C) 2018-2023 Rocky Bernstein <rocky@gnu.org>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -13,28 +13,28 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import ast, datetime, py_compile, os, sys
+import ast
+import datetime
+import os
 import os.path as osp
+import py_compile
 import subprocess
+import sys
 import tempfile
-from typing import Any, Optional, Tuple
+from typing import Any, Optional, TextIO, Tuple
+
 from xdis import iscode, load_module
-from xdis.version_info import (
-    IS_PYPY,
-    PYTHON_VERSION_TRIPLE,
-    version_tuple_to_str,
-)
+from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE, version_tuple_to_str
 
 from decompyle3.disas import check_object_path
-from decompyle3.semantics import pysource
 from decompyle3.parsers.parse_heads import ParserError
+from decompyle3.semantics import pysource
+from decompyle3.semantics.fragments import code_deparse as code_deparse_fragments
+from decompyle3.semantics.linemap import deparse_code_with_map
+from decompyle3.semantics.pysource import PARSER_DEFAULT_DEBUG, code_deparse
 from decompyle3.version import __version__
 
 # from decompyle3.linenumbers import line_number_mapping
-
-from decompyle3.semantics.pysource import code_deparse, PARSER_DEFAULT_DEBUG
-from decompyle3.semantics.fragments import code_deparse as code_deparse_fragments
-from decompyle3.semantics.linemap import deparse_code_with_map
 
 
 def _get_outstream(outfile: str) -> Any:
@@ -63,7 +63,7 @@ def syntax_check(filename: str) -> bool:
 def decompile(
     co,
     bytecode_version: Tuple[int] = PYTHON_VERSION_TRIPLE,
-    out=sys.stdout,
+    out: Optional[TextIO] = sys.stdout,
     showasm=None,
     showast={},
     timestamp=None,
@@ -71,7 +71,7 @@ def decompile(
     source_encoding=None,
     code_objects={},
     source_size=None,
-    is_pypy=None,
+    is_pypy: Optional[bool] = None,
     magic_int=None,
     mapstream=None,
     do_fragments=False,
@@ -189,7 +189,7 @@ def compile_file(source_path: str) -> str:
 
 def decompile_file(
     filename: str,
-    outstream=None,
+    outstream: Optional[TextIO] = None,
     showasm=None,
     showast={},
     showgrammar=False,
@@ -260,10 +260,9 @@ def main(
     outfile=None,
     showasm=None,
     showast={},
-    do_verify=Optional[str],
+    do_verify: Optional[str] = None,
     showgrammar=False,
     source_encoding=None,
-    raise_on_error=False,
     do_linemaps=False,
     do_fragments=False,
 ) -> Tuple[int, int, int, int]:
@@ -279,7 +278,7 @@ def main(
     - stdout			out_base=None, outfile=None
     """
     tot_files = okay_files = failed_files = skipped = 0
-    verify_failed_files = 0 if do_verify is not None else 0
+    verify_failed_files = 0 if do_verify else 0
     current_outfile = outfile
     linemap_stream = None
 
@@ -433,7 +432,6 @@ def main(
                 okay_files += 1
                 if not current_outfile:
                     mess = "\n# okay decompiling"
-                    # mem_usage = __memUsage()
                     print(mess, infile)
         if current_outfile:
             sys.stdout.write(
@@ -467,22 +465,9 @@ def main(
 
 # ---- main ----
 
-if sys.platform.startswith("linux") and os.uname()[2][:2] in ["2.", "3.", "4."]:
-
-    def __memUsage():
-        mi = open("/proc/self/stat", "r")
-        mu = mi.readline().split()[22]
-        mi.close()
-        return int(mu) / 1000000
-
-else:
-
-    def __memUsage():
-        return ""
-
 
 def status_msg(
-    do_verify: bool,
+    do_verify: Optional[str],
     tot_files: int,
     okay_files: int,
     failed_files: int,

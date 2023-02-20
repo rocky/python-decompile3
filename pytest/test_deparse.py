@@ -15,7 +15,7 @@ def return_stmt(x, y):
 def try_stmt():
     try:
         x = 1
-    except:
+    except Exception:
         pass
     return x
 
@@ -51,13 +51,20 @@ def check_expect(expect, parsed, fn_name):
         deparsed_find((name, offset), parsed, code)
         extractInfo = parsed.extract_node_info(node)
 
-        assert expect[i] == extractInfo.selectedLine, (
-            "%s: line %s expect:\n%s\ngot:\n%s"
-            % (fn_name, i, expect[i], extractInfo.selectedLine,)
+        assert (
+            expect[i] == extractInfo.selectedLine
+        ), "%s: line %s expect:\n%s\ngot:\n%s" % (
+            fn_name,
+            i,
+            expect[i],
+            extractInfo.selectedLine,
         )
-        assert expect[i + 1] == extractInfo.markerLine, (
-            "line %s expect:\n%s\ngot:\n%s"
-            % (i + 1, expect[i + 1], extractInfo.markerLine,)
+        assert (
+            expect[i + 1] == extractInfo.markerLine
+        ), "line %s expect:\n%s\ngot:\n%s" % (
+            i + 1,
+            expect[i + 1],
+            extractInfo.markerLine,
         )
         i += 3
         if debug:
@@ -72,13 +79,19 @@ def check_expect(expect, parsed, fn_name):
                 print("Contained in...")
                 print(extractInfo.selectedLine)
                 print(extractInfo.markerLine)
-            assert expect[i] == extractInfo.selectedLine, (
-                "parent line %s expect:\n%s\ngot:\n%s"
-                % (i, expect[i], extractInfo.selectedLine,)
+            assert (
+                expect[i] == extractInfo.selectedLine
+            ), "parent line %s expect:\n%s\ngot:\n%s" % (
+                i,
+                expect[i],
+                extractInfo.selectedLine,
             )
-            assert expect[i + 1] == extractInfo.markerLine, (
-                "parent line %s expect:\n%s\ngot:\n%s"
-                % (i + 1, expect[i + 1], extractInfo.markerLine,)
+            assert (
+                expect[i + 1] == extractInfo.markerLine
+            ), "parent line %s expect:\n%s\ngot:\n%s" % (
+                i + 1,
+                expect[i + 1],
+                extractInfo.markerLine,
             )
             i += 3
         pass

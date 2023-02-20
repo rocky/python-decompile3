@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2020, 2022 by Rocky Bernstein
+#  Copyright (c) 2019-2020, 2022-2023 by Rocky Bernstein
 
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -13,17 +13,19 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from decompyle3.show import maybe_show_tree
 from copy import copy
+from typing import Optional
+
 from spark_parser import GenericASTTraversal, GenericASTTraversalPruningException
 
-from decompyle3.semantics.helper import find_code_node
 from decompyle3.parsers.treenode import SyntaxTree
 from decompyle3.scanners.tok import NoneToken, Token
-from decompyle3.semantics.consts import RETURN_NONE, ASSIGN_DOC_STRING
+from decompyle3.semantics.consts import ASSIGN_DOC_STRING, RETURN_NONE
+from decompyle3.semantics.helper import find_code_node
+from decompyle3.show import maybe_show_tree
 
 
-def is_docstring(node, version: str, co_consts) -> bool:
+def is_docstring(node, co_consts) -> bool:
     # try:
     #     return node.kind == "assign" and node[1][0].pattr == "__doc__"
     # except:
@@ -43,7 +45,7 @@ def is_not_docstring(call_stmt_node) -> bool:
 
 
 class TreeTransform(GenericASTTraversal, object):
-    def __init__(self, version, show_ast=None):
+    def __init__(self, version: tuple, show_ast: Optional[dict] = None):
         self.showast = show_ast
         self.version = version
         return
@@ -447,14 +449,14 @@ class TreeTransform(GenericASTTraversal, object):
             node.data = new_stmts
         return node
 
-    def traverse(self, node, is_lambda=False):
+    def traverse(self, node):
         node = self.preorder(node)
         return node
 
-    def transform(self, ast, code):
+    def transform(self, ast: GenericASTTraversal, code) -> GenericASTTraversal:
         self.maybe_show_tree(ast, "before")
         self.ast = copy(ast)
-        self.ast = self.traverse(self.ast, is_lambda=False)
+        self.ast = self.traverse(self.ast)
         n = len(self.ast)
 
         try:
@@ -469,9 +471,8 @@ class TreeTransform(GenericASTTraversal, object):
         except Exception:
             pass
         try:
-
             for i in range(n):
-                if is_docstring(self.ast[i], self.version, code.co_consts):
+                if is_docstring(self.ast[i], code.co_consts):
                     load_const = self.ast[i].first_child()
                     docstring_ast = SyntaxTree(
                         "docstring",

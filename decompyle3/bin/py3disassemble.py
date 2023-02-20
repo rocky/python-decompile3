@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 # Mode: -*- python -*-
 #
-# Copyright (c) 2015-2016, 2018, 2020, 2022 by Rocky Bernstein <rb@dustyfeet.com>
+# Copyright (c) 2015-2016, 2018, 2020, 2022-2023 by Rocky Bernstein <rb@dustyfeet.com>
 #
 from __future__ import print_function
-import sys, os, getopt
+
+import getopt
+import os
+import sys
 
 from decompyle3.disas import disassemble_file
 from decompyle3.version import __version__

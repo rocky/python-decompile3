@@ -54,7 +54,7 @@ def print_diff(original, uncompyled):
             ["elinks", "-dump", "-no-references", "-dump-color-mode", "1", f.name]
         ).decode("utf-8")
         print(html)
-    except:
+    except Exception:
         print("\nFor side by side diff install elinks")
         diff = difflib.Differ().compare(original_lines, uncompyled_lines)
         print("\n".join(diff))
