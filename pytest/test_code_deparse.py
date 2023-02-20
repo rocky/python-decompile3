@@ -1,14 +1,15 @@
-import pytest
+from io import StringIO
+
 from xdis.version_info import PYTHON_VERSION_TRIPLE
+
+import pytest
 from decompyle3 import code_deparse
 from decompyle3.semantics.pysource import DEFAULT_DEBUG_OPTS
-
-from io import StringIO
 
 out = StringIO()
 
 
-def run_deparse(expr: str, compile_mode: bool, debug=False) -> object:
+def run_deparse(expr: str, compile_mode: str, debug=False) -> object:
     debug_opts = dict(DEFAULT_DEBUG_OPTS)
     if debug:
         debug_opts["reduce"] = True
@@ -56,7 +57,7 @@ def test_single_mode() -> None:
         # print("XXX", expr)
         try:
             deparsed = run_deparse(expr, compile_mode="single", debug=False)
-        except:
+        except Exception:
             assert False, expr
             continue
 
@@ -83,7 +84,7 @@ def test_eval_mode():
     for expr in expressions:
         try:
             deparsed = run_deparse(expr, compile_mode="eval", debug=False)
-        except:
+        except Exception:
             assert False, expr
             continue
 
@@ -111,7 +112,7 @@ def test_lambda_mode():
     for expr in expressions:
         try:
             deparsed = run_deparse(expr, compile_mode="lambda", debug=False)
-        except:
+        except Exception:
             assert False, expr
             continue
         if deparsed.text != expr:

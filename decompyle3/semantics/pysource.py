@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2022 by Rocky Bernstein
+#  Copyright (c) 2015-2023 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -130,51 +130,44 @@ Python.
 #   evaluating the escape code.
 
 import sys
+from typing import Optional
 
 IS_PYPY = "__pypy__" in sys.builtin_module_names
 
+from io import StringIO
+
+from spark_parser import GenericASTTraversal
 from xdis import COMPILER_FLAG_BIT, iscode
 from xdis.version_info import PYTHON_VERSION_TRIPLE
 
-import decompyle3.parsers.parse_heads as heads
 import decompyle3.parsers.main as python_parser
+import decompyle3.parsers.parse_heads as heads
 from decompyle3.parsers.main import get_python_parser
 from decompyle3.parsers.treenode import SyntaxTree
-from spark_parser import GenericASTTraversal
 from decompyle3.scanner import Code, get_scanner
-from decompyle3.semantics.parser_error import ParserError
-from decompyle3.semantics.check_ast import checker
-from decompyle3.semantics.customize import customize_for_version
-from decompyle3.semantics.gencomp import ComprehensionMixin
-from decompyle3.semantics.helper import (
-    find_globals_and_nonlocals,
-    is_lambda_mode,
-)
-
-from decompyle3.semantics.n_actions import NonterminalActions
-from decompyle3.semantics.transform import TreeTransform
-
 from decompyle3.scanners.tok import Token
-
+from decompyle3.semantics.check_ast import checker
 from decompyle3.semantics.consts import (
+    INDENT_PER_LEVEL,
     LINE_LENGTH,
+    MAP,
+    MAP_DIRECT,
+    NAME_MODULE,
     NONE,
     PASS,
-    NAME_MODULE,
-    TAB,
-    INDENT_PER_LEVEL,
-    TABLE_R,
-    MAP_DIRECT,
-    MAP,
     PRECEDENCE,
+    TAB,
+    TABLE_R,
     escape,
 )
-
-
+from decompyle3.semantics.customize import customize_for_version
+from decompyle3.semantics.gencomp import ComprehensionMixin
+from decompyle3.semantics.helper import find_globals_and_nonlocals, is_lambda_mode
+from decompyle3.semantics.n_actions import NonterminalActions
+from decompyle3.semantics.parser_error import ParserError
+from decompyle3.semantics.transform import TreeTransform
 from decompyle3.show import maybe_show_tree
 from decompyle3.util import better_repr
-
-from io import StringIO
 
 PARSER_DEFAULT_DEBUG = {
     "rules": False,
@@ -207,7 +200,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
 
     def __init__(
         self,
-        version,
+        version: tuple,
         out,
         scanner,
         showast=TREE_DEFAULT_DEBUG,
@@ -217,7 +210,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         linestarts={},
         tolerate_errors=False,
     ):
-        """`version' is the Python version (a float) of the Python dialect
+        """`version' is the Python version of the Python dialect
         of both the syntax tree and language we should produce.
 
         `out' is IO-like file pointer to where the output should go. It
@@ -322,12 +315,12 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         if self.showast.get(phase, False):
             maybe_show_tree(self, tree)
 
-    def str_with_template(self, tree) -> str:
+    def str_with_template(self, tree):
         stream = sys.stdout
         stream.write(self.str_with_template1(tree, "", None))
         stream.write("\n")
 
-    def str_with_template1(self, tree, indent, sibNum=None) -> str:
+    def str_with_template1(self, tree, indent: str, sibNum=None) -> str:
         rv = str(tree.kind)
 
         if sibNum is not None:
@@ -358,7 +351,6 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         indent += "    "
         i = 0
         for node in tree:
-
             if hasattr(node, "__repr1__"):
                 if enumerate_children:
                     child = self.str_with_template1(node, indent, i)
@@ -836,7 +828,6 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                 "CALL_FUNCTION_VAR_KW",
                 "CALL_FUNCTION_KW",
             ):
-
                 # FIXME: handle everything in customize.
                 # Right now, some of this is here, and some in that.
 
@@ -1011,7 +1002,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         is_lambda=False,
         noneInNames=False,
         is_top_level_module=False,
-    ):
+    ) -> GenericASTTraversal:
         # FIXME: DRY with fragments.py
 
         # assert isinstance(tokens[0], Token)
@@ -1097,13 +1088,13 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
 def code_deparse(
     co,
     out=sys.stdout,
-    version=None,
+    version: Optional[tuple] = None,
     debug_opts=DEFAULT_DEBUG_OPTS,
     code_objects={},
     compile_mode="exec",
     is_pypy=IS_PYPY,
     walker=SourceWalker,
-):
+) -> Optional[SourceWalker]:
     """
     ingests and deparses a given code block 'co'. If version is None,
     we will use the current Python interpreter version.
