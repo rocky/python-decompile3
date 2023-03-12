@@ -26,7 +26,7 @@ Step 2: Run the test:
 
 import getopt, os, py_compile, sys, shutil, tempfile, time
 
-from xdis.version_info import PYTHON_VERSION_TRIPLE
+from xdis.version_info import version_tuple_to_str
 from decompyle3.main import main
 from fnmatch import fnmatch
 
@@ -126,10 +126,10 @@ def do_tests(src_dir, obj_patterns, target_dir, opts):
 
     if opts["do_compile"]:
         compiled_version = opts["compiled_version"]
-        if compiled_version and PYTHON_VERSION_TRIPLE != compiled_version:
+        if compiled_version and version_tuple_to_str() != compiled_version:
             print(
                 "Not compiling: desired Python version is %s but we are running %s"
-                % (compiled_version, PYTHON_VERSION_TRIPLE),
+                % (compiled_version, version_tuple_to_str()),
                 file=sys.stderr,
             )
         else:

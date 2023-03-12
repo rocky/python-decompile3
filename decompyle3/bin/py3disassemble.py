@@ -19,7 +19,7 @@ Usage:
   {0} [OPTIONS]... FILE
   {0} [--help | -h | -V | --version]
 
-Disassemble FILE with the instruction mangling that is done to
+Disassemble/Tokenize FILE with in the way that is done to
 assist decompyle3 in parsing the instruction stream. For example
 instructions with variable-length arguments like CALL_FUNCTION and
 BUILD_LIST have argument counts appended to the instruction name, and
