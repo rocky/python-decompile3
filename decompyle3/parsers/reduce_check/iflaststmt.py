@@ -31,7 +31,7 @@ def iflaststmt(
 
     # If there is a fall-through it shouldn't be somewhere
     # inside iflaststmt, since the point of this is to handle
-    # if statments that *don't* fall trough.
+    # if statements that *don't* fall though.
     if tokens[last] == "COME_FROM":
         come_from_offset = tokens[last].attr
         if tokens[first].off2int() <= come_from_offset <= tokens[last].off2int():
@@ -84,7 +84,7 @@ def iflaststmt(
             target_offset = testexpr_last_inst.argval
             if target_offset != last_offset:
                 if target_offset < last_offset:
-                    # Look for this kind of situtation from: iflaststmtc ::= testexprc c_stmts
+                    # Look for this kind of situation from: iflaststmtc ::= testexprc c_stmts
                     #
                     # L.  13        78  LOAD_NAME                ncols
                     #               80  POP_JUMP_IF_FALSE_LOOP    40  'to 40'

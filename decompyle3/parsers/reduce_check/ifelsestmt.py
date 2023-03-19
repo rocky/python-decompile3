@@ -1,4 +1,4 @@
-#  Copyright (c) 2020, 2022 Rocky Bernstein
+#  Copyright (c) 2020, 2022-2023 Rocky Bernstein
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation, either version 3 of the License, or
@@ -13,6 +13,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from decompyle3.scanners.tok import Token
+
 
 # When we use dominators, presumbaly this will be a lto cleaner
 def ifelsestmt(
@@ -33,7 +34,7 @@ def ifelsestmt(
 
     # FIXME: It is conceivable the below could be handled strictly in the grammar.
     # If we have an optional else, then we *must* have a COME_FROM for it.
-    # Otherwise this is fine as an "if" witout the "else"
+    # Otherwise this is fine as an "if" without the "else"
 
     if rule[1][2] == "jf_cfs":
         jf_cfs = tree[2]

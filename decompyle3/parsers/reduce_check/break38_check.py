@@ -26,7 +26,7 @@ def break_invalid(
     if last + 1 < n and tokens[last + 1] == "JUMP_LOOP":
         return False
 
-    # FIXME: put jump_loop classifcation in a subroutine. Preferably in xdis.
+    # FIXME: put jump_loop classification in a subroutine. Preferably in xdis.
     jump_target_prev = self.insts[self.offset2inst_index[tokens[first + 1].attr] - 1]
     is_jump_loop = (
         jump_target_prev.is_jump() and jump_target_prev.arg < jump_target_prev.offset

@@ -14,14 +14,16 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Constants and initial table values used in pysource.py and fragments.py"""
 
-import re, sys
+import re
+import sys
+
 from decompyle3.parsers.treenode import SyntaxTree
-from decompyle3.scanners.tok import Token, NoneToken
+from decompyle3.scanners.tok import NoneToken, Token
 
 minint = -sys.maxsize - 1
 maxint = sys.maxsize
 
-# Operator precidence See
+# Operator precedence See
 # https://docs.python.org/3/reference/expressions.html#operator-precedence
 # for a list. We keep the same top-to-botom order here as in the above links,
 # so we start with low precedence (high values) and go down in value.
@@ -34,12 +36,12 @@ maxint = sys.maxsize
 # various templates we use odd values. Avoiding equal-precedent comparisons
 # avoids ambiguity what to do when the precedence is equal.
 
-# The precidence of a key below applies the key, a node, and the its
-# *parent*. A node however sometimes sets the precidence for its
-# children. For example, "call" has precidence 2 so we don't get
+# The precedence of a key below applies the key, a node, and the its
+# *parent*. A node however sometimes sets the precedence for its
+# children. For example, "call" has precedence 2 so we don't get
 # additional the additional parenthesis of: ".. op (call())".  However
-# for call's children, it parameters, we set the the precidence high,
-# say to 100, to make sure we avoid additional prenthesis in
+# for call's children, it parameters, we set the the precedence high,
+# say to 100, to make sure we avoid additional parenthesis in
 # call((.. op ..)).
 
 NO_PARENTHESIS_EVER = 100
@@ -475,7 +477,7 @@ TABLE_DIRECT = {
 
     "expr_stmt": (
         "%|%p\n",
-        # When a statment contains only a named_expr (:=)
+        # When a statement contains only a named_expr (:=)
         # the named_expr should have parenthesis around it.
         (0, "expr", PRECEDENCE["named_expr"] - 1)
     ),

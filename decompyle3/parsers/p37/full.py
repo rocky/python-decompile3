@@ -1,4 +1,4 @@
-#  Copyright (c) 2020-2022 Rocky Bernstein
+#  Copyright (c) 2020-2023 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@ spark grammar for Python 3.7
 """
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+
 from decompyle3.parsers.p37.lambda_expr import Python37LambdaParser
 
 
@@ -162,7 +163,7 @@ class Python37Parser(Python37LambdaParser):
 
         # last_stmt is a Python statement for which
         # end is a "return" or raise statement and
-        # thefore may not have a COME_FROM after
+        # therefore may not have a COME_FROM after
         # it. It does *not* have to be the last stmt of
         # a list of stmts or c_stmts
         last_stmt  ::= forelselaststmt

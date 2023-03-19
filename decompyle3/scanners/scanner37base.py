@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2022 by Rocky Bernstein
+#  Copyright (c) 2015-2023 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
@@ -29,20 +29,17 @@ For example:
 Finally we save token information.
 """
 
+import sys
 from typing import Any, Dict, List, Set, Tuple
 
-from xdis import iscode, instruction_size, Instruction
-from xdis.bytecode import _get_const_info
-
-from decompyle3.scanner import Token
 import xdis
 
 # Get all the opcodes into globals
 import xdis.opcodes.opcode_37 as op3
+from xdis import Instruction, instruction_size, iscode
+from xdis.bytecode import _get_const_info
 
-from decompyle3.scanner import Scanner
-
-import sys
+from decompyle3.scanner import Scanner, Token
 
 globals().update(op3.opmap)
 
@@ -51,7 +48,9 @@ CONST_COLLECTIONS = ("CONST_LIST", "CONST_SET", "CONST_DICT")
 
 
 class Scanner37Base(Scanner):
-    def __init__(self, version: Tuple[int, int], show_asm=None, debug="", is_pypy=False):
+    def __init__(
+        self, version: Tuple[int, int], show_asm=None, debug="", is_pypy=False
+    ):
         super(Scanner37Base, self).__init__(version, show_asm, is_pypy)
         self.offset2tok_index = None
         self.debug = debug
@@ -571,8 +570,8 @@ class Scanner37Base(Scanner):
                     ):
                         opname = "CONTINUE"
                     else:
-                        # "continue" versus "break_loop" dectection is more complicated beoause
-                        # "continue" to an outer loop is really a "break loop"
+                        # "continue" versus "break_loop" dectction is more complicated
+                        # because "continue" to an outer loop is really a "break loop"
                         opname = "JUMP_LOOP"
 
                         # FIXME: this is a hack to catch stuff like:

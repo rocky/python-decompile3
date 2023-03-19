@@ -1,23 +1,18 @@
-#  Copyright (c) 2016-2017, 2019-2022 Rocky Bernstein
+#  Copyright (c) 2016-2017, 2019-2023 Rocky Bernstein
 """
 Python 3.7 base code. We keep non-custom-generated grammar rules out of this file.
 """
-from decompyle3.parsers.parse_heads import (
-    ParserError,
-    PythonBaseParser,
-    nop_func,
-)
-from decompyle3.parsers.treenode import SyntaxTree
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from spark_parser.spark import rule2str
 
+from decompyle3.parsers.parse_heads import ParserError, PythonBaseParser, nop_func
 from decompyle3.parsers.reduce_check import (
-    and_invalid,
     and_cond_check,
+    and_invalid,
     and_not_check,
     c_tryelsestmt,
-    if_and_stmt,
     if_and_elsestmt,
+    if_and_stmt,
     ifelsestmt,
     iflaststmt,
     ifstmt,
@@ -29,10 +24,11 @@ from decompyle3.parsers.reduce_check import (
     or_cond_check,
     testtrue,
     tryexcept,
-    whilestmt,
-    while1stmt,
     while1elsestmt,
+    while1stmt,
+    whilestmt,
 )
+from decompyle3.parsers.treenode import SyntaxTree
 
 
 class Python37BaseParser(PythonBaseParser):
@@ -51,7 +47,7 @@ class Python37BaseParser(PythonBaseParser):
             return "%s_0" % (token.kind)
 
     def add_make_function_rule(self, rule, opname, attr, customize):
-        """Python 3.3 added a an addtional LOAD_STR before MAKE_FUNCTION and
+        """Python 3.3 added a an additional LOAD_STR before MAKE_FUNCTION and
         this has an effect on many rules.
         """
         new_rule = rule % "LOAD_STR "
@@ -1262,7 +1258,8 @@ class Python37BaseParser(PythonBaseParser):
             if fn:
                 return fn(self, lhs, n, rule, ast, tokens, first, last)
         except Exception:
-            import sys, traceback
+            import sys
+            import traceback
 
             print(
                 f"Exception in {fn.__name__} {sys.exc_info()[1]}\n"

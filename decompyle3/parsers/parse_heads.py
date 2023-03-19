@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 Rocky Bernstein
+#  Copyright (c) 2022-2023 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -25,9 +25,11 @@ and start-symbol grammar rule.
 # The below adds a special "start" rule for the kind of thing that we want to
 # decompile
 
-from decompyle3.parsers.treenode import SyntaxTree
-from spark_parser import GenericASTBuilder
 from typing import Union
+
+from spark_parser import GenericASTBuilder
+
+from decompyle3.parsers.treenode import SyntaxTree
 
 
 def nop_func(self, args):
@@ -103,6 +105,9 @@ class PythonBaseParser(GenericASTBuilder):
 
         self.start_symbol = start_symbol
         self.new_rules = set()
+
+        # Placeholder for Python version tuple
+        self.version = (None, None)
 
     def ast_first_offset(self, ast) -> Union[int, str]:
         return ast.offset if hasattr(ast, "offset") else self.ast_first_offset(ast[0])
@@ -215,7 +220,7 @@ class PythonBaseParser(GenericASTBuilder):
     def get_pos_kw(self, token):
         """Return then the number of positional parameters and
         represented by the attr field of token"""
-        # Low byte indicates number of positional paramters,
+        # Low byte indicates number of positional parameters,
         # high byte number of keyword parameters
         args_pos = token.attr & 0xFF
         args_kw = (token.attr >> 8) & 0xFF

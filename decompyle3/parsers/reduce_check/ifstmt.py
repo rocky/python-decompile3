@@ -1,4 +1,4 @@
-#  Copyright (c) 2020, 2022 Rocky Bernstein
+#  Copyright (c) 2020, 2022-2023 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -130,7 +130,7 @@ def ifstmt(
                 if jump_target == tokens[last - 1].attr:
                     return False
                 if last < n and tokens[last].kind.startswith("JUMP"):
-                    # Distingush code like:
+                    # Distinguish code like:
                     #
                     #   if a and not b:  # there are two jumps to "else" here
                     #     real = 2       # there is a jump around the else here

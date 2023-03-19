@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2022 Rocky Bernstein <rocky@gnu.org>
+# Copyright (C) 2018-2023 Rocky Bernstein <rocky@gnu.org>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 
 # Things that change more often go here.
 copyright = """
-Copyright (C) 2015-2021 Rocky Bernstein <rb@dustyfeet.com>.
+Copyright (C) 2015-2021, 2023 Rocky Bernstein <rb@dustyfeet.com>.
 """
 
 classifiers = [
@@ -48,7 +48,7 @@ entry_points = {
     ]
 }
 ftp_url = None
-install_requires = ["click", "spark-parser >= 1.8.9, < 1.9.0", "xdis >= 6.0.4,<6.1.0"]
+install_requires = ["click", "spark-parser >= 1.8.9, < 1.9.0", "xdis >= 6.0.4,<6.2.0"]
 
 license = "GPL3"
 mailing_list = "python-debugger@googlegroups.com"

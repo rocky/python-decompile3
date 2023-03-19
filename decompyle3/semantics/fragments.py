@@ -1328,7 +1328,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             selectedText = text[start:finish]
 
         # Compute offsets relative to the beginning of the
-        # line rather than the beinning of the text
+        # line rather than the beginning of the text
         try:
             lineStart = text[:start].rindex("\n") + 1
         except ValueError:
@@ -1336,7 +1336,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         adjustedStart = start - lineStart
 
         # If selected text is greater than a single line
-        # just show the first line plus elipses.
+        # just show the first line plus ellipses.
         lines = selectedText.split("\n")
         if len(lines) > 1:
             adjustedEnd = len(lines[0]) - adjustedStart
@@ -1636,7 +1636,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
     n_set = n_tuple = n_build_set = n_list
 
     def template_engine(self, entry, startnode):
-        """The format template interpetation engine.  See the comment at the
+        """The format template interpretation engine.  See the comment at the
         beginning of this module for the how we interpret format
         specifications such as %c, %C, and so on.
         """
@@ -1830,7 +1830,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
         # FIXME figure out how to get these cases to be table driven.
         # 2. subroutine calls. It the last op is the call and for purposes of printing
-        # we don't need to print anything special there. However it encompases the
+        # we don't need to print anything special there. However it encompasses the
         # entire string of the node fn(...)
         if startnode.kind == "call":
             last_node = startnode[-1]
@@ -2038,7 +2038,7 @@ def code_deparse_around_offset(
     return deparsed
 
 
-# Deprecated. Here still for compatability
+# Deprecated. Here still for compatibility
 def deparse_code_around_offset(
     name,
     offset,

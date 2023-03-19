@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2016, 2818-2022 by Rocky Bernstein
+#  Copyright (c) 2015-2016, 2818-2023 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -30,17 +30,18 @@ want to run on earlier Python versions.
 """
 
 import sys
-from typing import Optional
 from collections import deque
+from py_compile import PyCompileError
+from typing import Optional
 
 from xdis import check_object_path, iscode, load_module
+
 from decompyle3.scanner import get_scanner
 from decompyle3.semantics.pysource import (
-    code_deparse,
     PARSER_DEFAULT_DEBUG,
     TREE_DEFAULT_DEBUG,
+    code_deparse,
 )
-from py_compile import PyCompileError
 
 
 def disco_deparse(
@@ -138,7 +139,9 @@ def decompile_code_type(
     debug_opts = {"asm": showasm, "tree": showast, "grammar": showgrammar}
     if isinstance(co, list):
         for bytecode in co:
-            disco_deparse(version, bytecode, codename_map, is_pypy, debug_opts)
+            disco_deparse(
+                version, bytecode, codename_map, outstream, is_pypy, debug_opts
+            )
     else:
         disco_deparse(version, co, codename_map, outstream, is_pypy, debug_opts)
     return True
@@ -152,7 +155,8 @@ def decompile_dict_comprehensions(
     showgrammar=PARSER_DEFAULT_DEBUG,
 ) -> Optional[bool]:
     """
-    decompile all the dictionary-comprehension functions in a python byte-code file (.pyc)
+    decompile all the dictionary-comprehension functions in a python byte-code
+    file (.pyc)
 
     If given a Python source file (".py") file, we'll
     decompile all dict_comprehensions of the corresponding compiled object.
@@ -170,7 +174,8 @@ def decompile_all_fragments(
     showgrammar=PARSER_DEFAULT_DEBUG,
 ) -> Optional[bool]:
     """
-    decompile all comprehensions, generators, and lambda in a python byte-code file (.pyc)
+    decompile all comprehensions, generators, and lambda in a python byte-code
+    file (.pyc)
 
     If given a Python source file (".py") file, we'll
     decompile all dict_comprehensions of the corresponding compiled object.

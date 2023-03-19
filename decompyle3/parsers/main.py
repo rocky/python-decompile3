@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2022 Rocky Bernstein
+#  Copyright (c) 2019-2023 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -24,27 +24,25 @@ Note however all of this is imported from the __init__ module
 
 import sys
 
-from xdis import iscode
-from xdis.version_info import PYTHON_VERSION_TRIPLE, IS_PYPY, version_tuple_to_str
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+from xdis import iscode
+from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE, version_tuple_to_str
 
 from decompyle3.parsers.p37.heads import (
-    Python37ParserLambda,
     Python37ParserEval,
     Python37ParserExec,
     Python37ParserExpr,
+    Python37ParserLambda,
     Python37ParserSingle,
 )
-
 from decompyle3.parsers.p38.heads import (
-    Python38ParserLambda,
     Python38ParserEval,
     Python38ParserExec,
     Python38ParserExpr,
+    Python38ParserLambda,
     Python38ParserSingle,
 )
 from decompyle3.parsers.treenode import SyntaxTree
-
 from decompyle3.show import maybe_show_asm
 
 
@@ -61,15 +59,18 @@ def parse(p, tokens, customize, is_lambda) -> SyntaxTree:
 def get_python_parser(
     version, debug_parser=PARSER_DEFAULT_DEBUG, compile_mode="exec", is_pypy=False
 ):
-    """Returns parser object for Python version 3.7, 3.8, etc. depending on the parameters passed.
-    *compile_mode* is either
-    "exec", "eval", "eval_expr", or "single" or "lambda".
+    """
+    Returns parser object for Python version 3.7, 3.8, etc. depending on the parameters
+    passed.
 
-    * "lambda" is for the grammar that can appear in lambda statements.
-    * "eval_expr" is for grammar "expr" kinds of expressions - this is a smaller kind of "eval" that users only grammar inside lambdas.
-    * "eval" is for Python eval() kinds of expressions or eval compile mode
-    * "exec" is for Python exec() kind of expresssions, or exec compile mode
-    * "single" is python compile "single" compile mode
+    *compile_mode* is one of:
+
+    * "lambda": is for the grammar that can appear in lambda statements.
+    * "eval_expr:" is for grammar "expr" kinds of expressions - this is a smaller kind
+       of "eval" that users only grammar inside lambdas.
+    * "eval:" is for Python eval() kinds of expressions or eval compile mode
+    * "exec": is for Python exec() kind of expressions, or exec compile mode
+    * "single": is python compile "single" compile mode
 
     See https://docs.python.org/3/library/functions.html#compile for an
     explanation of the different modes.

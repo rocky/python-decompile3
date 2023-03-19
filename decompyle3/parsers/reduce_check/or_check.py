@@ -41,7 +41,7 @@ def or_check(
             return True
 
         # The following test needs to prevent "or" from being
-        # mistaken for part of an "assert"t statment.
+        # mistaken for part of an "assert"t statement.
 
         # The below then is useful until we get better control-flow analysis.
         # Note it is too hard in the scanner right nowto turn the LOAD_GLOBAL into

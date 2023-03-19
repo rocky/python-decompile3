@@ -43,7 +43,7 @@ def whileTruestmt38_check(
         c_stmts = tree[1]
         if c_stmts == "c_stmts":
 
-            # Distingish:
+            # Distinguish:
             #   while True:
             #      if expr:
             # from:
