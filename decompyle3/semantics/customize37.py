@@ -16,17 +16,19 @@
 """
 
 import re
+
 from spark_parser.ast import GenericASTTraversalPruningException
 from xdis import co_flags_is_async, iscode
+
+from decompyle3.parsers.treenode import SyntaxTree
 from decompyle3.scanners.tok import Token
 from decompyle3.semantics.consts import (
+    INDENT_PER_LEVEL,
     PRECEDENCE,
     TABLE_DIRECT,
     TABLE_R,
-    INDENT_PER_LEVEL,
 )
-from decompyle3.parsers.treenode import SyntaxTree
-from decompyle3.semantics.helper import flatten_list, escape_string, strip_quotes
+from decompyle3.semantics.helper import escape_string, flatten_list, strip_quotes
 
 
 def escape_format(s):
@@ -856,7 +858,9 @@ def customize_for_version37(self, version):
         elif build_class[1][0] == "load_closure":
             # Python 3 with closures not functions
             load_closure = build_class[1]
-            if hasattr(load_closure[-3], "attr"):
+            if load_closure[-4] == "LOAD_CODE":
+                subclass_code = load_closure[-4].attr
+            elif hasattr(load_closure[-3], "attr"):
                 # Python 3.3 classes with closures work like this.
                 # Note have to test before 3.2 case because
                 # index -2 also has an attr.
@@ -865,14 +869,18 @@ def customize_for_version37(self, version):
                 # Python 3.2 works like this
                 subclass_code = load_closure[-2].attr
             else:
-                raise "Internal Error n_classdef: cannot find class body"
+                raise RuntimeError(
+                    "Internal Error n_classdef: cannot find " "class body"
+                )
             if hasattr(build_class[3], "__len__"):
                 if not subclass_info:
                     subclass_info = build_class[3]
             elif hasattr(build_class[2], "__len__"):
                 subclass_info = build_class[2]
             else:
-                raise "Internal Error n_classdef: cannot superclass name"
+                raise RuntimeError(
+                    "Internal Error n_classdef: cannot " "superclass name"
+                )
         elif node == "classdefdeco2":
             subclass_info = node
             subclass_code = build_class[1][0].attr
