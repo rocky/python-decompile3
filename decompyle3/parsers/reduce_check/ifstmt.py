@@ -62,17 +62,24 @@ def ifstmt(
     # which are the same:
     #    xxx  ::= testexprc ifstmts_jumpc _come_froms
     # and these need to be disambiguated
-    # When  ifstmts_jumpc geos back to to a loop
+    # When  ifstmts_jumpc goes back to to a loop
     # and testexprc is testtruec, then we have if_not_stmtc.
 
-    # We also need to loof for "not" expressions under test
     if lhs == "ifstmtc" and test == "testtruec" and ifstmts_jump == "ifstmts_jumpc":
-        return True
-    elif lhs == "if_not_stmtc" and ifstmts_jump == "ifstmts_jumpc":
+        if len(test) > 1:
+            return test[1] != "POP_JUMP_IF_FALSE_LOOP"
+
+    if lhs == "if_not_stmtc" and ifstmts_jump == "ifstmts_jumpc":
         if test == "testexpr":
             test = test[0]
         if test in ("testfalsec", "testfalse"):
             return True
+
+        if test in ("testtruec", "testtrue") and ifstmts_jump == "ifstmts_jumpc":
+            if test[0] == "expr_pjit":
+                test = test[0]
+            if len(test) > 1:
+                return test[1] == "POP_JUMP_IF_FALSE_LOOP"
 
     pop_jump_if = None
 
