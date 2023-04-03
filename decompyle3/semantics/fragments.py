@@ -90,7 +90,7 @@ from decompyle3.semantics.consts import (
 from decompyle3.semantics.customize import customize_for_version
 from decompyle3.semantics.make_function36 import make_function36
 from decompyle3.semantics.pysource import ParserError, StringIO
-from decompyle3.show import maybe_show_asm, maybe_show_tree
+from decompyle3.show import maybe_show_asm
 
 NodeInfo = namedtuple("NodeInfo", "node start finish")
 ExtractInfo = namedtuple(
@@ -1154,7 +1154,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             # FIXME: So as not to remove tokens with offsets,
             # remove this phase until we have a chance to go over,
             # transform_tree = self.treeTransform.transform(ast)
-            maybe_show_tree(self, ast)
+            self.maybe_show_tree(ast, "before")
             return ast
             # del ast # Save memory
             # return transform_tree
@@ -1194,7 +1194,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         except (heads.ParserError, AssertionError) as e:
             raise ParserError(e, tokens, self.debug_parser.get("reduce", False))
 
-        maybe_show_tree(self, ast)
+        self.maybe_show_tree(self, ast, "before")
 
         checker(ast, False, self.ast_errors)
 
