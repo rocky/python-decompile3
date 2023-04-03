@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # Mode: -*- python -*-
 #
-# Copyright (c) 2015-2016, 2018, 2020-2022 by Rocky Bernstein <rb@dustyfeet.com>
+# Copyright (c) 2015-2016, 2018, 2020-2023 by Rocky Bernstein <rb@dustyfeet.com>
 #
-import click
 import os
 import sys
 
+import click
 from xdis.version_info import version_tuple_to_str
+
 from decompyle3.code_fns import (
     decompile_all_fragments,
     decompile_dict_comprehensions,
@@ -66,7 +67,10 @@ def main(code_format, show_asm, grammar, tree, tree_plus, outfile, files):
     """Decompile all code objects of a certain format."""
 
     version_tuple = sys.version_info[0:2]
-    if version_tuple not in ((3, 7), (3, 8),):
+    if version_tuple not in (
+        (3, 7),
+        (3, 8),
+    ):
         print(
             f"Note: {program} can decompile only bytecode from Python 3.10"
             f"""\n\tYou have version: {version_tuple_to_str()}."""
@@ -104,6 +108,8 @@ def main(code_format, show_asm, grammar, tree, tree_plus, outfile, files):
     # maybe a second -a will do before as well
     asm = "after" if show_asm else None
 
+    if tree_plus:
+        tree = True
     show_ast = {"before": tree, "after": tree_plus}
     show_grammar = {
         "rules": False,

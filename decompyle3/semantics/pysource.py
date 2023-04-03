@@ -130,11 +130,8 @@ Python.
 #   evaluating the escape code.
 
 import sys
-from typing import Optional
-
-IS_PYPY = "__pypy__" in sys.builtin_module_names
-
 from io import StringIO
+from typing import Optional
 
 from spark_parser import GenericASTTraversal
 from xdis import COMPILER_FLAG_BIT, iscode
@@ -168,6 +165,8 @@ from decompyle3.semantics.parser_error import ParserError
 from decompyle3.semantics.transform import TreeTransform
 from decompyle3.show import maybe_show_tree
 from decompyle3.util import better_repr
+
+IS_PYPY = "__pypy__" in sys.builtin_module_names
 
 PARSER_DEFAULT_DEBUG = {
     "rules": False,
@@ -252,24 +251,32 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         self.p_lambda = None
 
         self.treeTransform = TreeTransform(version=self.version, show_ast=showast)
-        self.debug_parser = dict(debug_parser)
-        self.showast = showast
-        self.params = params
-        self.param_stack = []
+
         self.ERROR = None
-        self.prec = 100
-        self.return_none = False
-        self.mod_globs = set()
-        self.currentclass = None
-        self.classes = []
-        self.pending_newlines = 0
-        self.linestarts = linestarts
-        self.line_number = 1
         self.ast_errors = []
+        self.classes = []
+        self.currentclass = None
+        self.debug_parser = dict(debug_parser)
+
         # FIXME: have p.insts update in a better way
         # modularity is broken here
         self.p.insts = scanner.insts
+
+        self.compile_mode = compile_mode
+        self.is_module = False
+        self.is_pypy = is_pypy
+        self.line_number = 1
+        self.linestarts = linestarts
+        self.mod_globs = set()
+        self.name = None
         self.offset2inst_index = scanner.offset2inst_index
+        self.param_stack = []
+        self.params = params
+        self.pending_newlines = 0
+        self.prec = 100
+        self.return_none = False
+        self.showast = showast
+        self.version = version
 
         # This is in Python 2.6 on. It changes the way
         # strings get interpreted. See n_LOAD_CONST
@@ -291,28 +298,13 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         # An example is:
         # __module__ = __name__
         self.hide_internal = True
-        self.compile_mode = compile_mode
-        self.name = None
-        self.version = version
-        self.is_pypy = is_pypy
         customize_for_version(self, is_pypy, version)
         return
 
     def maybe_show_tree(self, tree, phase):
-        if self.showast.get("before", False):
-            self.println(
-                """
----- end before transform
-"""
-            )
-        if self.showast.get("after", False):
-            self.println(
-                """
----- begin after transform
-"""
-                + " "
-            )
+        phase_name = "parse_tree" if phase == "before" else "transformed_tree"
         if self.showast.get(phase, False):
+            self.println(f"""\n# ---- {phase_name}:\n""" + " ")
             maybe_show_tree(self, tree)
 
     def str_with_template(self, tree):
@@ -714,9 +706,10 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                             node[index].kind,
                         )
                     else:
-                        assert (
-                            node[tup[0]] in tup[1]
-                        ), f"at {node.kind}[{tup[0]}], expected to be in '{tup[1]}' node; got '{node[tup[0]].kind}'"
+                        assert node[tup[0]] in tup[1], (
+                            f"at {node.kind}[{tup[0]}], expected to be in '{tup[1]}' "
+                            f"node; got '{node[tup[0]].kind}'"
+                        )
 
                 else:
                     assert len(tup) == 2
@@ -1067,15 +1060,19 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
 
             self.p.insts = p_insts
         except (heads.ParserError, AssertionError) as e:
-            # from trepan.api import debug; debug()
             raise ParserError(e, tokens, self.p.debug["reduce"])
 
         checker(ast, False, self.ast_errors)
 
         self.customize(customize)
+
+        if self.showast.get("before", False):
+            self.maybe_show_tree(ast, phase="before")
+
         transform_tree = self.treeTransform.transform(ast, code)
 
-        self.maybe_show_tree(ast, phase="after")
+        if self.showast.get("after", False):
+            self.maybe_show_tree(transform_tree, phase="after")
 
         del ast  # Save memory
         return transform_tree
@@ -1158,9 +1155,10 @@ def code_deparse(
         expected_start = None
 
     if expected_start:
-        assert (
-            deparsed.ast == expected_start
-        ), f"Should have parsed grammar start to '{expected_start}'; got: {deparsed.ast.kind}"
+        assert deparsed.ast == expected_start, (
+            f"Should have parsed grammar start to '{expected_start}'; "
+            f"got: {deparsed.ast.kind}"
+        )
     # save memory
     del tokens
 
@@ -1217,11 +1215,12 @@ def deparse_code2str(
     compile_mode="exec",
     is_pypy=IS_PYPY,
     walker=SourceWalker,
-):
-    """Return the deparsed text for a Python code object. `out` is where any intermediate
-    output for assembly or tree output will be sent.
+) -> str:
     """
-    return code_deparse(
+    Return the deparsed text for a Python code object. `out` is where
+    any intermediate output for assembly or tree output will be sent.
+    """
+    tree = code_deparse(
         code,
         out,
         version,
@@ -1230,7 +1229,9 @@ def deparse_code2str(
         compile_mode=compile_mode,
         is_pypy=is_pypy,
         walker=walker,
-    ).text
+    )
+
+    return "# deparse failed" if tree is None else tree.text
 
 
 if __name__ == "__main__":
@@ -1238,7 +1239,8 @@ if __name__ == "__main__":
     def deparse_test(co):
         "This is a docstring"
         s = deparse_code2str(co)
-        # s = deparse_code2str(co, debug_opts={"asm": "after", "tree": {'before': False, 'after': False}})
+        # s = deparse_code2str(co, debug_opts={"asm": "after", "tree":
+        # {'before': False, 'after': False}})
         print(s)
         return
 
