@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 by Rocky Bernstein
+#  Copyright (c) 2022-2023 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -17,15 +17,16 @@ Generators and comprehension functions
 """
 
 
-from spark_parser.ast import GenericASTTraversalPruningException
 from typing import Optional
+
+from spark_parser.ast import GenericASTTraversalPruningException
 from xdis import iscode
 
 from decompyle3.parsers.main import get_python_parser
 from decompyle3.scanner import Code
+from decompyle3.scanners.tok import Token
 from decompyle3.semantics.consts import PRECEDENCE
 from decompyle3.semantics.helper import is_lambda_mode
-from decompyle3.scanners.tok import Token
 
 
 class ComprehensionMixin:
@@ -330,8 +331,8 @@ class ComprehensionMixin:
             #   dict_comp_async ::= LOAD_DICTCOMP LOAD_STR MAKE_FUNCTION_0 expr ...
             #   set_comp_async  ::= LOAD_SETCOMP LOAD_STR MAKE_FUNCTION_0 expr ...
             # and:
-            #  dict_comp_async  ::= BUILD_MAP_0 genexpr_func_async
-            #  set_comp_async   ::= BUILD_SET_0 genexpr_func_async
+            #  dict_comp_async  ::= BUILD_MAP_0 LOAD_ARG genexpr_func_async
+            #  set_comp_async   ::= BUILD_SET_0 LOAG_ARG genexpr_func_async
             if tree[0] == "expr":
                 tree = tree[0]
 
@@ -381,6 +382,7 @@ class ComprehensionMixin:
             "set_comp_func",
             "set_comp_func_header",
         ):
+            # Find location of store
             for k in tree:
                 if k.kind in ("comp_iter", "list_iter", "set_iter", "await_expr"):
                     n = k
@@ -464,7 +466,7 @@ class ComprehensionMixin:
                 "comp_if_or_not",
                 "comp_if_not_or",
             ):
-                if_nodes.append(n)
+                if_nodes.append(n[0])
                 n = n[-1]
                 assert n == "comp_iter"
             elif n in (
@@ -561,14 +563,12 @@ class ComprehensionMixin:
             list_iter = list_afor2[2]
             assert list_iter == "list_iter"
             self.preorder(collection_node)
-            if_nodes = []
         elif node == "set_comp_async":
             self.preorder(collection_node)
-            if_nodes = []
         elif node == "list_comp_async":
             self.preorder(node[collection_node_index])
         elif is_lambda_mode(self.compile_mode):
-            if node == "list_comp_async":
+            if node in ("list_comp_async",):
                 self.preorder(node[1])
             elif collection_node is None:
                 assert node[3] in ("get_aiter", "get_iter"), node[3].kind
@@ -603,7 +603,6 @@ class ComprehensionMixin:
                         self.prec = p
                         return
                 comp_store = None
-                if_nodes = []
             pass
 
         if tree == "set_comp_func":
@@ -622,6 +621,7 @@ class ComprehensionMixin:
 
         if comp_store:
             self.preorder(comp_store)
+
         for if_node in if_nodes:
             if if_node != "comp_if_or":
                 self.write(" if ")
@@ -636,7 +636,12 @@ class ComprehensionMixin:
             else:
                 # FIXME: go over these to add more of this in the template,
                 # not here.
-                if if_node in ("list_if_not", "comp_if_not", "list_if37_not"):
+                if if_node in (
+                    "comp_if_not",
+                    "list_if37_not",
+                    "list_if_not",
+                    "list_if_or_not",
+                ):
                     self.write("not ")
                     pass
                 self.prec = PRECEDENCE["lambda_body"] - 1
