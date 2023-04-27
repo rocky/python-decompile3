@@ -1289,6 +1289,8 @@ def customize_for_version37(self, version):
 
     self.n_call_ex_kw4 = call_ex_kw4
 
+    # NOTE! This is different from decompyle3's version
+    # Reconcile?
     def format_pos_args(node):
         """
         Positional args should format to:
