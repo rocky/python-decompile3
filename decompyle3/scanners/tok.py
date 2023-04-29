@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2020 by Rocky Bernstein
+#  Copyright (c) 2016-2020, 2023 by Rocky Bernstein
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
 #
@@ -17,6 +17,7 @@
 
 import re
 import sys
+from typing import Optional
 
 
 def off2int(offset: int, prefer_last=True) -> int:
@@ -56,6 +57,7 @@ class Token:
     def __init__(
         self,
         opname: str,
+        optype: Optional[str] = None,
         attr=None,
         pattr=None,
         offset=-1,
@@ -71,6 +73,7 @@ class Token:
         has_extended_arg=False,
     ):
         self.kind = sys.intern(opname)
+        self.optype = optype
         self.has_arg = has_arg
         self.attr = attr
         self.pattr = pattr

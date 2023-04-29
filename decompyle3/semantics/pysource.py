@@ -250,7 +250,11 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         # Initialize p_lambda on demand
         self.p_lambda = None
 
-        self.treeTransform = TreeTransform(version=self.version, show_ast=showast)
+        self.treeTransform = TreeTransform(
+            version=self.version,
+            show_ast=showast,
+            str_with_template=self.str_with_template,
+        )
 
         self.ERROR = None
         self.ast_errors = []
@@ -1018,20 +1022,24 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                 p = self.p_lambda
                 p.insts = self.scanner.insts
                 p.offset2inst_index = self.scanner.offset2inst_index
-                ast = python_parser.parse(p, tokens, customize, is_lambda)
+                parse_tree = python_parser.parse(p, tokens, customize, is_lambda)
                 self.customize(customize)
 
             except (heads.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens, self.p.debug["reduce"])
-            transform_tree = self.treeTransform.transform(ast, code)
-            self.maybe_show_tree(ast, phase="after")
-            del ast  # Save memory
+
+            transform_tree = self.treeTransform.transform(
+                parse_tree, code, self.println
+            )
+
+            del parse_tree  # Save memory
             return transform_tree
 
-        # The bytecode for the end of the main routine has a
-        # "return None". However you can't issue a "return" statement in
-        # main. So as the old cigarette slogan goes: I'd rather switch (the token stream)
-        # than fight (with the grammar to not emit "return None").
+        # The bytecode for the end of the main routine has a "return
+        # None". However you can't issue a "return" statement in
+        # main. So as the old cigarette slogan goes: I'd rather switch
+        # (the token stream) than fight (with the grammar to not emit
+        # "return None").
         if self.hide_internal:
             if len(tokens) >= 2 and not noneInNames:
                 if tokens[-1].kind in ("RETURN_VALUE", "RETURN_VALUE_LAMBDA"):
@@ -1051,30 +1059,26 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         # Build a parse tree from a tokenized and massaged disassembly.
         try:
             # FIXME: have p.insts update in a better way
-            # modularity is broken here
+            # Modularity is broken here.
             p_insts = self.p.insts
             self.p.insts = self.scanner.insts
             self.p.offset2inst_index = self.scanner.offset2inst_index
             self.p.opc = self.scanner.opc
-            ast = python_parser.parse(self.p, tokens, customize, is_lambda=is_lambda)
+            parse_tree = python_parser.parse(
+                self.p, tokens, customize, is_lambda=is_lambda
+            )
 
             self.p.insts = p_insts
         except (heads.ParserError, AssertionError) as e:
             raise ParserError(e, tokens, self.p.debug["reduce"])
 
-        checker(ast, False, self.ast_errors)
+        checker(parse_tree, False, self.ast_errors)
 
         self.customize(customize)
 
-        if self.showast.get("before", False):
-            self.maybe_show_tree(ast, phase="before")
+        transform_tree = self.treeTransform.transform(parse_tree, code, self.println)
 
-        transform_tree = self.treeTransform.transform(ast, code)
-
-        if self.showast.get("after", False):
-            self.maybe_show_tree(transform_tree, phase="after")
-
-        del ast  # Save memory
+        del parse_tree  # Save memory
         return transform_tree
 
     @classmethod

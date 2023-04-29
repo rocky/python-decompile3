@@ -14,7 +14,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from copy import copy
-from typing import Optional
+from typing import Callable, Optional
 
 from spark_parser import GenericASTTraversal, GenericASTTraversalPruningException
 
@@ -23,6 +23,46 @@ from decompyle3.scanners.tok import NoneToken, Token
 from decompyle3.semantics.consts import ASSIGN_DOC_STRING, RETURN_NONE
 from decompyle3.semantics.helper import find_code_node
 from decompyle3.show import maybe_show_tree
+
+# Eventually we won't need STRIPPED_NODES because all semantic
+# actions will have bene converted to new form, and so we will
+# do everythong by default
+STRIPPED_NODES = (
+    "_come_froms",
+    # "and_or",
+    # "and_or_expr1",
+    # "and_or_parts",
+    # "and_part",
+    # "and1",
+    # "async_for_loop",
+    # "async_iter",
+    # "branch_op",
+    "come_froms",
+    # "comp_if",
+    # "comp_iter",
+    # "comp_iter_outer",
+    # "compare_chained",
+    # "compare_chained_return",
+    # "compare_chained1",
+    # "compare_chained1_return",
+    # "compare_chained2",
+    # "compare_chained2_return",
+    # "dict_comp_func",
+    # "expr_pjif",
+    # "expr_pjit",
+    # "for_jump_pop_iff",
+    # "for_jump_unconditional",
+    # "for_loop",
+    # "genexpr_func",
+    "genexpr_func_async",
+    # "jifop",
+    # "jitop",
+    # "or",
+    # "or_parts_pjit",
+    # "pjump_iff_loop",
+    # "return_expr",
+    # "set_comp_func",
+)
 
 
 def is_docstring(node, co_consts) -> bool:
@@ -45,14 +85,27 @@ def is_not_docstring(call_stmt_node) -> bool:
 
 
 class TreeTransform(GenericASTTraversal, object):
-    def __init__(self, version: tuple, show_ast: Optional[dict] = None):
+    def __init__(
+        self,
+        version: tuple,
+        str_with_template: Callable,
+        show_ast: Optional[dict] = None,
+    ):
         self.showast = show_ast
         self.version = version
+        self.str_with_template_for_later = str_with_template
+        self.str_with_template = None
         return
 
-    def maybe_show_tree(self, ast, phase: str):
+    def maybe_show_tree(self, tree, phase: str, print_fn: Callable):
+        if phase == "before":
+            phase_name = "parse tree"
+        else:
+            phase_name = "transformed abstract tree"
+            self.str_with_template = self.str_with_template_for_later
         if isinstance(self.showast, dict) and self.showast.get(phase, False):
-            maybe_show_tree(self, ast)
+            print_fn(f"""\n# ---- {phase_name}:\n """)
+            maybe_show_tree(self, tree)
 
     def preorder(self, node=None):
         """Walk the tree in roughly 'preorder' (a bit of a lie explained below).
@@ -75,6 +128,9 @@ class TreeTransform(GenericASTTraversal, object):
                 node = func(node)
         except GenericASTTraversalPruningException:
             return
+
+        if node.kind in STRIPPED_NODES:
+            return self.strip_pseudo_ops(node)
 
         for i, kid in enumerate(node):
             node[i] = self.preorder(kid)
@@ -444,9 +500,12 @@ class TreeTransform(GenericASTTraversal, object):
         node = self.preorder(node)
         return node
 
-    def transform(self, ast: GenericASTTraversal, code) -> GenericASTTraversal:
-        self.maybe_show_tree(ast, "before")
-        self.ast = copy(ast)
+    def transform(
+        self, parse_tree: GenericASTTraversal, code, print_fn: Callable
+    ) -> GenericASTTraversal:
+        self.maybe_show_tree(parse_tree, "before", print_fn)
+        self.ast = copy(parse_tree)
+        del parse_tree
         self.ast = self.traverse(self.ast)
         n = len(self.ast)
 
@@ -454,7 +513,7 @@ class TreeTransform(GenericASTTraversal, object):
             # Disambiguate a string (expression) which appears as a "call_stmt" at
             # the beginning of a function versus a docstring. Seems pretty academic,
             # but this is Python.
-            call_stmt = ast[0][0]
+            call_stmt = self.ast[0][0]
             if is_not_docstring(call_stmt):
                 call_stmt.kind = "string_at_beginning"
                 call_stmt.transformed_by = "transform"
@@ -488,7 +547,18 @@ class TreeTransform(GenericASTTraversal, object):
         except Exception:
             pass
 
+        self.maybe_show_tree(self.ast, "after", print_fn)
         return self.ast
 
     # Write template_engine
     # def template_engine
+    def strip_pseudo_ops(self, node: SyntaxTree) -> SyntaxTree:
+        new_node = SyntaxTree(node.kind)
+        for i, kid in enumerate(node):
+            if hasattr(kid, "optype") and kid.optype == "pseudo":
+                continue
+            new_kid = self.preorder(kid)
+            new_node.data.append(new_kid)
+
+        del node
+        return new_node

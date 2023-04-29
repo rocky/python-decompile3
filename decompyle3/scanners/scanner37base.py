@@ -239,6 +239,7 @@ class Scanner37Base(Scanner):
             new_tokens.append(
                 Token(
                     opname="ADD_VALUE",
+                    optype="pseudo",
                     attr=tokens[j].attr,
                     pattr=tokens[j].pattr,
                     offset=tokens[j].offset,
@@ -414,9 +415,10 @@ class Scanner37Base(Scanner):
                     j = tokens_append(
                         j,
                         Token(
-                            come_from_name,
-                            jump_offset,
-                            repr(jump_offset),
+                            opname=come_from_name,
+                            optype="pseudo",
+                            attr=jump_offset,
+                            pattr=repr(jump_offset),
                             offset="%s_%s" % (inst.offset, jump_idx),
                             has_arg=True,
                             opc=self.opc,
