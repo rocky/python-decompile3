@@ -5,7 +5,12 @@ about: Tell us about decompyle3 bugs
 ---
 
 <!-- __Note:__ If you are using this program to do something illegal - don't.
-The issue may flagged to make it easier for those looking for illegal activity.
+The issue may be flagged to make it easier for those looking for illegal activity.
+
+If you are reporting a bug in decompilation, it will probably not be acted upon
+unless it is narrowed to a small example. You may have to do some work remove
+extraneous code from the source example. Most bugs  can be expressed in 30 lines of
+code.
 
 Bugs are not for asking questions about a problem you
 are trying to solve that involve the use of decompyle3 along the way,
@@ -33,7 +38,7 @@ Funding the project was added to partially address the problem that there are
 lots of people seeking help and reporting bugs, but few people who are
 willing or capable of providing help or fixing bugs.
 
-Tasks or the kinds of things others can do but you can't do or don't
+Tasks or the kinds of things others can do, but you can't do or don't
 want to do yourself are typically the kind of thing that you pay
 someone to do, especially when you are the primary beneficiary of the
 work, or the task is complex, long, or tedious. If your code is over
@@ -50,6 +55,7 @@ Prerequisites/Caveats
 
 * Make sure the bytecode you have can be disassembled with a
   disassembler and produces valid results.
+* Try to make the bytecode that exhibits a bug as small as possible.
 * Don't put bytecode and corresponding source code on any service that
   requires registration to download.
 * When you open a bug report there is no privacy. If you need privacy, then
@@ -57,7 +63,7 @@ Prerequisites/Caveats
   But be mindful that you may be asked to sponsor the project for the
   personal and private help that you are requesting.
 * If the legitimacy of the activity is deemed suspicious, I may flag it as suspicious,
-  making the issue even easier to detect.
+  making the issue even more easy to detect.
 
 Bug reports that violate the above may be discarded.
 
