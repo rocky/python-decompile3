@@ -1,4 +1,4 @@
-#  Copyright (c) 2021-2022 Rocky Bernstein
+#  Copyright (c) 2021-2023 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -204,7 +204,7 @@ class Python38FullCustom(Python38LambdaCustom, PythonBaseParser):
     def customize_grammar_rules_full38(self, tokens, customize):
 
         self.customize_grammar_rules_lambda38(tokens, customize)
-        self.customize_reduce_checks_full38()
+        self.customize_reduce_checks_full38(tokens, customize)
         self.remove_rules_38()
 
         # include instructions that don't need customization,
@@ -513,18 +513,19 @@ class Python38FullCustom(Python38LambdaCustom, PythonBaseParser):
                     """
                     async_for          ::= GET_AITER _come_froms
                                            SETUP_FINALLY GET_ANEXT LOAD_CONST YIELD_FROM POP_BLOCK
+
                     async_for_stmt38   ::= expr async_for
                                            store for_block
                                            COME_FROM_FINALLY
                                            END_ASYNC_FOR
 
-                    # FIXME: come froms after the else_suite or END_ASYNC_FOR distinguish which of
-                    # for / forelse is used. Add come froms and check of add up control-flow detection phase.
-                    async_forelse_stmt38 ::= expr async_for
-                                             store for_block
-                                             COME_FROM_FINALLY
-                                             END_ASYNC_FOR
-                                             else_suite
+                    # FIXME: come froms after the else_suite or
+                    # END_ASYNC_FOR distinguish which of for / forelse
+                    # is used. Add come froms and check of add up
+                    # control-flow detection phase.
+                    # async_forelse_stmt38 ::= expr async_for store
+                    # for_block COME_FROM_FINALLY END_ASYNC_FOR
+                    # else_suite
 
                     async_forelse_stmt38 ::= expr async_for
                                              store for_block
@@ -743,13 +744,47 @@ class Python38FullCustom(Python38LambdaCustom, PythonBaseParser):
 
         return
 
-    def customize_reduce_checks_full38(self):
+    def customize_reduce_checks_full38(self, tokens, customize):
         """
         Extra tests when a reduction is made in the full grammar.
 
         Reductions here are extended from those used in the lambda grammar
         """
         self.remove_rules_38()
+
+        self.check_reduce["and"] = "AST"
+        self.check_reduce["and_cond"] = "AST"
+        self.check_reduce["and_not"] = "AST"
+        self.check_reduce["annotate_tuple"] = "tokens"
+        self.check_reduce["aug_assign1"] = "AST"
+        self.check_reduce["aug_assign2"] = "AST"
+        self.check_reduce["c_try_except"] = "AST"
+        self.check_reduce["c_tryelsestmt"] = "AST"
+        self.check_reduce["if_and_stmt"] = "AST"
+        self.check_reduce["if_and_elsestmtc"] = "AST"
+        self.check_reduce["if_not_stmtc"] = "AST"
+        self.check_reduce["ifelsestmt"] = "AST"
+        self.check_reduce["ifelsestmtc"] = "AST"
+        self.check_reduce["iflaststmt"] = "AST"
+        self.check_reduce["iflaststmtc"] = "AST"
+        self.check_reduce["ifstmt"] = "AST"
+        self.check_reduce["ifstmtc"] = "AST"
+        self.check_reduce["ifstmts_jump"] = "AST"
+        self.check_reduce["ifstmts_jumpc"] = "AST"
+        self.check_reduce["import_as37"] = "tokens"
+        self.check_reduce["import_from37"] = "AST"
+        self.check_reduce["import_from_as37"] = "tokens"
+        self.check_reduce["lastc_stmt"] = "tokens"
+        self.check_reduce["list_if_not"] = "AST"
+        self.check_reduce["while1elsestmt"] = "tokens"
+        self.check_reduce["while1stmt"] = "tokens"
+        self.check_reduce["whilestmt"] = "tokens"
+        self.check_reduce["not_or"] = "AST"
+        self.check_reduce["or"] = "AST"
+        self.check_reduce["or_cond"] = "tokens"
+        self.check_reduce["testtrue"] = "tokens"
+        self.check_reduce["testfalsec"] = "tokens"
+
         self.check_reduce["break"] = "tokens"
         self.check_reduce["for38"] = "tokens"
         self.check_reduce["ifstmt"] = "AST"
@@ -1261,22 +1296,3 @@ class Python38FullCustom(Python38LambdaCustom, PythonBaseParser):
             pass
 
         return
-
-    def reduce_is_invalid(self, rule, ast, tokens, first, last):
-        invalid = Python38LambdaCustom.reduce_is_invalid(
-            self, rule, ast, tokens, first, last
-        )
-        if invalid:
-            return invalid
-        lhs = rule[0]
-        if lhs in ("whileTruestmt38", "whilestmt38"):
-            jb_index = last - 1
-            while jb_index > 0 and tokens[jb_index].kind.startswith("COME_FROM"):
-                jb_index -= 1
-            t = tokens[jb_index]
-            if t.kind != "JUMP_LOOP":
-                return True
-            return t.attr != tokens[first].off2int()
-            pass
-
-        return False

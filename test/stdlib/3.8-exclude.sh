@@ -25,18 +25,17 @@ SKIP_TESTS=(
     [test_ftplib.py]=1 #
     [test_gc.py]=1 #
     [test_gzip.py]=1 #
-    [test_itertools.py]=1 # probably "while True" vs "while"
+    [test_itertools.py]=1 # Hangs on test_permutations probably "while True" vs "while"
 
     [test_builtin.py]=1 # too long to run test; works on uncompyle6 probably "while True" vs "while"
 
-    [test_contextlib_async.py]=1 # FIXME: parse error - self is not defined; works on uncompyle6?
-    [test_capi.py]=1 # works on uncompyle6 ?
+    [test_capi.py]=1 # Parse error. works on uncompyle6 ?
     [test_codeccallbacks.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6 ?
 
     [test_dataclasses.py]=1 # parses but errors and runs for more than 30 seconds; works on uncompyle6 ?
     [test_deque.py]=1 # parses and runs some, but runs for more than 30 seconds; works on uncompyle6 ?
 
-    [test_parser.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6 ?
+    [test_parser.py]=1 # parses but FAILS test_long_steadystate_queue_popright; works on uncompyle6 ?
 
     [test_fileio.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6 ?
     [test_fork1.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6 ?

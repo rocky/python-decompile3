@@ -34,7 +34,7 @@ def customize_for_version38(self, version):
     TABLE_DIRECT.update(
         {
             "async_for_stmt38": (
-                "%|async for %c in %c:\n%+%c%-%-\n\n",
+                "%|async for %c in %c:\n%+%c%-",
                 (2, "store"),
                 (0, "expr"),
                 (3, "for_block"),
@@ -47,7 +47,7 @@ def customize_for_version38(self, version):
                 (6, "else_suite"),
             ),
             "async_with_stmt38": (
-                "%|async with %c:\n%+%c%-\n",
+                "%|async with %c:\n%+%c%-",
                 (0, "expr"),
                 (7, ("c_stmts_opt", "c_stmts", "pass")),
             ),

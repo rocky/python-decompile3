@@ -1,4 +1,4 @@
-#  Copyright (c) 2020-2022 Rocky Bernstein
+#  Copyright (c) 2020-2023 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ class Python38LambdaCustom(Python38BaseParser):
         self.customized = {}
 
     def customize_grammar_rules_lambda38(self, tokens, customize):
-        Python37BaseParser.customize_grammar_rules37(self, tokens, customize)
+        Python38BaseParser.customize_grammar_rules38(self, tokens, customize)
         self.check_reduce["call_kw"] = "AST"
 
         # For a rough break out on the first word. This may

@@ -24,25 +24,25 @@ def whileTruestmt38_check(
     # for t in range(first, last): print(tokens[t])
     # print("="*40)
 
-    if tokens[last] != "COME_FROM" and tokens[last - 1] == "COME_FROM":
+    if not tokens[last].kind.startswith("COME_FROM") and tokens[
+        last - 1
+    ].kind.startswith("COME_FROM"):
         last -= 1
     if tokens[last - 1].kind.startswith("RAISE_VARARGS"):
         return True
-    while tokens[last] == "COME_FROM":
+    while tokens[last].kind.startswith("COME_FROM"):
         last -= 1
     if rule[-1][-1] == "\\e__come_froms" and rule[-1][-2] == "JUMP_LOOP":
         while tokens[last] != "JUMP_LOOP":
             last -= 1
     jump_loop = tokens[last]
     if jump_loop == "JUMP_LOOP":
-
         jump_target = jump_loop.attr
         if jump_target < tokens[first].off2int(prefer_last=False):
             return True
 
         c_stmts = tree[1]
         if c_stmts == "c_stmts":
-
             # Distinguish:
             #   while True:
             #      if expr:

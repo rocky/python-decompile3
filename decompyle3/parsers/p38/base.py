@@ -32,7 +32,7 @@ class Python38BaseParser(PythonBaseParser):
         )
 
     def customize_grammar_rules38(self, tokens, customize):
-        self.remove_rules_38()
+        self.customize_grammar_rules37(tokens, customize)
         self.check_reduce["break"] = "tokens"
         self.check_reduce["for38"] = "tokens"
         self.check_reduce["pop_return"] = "tokens"
