@@ -16,7 +16,7 @@
 """Isolate Python 3 version-specific semantic actions here.
 """
 
-from xdis import iscode, co_flags_is_async
+from xdis import co_flags_is_async, iscode
 
 from decompyle3.scanner import Code
 from decompyle3.semantics.consts import TABLE_DIRECT
@@ -57,7 +57,7 @@ def customize_for_version3(self, version):
     # "tryfinally" with statement with the "try_except" statement.
     # FIXME: something doesn't smell right, since the semantics
     # are different. See test_fileio.py for an example that shows this.
-    def tryfinallystmt(node):
+    def n_tryfinallystmt(node):
         suite_stmts = node[1][0]
         if len(suite_stmts) == 1 and suite_stmts[0] == "stmt":
             stmt = suite_stmts[0]
@@ -71,7 +71,7 @@ def customize_for_version3(self, version):
                     try_something.kind = "tf_tryelsestmt"
         self.default(node)
 
-    self.n_tryfinallystmt = tryfinallystmt
+    self.n_tryfinallystmt = n_tryfinallystmt
 
     def listcomp_closure3(node):
         """List comprehensions in Python 3 when handled as a closure.
