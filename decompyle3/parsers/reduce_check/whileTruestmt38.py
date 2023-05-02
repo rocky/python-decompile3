@@ -32,10 +32,11 @@ def whileTruestmt38_check(
         return True
     while tokens[last].kind.startswith("COME_FROM"):
         last -= 1
-    if rule[-1][-1] == "\\e__come_froms" and rule[-1][-2] == "JUMP_LOOP":
-        while tokens[last] != "JUMP_LOOP":
-            last -= 1
-    jump_loop = tokens[last]
+    if rule[-1][-1] == "\\e__come_froms":
+        jump_loop = tree[-2]
+    else:
+        # This might not be needed
+        jump_loop = tokens[last]
     if jump_loop == "JUMP_LOOP":
         jump_target = jump_loop.attr
         if jump_target < tokens[first].off2int(prefer_last=False):
