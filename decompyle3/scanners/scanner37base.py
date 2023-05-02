@@ -317,7 +317,6 @@ class Scanner37Base(Scanner):
 
         n = len(self.insts)
         for i, inst in enumerate(self.insts):
-
             # We need to detect the difference between:
             #   raise AssertionError
             #  and
@@ -342,10 +341,11 @@ class Scanner37Base(Scanner):
         # there are these EXTENDED_ARG instructions - way more than
         # before 3.6. These parsing a lot of pain.
 
+        last_continue = None
+
         # To simplify things we want to untangle this. We also
         # do this loop before we compute jump targets.
         for i, inst in enumerate(self.insts):
-
             # One artifact of the "too-small" operand problem, is that
             # some backward jumps, are turned into forward jumps to another
             # "extended arg" backward jump to the same location.
@@ -380,7 +380,6 @@ class Scanner37Base(Scanner):
 
         j = 0
         for i, inst in enumerate(self.insts):
-
             argval = inst.argval
             op = inst.opcode
 
@@ -549,9 +548,11 @@ class Scanner37Base(Scanner):
                     next_opname = self.insts[i + 1].opname
 
                     # 'Continue's include jumps to loops that are not
-                    # and the end of a block which follow with POP_BLOCK and COME_FROM_LOOP.
-                    # If the JUMP_ABSOLUTE is to a FOR_ITER and it is followed by another JUMP_FORWARD
-                    # then we'll take it as a "continue".
+                    # and the end of a block which follow with
+                    # POP_BLOCK and COME_FROM_LOOP.  If the
+                    # JUMP_ABSOLUTE is to a FOR_ITER and it is
+                    # followed by another JUMP_FORWARD then we'll take
+                    # it as a "continue".
                     next_inst = self.insts[i + 1]
                     is_continue = self.insts[
                         self.offset2inst_index[target]
@@ -593,17 +594,40 @@ class Scanner37Base(Scanner):
                                 del tokens[-1]
                                 j -= 1
                             else:
-                                # intern is used because we are changing the *previous* token.
-                                # A POP_TOP suggests a "break" rather than a "continue"?
+                                # "intern" is used because we are
+                                # changing the *previous* token.  A
+                                # POP_TOP suggests a "break" rather
+                                # than a "continue"?
                                 if tokens[-2] == "POP_TOP" and (
                                     is_continue and next_inst.argval != tokens[-1].attr
                                 ):
                                     tokens[-1].kind = sys.intern("BREAK_LOOP")
                                 else:
                                     tokens[-1].kind = sys.intern("CONTINUE")
+                                    last_continue = tokens[-1]
                                     pass
                                 pass
                             pass
+                        elif (
+                            last_continue is not None
+                            and tokens[-1].kind == "JUMP_LOOP"
+                            and last_continue.attr <= tokens[-1].attr
+                            and last_continue.offset > tokens[-1].attr
+                        ):
+                            # Handle mis-characterized "CONTINUE"
+                            # We have a situation like:
+                            # loop ... for or while)
+                            #   loop
+                            #     if ..:   # code below starts here
+                            #       break  # not continue
+                            #
+                            #   POP_JUMP_IF_FALSE_LOOP   # to outer loop
+                            #   JUMP_LOOP                # to inner loop
+                            #   ...
+                            #   JUMP_LOOP                # to outer loop
+                            tokens[-2].kind = sys.intern("BREAK_LOOP")
+                            pass
+
                     if last_op_was_break and opname == "CONTINUE":
                         last_op_was_break = False
                         continue
@@ -631,6 +655,9 @@ class Scanner37Base(Scanner):
                     has_extended_arg=inst.has_extended_arg,
                 ),
             )
+            if opname == "CONTINUE":
+                last_continue = tokens[-1]
+
             pass
 
         if show_asm in ("both", "after"):
