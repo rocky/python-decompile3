@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2022 Rocky Bernstein
+#  Copyright (c) 2017-2023 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -168,33 +168,46 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         return             ::= popb_return
         return             ::= pop_ex_return
         except_stmt        ::= pop_ex_return
+        except_stmt        ::= pop3_except_return38
+        except_stmt        ::= pop3_rot4_except_return38
+
         pop_return         ::= POP_TOP return_expr RETURN_VALUE
         popb_return        ::= return_expr POP_BLOCK RETURN_VALUE
         pop_ex_return      ::= return_expr ROT_FOUR POP_EXCEPT RETURN_VALUE
+
+        pop3_except_return38       ::= POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
+                                       CALL_FINALLY return
+        pop3_rot4_except_return38  ::= POP_TOP POP_TOP POP_TOP return_expr ROT_FOUR
+                                       POP_EXCEPT POP_BLOCK CALL_FINALLY RETURN_VALUE
 
         except_stmt        ::= except_cond1a except_suite come_from_opt
 
         get_iter           ::= expr GET_ITER
         for38              ::= expr get_iter store for_block JUMP_LOOP _come_froms
         for38              ::= expr get_for_iter store for_block JUMP_LOOP _come_froms
-        for38              ::= expr get_for_iter store for_block JUMP_LOOP _come_froms POP_BLOCK
+        for38              ::= expr get_for_iter store for_block JUMP_LOOP _come_froms
+                               POP_BLOCK
         for38              ::= expr get_for_iter store for_block _come_froms
 
         forelsestmt38      ::= expr get_for_iter store for_block POP_BLOCK else_suite
-        forelsestmt38      ::= expr get_for_iter store for_block JUMP_LOOP _come_froms else_suite
+        forelsestmt38      ::= expr get_for_iter store for_block JUMP_LOOP _come_froms
+                               else_suite
 
         c_stmt             ::= c_forelsestmt38
         c_stmt             ::= pop_tops return
         c_forelsestmt38    ::= expr get_for_iter store for_block POP_BLOCK else_suitec
-        c_forelsestmt38    ::= expr get_for_iter store for_block JUMP_LOOP _come_froms else_suitec
+        c_forelsestmt38    ::= expr get_for_iter store for_block JUMP_LOOP _come_froms
+                               else_suitec
 
         # continue is a weird one. In 3.8, CONTINUE_LOOP was removed.
         # Inside an loop we can have this, which can only appear in side a try/except
         # And it can also appear at the end of the try except.
         continue           ::= POP_EXCEPT JUMP_LOOP
 
-        forelselaststmt38    ::= expr get_for_iter store for_block else_suitec _come_froms
-        forelselaststmtc38   ::= expr get_for_iter store for_block else_suitec _come_froms
+        forelselaststmt38    ::= expr get_for_iter store for_block else_suitec
+                                 _come_froms
+        forelselaststmtc38   ::= expr get_for_iter store for_block else_suitec
+                                 _come_froms
         # forelselaststmt38  ::= expr get_for_iter store for_block POP_BLOCK else_suitec
         # forelselaststmtc38 ::= expr get_for_iter store for_block POP_BLOCK else_suitec
 
@@ -202,17 +215,20 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         except_return_value ::= POP_BLOCK return
         except_return_value ::= expr POP_BLOCK RETURN_VALUE
 
-        whilestmt38        ::= _come_froms testexpr  c_stmts_opt COME_FROM JUMP_LOOP POP_BLOCK
+        whilestmt38        ::= _come_froms testexpr  c_stmts_opt COME_FROM JUMP_LOOP
+                                POP_BLOCK
         whilestmt38        ::= _come_froms testexpr  c_stmts_opt JUMP_LOOP POP_BLOCK
         whilestmt38        ::= _come_froms testexpr  c_stmts_opt JUMP_LOOP come_froms
-        whilestmt38        ::= _come_froms testexprc c_stmts_opt come_froms JUMP_LOOP _come_froms
+        whilestmt38        ::= _come_froms testexprc c_stmts_opt come_froms JUMP_LOOP
+                               _come_froms
         whilestmt38        ::= _come_froms testexpr  returns               POP_BLOCK
         whilestmt38        ::= _come_froms testexpr  c_stmts     JUMP_LOOP _come_froms
         whilestmt38        ::= _come_froms testexpr  c_stmts     come_froms
         whilestmt38        ::= _come_froms bool_op   c_stmts     JUMP_LOOP _come_froms
 
-        # while1elsestmt   ::=          c_stmts     JUMP_LOOP
-        whileTruestmt      ::= _come_froms c_stmts              JUMP_LOOP _come_froms POP_BLOCK
+        # while1elsestmt   ::=  c_stmts JUMP_LOOP
+        whileTruestmt      ::= _come_froms c_stmts              JUMP_LOOP _come_froms
+                               POP_BLOCK
         while1stmt         ::= _come_froms c_stmts COME_FROM_LOOP
         while1stmt         ::= _come_froms c_stmts COME_FROM JUMP_LOOP COME_FROM_LOOP
         whileTruestmt38    ::= _come_froms c_stmts JUMP_LOOP _come_froms
@@ -249,6 +265,7 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
                                except_handler38
 
         c_stmt             ::= c_tryfinallystmt38
+
         c_tryfinallystmt38 ::= SETUP_FINALLY c_suite_stmts_opt
                                POP_BLOCK
                                CALL_FINALLY
@@ -348,7 +365,8 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         except_handler_as  ::= COME_FROM_FINALLY except_cond_as tryfinallystmt
                                POP_EXCEPT JUMP_FORWARD COME_FROM
 
-        except             ::= POP_TOP POP_TOP POP_TOP c_stmts_opt break POP_EXCEPT JUMP_LOOP
+        except             ::= POP_TOP POP_TOP POP_TOP c_stmts_opt break POP_EXCEPT
+                               JUMP_LOOP
 
         # In 3.8 any POP_EXCEPT comes before the "break" loop.
         # We should add a rule to check that JUMP_FORWARD is indeed a "break".
@@ -360,7 +378,8 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
                                END_FINALLY
 
         tryfinallystmt_break ::=
-                               SETUP_FINALLY suite_stmts_opt POP_BLOCK POP_EXCEPT CALL_FINALLY
+                               SETUP_FINALLY suite_stmts_opt POP_BLOCK POP_EXCEPT
+                               CALL_FINALLY
                                JUMP_FORWARD POP_BLOCK
                                BEGIN_FINALLY COME_FROM COME_FROM_FINALLY suite_stmts_opt
                                END_FINALLY
@@ -412,6 +431,12 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         tryfinally38stmt   ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
                                BEGIN_FINALLY COME_FROM_FINALLY
                                POP_FINALLY suite_stmts_opt END_FINALLY
+
+        tryfinally38stmt   ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
+                               BEGIN_FINALLY COME_FROM
+                               COME_FROM_FINALLY
+                               suite_stmts_opt END_FINALLY
+
 
         tryfinally38astmt  ::= LOAD_CONST SETUP_FINALLY suite_stmts_opt POP_BLOCK
                                BEGIN_FINALLY COME_FROM_FINALLY
