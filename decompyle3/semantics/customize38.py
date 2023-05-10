@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2022 by Rocky Bernstein
+#  Copyright (c) 2019-2023 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -26,10 +26,10 @@ from decompyle3.semantics.helper import escape_string, strip_quotes
 
 def customize_for_version38(self, version):
 
-    # FIXME: pytest doesn't add proper keys in testing. Reinstate after we have fixed pytest.
-    # for lhs in 'for forelsestmt forelselaststmt '
-    #             'forelselaststmtc tryfinally38'.split():
-    #     del TABLE_DIRECT[lhs]
+    # FIXME: pytest doesn't add proper keys in testing. Reinstate
+    # after we have fixed pytest.  for lhs in 'for forelsestmt
+    # forelselaststmt ' 'forelselaststmtc tryfinally38'.split(): del
+    # TABLE_DIRECT[lhs]
 
     TABLE_DIRECT.update(
         {
@@ -132,6 +132,12 @@ def customize_for_version38(self, version):
             "pop_return": ("%|return %c\n", (1, "return_expr")),
             "popb_return": ("%|return %c\n", (0, "return_expr")),
             "pop_ex_return": ("%|return %c\n", (0, "return_expr")),
+            "pop3_except_return38": ("%|except:\n%+%c%-", (-1, "return")),
+            "pop3_rot4_except_return38": (
+                "%|except:\n%+%c%|return %c%-",
+                (3, "except_stmts_opt"),
+                (4, "return_expr"),
+            ),
             "set_for": (
                 " for %c in %c",
                 (2, "store"),
