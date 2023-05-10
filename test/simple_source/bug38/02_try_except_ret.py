@@ -31,13 +31,25 @@ def nested_try_finally(d):
     return x
 
 
-# def nested_try_finally_with_stmt(fn, x, *args, **kwargs):
-#     try:
-#         try:
-#             x += 1
-#         except Exception:
-#             x += 2
-#             return fn(args, sn=5, **kwargs)
-#     finally:
-#         x += 2
-#     return fn(args, sn=6, **kwargs) + x
+def nested_try_finally_with_stmt1(fn, x, *args, **kwargs):
+    try:
+        try:
+            x += 1
+        except Exception:
+            x += 2
+            return fn(args, sn=5, **kwargs)
+    finally:
+        x += 2
+    return fn(args, sn=6, **kwargs) + x
+
+
+def nested_try_finally_with_stmt2(fn, x, *args, **kwargs):
+    try:
+        try:
+            x += 1
+        except:  # noqa
+            x += 2
+            return fn(args, sn=5, **kwargs)
+    finally:
+        x += 2
+    return fn(args, sn=6, **kwargs) + x
