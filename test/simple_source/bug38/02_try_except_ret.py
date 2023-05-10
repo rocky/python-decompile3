@@ -7,7 +7,7 @@ def set_reg(name, winreg):
     try:
         value = winreg(name)
         return value
-    except WindowsError:
+    except RuntimeError:
         return None
 
 
@@ -15,5 +15,29 @@ def get_reg(name, winreg):
     try:
         winreg(name)
         return True
-    except WindowsError:
+    except RuntimeError:
         return winreg
+
+
+def nested_try_finally(d):
+    try:
+
+        try:
+            x = 1
+        except:  # noqa
+            return d()
+    finally:
+        x = 2
+    return x
+
+
+# def nested_try_finally_with_stmt(fn, x, *args, **kwargs):
+#     try:
+#         try:
+#             x += 1
+#         except Exception:
+#             x += 2
+#             return fn(args, sn=5, **kwargs)
+#     finally:
+#         x += 2
+#     return fn(args, sn=6, **kwargs) + x

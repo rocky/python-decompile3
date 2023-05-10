@@ -171,13 +171,16 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         except_stmt        ::= pop3_except_return38
         except_stmt        ::= pop3_rot4_except_return38
 
+        except_stmts_opt   ::= except_stmt*
+
         pop_return         ::= POP_TOP return_expr RETURN_VALUE
         popb_return        ::= return_expr POP_BLOCK RETURN_VALUE
         pop_ex_return      ::= return_expr ROT_FOUR POP_EXCEPT RETURN_VALUE
 
         pop3_except_return38       ::= POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
                                        CALL_FINALLY return
-        pop3_rot4_except_return38  ::= POP_TOP POP_TOP POP_TOP return_expr ROT_FOUR
+        pop3_rot4_except_return38  ::= POP_TOP POP_TOP POP_TOP
+                                       except_stmts_opt return_expr ROT_FOUR
                                        POP_EXCEPT POP_BLOCK CALL_FINALLY RETURN_VALUE
 
         except_stmt        ::= except_cond1a except_suite come_from_opt
