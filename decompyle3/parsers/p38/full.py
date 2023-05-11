@@ -196,6 +196,7 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
                                        COME_FROM
 
         except_stmt        ::= except_cond1 except_suite come_from_opt
+        except_stmt        ::= except_cond2 except_ret38b
 
         get_iter           ::= expr GET_ITER
         for38              ::= expr get_iter store for_block JUMP_LOOP _come_froms
@@ -256,10 +257,6 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         except_cond1       ::= DUP_TOP expr COMPARE_OP POP_JUMP_IF_FALSE
                                POP_TOP POP_TOP POP_TOP
                                POP_EXCEPT
-
-        # except .. as var
-        except_cond_as     ::= DUP_TOP expr COMPARE_OP POP_JUMP_IF_FALSE
-                               POP_TOP STORE_FAST POP_TOP
 
         except_suite       ::= c_stmts_opt
                                POP_EXCEPT POP_TOP JUMP_FORWARD POP_EXCEPT
@@ -362,6 +359,13 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
                                expr ROT_FOUR
                                POP_EXCEPT RETURN_VALUE END_FINALLY
 
+        except_ret38b      ::= SETUP_FINALLY suite_stmts expr
+                               ROT_FOUR POP_BLOCK POP_EXCEPT
+                               CALL_FINALLY RETURN_VALUE COME_FROM
+                               COME_FROM_FINALLY
+                               suite_stmts_opt END_FINALLY
+                               POP_EXCEPT JUMP_FORWARD COME_FROM
+
         except_handler38   ::= jump COME_FROM_FINALLY
                                except_stmts
                                END_FINALLY
@@ -376,7 +380,7 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         except_handler38c  ::= COME_FROM_FINALLY except_cond1 except_stmts
                                POP_EXCEPT JUMP_FORWARD COME_FROM
 
-        except_handler_as  ::= COME_FROM_FINALLY except_cond_as tryfinallystmt
+        except_handler_as  ::= COME_FROM_FINALLY except_cond2 tryfinallystmt
                                POP_EXCEPT JUMP_FORWARD COME_FROM
 
         except             ::= POP_TOP POP_TOP POP_TOP c_stmts_opt break POP_EXCEPT
