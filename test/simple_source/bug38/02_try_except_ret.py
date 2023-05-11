@@ -53,3 +53,11 @@ def nested_try_finally_with_stmt2(fn, x, *args, **kwargs):
     finally:
         x += 2
     return fn(args, sn=6, **kwargs) + x
+
+
+def try_except_as(fn, x, *args, **kwargs):
+    try:
+        x += 1
+    except Exception as e:
+        x += 2
+        return fn(args, sn=e, **kwargs)

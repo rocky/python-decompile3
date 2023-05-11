@@ -761,9 +761,11 @@ class Python37Parser(Python37LambdaParser):
         except_suite   ::= returns
         c_except_suite ::= c_returns
 
+        # except XXX:
         except_cond1 ::= DUP_TOP expr COMPARE_OP
                          POP_JUMP_IF_FALSE POP_TOP POP_TOP POP_TOP
 
+        # except XXX as var:
         except_cond2 ::= DUP_TOP expr COMPARE_OP
                          POP_JUMP_IF_FALSE POP_TOP store POP_TOP come_from_opt
 

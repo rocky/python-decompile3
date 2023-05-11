@@ -76,11 +76,6 @@ def customize_for_version38(self, version):
                 (0, "expr"),
                 (1, "expr"),
             ),
-            "except_cond_as": (
-                "%|except %c as %c:\n",
-                (1, "expr"),
-                (-2, "STORE_FAST"),
-            ),
             "except_handler38": ("%c", (2, "except_stmts")),
             "except_handler38a": ("%c", (-2, "stmts")),
             "except_handler38c": (
@@ -90,13 +85,14 @@ def customize_for_version38(self, version):
             ),
             "except_handler_as": (
                 "%c%+\n%+%c%-",
-                (1, "except_cond_as"),
+                (1, "except_cond2"),
                 (2, "tryfinallystmt"),
             ),
             "except_ret38a": ("return %c", (4, "expr")),
             # Note: there is a suite_stmts_opt which seems
             # to be bookkeeping which is not expressed in source code
             "except_ret38": ("%|return %c\n", (1, "expr")),
+            "except_ret38b": ("%+\n%c%|return %c%-\n", (1, "_stmts"), (2, "expr")),
             "for38": (
                 "%|for %c in %c:\n%+%c%-\n\n",
                 (2, "store"),
