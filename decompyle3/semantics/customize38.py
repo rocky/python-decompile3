@@ -93,6 +93,7 @@ def customize_for_version38(self, version):
             # to be bookkeeping which is not expressed in source code
             "except_ret38": ("%|return %c\n", (1, "expr")),
             "except_ret38b": ("%+\n%c%|return %c%-\n", (1, "_stmts"), (2, "expr")),
+            "except_ret38c": ("%+\n%c%|return %c%-\n", (1, "_stmts"), (2, "expr")),
             "for38": (
                 "%|for %c in %c:\n%+%c%-\n\n",
                 (2, "store"),
@@ -203,6 +204,12 @@ def customize_for_version38(self, version):
                 "%|try:\n%+%c%-%|finally:\n%+%c%-\n\n",
                 (0, "sf_pb_call_returns"),
                 (-1, ("ss_end_finally", "suite_stmts", "_stmts")),
+            ),
+            "tryfinally38_return": (
+                "%|try:\n%+%c%-%c%c\n\n",
+                (1, "suite_stmts_opt"),
+                (5, "except_cond2"),
+                (6, "except_ret38c"),
             ),
             "tryfinally38rstmt2": (
                 "%|try:\n%+%c%-%|finally:\n%+%c%-\n\n",
