@@ -61,3 +61,15 @@ def try_except_as(fn, x, *args, **kwargs):
     except Exception as e:
         x += 2
         return fn(args, sn=e, **kwargs)
+
+
+def nested_try_finally_except_as(fn, x):
+    try:
+        try:
+            x += 1
+        except Exception as e:
+            x += 2
+            return fn(x, e)
+    finally:
+        x += 2
+    return x
