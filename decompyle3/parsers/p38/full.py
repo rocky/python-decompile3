@@ -77,6 +77,7 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         stmt               ::= try_except38r2
         stmt               ::= try_except38r3
         stmt               ::= try_except38r4
+        stmt               ::= try_except38r5
         stmt               ::= try_except_as
         stmt               ::= try_except_ret38
         stmt               ::= try_except_ret38a
@@ -331,6 +332,7 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
                                COME_FROM
 
 
+         # I think this can be combined with the r5
         try_except38r4     ::= SETUP_FINALLY
                                returns_in_except
                                COME_FROM_FINALLY
@@ -338,6 +340,31 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
                                return
                                COME_FROM
                                END_FINALLY
+
+        try_except38r5     ::= SETUP_FINALLY
+                               returns_in_except
+                               COME_FROM_FINALLY
+                               except_cond1
+                               except_ret38d
+                               COME_FROM
+                               END_FINALLY
+
+        try_except38r5     ::= SETUP_FINALLY
+                               returns_in_except
+                               COME_FROM_FINALLY
+                               except_cond1
+                               except_suite
+                               COME_FROM
+                               END_FINALLY
+                               COME_FROM
+
+        try_except38r5     ::= SETUP_FINALLY
+                               returns_in_except
+                               COME_FROM_FINALLY
+                               except_cond2
+                               except_ret38b
+                               END_FINALLY COME_FROM
+
 
 
         try_except_as      ::= SETUP_FINALLY POP_BLOCK suite_stmts
@@ -375,6 +402,11 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
                                expr STORE_FAST DELETE_FAST END_FINALLY
                                POP_EXCEPT JUMP_FORWARD COME_FROM
                                END_FINALLY come_any_froms
+
+        except_ret38d      ::= suite_stmts_opt
+                               expr ROT_FOUR
+                               POP_EXCEPT RETURN_VALUE
+
 
         except_handler38   ::= jump COME_FROM_FINALLY
                                except_stmts

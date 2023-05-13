@@ -19,6 +19,15 @@ def get_reg(name, winreg):
         return winreg
 
 
+def get_reg_except_stmts(name, winreg):
+    try:
+        winreg(name)
+        return True
+    except RuntimeError:
+        winreg = 5
+        return winreg
+
+
 def nested_try_finally(d):
     try:
 
@@ -73,3 +82,20 @@ def nested_try_finally_except_as(fn, x):
     finally:
         x += 2
     return x
+
+
+def try_except_return_in_try(name, winreg):
+    try:
+        winreg(name)
+        return True
+    except RuntimeError:
+        winreg = 5
+
+
+def try_except_as_return_in_try(name, winreg):
+    try:
+        winreg(name)
+        return True
+    except RuntimeError as e:
+        x = 5
+        return winreg(e, x)
