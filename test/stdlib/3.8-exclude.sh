@@ -50,7 +50,6 @@ SKIP_TESTS=(
     [test_venv.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6
     [test_zipimport.py]=1 # test failures; works on uncompyle6
 
-    [test_pathlib.py]=1 # FIXME: parse error works in c28a3d1c
     [test_profile.py]=1 # FIXME: parse error works in c28a3d1c
     [test_shelve.py]=1 # FIXME: parse error works in c28a3d1c
     [test_type_comments.py]=1 # FIXME: parse error works in c28a3d1c
@@ -152,8 +151,7 @@ SKIP_TESTS=(
     [test_nntplib.py]=1 # takes too long to run before decompilation: 25 seconds
 
     [test_opcodes.py]=1 # test check failure
-    [test_optparse.py]=1 # parse error
-    [test_ordered_dict.py]=1 # parse error
+    [test_optparse.py]=1 # takes too long to run
 
     # Test assertion failure due to boolean evaluation of:
     # @unittest.skipUnless(os.isatty(0) and (sys.platform.startswith('win') or
