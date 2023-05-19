@@ -203,13 +203,18 @@ def customize_for_version38(self, version):
             ),
             "try_except_ret38": (
                 "%|try:\n%+%c%-\n%|except:\n%+%|%c%-\n\n",
-                (1, "returns"),
-                (2, "except_ret38a"),
+                (1, ("returns",)),
+                (2, ("except_ret38a",)),
             ),
             "try_except_ret38a": (
                 "%|try:\n%+%c%-%c\n\n",
                 (1, "returns"),
                 (2, "except_handler38c"),
+            ),
+            "try_except_ret38b": (
+                "%|try:\n%+%c%-\n%|except:\n%c\n\n",
+                (1, ("returns_in_except",)),
+                (2, ("except_handler38d")),
             ),
             "tryfinally38rstmt": (
                 "%|try:\n%+%c%-%|finally:\n%+%c%-\n\n",

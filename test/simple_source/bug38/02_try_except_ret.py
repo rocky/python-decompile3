@@ -99,3 +99,12 @@ def try_except_as_return_in_try(name, winreg):
     except RuntimeError as e:
         x = 5
         return winreg(e, x)
+
+
+def try_return_except_return(name, winreg):
+    try:
+        winreg(name)
+        return True
+    except:  # noqa
+        winreg = 5
+        return winreg

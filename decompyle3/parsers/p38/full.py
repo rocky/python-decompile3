@@ -81,6 +81,7 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         stmt               ::= try_except_as
         stmt               ::= try_except_ret38
         stmt               ::= try_except_ret38a
+        stmt               ::= try_except_ret38b
         stmt               ::= tryfinallystmt_break
         stmt               ::= tryfinally38astmt
         stmt               ::= tryfinally38rstmt
@@ -377,6 +378,10 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         try_except_ret38a  ::= SETUP_FINALLY returns except_handler38c
                                END_FINALLY come_from_opt
 
+        try_except_ret38b  ::= SETUP_FINALLY returns_in_except except_handler38d
+                               END_FINALLY
+
+
         # Note: there is a suite_stmts_opt which seems
         # to be bookkeeping which is not expressed in source code
         except_ret38       ::= SETUP_FINALLY expr ROT_FOUR POP_BLOCK POP_EXCEPT
@@ -421,6 +426,8 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
                                COME_FROM
         except_handler38c  ::= COME_FROM_FINALLY except_cond1 except_stmts
                                POP_EXCEPT JUMP_FORWARD COME_FROM
+        except_handler38d  ::= COME_FROM_FINALLY POP_TOP POP_TOP POP_TOP
+                               except_ret38d
 
         except_handler_as  ::= COME_FROM_FINALLY except_cond2 tryfinallystmt
                                POP_EXCEPT JUMP_FORWARD COME_FROM
