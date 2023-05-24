@@ -3,29 +3,29 @@
 # The return value may appear on either side of a POP_BLOCK and
 # the try_except will be missing not have specific COME_FROMs since
 # there are returns
-def set_reg(name, winreg):
+def set_reg(name, f):
     try:
-        value = winreg(name)
+        value = f(name)
         return value
     except RuntimeError:
         return None
 
 
-def get_reg(name, winreg):
+def get_reg(name, f):
     try:
-        winreg(name)
+        f(name)
         return True
     except RuntimeError:
-        return winreg
+        return f
 
 
-def get_reg_except_stmts(name, winreg):
+def get_reg_except_stmts(name, f):
     try:
-        winreg(name)
+        f(name)
         return True
     except RuntimeError:
-        winreg = 5
-        return winreg
+        f = 5
+        return f
 
 
 def nested_try_finally(d):
@@ -84,27 +84,35 @@ def nested_try_finally_except_as(fn, x):
     return x
 
 
-def try_except_return_in_try(name, winreg):
+def try_except_return_in_try(f):
     try:
-        winreg(name)
+        f()
         return True
     except RuntimeError:
-        winreg = 5
+        f = 5
 
 
-def try_except_as_return_in_try(name, winreg):
+def try_except_as_return_in_try(f):
     try:
-        winreg(name)
+        f()
         return True
     except RuntimeError as e:
         x = 5
-        return winreg(e, x)
+        return f(e, x)
 
 
-def try_return_except_return(name, winreg):
+def try_return_except_return(f):
     try:
-        winreg(name)
+        f()
         return True
     except:  # noqa
-        winreg = 5
-        return winreg
+        f = 5
+        return f
+
+
+def try_return_except_return_with_expr(f):
+    try:
+        f()
+    except:  # noqa
+        f()
+        return

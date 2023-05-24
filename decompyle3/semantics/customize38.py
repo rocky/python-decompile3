@@ -130,6 +130,7 @@ def customize_for_version38(self, version):
             "pop_return": ("%|return %c\n", (1, "return_expr")),
             "popb_return": ("%|return %c\n", (0, "return_expr")),
             "pop_ex_return": ("%|return %c\n", (0, "return_expr")),
+            "pop_ex_return2": ("%|return %c\n", (1, "expr")),
             "pop3_except_return38": ("%|except:\n%+%c%-", (-1, "return")),
             "pop3_rot4_except_return38": (
                 "%|except:\n%+%c%|return %c%-",
@@ -141,6 +142,11 @@ def customize_for_version38(self, version):
                 (0, "except_cond1"),
                 (1, "except_stmts_opt"),
                 (2, "return_expr"),
+            ),
+            "except_with_return38": (
+                "%|except:\n%+%c\n%c%-",
+                -2,
+                (-1, "pop_ex_return2"),
             ),
             "set_for": (
                 " for %c in %c",

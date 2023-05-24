@@ -179,7 +179,12 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
 
         pop_return         ::= POP_TOP return_expr RETURN_VALUE
         popb_return        ::= return_expr POP_BLOCK RETURN_VALUE
+
+        # Return from exception where value is on stack
         pop_ex_return      ::= return_expr ROT_FOUR POP_EXCEPT RETURN_VALUE
+
+        # Return from exception where value is no on stack but is computed
+        pop_ex_return2      ::= POP_EXCEPT expr RETURN_VALUE
 
 
         # The below are 3.8 "except:" (no except condition)
@@ -433,7 +438,12 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
                                POP_EXCEPT JUMP_FORWARD COME_FROM
 
         except             ::= POP_TOP POP_TOP POP_TOP c_stmts_opt break POP_EXCEPT
-                               JUMP_LOOP
+                               POP_EXCEPT
+
+        except_with_return38 ::= POP_TOP POP_TOP POP_TOP stmts pop_ex_return2
+
+        except_stmt         ::= except_with_return38
+
 
         # In 3.8 any POP_EXCEPT comes before the "break" loop.
         # We should add a rule to check that JUMP_FORWARD is indeed a "break".
