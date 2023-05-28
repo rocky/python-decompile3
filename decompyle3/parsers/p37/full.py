@@ -309,11 +309,15 @@ class Python37Parser(Python37LambdaParser):
 
         # FIXME: Python 3.? starts adding branch optimization? Put this starting there.
 
-        while1stmt ::= setup_loop c_stmts COME_FROM JUMP_LOOP COME_FROM_LOOP
-        while1stmt ::= setup_loop c_stmts COME_FROM JUMP_LOOP POP_BLOCK COME_FROM_LOOP
+        while1stmt ::= setup_loop c_stmts _come_froms JUMP_LOOP
+                       COME_FROM_LOOP
+        while1stmt ::= setup_loop c_stmts _come_froms JUMP_LOOP POP_BLOCK
+                       COME_FROM_LOOP
         while1stmt ::= setup_loop c_stmts COME_FROM_LOOP
-        while1stmt ::= setup_loop c_stmts COME_FROM_LOOP JUMP_LOOP POP_BLOCK COME_FROM_LOOP
-        while1stmt ::= setup_loop c_stmts POP_BLOCK COME_FROM_LOOP
+        while1stmt ::= setup_loop c_stmts COME_FROM_LOOP JUMP_LOOP POP_BLOCK
+                       COME_FROM_LOOP
+        while1stmt ::= setup_loop c_stmts POP_BLOCK
+                       COME_FROM_LOOP
 
         whileTruestmt ::= SETUP_LOOP c_stmts_opt JUMP_LOOP COME_FROM_LOOP
         whileTruestmt ::= setup_loop c_stmts_opt JUMP_LOOP POP_BLOCK _come_froms
