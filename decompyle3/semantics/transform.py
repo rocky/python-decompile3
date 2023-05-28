@@ -348,7 +348,7 @@ class TreeTransform(GenericASTTraversal, object):
             n = n[0]
 
         len_n = len(n)
-        if len_n == 1 == len(n[0]) and n[0] in ("stmt", "stmts"):
+        if len_n == 1 == len(n[0]) and n[0] in ("c_stmt", "stmt", "stmts"):
             n = n[0][0]
         elif len_n == 0:
             return node
@@ -368,15 +368,15 @@ class TreeTransform(GenericASTTraversal, object):
                 pass
             pass
         else:
-            while n[0].kind in ("_stmts", "stmts"):
+            while n[0].kind in ("_stmts", "c_stmts", "stmts"):
                 n = n[0]
             len_n = len(n)
             if (
                 len_n > 1
                 and isinstance(n[0], SyntaxTree)
                 and 1 == len(n[0])
-                and n[0] == "stmt"
-                and n[1].kind == "stmt"
+                and n[0] in ("c_stmt", "stmt")
+                and n[1].kind in ("c_stmt", "stmt")
             ):
                 else_suite_stmts = n[0]
             elif len_n == 1:
@@ -389,6 +389,7 @@ class TreeTransform(GenericASTTraversal, object):
                 "iflaststmt",
                 "ifelsestmt",
                 "ifelsestmtl",
+                "ifelsestmtc",
             ):
                 old_stmts = n
                 n = else_suite_stmts[0]
