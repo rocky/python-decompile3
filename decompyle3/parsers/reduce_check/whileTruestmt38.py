@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 Rocky Bernstein
+#  Copyright (c) 2022-2023 Rocky Bernstein
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation, either version 3 of the License, or
@@ -28,8 +28,6 @@ def whileTruestmt38_check(
         last - 1
     ].kind.startswith("COME_FROM"):
         last -= 1
-    if tokens[last - 1].kind.startswith("RAISE_VARARGS"):
-        return True
     while tokens[last].kind.startswith("COME_FROM"):
         last -= 1
     if rule[-1][-1] == "\\e__come_froms":
