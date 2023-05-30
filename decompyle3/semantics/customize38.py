@@ -57,6 +57,7 @@ def customize_for_version38(self, version):
                 (6, "store", PRECEDENCE["unpack"] - 1),
                 (7, "suite_stmts"),
             ),
+            "break_except": ("%|break\n",),
             "c_forelsestmt38": (
                 "%|for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n",
                 (2, "store"),
@@ -99,6 +100,7 @@ def customize_for_version38(self, version):
                 (0, "suite_stmts_opt"),
                 (1, "expr"),
             ),
+            "except_with_break": ("%|except:\n%+%c\n%-", (3, "break_except")),
             "for38": (
                 "%|for %c in %c:\n%+%c%-\n\n",
                 (2, "store"),
