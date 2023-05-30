@@ -287,6 +287,7 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
                                except_handler38
 
         c_stmt             ::= c_tryfinallystmt38
+        c_stmt             ::= c_tryfinallybstmt38
 
         c_tryfinallystmt38 ::= SETUP_FINALLY c_suite_stmts_opt
                                POP_BLOCK
@@ -295,6 +296,22 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
                                POP_EXCEPT
                                CALL_FINALLY
                                JUMP_FORWARD
+                               POP_BLOCK BEGIN_FINALLY
+                               COME_FROM
+                               COME_FROM_FINALLY
+                               c_suite_stmts_opt END_FINALLY
+
+        # try:
+        #    ..
+        #    break
+        # finally:
+        c_tryfinallybstmt38 ::= SETUP_FINALLY c_suite_stmts_opt
+                               POP_BLOCK
+                               CALL_FINALLY
+                               POP_BLOCK
+                               POP_EXCEPT
+                               CALL_FINALLY
+                               BREAK_LOOP
                                POP_BLOCK BEGIN_FINALLY
                                COME_FROM
                                COME_FROM_FINALLY

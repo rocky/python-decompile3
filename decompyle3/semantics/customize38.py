@@ -70,6 +70,11 @@ def customize_for_version38(self, version):
                 (1, "c_suite_stmts_opt"),
                 (-2, "c_suite_stmts_opt"),
             ),
+            "c_tryfinallybstmt38": (
+                "%|try:\n%+%c\n%|break\n%-%|finally:\n%+%c%-\n\n",
+                (1, "c_suite_stmts_opt"),
+                (-2, "c_suite_stmts_opt"),
+            ),
             # Python 3.8 reverses the order of keys and items
             # from all prior versions of Python.
             "dict_comp_body": (
