@@ -173,6 +173,7 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         return             ::= popb_return
         return             ::= pop_ex_return
         except_stmt        ::= except_with_break
+        except_stmt        ::= except_with_break2
         except_stmt        ::= pop_ex_return
         except_stmt        ::= pop3_except_return38
         except_stmt        ::= pop3_rot4_except_return38
@@ -458,7 +459,11 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         except             ::= POP_TOP POP_TOP POP_TOP c_stmts_opt break
                                POP_EXCEPT JUMP_LOOP
 
-        except_with_break  ::= POP_TOP POP_TOP POP_TOP break_except
+        except_with_break  ::= POP_TOP POP_TOP POP_TOP c_stmts break_except
+                               POP_EXCEPT JUMP_LOOP
+
+        # Just except: break, no statements
+        except_with_break2 ::= POP_TOP POP_TOP POP_TOP break_except
                                POP_EXCEPT JUMP_LOOP
 
         except_with_return38 ::= POP_TOP POP_TOP POP_TOP stmts pop_ex_return2
