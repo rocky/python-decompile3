@@ -101,6 +101,9 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         break ::= POP_EXCEPT BREAK_LOOP
         break ::= POP_TOP CONTINUE JUMP_LOOP
 
+        # An except with nothing other than a single break
+        break_except ::= POP_EXCEPT POP_TOP BREAK_LOOP
+
         # FIXME: this should be restricted to being inside a try block
         stmt               ::= except_ret38
         stmt               ::= except_ret38a
@@ -169,6 +172,7 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         return             ::= pop_return
         return             ::= popb_return
         return             ::= pop_ex_return
+        except_stmt        ::= except_with_break
         except_stmt        ::= pop_ex_return
         except_stmt        ::= pop3_except_return38
         except_stmt        ::= pop3_rot4_except_return38
@@ -283,6 +287,7 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
                                except_handler38
 
         c_stmt             ::= c_tryfinallystmt38
+        c_stmt             ::= c_tryfinallybstmt38
 
         c_tryfinallystmt38 ::= SETUP_FINALLY c_suite_stmts_opt
                                POP_BLOCK
@@ -291,6 +296,22 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
                                POP_EXCEPT
                                CALL_FINALLY
                                JUMP_FORWARD
+                               POP_BLOCK BEGIN_FINALLY
+                               COME_FROM
+                               COME_FROM_FINALLY
+                               c_suite_stmts_opt END_FINALLY
+
+        # try:
+        #    ..
+        #    break
+        # finally:
+        c_tryfinallybstmt38 ::= SETUP_FINALLY c_suite_stmts_opt
+                               POP_BLOCK
+                               CALL_FINALLY
+                               POP_BLOCK
+                               POP_EXCEPT
+                               CALL_FINALLY
+                               BREAK_LOOP
                                POP_BLOCK BEGIN_FINALLY
                                COME_FROM
                                COME_FROM_FINALLY
@@ -430,12 +451,15 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         except_handler_as  ::= COME_FROM_FINALLY except_cond2 tryfinallystmt
                                POP_EXCEPT JUMP_FORWARD COME_FROM
 
-        except             ::= POP_TOP POP_TOP POP_TOP c_stmts_opt break POP_EXCEPT
+        except             ::= POP_TOP POP_TOP POP_TOP c_stmts_opt break
                                POP_EXCEPT
 
         # Except of a try inside a loop
-        except             ::= POP_TOP POP_TOP POP_TOP c_stmts_opt break POP_EXCEPT
-                               JUMP_LOOP
+        except             ::= POP_TOP POP_TOP POP_TOP c_stmts_opt break
+                               POP_EXCEPT JUMP_LOOP
+
+        except_with_break  ::= POP_TOP POP_TOP POP_TOP break_except
+                               POP_EXCEPT JUMP_LOOP
 
         except_with_return38 ::= POP_TOP POP_TOP POP_TOP stmts pop_ex_return2
 

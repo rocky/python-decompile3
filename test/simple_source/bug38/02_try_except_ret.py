@@ -99,3 +99,11 @@ def try_except_as_return_in_try(name, winreg):
     except RuntimeError as e:
         x = 5
         return winreg(e, x)
+
+
+def try_except_break(f):
+    for i in [0]:
+        try:
+            f(i)
+        except:  # noqa
+            break

@@ -24,12 +24,12 @@ scanner routine for Python 3.7 and up.
 
 from typing import Dict, List, Tuple
 
-from decompyle3.scanners.tok import off2int
-from decompyle3.scanners.scanner37 import Scanner37
-from decompyle3.scanners.scanner37base import Scanner37Base
-
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_38 as opc
+
+from decompyle3.scanners.scanner37 import Scanner37
+from decompyle3.scanners.scanner37base import Scanner37Base
+from decompyle3.scanners.tok import off2int
 
 # bytecode verification, verify(), uses JUMP_OPS from here
 JUMP_OPs = opc.JUMP_OPS
@@ -107,7 +107,8 @@ class Scanner38(Scanner37):
                 next_end = off2int(jump_back_targets[offset], prefer_last=False)
                 if self.debug:
                     print(
-                        f"{'  ' * len(loop_ends)}adding loop offset {offset} ending at {next_end}"
+                        f"{'  ' * len(loop_ends)}adding loop offset {offset} ending "
+                        "at {next_end}"
                     )
                 loop_ends.append(next_end)
 
@@ -115,50 +116,55 @@ class Scanner38(Scanner37):
             # FIXME!!!!: this should be replaced by proper control flow.
             if opname in ("JUMP_FORWARD", "JUMP_ABSOLUTE") and len(loop_ends):
                 jump_target = token.attr
-
-                if opname == "JUMP_ABSOLUTE" and jump_target <= next_end:
-                    # Not a forward-enough jump to break out of the next loop, so continue.
-                    # FIXME: Do we need "continue" detection?
-                    new_tokens.append(token)
-                    continue
-
-                # We also want to avoid confusing BREAK_LOOPS with parts of the
-                # grammar rules for loops. (Perhaps we should change the grammar.)
-                # Try to find an adjacent JUMP_LOOP which is part of the normal loop end.
-                jump_back_index = self.offset2inst_index[
-                    off2int(offset, prefer_last=False)
-                ]
-
-                if (
-                    jump_back_index + 1 < len(self.insts)
-                    and self.insts[jump_back_index + 1].opname == "JUMP_LOOP"
-                ):
-                    # Sometimes the jump back is after the "break" instruction..
-                    jump_back_index += 1
-                else:
-                    # and sometimes, because of jump-to-jump optimization, it is before the
-                    # jump target instruction.
-                    jump_back_index -= 1
-                    pass
-
-                jump_back_inst = self.insts[jump_back_index]
-
-                # Is this a forward jump not next to a JUMP_LOOP ? ...
-                # COMPARE_OPs isn't at the start of any statement.
-                # Again, remove this when we start to use control-flow information
-                break_loop = (
-                    jump_back_inst.starts_line
-                    and jump_back_inst.opname
-                    not in ("JUMP_LOOP", "COMPARE_OP", "POP_EXCEPT")
-                )
-
-                # or if there is looping jump back, then that loop
-                # should start before where the "break" instruction sits.
-                if break_loop or (
-                    jump_back_inst.opname == "JUMP_LOOP"
-                    and jump_back_inst.argval < token.off2int()
-                ):
+                if jump_target > loop_ends[-1]:
                     token.kind = "BREAK_LOOP"
+
+                else:
+                    if opname == "JUMP_ABSOLUTE" and jump_target <= next_end:
+                        # Not a forward-enough jump to break out of the
+                        # next loop, so continue.  FIXME: Do we need
+                        # "continue" detection?
+                        new_tokens.append(token)
+                        continue
+
+                    # We also want to avoid confusing BREAK_LOOPS with parts of the
+                    # grammar rules for loops. (Perhaps we should change the grammar.)
+                    # Try to find an adjacent JUMP_LOOP which is part of the normal loop end.
+                    jump_back_index = self.offset2inst_index[
+                        off2int(offset, prefer_last=False)
+                    ]
+
+                    if (
+                        jump_back_index + 1 < len(self.insts)
+                        and self.insts[jump_back_index + 1].opname == "JUMP_LOOP"
+                    ):
+                        # Sometimes the jump back is after the "break" instruction..
+                        jump_back_index += 1
+                    else:
+                        # and sometimes, because of jump-to-jump optimization, it is before the
+                        # jump target instruction.
+                        jump_back_index -= 1
+                        pass
+
+                    jump_back_inst = self.insts[jump_back_index]
+
+                    # Is this a forward jump not next to a JUMP_LOOP ? ...
+                    # COMPARE_OPs isn't at the start of any statement.
+                    # Again, remove this when we start to use control-flow information
+                    break_loop = (
+                        jump_back_inst.starts_line
+                        and jump_back_inst.opname
+                        not in ("JUMP_LOOP", "COMPARE_OP", "POP_EXCEPT")
+                    )
+
+                    # or if there is looping jump back, then that loop
+                    # should start before where the "break" instruction sits.
+                    if break_loop or (
+                        jump_back_inst.opname == "JUMP_LOOP"
+                        and jump_back_inst.argval < token.off2int()
+                    ):
+                        token.kind = "BREAK_LOOP"
+                    pass
                 pass
             new_tokens.append(token)
         return new_tokens, customize
