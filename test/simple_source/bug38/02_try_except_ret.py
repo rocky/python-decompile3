@@ -107,3 +107,12 @@ def try_except_break(f):
             f(i)
         except:  # noqa
             break
+
+
+def try_except_break2(f):
+    for i in [0]:
+        try:
+            f(i)
+        except:  # noqa
+            f(i)
+            break

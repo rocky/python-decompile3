@@ -25,8 +25,8 @@ SKIP_TESTS=(
     [test_ftplib.py]=1 #
     [test_gc.py]=1 # Syntax error: cannot assign to operator: detector.gc_happened or i += 1
     [test_gzip.py]=1 #
-    [test_iter.py]=1 # Syntax error staritng with 8131525;  2e35252 compiles but is semantically wrong
-    [test_itertools.py]=1 # Syntax error staritng with 8131525;  2e35252 compiles but is semantically wrong
+    [test_iter.py]=1 # Syntax error starting with 8131525;  2e35252 compiles but is semantically wrong
+    [test_itertools.py]=1 # Syntax error starting with 8131525;  2e35252 compiles but is semantically wrong
 
     [test_builtin.py]=1 # too long to run test; works on uncompyle6 probably "while True" vs "while"
 

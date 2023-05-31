@@ -105,7 +105,12 @@ def customize_for_version38(self, version):
                 (0, "suite_stmts_opt"),
                 (1, "expr"),
             ),
-            "except_with_break": ("%|except:\n%+%c\n%-", (3, "break_except")),
+            "except_with_break": (
+                "%|except:\n%+%c\n%c\n%-",
+                (3, "c_stmts"),
+                (4, "break_except"),
+            ),
+            "except_with_break2": ("%|except:\n%+%c\n%-", (3, "break_except")),
             "for38": (
                 "%|for %c in %c:\n%+%c%-\n\n",
                 (2, "store"),
