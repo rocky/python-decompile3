@@ -105,6 +105,7 @@ def customize_for_version38(self, version):
                 (0, "suite_stmts_opt"),
                 (1, "expr"),
             ),
+            "except_return38": ("%c", (-1, "return")),
             "except_with_break": (
                 "%|except:\n%+%c\n%c\n%-",
                 (3, "c_stmts"),
@@ -239,6 +240,12 @@ def customize_for_version38(self, version):
                 (1, "suite_stmts_opt"),
                 (5, "except_cond2"),
                 (6, "except_ret38c"),
+            ),
+            "tryfinally38a_return": (
+                "%|try:\n%+%c%c%-%|finally:\n%+%c%-\n\n",
+                (2, "suite_stmts_opt"),
+                (3, "except_return38"),
+                (8, "return"),
             ),
             "tryfinally38rstmt2": (
                 "%|try:\n%+%c%-%|finally:\n%+%c%-\n\n",

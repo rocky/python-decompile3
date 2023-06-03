@@ -89,6 +89,8 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         stmt               ::= tryfinally38rstmt4
         stmt               ::= tryfinally38stmt
         stmt               ::= tryfinally38_return
+        stmt               ::= tryfinally38a_return
+        stmt               ::= tryfinally38rstmt2
         stmt               ::= whileTruestmt38
         stmt               ::= whilestmt38
 
@@ -195,6 +197,9 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
 
         pop3_except_return38       ::= POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_BLOCK
                                        CALL_FINALLY return
+
+        except_return38            ::= POP_BLOCK
+                                       CALL_FINALLY POP_TOP return
 
         pop3_rot4_except_return38  ::= POP_TOP POP_TOP POP_TOP
                                        except_stmts_opt return_expr ROT_FOUR
@@ -541,10 +546,15 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
                                suite_stmts_opt END_FINALLY
 
         # try: .. finally: ending with return ...
-        tryfinally38_return ::=  SETUP_FINALLY suite_stmts_opt POP_BLOCK
+        tryfinally38_return ::= SETUP_FINALLY suite_stmts_opt POP_BLOCK
                                JUMP_FORWARD
                                COME_FROM_FINALLY except_cond2 except_ret38c
 
+
+        tryfinally38a_return ::= LOAD_CONST SETUP_FINALLY suite_stmts_opt except_return38
+                                 COME_FROM COME_FROM_FINALLY
+                                 suite_stmts_opt pop_finally_pt return
+                                 END_FINALLY POP_TOP
 
 
         tryfinally38astmt  ::= LOAD_CONST SETUP_FINALLY suite_stmts_opt POP_BLOCK

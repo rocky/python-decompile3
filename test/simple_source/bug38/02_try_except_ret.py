@@ -101,7 +101,7 @@ def try_except_as_return_in_try(name, winreg):
         return winreg(e, x)
 
 
-def try_except_break(f):
+def loop_try_except_break(f):
     for i in [0]:
         try:
             f(i)
@@ -109,10 +109,18 @@ def try_except_break(f):
             break
 
 
-def try_except_break2(f):
+def loop_try_except_break2(f):
     for i in [0]:
         try:
             f(i)
         except:  # noqa
             f(i)
             break
+
+
+def try_finally_return_twice(f):
+    try:
+        f()
+        return True
+    finally:
+        return 5
