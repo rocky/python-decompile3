@@ -78,6 +78,7 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         stmt               ::= try_except38r3
         stmt               ::= try_except38r4
         stmt               ::= try_except38r5
+        stmt               ::= try_except38r6
         stmt               ::= try_except_as
         stmt               ::= try_except_ret38
         stmt               ::= try_except_ret38a
@@ -245,8 +246,11 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         # forelselaststmtc38 ::= expr get_for_iter store for_block POP_BLOCK else_suitec
 
         returns_in_except   ::= _stmts except_return_value
+        returns_in_except2   ::= _stmts except_return_value2
+
         except_return_value ::= POP_BLOCK return
         except_return_value ::= expr POP_BLOCK RETURN_VALUE
+        except_return_value2 ::= POP_BLOCK return
 
         whilestmt38        ::= _come_froms testexpr  c_stmts_opt COME_FROM JUMP_LOOP
                                 POP_BLOCK
@@ -397,6 +401,13 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
                                except_ret38b
                                END_FINALLY COME_FROM
 
+        try_except38r6     ::= SETUP_FINALLY
+                               returns_in_except2
+                               COME_FROM_FINALLY
+                               POP_TOP POP_TOP POP_TOP
+                               except_ret38d
+                               END_FINALLY
+
 
 
         try_except_as      ::= SETUP_FINALLY POP_BLOCK suite_stmts
@@ -438,7 +449,6 @@ class Python38Parser(Python38LambdaParser, Python38FullCustom, Python37Parser):
         except_ret38d      ::= suite_stmts_opt
                                expr ROT_FOUR
                                POP_EXCEPT RETURN_VALUE
-
 
         except_handler38   ::= jump COME_FROM_FINALLY
                                except_stmts
