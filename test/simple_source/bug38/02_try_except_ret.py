@@ -124,3 +124,12 @@ def try_finally_return_twice(f):
         return True
     finally:
         return 5
+
+
+def try_finally_return_twice2(f):
+    try:
+        f()
+        return True
+    except:  # noqa
+        winreg = 5
+        return winreg
