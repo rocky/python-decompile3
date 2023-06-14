@@ -11,7 +11,7 @@ repos:
       stages: [commit]
     - id: trailing-whitespace
 -   repo: https://github.com/pycqa/isort
-    rev: 5.10.1
+    rev: 5.11.5
     hooks:
       - id: isort
         stages: [commit]
@@ -23,7 +23,7 @@ repos:
       stages: [commit]
       additional_dependencies: ["click"]
 -   repo: https://github.com/pycqa/flake8
-    rev: 3.9.2
+    rev: 5.0.4
     hooks:
       - id: flake8
         stages: [commit]

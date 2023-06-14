@@ -133,3 +133,13 @@ def try_finally_return_twice2(f):
     except:  # noqa
         winreg = 5
         return winreg
+
+
+def nested_try_return(f):
+    try:
+        try:
+            f()
+        except:  # noqa
+            return f()
+    finally:
+        return f()

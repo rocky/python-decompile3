@@ -222,6 +222,11 @@ def customize_for_version38(self, version):
                 (1, "returns_in_except2"),
                 (6, "except_ret38d"),
             ),
+            "try_except38r7": (
+                "%|try:\n%+%c\n%-\n%|except:\n%+%|return %c%-\n\n",
+                (1, "suite_stmts_opt"),
+                (8, "return_expr"),
+            ),
             "try_except_as": (
                 "%|try:\n%+%c%-\n%|%-%c\n\n",
                 (
@@ -272,6 +277,11 @@ def customize_for_version38(self, version):
                 "%|try:\n%+%c%-\n%|finally:\n%+%c%-\n\n",
                 (1, "suite_stmts_opt"),
                 (5, "suite_stmts_return"),
+            ),
+            "tryfinally38rstmt5": (
+                "%|try:\n%+%c%-\n%|finally:\n%+%|return %c%-\n\n",
+                (1, "try_except38r7"),
+                (2, "expr"),
             ),
             "tryfinally38stmt": (
                 "%|try:\n%+%c%-%|finally:\n%+%c%-\n\n",
