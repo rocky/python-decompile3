@@ -16,9 +16,11 @@
 Custom Nonterminal action functions. See NonterminalActions docstring.
 """
 
-from xdis import iscode
 from spark_parser.ast import GenericASTTraversalPruningException
+from xdis import iscode
 
+from decompyle3.parsers.treenode import SyntaxTree
+from decompyle3.scanners.tok import Token
 from decompyle3.semantics.consts import (
     INDENT_PER_LEVEL,
     NO_PARENTHESIS_EVER,
@@ -27,9 +29,6 @@ from decompyle3.semantics.consts import (
     PRECEDENCE,
     minint,
 )
-
-from decompyle3.parsers.treenode import SyntaxTree
-from decompyle3.scanners.tok import Token
 from decompyle3.semantics.helper import flatten_list
 from decompyle3.semantics.make_function36 import make_function36
 from decompyle3.util import better_repr
@@ -46,7 +45,7 @@ class NonterminalActions:
     node is the subtree of the parse tree the that nonterminal name as the root.
     """
 
-    def n_alias(self, node):
+    def n_alias(self, node: SyntaxTree):
         if self.version <= (2, 1):
             if len(node) == 2:
                 store = node[1]
@@ -71,7 +70,7 @@ class NonterminalActions:
 
     n_alias37 = n_alias
 
-    def n_assign(self, node):
+    def n_assign(self, node: SyntaxTree):
         # A horrible hack for Python 3.0 .. 3.2
         if (3, 0) <= self.version <= (3, 2) and len(node) == 2:
             if (
@@ -82,19 +81,19 @@ class NonterminalActions:
                 self.prune()
         self.default(node)
 
-    def n_assign2(self, node):
+    def n_assign2(self, node: SyntaxTree):
         for n in node[-2:]:
             if n[0] == "unpack":
                 n[0].kind = "unpack_w_parens"
         self.default(node)
 
-    def n_assign3(self, node):
+    def n_assign3(self, node: SyntaxTree):
         for n in node[-3:]:
             if n[0] == "unpack":
                 n[0].kind = "unpack_w_parens"
         self.default(node)
 
-    def n_attribute(self, node):
+    def n_attribute(self, node: SyntaxTree):
         if node[0] == "LOAD_CONST" or node[0] == "expr" and node[0][0] == "LOAD_CONST":
             # FIXME: I didn't record which constants parenthesis is
             # necessary. However, I suspect that we could further
@@ -104,7 +103,7 @@ class NonterminalActions:
             node.kind = "attribute_w_parens"
         self.default(node)
 
-    def n_bin_op(self, node):
+    def n_bin_op(self, node: SyntaxTree):
         """bin_op (formerly "binary_expr") is the Python AST BinOp"""
         self.preorder(node[0])
         self.write(" ")
@@ -116,7 +115,7 @@ class NonterminalActions:
         self.prec += 1
         self.prune()
 
-    def n_build_slice2(self, node):
+    def n_build_slice2(self, node: SyntaxTree):
         p = self.prec
         self.prec = NO_PARENTHESIS_EVER
         if not node[0].isNone():
@@ -127,7 +126,7 @@ class NonterminalActions:
         self.prec = p
         self.prune()  # stop recursing
 
-    def n_build_slice3(self, node):
+    def n_build_slice3(self, node: SyntaxTree):
         p = self.prec
         self.prec = NO_PARENTHESIS_EVER
         if not node[0].isNone():
@@ -141,8 +140,7 @@ class NonterminalActions:
         self.prec = p
         self.prune()  # stop recursing
 
-    def n_classdef(self, node):
-
+    def n_classdef(self, node: SyntaxTree):
         self.n_classdef36(node)
 
         # class definition ('class X(A,B,C):')
@@ -202,7 +200,7 @@ class NonterminalActions:
 
     n_classdefdeco2 = n_classdef
 
-    def n_const_list(self, node):
+    def n_const_list(self, node: SyntaxTree):
         """
         prettyprint a constant dict, list, set or tuple.
         """
@@ -262,7 +260,7 @@ class NonterminalActions:
         self.prune()
         return
 
-    def n_delete_subscript(self, node):
+    def n_delete_subscript(self, node: SyntaxTree):
         if node[-2][0] == "build_list" and node[-2][0][-1].kind.startswith(
             "BUILD_TUPLE"
         ):
@@ -272,7 +270,7 @@ class NonterminalActions:
 
     n_store_subscript = n_subscript = n_delete_subscript
 
-    def n_dict(self, node):
+    def n_dict(self, node: SyntaxTree):
         """
         Prettyprint a dict.
         'dict' is something like k = {'a': 1, 'b': 42}"
@@ -284,7 +282,7 @@ class NonterminalActions:
             return
 
         p = self.prec
-        self.prec = NO_PARENTHESIS_EVER
+        self.prec = PRECEDENCE["dict"]
 
         self.indent_more(INDENT_PER_LEVEL)
         sep = INDENT_PER_LEVEL[:-1]
@@ -502,7 +500,7 @@ class NonterminalActions:
     # a top-level module. In doing so we can
     # now encounter this outside of the embedding of
     # a comprehension.
-    def n_dict_comp_func(self, node):
+    def n_dict_comp_func(self, node: SyntaxTree):
         self.write("{")
         self.comprehension_walk_newer(node, 4, 0, collection_node=node[1])
         self.write("}")
@@ -510,8 +508,7 @@ class NonterminalActions:
 
     n_set_comp_func = n_dict_comp_func
 
-    def n_docstring(self, node):
-
+    def n_docstring(self, node: SyntaxTree):
         indent = self.indent
         doc_node = node[0]
         if doc_node.attr:
@@ -533,7 +530,7 @@ class NonterminalActions:
         self.write(indent)
         docstring = repr(docstring.expandtabs())[1:-1]
 
-        for (orig, replace) in (
+        for orig, replace in (
             ("\\\\", "\t"),
             ("\\r\\n", "\n"),
             ("\\n", "\n"),
@@ -591,7 +588,7 @@ class NonterminalActions:
             self.println(lines[-1], quote)
         self.prune()
 
-    def n_elifelsestmtr(self, node):
+    def n_elifelsestmtr(self, node: SyntaxTree):
         if node[2] == "COME_FROM":
             return_stmts_node = node[3]
             node.kind = "elifelsestmtr2"
@@ -622,13 +619,13 @@ class NonterminalActions:
         self.indent_less()
         self.prune()
 
-    def n_except_cond2(self, node):
+    def n_except_cond2(self, node: SyntaxTree):
         unpack_node = -3 if node[-1] == "come_from_opt" else -2
         if node[unpack_node][0] == "unpack":
             node[unpack_node][0].kind = "unpack_w_parens"
         self.default(node)
 
-    def n_expr(self, node):
+    def n_expr(self, node: SyntaxTree):
         first_child = node[0]
         p = self.prec
 
@@ -666,7 +663,7 @@ class NonterminalActions:
     # a top-level module. In doing so we can
     # now encounter this outside of the embedding of
     # a comprehension.
-    def n_generator_exp(self, node):
+    def n_generator_exp(self, node: SyntaxTree):
         self.write("(")
         if node[0].kind in ("load_closure", "load_genexpr") and self.version >= (3, 8):
             is_lambda = self.is_lambda
@@ -676,12 +673,17 @@ class NonterminalActions:
             self.is_lambda = is_lambda
         else:
             code_index = -6
-            iter_index = 4 if self.version < (3, 8) else 3
-            self.comprehension_walk(node, iter_index=iter_index, code_index=code_index)
+            if self.version < (3, 8):
+                iter_index = 4 if node[4] == "expr" else 3
+                self.comprehension_walk(
+                    node, iter_index=iter_index, code_index=code_index
+                )
+            else:
+                self.comprehension_walk_newer(node, iter_index=4, code_index=code_index)
         self.write(")")
         self.prune()
 
-    n_generator_exp_async = n_generator_exp
+    n_genexpr_func = n_generator_exp_async = n_generator_exp
 
     def n_ifelsestmtr(self, node):
         if node[2] == "COME_FROM":

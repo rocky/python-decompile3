@@ -72,7 +72,7 @@ def main(code_format, show_asm, grammar, tree, tree_plus, outfile, files):
         (3, 8),
     ):
         print(
-            f"Note: {program} can decompile only bytecode from Python 3.10"
+            f"Note: {program} can decompile only 3.7 or 3.8 bytecode."
             f"""\n\tYou have version: {version_tuple_to_str()}."""
         )
 
