@@ -608,7 +608,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         self.write(")")
 
     def template_engine(self, entry, startnode):
-        """The format template intrepetation engine.  See the comment at the
+        """The format template interpretation engine.  See the comment at the
         beginning of this module for the how we interpret format
         specifications such as %c, %C, and so on.
         """

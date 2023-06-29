@@ -90,7 +90,7 @@ from decompyle3.semantics.consts import (
 from decompyle3.semantics.customize import customize_for_version
 from decompyle3.semantics.make_function36 import make_function36
 from decompyle3.semantics.pysource import ParserError, StringIO
-from decompyle3.show import maybe_show_asm
+from decompyle3.show import maybe_show_asm, maybe_show_tree
 
 NodeInfo = namedtuple("NodeInfo", "node start finish")
 ExtractInfo = namedtuple(
@@ -1154,7 +1154,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             # FIXME: So as not to remove tokens with offsets,
             # remove this phase until we have a chance to go over,
             # transform_tree = self.treeTransform.transform(ast)
-            self.maybe_show_tree(ast, "before")
+            maybe_show_tree(self, ast)
             return ast
             # del ast # Save memory
             # return transform_tree
@@ -1194,7 +1194,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         except (heads.ParserError, AssertionError) as e:
             raise ParserError(e, tokens, self.debug_parser.get("reduce", False))
 
-        self.maybe_show_tree(self, ast, "before")
+        maybe_show_tree(self, ast)
 
         checker(ast, False, self.ast_errors)
 
@@ -1642,7 +1642,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         """
 
         # print("-----")
-        # print(startnode)
+        # print(startnode.kind)
         # print(entry[0])
         # print('======')
 
@@ -1735,14 +1735,22 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 assert isinstance(tup, tuple)
                 if len(tup) == 3:
                     (index, nonterm_name, self.prec) = tup
-                    assert (
-                        node[index] == nonterm_name
-                    ), "at %s[%d], expected '%s' node; got '%s'" % (
-                        node.kind,
-                        arg,
-                        nonterm_name,
-                        node[index].kind,
-                    )
+                    if isinstance(tup[1], str):
+                        # if node[index] != nonterm_name:
+                        #     from trepan.api import debug; debug()
+                        assert (
+                            node[index] == nonterm_name
+                        ), "at %s[%d], expected '%s' node; got '%s'" % (
+                            node.kind,
+                            arg,
+                            nonterm_name,
+                            node[index].kind,
+                        )
+                    else:
+                        assert node[tup[0]] in tup[1], (
+                            f"at {node.kind}[{tup[0]}], expected to be in '{tup[1]}' "
+                            f"node; got '{node[tup[0]].kind}'"
+                        )
                 else:
                     assert len(tup) == 2
                     (index, self.prec) = entry[arg]
