@@ -104,9 +104,6 @@ def main(code_format, show_asm: int, grammar, tree, tree_plus, outfile, files):
             outfile = None
 
     # A second -a turns show_asm="after" into show_asm="before"
-    from trepan.api import debug
-
-    debug()
     if show_asm > 0:
         asm_opt = "both" if show_asm > 1 else "after"
     else:
