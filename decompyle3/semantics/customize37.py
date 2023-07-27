@@ -178,7 +178,7 @@ def customize_for_version37(self, version):
                 (0, "chained_parts", PRECEDENCE["compare"] - 1),
                 (1, PRECEDENCE["compare"] - 1),
             ),
-            "compare_chained2_false_37": (
+            "compare_chained_right_false_37": (
                 (0, "chained_part", PRECEDENCE["compare"] - 1),
                 (1, PRECEDENCE["compare"] - 1),
             ),
@@ -202,32 +202,32 @@ def customize_for_version37(self, version):
                 (0, PRECEDENCE["compare"] - 1),
                 (1, PRECEDENCE["compare"] - 1),
             ),
-            "compare_chained2a_37": (
+            "compare_chained_righta_37": (
                 '%[1]{pattr.replace("-", " ")} %p',
                 (0, PRECEDENCE["compare"] - 1),
             ),
-            "c_compare_chained2a_37": (
+            "c_compare_chained_righta_37": (
                 '%[1]{pattr.replace("-", " ")} %p',
                 (0, PRECEDENCE["compare"] - 1),
             ),
             "c_try_except36": ("%|try:\n%+%c%-%c\n\n", 1, 2),
-            "compare_chained2b_false_37": (
+            "compare_chained_rightb_false_37": (
                 '%[1]{pattr.replace("-", " ")} %p',
                 (0, PRECEDENCE["compare"] - 1),
             ),
-            "c_compare_chained2b_false_37": (
+            "c_compare_chained_rightb_false_37": (
                 ' %[1]{pattr.replace("-", " ")} %p',
                 (0, PRECEDENCE["compare"] - 1),
             ),
-            "compare_chained2a_false_37": (
+            "compare_chained_righta_false_37": (
                 '%[1]{pattr.replace("-", " ")} %p',
                 (0, PRECEDENCE["compare"] - 1),
             ),
-            "c_compare_chained2a_false_37": (
+            "c_compare_chained_righta_false_37": (
                 ' %[1]{pattr.replace("-", " ")} %p',
                 (0, PRECEDENCE["compare"] - 1),
             ),
-            "compare_chained2c_37": (
+            "compare_chained_rightc_37": (
                 "%p %p",
                 (0, PRECEDENCE["compare"] - 1),
                 (1, PRECEDENCE["compare"] - 1),
