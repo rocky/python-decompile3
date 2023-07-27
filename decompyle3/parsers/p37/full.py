@@ -604,7 +604,7 @@ class Python37Parser(Python37LambdaParser):
 
         testfalse  ::= expr_pjif
         testfalsec ::= expr POP_JUMP_IF_TRUE_LOOP
-        testfalsec ::= c_compare_chained1b_false_37
+        testfalsec ::= c_compare_chained_middleb_false_37
 
         testtrue   ::= expr_pjit
         testtruec  ::= expr POP_JUMP_IF_FALSE_LOOP

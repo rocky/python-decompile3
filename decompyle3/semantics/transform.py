@@ -25,8 +25,8 @@ from decompyle3.semantics.helper import find_code_node
 from decompyle3.show import maybe_show_tree
 
 # Eventually we won't need STRIPPED_NODES because all semantic
-# actions will have bene converted to new form, and so we will
-# do everythong by default
+# actions will have been converted to the new form. So here, we will
+# do everything by default.
 STRIPPED_NODES = (
     "_come_froms",
     # "and_or",
@@ -43,10 +43,10 @@ STRIPPED_NODES = (
     # "comp_iter_outer",
     # "compare_chained",
     # "compare_chained_return",
-    # "compare_chained1",
-    # "compare_chained1_return",
-    # "compare_chained2",
-    # "compare_chained2_return",
+    "compare_chained_middle",
+    "compare_chained_middle_return",
+    "compare_chained_right",
+    "compare_chained_right_return",
     # "dict_comp_func",
     # "expr_pjif",
     # "expr_pjit",

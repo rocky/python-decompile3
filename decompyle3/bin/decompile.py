@@ -24,7 +24,7 @@ def usage():
 
 
 @click.command()
-@click.option("--asm/--no-asm", "-a", "show_asm", default=False)
+@click.option("--asm", "-a", "show_asm", count=True)
 @click.option("--grammar/--no-grammar", "-g", "show_grammar", default=False)
 @click.option("--tree/--no-tree", "-t", default=False)
 @click.option("--tree++/--no-tree++", "-T", "tree_plus", default=False)
@@ -51,7 +51,7 @@ def usage():
 @click.version_option(version=__version__)
 @click.argument("files", nargs=-1, type=click.Path(readable=True), required=True)
 def main_bin(
-    show_asm, show_grammar, tree, tree_plus, verify, recurse_dirs, outfile, files
+    show_asm: int, show_grammar, tree, tree_plus, verify, recurse_dirs, outfile, files
 ):
     """
     Python bytecode decompiler for Python 3.7-3.8 bytecode
@@ -105,6 +105,12 @@ def main_bin(
         out_base = outfile
         outfile = None
 
+    # A second -a turns show_asm="after" into show_asm="before"
+    if show_asm > 0:
+        asm_opt = "both" if show_asm > 1 else "after"
+    else:
+        asm_opt = None
+
     # if timestamp:
     #     print(time.strftime(timestampfmt))
 
@@ -118,7 +124,7 @@ def main_bin(
                 pyc_paths,
                 source_paths,
                 outfile,
-                showasm=show_asm,
+                showasm=asm_opt,
                 showgrammar=show_grammar,
                 showast=show_ast,
                 do_verify=verify,
