@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2022 Rocky Bernstein
+#  Copyright (c) 2017-2023 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -16,12 +16,10 @@
 Python 3.7 lambda grammar for the spark Earley-algorithm parser.
 """
 
-from decompyle3.parsers.p37.lambda_custom import Python37LambdaCustom
-from decompyle3.parsers.parse_heads import (
-    PythonParserLambda,
-    PythonBaseParser,
-)
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+
+from decompyle3.parsers.p37.lambda_custom import Python37LambdaCustom
+from decompyle3.parsers.parse_heads import PythonBaseParser, PythonParserLambda
 
 
 class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
@@ -207,7 +205,7 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
     def p_37chained(self, args):
         """
         # A compare_chained is two comparisions like x <= y <= z
-        compare_chained     ::= expr compare_chained1 ROT_TWO POP_TOP _come_froms
+        compare_chained     ::= expr compare_chained_middle ROT_TWO POP_TOP _come_froms
         compare_chained     ::= compare_chained37
         compare_chained     ::= compare_chained37_false
 
@@ -226,55 +224,65 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         c_compare_chained   ::= c_compare_chained37_false
 
         compare_chained37   ::= expr chained_parts
-        compare_chained37   ::= expr compare_chained1a_37
-        compare_chained37   ::= expr compare_chained1c_37
-        c_compare_chained37   ::= expr c_compare_chained1a_37
-        # c_compare_chained37   ::= expr c_compare_chained1c_37
+        compare_chained37   ::= expr compare_chained_middlea_37
+        compare_chained37   ::= expr compare_chained_middlec_37
+        c_compare_chained37   ::= expr c_compare_chained_middlea_37
+        # c_compare_chained37   ::= expr c_compare_chained_middlec_37
 
-        compare_chained37_false   ::= expr compare_chained1_false_37
-        compare_chained37_false   ::= expr compare_chained1b_false_37
+        compare_chained37_false   ::= expr compare_chained_middle_false_37
+        compare_chained37_false   ::= expr compare_chained_middleb_false_37
         compare_chained37_false   ::= expr compare_chained2_false_37
 
         c_compare_chained37_false ::= expr c_compare_chained2_false_37
-        c_compare_chained37_false ::= expr c_compare_chained1b_false_37
+        c_compare_chained37_false ::= expr c_compare_chained_middleb_false_37
         c_compare_chained37_false ::= compare_chained37_false
 
-        compare_chained1           ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
-                                       compare_chained1 COME_FROM
-        compare_chained1           ::= expr DUP_TOP ROT_THREE COMPARE_OP JUMP_IF_FALSE_OR_POP
-                                      compare_chained2 COME_FROM
+        compare_chained_middle     ::= expr DUP_TOP ROT_THREE COMPARE_OP
+                                       JUMP_IF_FALSE_OR_POP compare_chained_middle
+                                       COME_FROM
+        compare_chained_middle     ::= expr DUP_TOP ROT_THREE COMPARE_OP
+                                       JUMP_IF_FALSE_OR_POP compare_chained2 COME_FROM
 
         chained_parts              ::= chained_part+
-        chained_part               ::= expr DUP_TOP ROT_THREE COMPARE_OP come_from_opt POP_JUMP_IF_FALSE
+
+        chained_part               ::= expr DUP_TOP ROT_THREE COMPARE_OP come_from_opt
+                                       POP_JUMP_IF_FALSE
+
+        chained_part               ::= expr DUP_TOP ROT_THREE COMPARE_OP come_from_opt
 
         # c_chained_parts            ::= c_chained_part+
-        # c_chained_part             ::= expr DUP_TOP ROT_THREE COMPARE_OP come_from_opt POP_JUMP_IF_FALSE_LOOP
+        # c_chained_part             ::= expr DUP_TOP ROT_THREE COMPARE_OP come_from_opt
+                                         POP_JUMP_IF_FALSE_LOOP
         # c_chained_parts            ::= chained_parts
 
 
-        compare_chained1a_37       ::= chained_parts
+        compare_chained_middlea_37       ::= chained_parts
                                        compare_chained2a_37 COME_FROM
                                        POP_TOP come_from_opt
-        c_compare_chained1a_37     ::= chained_parts
+        c_compare_chained_middlea_37     ::= chained_parts
                                        c_compare_chained2a_37 COME_FROM
                                        POP_TOP come_from_opt
 
-        compare_chained1b_false_37 ::= chained_parts
+        compare_chained_middleb_false_37 ::= chained_parts
                                        compare_chained2b_false_37
                                        POP_TOP jump _come_froms
 
-        c_compare_chained1b_false_37 ::= chained_parts
-                                         c_compare_chained2b_false_37 POP_TOP jump _come_froms
-        c_compare_chained1b_false_37 ::= chained_parts
-                                         compare_chained2b_false_37 POP_TOP jump _come_froms
+        c_compare_chained_middleb_false_37 ::= chained_parts
+                                         c_compare_chained2b_false_37 POP_TOP jump
+                                         _come_froms
+        c_compare_chained_middleb_false_37 ::= chained_parts
+                                         compare_chained2b_false_37 POP_TOP jump
+                                         _come_froms
 
-        compare_chained1c_37       ::= chained_parts
-                                       compare_chained2a_37 POP_TOP
+        compare_chained_middlec_37       ::= chained_parts
+                                             compare_chained2a_37 POP_TOP
 
-        compare_chained1_false_37  ::= chained_parts
-                                       compare_chained2c_37 POP_TOP JUMP_FORWARD come_from_opt
-        compare_chained1_false_37  ::= chained_parts
-                                       compare_chained2b_false_37 POP_TOP jump COME_FROM
+        compare_chained_middle_false_37  ::= chained_parts
+                                             compare_chained2c_37 POP_TOP JUMP_FORWARD
+                                             come_from_opt
+        compare_chained_middle_false_37  ::= chained_parts
+                                             compare_chained2b_false_37 POP_TOP jump
+                                             COME_FROM
 
         compare_chained2           ::= expr COMPARE_OP JUMP_FORWARD
         compare_chained2           ::= expr COMPARE_OP RETURN_VALUE

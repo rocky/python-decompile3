@@ -438,7 +438,7 @@ TABLE_DIRECT = {
     "conditional_not_lambda": ("%p if not %c else %c", (2, "expr", 27), 0, 4),
     "compare_single": ('%p %[-1]{pattr.replace("-", " ")} %p', (0, 19), (1, 19)),
     "compare_chained": ("%p %p", (0, 29), (1, 30)),
-    "compare_chained1": ('%[3]{pattr.replace("-", " ")} %p %p', (0, 19), (-2, 19)),
+    "compare_chained_middle": ('%[3]{pattr.replace("-", " ")} %p %p', (0, 19), (-2, 19)),
     "compare_chained2": ('%[1]{pattr.replace("-", " ")} %p', (0, 19)),
     "c_compare_chained": ("%p %p", (0, 29), (1, 30)),
     #   "classdef": 	(), # handled by n_classdef()

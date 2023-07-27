@@ -163,17 +163,17 @@ def customize_for_version37(self, version):
             "await_stmt": ("%|%c\n", 0),
             "c_async_with_stmt": ("%|async with %c:\n%+%c%-", (0, "expr"), 3),
             "call_ex": ("%c(%p)", (0, "expr"), (1, 100)),
-            "compare_chained1a_37": (
+            "compare_chained_middlea_37": (
                 "%p %p",
                 (0, PRECEDENCE["compare"] - 1),
                 (1, PRECEDENCE["compare"] - 1),
             ),
-            "c_compare_chained1a_37": (
+            "c_compare_chained_middlea_37": (
                 "%p %p",
                 (0, PRECEDENCE["compare"] - 1),
                 (1, PRECEDENCE["compare"] - 1),
             ),
-            "compare_chained1_false_37": (
+            "compare_chained_middle_false_37": (
                 "%p%p",
                 (0, "chained_parts", PRECEDENCE["compare"] - 1),
                 (1, PRECEDENCE["compare"] - 1),
@@ -182,7 +182,7 @@ def customize_for_version37(self, version):
                 (0, "chained_part", PRECEDENCE["compare"] - 1),
                 (1, PRECEDENCE["compare"] - 1),
             ),
-            "compare_chained1b_false_37": (
+            "compare_chained_middleb_false_37": (
                 "%p %p",
                 (0, PRECEDENCE["compare"] - 1),
                 (1, PRECEDENCE["compare"] - 1),
@@ -197,7 +197,7 @@ def customize_for_version37(self, version):
                 (1, "chained_parts"),
                 -2,  # Is often a transformed negated_testtrue
             ),
-            "compare_chained1c_37": (
+            "compare_chained_middlec_37": (
                 "%p %p",
                 (0, PRECEDENCE["compare"] - 1),
                 (1, PRECEDENCE["compare"] - 1),
@@ -396,7 +396,7 @@ def customize_for_version37(self, version):
                     (
                         "expr",
                         "c_compare_chained37_false",
-                        "c_compare_chained1b_false_37",
+                        "c_compare_chained_middleb_false_37",
                         "c_nand",
                     ),
                 ),
@@ -1536,12 +1536,12 @@ def customize_for_version37(self, version):
         compare_chained37 = node[0]
         if (
             compare_chained37 == "compare_chained37"
-            and compare_chained37[1] == "compare_chained1b_37"
+            and compare_chained37[1] == "compare_chained_middleb_37"
         ):
-            compare_chained1b_37 = compare_chained37[1]
+            compare_chained_middleb_37 = compare_chained37[1]
             if (
-                len(compare_chained1b_37) > 2
-                and compare_chained1b_37[-2] == "JUMP_FORWARD"
+                len(compare_chained_middleb_37) > 2
+                and compare_chained_middleb_37[-2] == "JUMP_FORWARD"
             ):
                 node.kind = "testfalse"
                 pass
