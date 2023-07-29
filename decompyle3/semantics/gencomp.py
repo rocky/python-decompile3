@@ -145,7 +145,6 @@ class ComprehensionMixin:
         self,
         node,
         iter_index: Optional[int],
-        code_index: int = -5,
     ):
         p: int = self.prec
         self.prec = PRECEDENCE["lambda_body"] - 1

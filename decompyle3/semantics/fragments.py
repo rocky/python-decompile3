@@ -618,7 +618,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.indent_less()
         self.prune()  # stop recursing
 
-    def comprehension_walk(self, node, iter_index, code_index=-5):
+    def comprehension_walk(self, node, iter_index):
         p = self.prec
         self.prec = 27
 

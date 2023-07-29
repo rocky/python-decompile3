@@ -188,7 +188,7 @@ def customize_for_version37(self, version):
                 (1, PRECEDENCE["compare"] - 1),
             ),
             "chained_part": (
-                '%[3]{pattr.replace("-", " ")} %p',
+                ' %[3]{pattr.replace("-", " ")} %p',
                 (0, "expr", PRECEDENCE["compare"] - 1),
             ),
             "compare_chained_and": (

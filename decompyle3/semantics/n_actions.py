@@ -673,11 +673,9 @@ class NonterminalActions:
             self.is_lambda = is_lambda
         else:
             code_index = -6
-            if self.version < (3, 8):
+            if self.version < (3, 8) and node != "genexpr_func":
                 iter_index = 4 if node[4] == "expr" else 3
-                self.comprehension_walk(
-                    node, iter_index=iter_index, code_index=code_index
-                )
+                self.comprehension_walk(node, iter_index=iter_index)
             else:
                 self.comprehension_walk_newer(node, iter_index=4, code_index=code_index)
         self.write(")")

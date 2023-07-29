@@ -47,7 +47,9 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
     def p_lambda(self, args):
         """
         lambda_start       ::= return_expr_lambda LAMBDA_MARKER
+
         return_expr_lambda ::= expr RETURN_VALUE_LAMBDA
+        return_expr_lambda ::= genexpr_func LOAD_CONST RETURN_VALUE_LAMBDA
         return_expr_lambda ::= if_exp_lambda
         return_expr_lambda ::= if_exp_lambda2
         return_expr_lambda ::= if_exp_not_lambda
@@ -341,26 +343,25 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         expr ::= LOAD_STR
 
         expr ::= and
-        expr ::= attribute37
-        expr ::= or_and
         expr ::= and_or
         expr ::= and_or_expr
+        expr ::= attribute37
         expr ::= bin_op
         expr ::= call
         expr ::= compare
-        expr ::= or
-        expr ::= or_expr
+        expr ::= genexpr_func
         expr ::= if_exp
         expr ::= if_exp_loop
-
         expr ::= list_comp
-
+        expr ::= not
+        expr ::= or
+        expr ::= or_and
+        expr ::= or_expr
         expr ::= set_comp
         expr ::= subscript
         expr ::= subscript2
         expr ::= unary_not
         expr ::= unary_op
-        expr ::= not
         expr ::= yield
 
         # Python 3.3+ adds yield from.
