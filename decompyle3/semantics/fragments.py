@@ -64,6 +64,7 @@ The node position 0 will be associated with "import".
 # FIXME: DRY code with pysource
 
 import re
+from bisect import bisect_right
 from collections import namedtuple
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
@@ -1952,7 +1953,7 @@ def code_deparse(
                 tokens = tokens[:i]
                 break
 
-    debug_parser = debug_opts.get("grammar", dict(PARSER_DEFAULT_DEBUG))
+    debug_parser = dict(PARSER_DEFAULT_DEBUG)
 
     #  Build Syntax Tree from disassembly.
     linestarts = dict(scanner.opc.findlinestarts(co))
@@ -2014,9 +2015,6 @@ def code_deparse(
     return deparsed
 
 
-from bisect import bisect_right
-
-
 def find_gt(a, x):
     "Find leftmost value greater than x"
     i = bisect_right(a, x)
@@ -2069,7 +2067,7 @@ def deparse_code_around_offset(
     out=StringIO(),
     showasm=False,
     showast=False,
-    showgrammar=False,
+    showgrammar=PARSER_DEFAULT_DEBUG,
     is_pypy=False,
 ):
     debug_opts = {"asm": showasm, "ast": showast, "grammar": showgrammar}
