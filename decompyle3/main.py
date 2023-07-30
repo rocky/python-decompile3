@@ -77,6 +77,7 @@ def decompile(
     do_fragments=False,
     compile_mode="exec",
     start_offset: int = 0,
+    stop_offset: int = -1,
 ) -> Any:
     """
     ingests and deparses a given code block 'co'
@@ -162,6 +163,7 @@ def decompile(
                 is_pypy=is_pypy,
                 compile_mode=compile_mode,
                 start_offset=start_offset,
+                stop_offset=stop_offset,
             )
             pass
         real_out.write("\n")
@@ -197,6 +199,7 @@ def decompile_file(
     mapstream=None,
     do_fragments=False,
     start_offset=0,
+    stop_offset=-1,
 ) -> Any:
     """
     decompile Python byte-code file (.pyc). Return objects to
@@ -227,6 +230,7 @@ def decompile_file(
                     magic_int=magic_int,
                     mapstream=mapstream,
                     start_offset=start_offset,
+                    stop_offset=stop_offset,
                 ),
             )
     else:
@@ -248,6 +252,7 @@ def decompile_file(
                 do_fragments=do_fragments,
                 compile_mode="exec",
                 start_offset=start_offset,
+                stop_offset=stop_offset,
             )
         ]
     co = None
@@ -269,6 +274,7 @@ def main(
     do_linemaps=False,
     do_fragments=False,
     start_offset: int = 0,
+    stop_offset: int = -1,
 ) -> Tuple[int, int, int, int]:
     """
     in_base	base directory for input files
@@ -338,6 +344,7 @@ def main(
                 linemap_stream,
                 do_fragments,
                 start_offset,
+                stop_offset,
             )
             if do_fragments:
                 for deparsed_object in deparsed_objects:

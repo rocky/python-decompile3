@@ -1878,7 +1878,7 @@ def deparse_code(
     showgrammar=False,
     code_objects={},
     compile_mode="exec",
-    is_pypy=None,
+    is_pypy=IS_PYPY,
     walker=FragmentsWalker,
 ):
     debug_opts = {"asm": showasm, "ast": showast, "grammar": showgrammar}
@@ -1904,6 +1904,7 @@ def code_deparse(
     is_pypy=IS_PYPY,
     walker=FragmentsWalker,
     start_offset: int = 0,
+    stop_offset: int = -1,
 ):
     """
     Convert the code object co into a python source fragment.
@@ -1938,8 +1939,17 @@ def code_deparse(
 
     if start_offset > 0:
         for i, t in enumerate(tokens):
-            if t.offset >= start_offset:
+            # If t.offset is a string, we want to skip this.
+            if isinstance(t.offset, int) and t.offset >= start_offset:
                 tokens = tokens[i:]
+                break
+
+    if stop_offset > -1:
+        for i, t in enumerate(tokens):
+            # In contrast to the test for start_offset If t.offset is
+            # a string, we want to extract the integer offset value.
+            if t.off2int() >= stop_offset:
+                tokens = tokens[:i]
                 break
 
     debug_parser = debug_opts.get("grammar", dict(PARSER_DEFAULT_DEBUG))

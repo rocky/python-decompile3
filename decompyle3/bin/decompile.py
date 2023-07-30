@@ -55,6 +55,14 @@ def usage():
     default=0,
     help="start decomplation at offset; default is 0 or the starting offset.",
 )
+@click.version_option(version=__version__)
+@click.option(
+    "--stop-offset",
+    "stop_offset",
+    default=-1,
+    help="stop decomplation when seeing an offset greater or equal to this; default is "
+    "-1 which indicates no stopping point.",
+)
 @click.argument("files", nargs=-1, type=click.Path(readable=True), required=True)
 def main_bin(
     show_asm: int,
@@ -65,6 +73,7 @@ def main_bin(
     recurse_dirs,
     outfile,
     start_offset: int,
+    stop_offset: int,
     files,
 ):
     """
@@ -143,6 +152,7 @@ def main_bin(
                 showast=show_ast,
                 do_verify=verify,
                 start_offset=start_offset,
+                stop_offset=stop_offset,
             )
 
             if len(pyc_paths) > 1:

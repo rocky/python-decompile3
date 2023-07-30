@@ -130,8 +130,8 @@ Python.
 #   evaluating the escape code.
 
 import sys
-from io import StringIO, TextIOWrapper
-from typing import Optional, Union
+from io import StringIO
+from typing import Optional
 
 from spark_parser import GenericASTTraversal
 from xdis import COMPILER_FLAG_BIT, iscode
@@ -1097,6 +1097,7 @@ def code_deparse(
     is_pypy=IS_PYPY,
     walker=SourceWalker,
     start_offset: int = 0,
+    stop_offset: int = -1,
 ) -> Optional[SourceWalker]:
     """
     ingests and deparses a given code block 'co'. If version is None,
@@ -1120,8 +1121,17 @@ def code_deparse(
 
     if start_offset > 0:
         for i, t in enumerate(tokens):
-            if t.offset >= start_offset:
+            # If t.offset is a string, we want to skip this.
+            if isinstance(t.offset, int) and t.offset >= start_offset:
                 tokens = tokens[i:]
+                break
+
+    if stop_offset > -1:
+        for i, t in enumerate(tokens):
+            # In contrast to the test for start_offset If t.offset is
+            # a string, we want to extract the integer offset value.
+            if t.off2int() >= stop_offset:
+                tokens = tokens[:i]
                 break
 
     debug_parser = debug_opts.get("grammar", dict(PARSER_DEFAULT_DEBUG))
@@ -1231,6 +1241,7 @@ def deparse_code2str(
     is_pypy=IS_PYPY,
     walker=SourceWalker,
     start_offset: int = 0,
+    stop_offset: int = -1,
 ) -> str:
     """
     Return the deparsed text for a Python code object. `out` is where
@@ -1250,6 +1261,7 @@ def deparse_code2str(
         is_pypy=is_pypy,
         walker=walker,
         start_offset=start_offset,
+        stop_offset=stop_offset,
     )
 
     return "# deparse failed" if tree is None else tree.text
@@ -1259,7 +1271,7 @@ if __name__ == "__main__":
 
     def deparse_test(co):
         "This is a docstring"
-        s = deparse_code2str(co)
+        s = deparse_code2str(co, sys.stdout)
         # s = deparse_code2str(co, debug_opts={"asm": "after", "tree":
         # {'before': False, 'after': False}})
         print(s)

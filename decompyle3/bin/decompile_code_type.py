@@ -62,8 +62,32 @@ PATTERNS = ("*.pyc", "*.pyo")
     ),
     required=False,
 )
+@click.option(
+    "--start-offset",
+    "start_offset",
+    default=0,
+    help="start decomplation at offset; default is 0 or the starting offset.",
+)
+@click.version_option(version=__version__)
+@click.option(
+    "--stop-offset",
+    "stop_offset",
+    default=-1,
+    help="stop decomplation when seeing an offset greater or equal to this; default is "
+    "-1 which indicates no stopping point.",
+)
 @click.argument("files", nargs=-1, type=click.Path(readable=True), required=True)
-def main(code_format, show_asm: int, grammar, tree, tree_plus, outfile, files):
+def main(
+    code_format,
+    show_asm: int,
+    grammar,
+    tree,
+    tree_plus,
+    outfile,
+    start_offset: int,
+    stop_offset: int,
+    files,
+):
     """Decompile all code objects of a certain format."""
 
     version_tuple = sys.version_info[0:2]
@@ -129,7 +153,7 @@ def main(code_format, show_asm: int, grammar, tree, tree_plus, outfile, files):
         print(f"total: {total}, success: {success}")
         try:
             if os.path.isdir(filename):
-                for subdir, dirs, files in os.walk(filename):
+                for subdir, _, files in os.walk(filename):
                     for filename in files:
                         filepath = subdir + os.sep + filename
                         if (
@@ -143,6 +167,8 @@ def main(code_format, show_asm: int, grammar, tree, tree_plus, outfile, files):
                                 showasm=asm_opt,
                                 showgrammar=show_grammar,
                                 showast=show_ast,
+                                start_offset=start_offset,
+                                stop_offset=stop_offset,
                             )
                             print()
                             if succeeded:
@@ -164,6 +190,8 @@ def main(code_format, show_asm: int, grammar, tree, tree_plus, outfile, files):
                         showasm=asm_opt,
                         showgrammar=show_grammar,
                         showast=show_ast,
+                        start_offset=start_offset,
+                        stop_offset=stop_offset,
                     )
                     print()
                     if succeeded:
