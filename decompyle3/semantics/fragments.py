@@ -65,7 +65,6 @@ The node position 0 will be associated with "import".
 
 import re
 from collections import namedtuple
-from typing import Optional
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from spark_parser.ast import GenericASTTraversalPruningException
@@ -89,8 +88,8 @@ from decompyle3.semantics.consts import (
 )
 from decompyle3.semantics.customize import customize_for_version
 from decompyle3.semantics.make_function36 import make_function36
-from decompyle3.semantics.pysource import ParserError, StringIO
-from decompyle3.show import maybe_show_asm, maybe_show_tree
+from decompyle3.semantics.pysource import TREE_DEFAULT_DEBUG, ParserError, StringIO
+from decompyle3.show import maybe_show_tree
 
 NodeInfo = namedtuple("NodeInfo", "node start finish")
 ExtractInfo = namedtuple(
@@ -151,12 +150,13 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
     def __init__(
         self,
-        version,
+        version: tuple,
         scanner,
-        showast=False,
+        showast=TREE_DEFAULT_DEBUG,
         debug_parser=PARSER_DEFAULT_DEBUG,
         compile_mode="exec",
-        is_pypy=False,
+        is_pypy=IS_PYPY,
+        linestarts={},
         tolerate_errors=True,
     ):
         pysource.SourceWalker.__init__(
@@ -168,6 +168,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             debug_parser=debug_parser,
             compile_mode=compile_mode,
             is_pypy=is_pypy,
+            linestarts=linestarts,
             tolerate_errors=tolerate_errors,
         )
 
@@ -1041,13 +1042,17 @@ class FragmentsWalker(pysource.SourceWalker, object):
                     # Python 3.2 works like this
                     subclass = load_closure[-2].attr
                 else:
-                    raise "Internal Error n_classdef: cannot find class body"
+                    raise RuntimeError(
+                        "Internal Error n_classdef: cannot find class" "body"
+                    )
                 if hasattr(buildclass[3], "__len__"):
                     subclass_info = buildclass[3]
                 elif hasattr(buildclass[2], "__len__"):
                     subclass_info = buildclass[2]
                 else:
-                    raise "Internal Error n_classdef: cannot superclass name"
+                    raise RuntimeError(
+                        "Internal Error n_classdef: cannot superclass" " name"
+                    )
             else:
                 subclass = buildclass[1][0].attr
                 subclass_info = node[0]
@@ -1891,13 +1896,14 @@ def deparse_code(
 
 def code_deparse(
     co,
-    out=StringIO(),
+    out,
     version=None,
     debug_opts=DEFAULT_DEBUG_OPTS,
     code_objects={},
     compile_mode="exec",
-    is_pypy: Optional[bool] = None,
+    is_pypy=IS_PYPY,
     walker=FragmentsWalker,
+    start_offset: int = 0,
 ):
     """
     Convert the code object co into a python source fragment.
@@ -1922,34 +1928,32 @@ def code_deparse(
 
     if version is None:
         version = PYTHON_VERSION_TRIPLE
-    if is_pypy is None:
-        is_pypy = IS_PYPY
 
     # store final output stream for case of error
-    scanner = get_scanner(version, is_pypy=is_pypy)
+    scanner = get_scanner(version, is_pypy=is_pypy, show_asm=debug_opts["asm"])
 
-    show_asm = debug_opts.get("asm", None)
-    tokens, customize = scanner.ingest(co, code_objects=code_objects, show_asm=show_asm)
+    tokens, customize = scanner.ingest(
+        co, code_objects=code_objects, show_asm=debug_opts["asm"]
+    )
 
-    tokens, customize = scanner.ingest(co)
-    maybe_show_asm(show_asm, tokens)
+    if start_offset > 0:
+        for i, t in enumerate(tokens):
+            if t.offset >= start_offset:
+                tokens = tokens[i:]
+                break
 
-    debug_parser = dict(PARSER_DEFAULT_DEBUG)
-    show_grammar = debug_opts.get("grammar", None)
-    if show_grammar:
-        debug_parser["reduce"] = show_grammar
-        debug_parser["errorstack"] = True
+    debug_parser = debug_opts.get("grammar", dict(PARSER_DEFAULT_DEBUG))
 
-    # Build Syntax Tree from tokenized and massaged disassembly.
-    # deparsed = pysource.FragmentsWalker(out, scanner, showast=showast)
-    show_ast = debug_opts.get("ast", None)
+    #  Build Syntax Tree from disassembly.
+    linestarts = dict(scanner.opc.findlinestarts(co))
     deparsed = walker(
         version,
         scanner,
-        showast=show_ast,
+        showast=debug_opts.get("tree", TREE_DEFAULT_DEBUG),
         debug_parser=debug_parser,
         compile_mode=compile_mode,
         is_pypy=is_pypy,
+        linestarts=linestarts,
     )
 
     is_top_level_module = co.co_name == "<module>"
@@ -2192,5 +2196,6 @@ def deparsed_find(tup, deparsed, code):
 #     # deparse_test(get_code_for_fn(FragmentsWalker.fixup_offsets))
 #     # deparse_test(get_code_for_fn(FragmentsWalker.n_list))
 #     print("=" * 30)
-#     # deparse_test_around(408, 'n_list', get_code_for_fn(FragmentsWalker.n_build_list))
+#     # deparse_test_around(408, 'n_list',
+#                           get_code_for_fn(FragmentsWalker.n_build_list))
 #     # deparse_test(inspect.currentframe().f_code)

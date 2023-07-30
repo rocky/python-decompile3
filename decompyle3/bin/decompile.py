@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Mode: -*- python -*-
 #
-# Copyright (c) 2015-2017, 2019-2022 by Rocky Bernstein
+# Copyright (c) 2015-2017, 2019-2023 by Rocky Bernstein
 # Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 
@@ -49,9 +49,23 @@ def usage():
     required=False,
 )
 @click.version_option(version=__version__)
+@click.option(
+    "--start-offset",
+    "start_offset",
+    default=0,
+    help="start decomplation at offset; default is 0 or the starting offset.",
+)
 @click.argument("files", nargs=-1, type=click.Path(readable=True), required=True)
 def main_bin(
-    show_asm: int, show_grammar, tree, tree_plus, verify, recurse_dirs, outfile, files
+    show_asm: int,
+    show_grammar,
+    tree,
+    tree_plus,
+    verify,
+    recurse_dirs,
+    outfile,
+    start_offset: int,
+    files,
 ):
     """
     Python bytecode decompiler for Python 3.7-3.8 bytecode
@@ -128,6 +142,7 @@ def main_bin(
                 showgrammar=show_grammar,
                 showast=show_ast,
                 do_verify=verify,
+                start_offset=start_offset,
             )
 
             if len(pyc_paths) > 1:
@@ -141,11 +156,7 @@ def main_bin(
             pass
     else:
         from multiprocessing import Process, Queue
-
-        try:
-            from Queue import Empty
-        except ImportError:
-            from queue import Empty
+        from queue import Empty
 
         fqueue = Queue(len(pyc_paths) + numproc)
         for f in pyc_paths:
@@ -156,18 +167,18 @@ def main_bin(
         rqueue = Queue(numproc)
 
         def process_func():
+            (tot_files, okay_files, failed_files, verify_failed_files) = (
+                0,
+                0,
+                0,
+                0,
+            )
             try:
-                (tot_files, okay_files, failed_files, verify_failed_files) = (
-                    0,
-                    0,
-                    0,
-                    0,
-                )
-                while 1:
+                while True:
                     f = fqueue.get()
                     if f is None:
                         break
-                    (t, o, f, v) = main(src_base, out_base, [f], None, outfile)
+                    (t, o, f, v) = main(src_base, out_base, [f], [], outfile)
                     tot_files += t
                     okay_files += o
                     failed_files += f
@@ -183,13 +194,13 @@ def main_bin(
                 p.start()
             for p in procs:
                 p.join()
+            (tot_files, okay_files, failed_files, verify_failed_files) = (
+                0,
+                0,
+                0,
+                0,
+            )
             try:
-                (tot_files, okay_files, failed_files, verify_failed_files) = (
-                    0,
-                    0,
-                    0,
-                    0,
-                )
                 while True:
                     (t, o, f, v) = rqueue.get(False)
                     tot_files += t
