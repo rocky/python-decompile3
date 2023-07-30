@@ -76,6 +76,8 @@ def decompile(
     mapstream=None,
     do_fragments=False,
     compile_mode="exec",
+    start_offset: int = 0,
+    stop_offset: int = -1,
 ) -> Any:
     """
     ingests and deparses a given code block 'co'
@@ -142,11 +144,12 @@ def decompile(
                 is_pypy=is_pypy,
             )
             header_count = 3 + len(sys_version_lines)
-            linemap = [
-                (line_no, deparsed.source_linemap[line_no] + header_count)
-                for line_no in sorted(deparsed.source_linemap.keys())
-            ]
-            mapstream.write("\n\n# %s\n" % linemap)
+            if deparsed is not None:
+                linemap = [
+                    (line_no, deparsed.source_linemap[line_no] + header_count)
+                    for line_no in sorted(deparsed.source_linemap.keys())
+                ]
+                mapstream.write("\n\n# %s\n" % linemap)
         else:
             if do_fragments:
                 deparse_fn = code_deparse_fragments
@@ -159,6 +162,8 @@ def decompile(
                 debug_opts=debug_opts,
                 is_pypy=is_pypy,
                 compile_mode=compile_mode,
+                start_offset=start_offset,
+                stop_offset=stop_offset,
             )
             pass
         real_out.write("\n")
@@ -193,6 +198,8 @@ def decompile_file(
     source_encoding=None,
     mapstream=None,
     do_fragments=False,
+    start_offset=0,
+    stop_offset=-1,
 ) -> Any:
     """
     decompile Python byte-code file (.pyc). Return objects to
@@ -222,6 +229,8 @@ def decompile_file(
                     is_pypy=is_pypy,
                     magic_int=magic_int,
                     mapstream=mapstream,
+                    start_offset=start_offset,
+                    stop_offset=stop_offset,
                 ),
             )
     else:
@@ -242,6 +251,8 @@ def decompile_file(
                 mapstream=mapstream,
                 do_fragments=do_fragments,
                 compile_mode="exec",
+                start_offset=start_offset,
+                stop_offset=stop_offset,
             )
         ]
     co = None
@@ -251,7 +262,7 @@ def decompile_file(
 # FIXME: combine into an options parameter
 def main(
     in_base: str,
-    out_base: str,
+    out_base: Optional[str],
     compiled_files: list,
     source_files: list,
     outfile=None,
@@ -262,6 +273,8 @@ def main(
     source_encoding=None,
     do_linemaps=False,
     do_fragments=False,
+    start_offset: int = 0,
+    stop_offset: int = -1,
 ) -> Tuple[int, int, int, int]:
     """
     in_base	base directory for input files
@@ -330,6 +343,8 @@ def main(
                 source_encoding,
                 linemap_stream,
                 do_fragments,
+                start_offset,
+                stop_offset,
             )
             if do_fragments:
                 for deparsed_object in deparsed_objects:
@@ -354,9 +369,10 @@ def main(
                     deparsed_object.f.close()
                     if PYTHON_VERSION_TRIPLE[:2] != deparsed_object.version[:2]:
                         sys.stdout.write(
-                            f"\n# skipping running {deparsed_object.f.name} "
-                            f"it is {version_tuple_to_str(deparsed_object.version, end=2)}, "
-                            f"and we are {version_tuple_to_str(PYTHON_VERSION_TRIPLE, end=2)}\n"
+                            f"\n# skipping running {deparsed_object.f.name}; it is"
+                            f"{version_tuple_to_str(deparsed_object.version, end=2)}, "
+                            "and we are "
+                            f"{version_tuple_to_str(PYTHON_VERSION_TRIPLE, end=2)}\n"
                         )
                     else:
                         check_type = "syntax check"

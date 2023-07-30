@@ -280,6 +280,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         self.prec = 100
         self.return_none = False
         self.showast = showast
+        self.source_linemap = {}
         self.version = version
 
         # This is in Python 2.6 on. It changes the way
@@ -1088,13 +1089,15 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
 
 def code_deparse(
     co,
-    out=sys.stdout,
+    out,
     version: Optional[tuple] = None,
     debug_opts=DEFAULT_DEBUG_OPTS,
     code_objects={},
     compile_mode="exec",
     is_pypy=IS_PYPY,
     walker=SourceWalker,
+    start_offset: int = 0,
+    stop_offset: int = -1,
 ) -> Optional[SourceWalker]:
     """
     ingests and deparses a given code block 'co'. If version is None,
@@ -1102,6 +1105,9 @@ def code_deparse(
     """
 
     assert iscode(co)
+
+    if out is None:
+        out = sys.stdout
 
     if version is None:
         version = PYTHON_VERSION_TRIPLE
@@ -1112,6 +1118,21 @@ def code_deparse(
     tokens, customize = scanner.ingest(
         co, code_objects=code_objects, show_asm=debug_opts["asm"]
     )
+
+    if start_offset > 0:
+        for i, t in enumerate(tokens):
+            # If t.offset is a string, we want to skip this.
+            if isinstance(t.offset, int) and t.offset >= start_offset:
+                tokens = tokens[i:]
+                break
+
+    if stop_offset > -1:
+        for i, t in enumerate(tokens):
+            # In contrast to the test for start_offset If t.offset is
+            # a string, we want to extract the integer offset value.
+            if t.off2int() >= stop_offset:
+                tokens = tokens[:i]
+                break
 
     debug_parser = debug_opts.get("grammar", dict(PARSER_DEFAULT_DEBUG))
 
@@ -1212,18 +1233,24 @@ def code_deparse(
 
 def deparse_code2str(
     code,
-    out=sys.stdout,
+    out,
     version=None,
     debug_opts=DEFAULT_DEBUG_OPTS,
     code_objects={},
     compile_mode="exec",
     is_pypy=IS_PYPY,
     walker=SourceWalker,
+    start_offset: int = 0,
+    stop_offset: int = -1,
 ) -> str:
     """
     Return the deparsed text for a Python code object. `out` is where
     any intermediate output for assembly or tree output will be sent.
     """
+
+    if out is None:
+        out = sys.stdout
+
     tree = code_deparse(
         code,
         out,
@@ -1233,6 +1260,8 @@ def deparse_code2str(
         compile_mode=compile_mode,
         is_pypy=is_pypy,
         walker=walker,
+        start_offset=start_offset,
+        stop_offset=stop_offset,
     )
 
     return "# deparse failed" if tree is None else tree.text
@@ -1242,7 +1271,7 @@ if __name__ == "__main__":
 
     def deparse_test(co):
         "This is a docstring"
-        s = deparse_code2str(co)
+        s = deparse_code2str(co, sys.stdout)
         # s = deparse_code2str(co, debug_opts={"asm": "after", "tree":
         # {'before': False, 'after': False}})
         print(s)
