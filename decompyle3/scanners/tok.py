@@ -29,6 +29,9 @@ def off2int(offset: int, prefer_last=True) -> int:
         if len(offsets) == 1:
             return offsets[0]
         else:
+            assert 2 <= len(offsets) <= 3
+            if len(offsets) == 3:
+                offsets = offsets[:-1]
             assert len(offsets) == 2
             offset_1, offset_2 = offsets
         if offset_1 + 2 == offset_2:

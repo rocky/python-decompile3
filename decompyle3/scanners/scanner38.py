@@ -87,10 +87,10 @@ class Scanner38(Scanner37):
         next_end = tokens[len(tokens) - 1].off2int() + 10
 
         new_tokens = []
-        for i, token in enumerate(tokens):
+        for token in tokens:
             opname = token.kind
             offset = token.offset
-            if offset == next_end:
+            if token.off2int(prefer_last=False) == next_end:
                 loop_ends.pop()
                 if self.debug:
                     print(f"{'  ' * len(loop_ends)}remove loop offset {offset}")
@@ -108,7 +108,7 @@ class Scanner38(Scanner37):
                 if self.debug:
                     print(
                         f"{'  ' * len(loop_ends)}adding loop offset {offset} ending "
-                        "at {next_end}"
+                        f"at {next_end}"
                     )
                 loop_ends.append(next_end)
 
