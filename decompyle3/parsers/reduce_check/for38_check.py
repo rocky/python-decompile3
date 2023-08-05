@@ -1,4 +1,4 @@
-#  Copyright (c) 2020, 2022 Rocky Bernstein
+#  Copyright (c) 2020, 2022-2023 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@ from decompyle3.scanners.tok import off2int
 
 
 def for38_invalid(
-    self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
+    self, lhs: str, n: int, rule, tree, tokens: list, first: int, last: int
 ) -> bool:
     """The only difference between a "for" and and a "for else" is that
     that jumps within the "for" never go past the "FOR_ITER" offset.

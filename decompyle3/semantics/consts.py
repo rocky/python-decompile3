@@ -138,10 +138,8 @@ ASSIGN_DOC_STRING = lambda doc_string, doc_load: SyntaxTree(    # noqa
     [
         SyntaxTree(
             "expr", [
-                SyntaxTree(
-                    "constant",
-                    [ Token(doc_load, pattr=doc_string, attr=doc_string) ],
-                    )]
+                Token(doc_load, pattr=doc_string, attr=doc_string),
+                    ]
         ),
         SyntaxTree("store", [Token("STORE_NAME", pattr="__doc__")]),
     ],
