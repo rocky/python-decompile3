@@ -53,6 +53,7 @@ STRIPPED_NODES = (
     # "for_jump_pop_iff",
     # "for_jump_unconditional",
     # "for_loop",
+    "forelsestmt38",
     # "genexpr_func",
     "genexpr_func_async",
     # "jifop",

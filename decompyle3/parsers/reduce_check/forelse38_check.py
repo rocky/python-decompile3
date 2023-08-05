@@ -13,8 +13,6 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from decompyle3.scanners.tok import off2int
-
 
 def forelse38_invalid(
     self, lhs: str, n: int, rule, tree, tokens: list, first: int, last: int
@@ -25,8 +23,36 @@ def forelse38_invalid(
     """
 
     come_froms = tree[5]
-    # from trepan.api import debug; debug()
-    if come_froms != "_come_froms" or come_froms[0] != "_come_froms":
-        return False
+    else_start = come_froms.first_child().off2int()
+    saw_break = False
+    saw_break_to_last = False
+    last_offset = tokens[last].off2int()
 
-    return len(come_froms) == 2 and come_froms[1] == "COME_FROM"
+    # for i in range(first, last):
+    #     print(tokens[i])
+
+    # print("XXX", else_start, last_offset)
+
+    for i in range(first, last):
+        t = tokens[i]
+        if t.off2int() >= else_start:
+            break
+        if t == "BREAK_LOOP":
+            if else_start <= t.attr < last_offset:
+                # We should not be jumping into the "else" part.
+                return True
+            saw_break = True
+            saw_break_to_last = t.attr == last_offset
+            # if saw_break_to_last:
+            #     from trepan.api import debug; debug()
+        if t.kind == "JUMP_FORWARD":
+            # We should be jumping to the "else" part.
+            if not t.attr == else_start:
+                return True
+
+    # If we haven't seen a BREAK_LOOP, then
+    # "for/else" and "for" are the same. But here
+    # we should prefer the simpler "for"
+    if saw_break:
+        return not saw_break_to_last
+    return True

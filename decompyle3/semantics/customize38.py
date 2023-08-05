@@ -124,7 +124,7 @@ def customize_for_version38(self, version):
                 (2, "store"),
                 (0, "expr"),
                 (3, "for_block"),
-                -1,
+                -2,  # -1 when _come_froms is removed
             ),
             "forelselaststmt38": (
                 "%|for %c in %c:\n%+%c%-%|else:\n%+%c%-",
