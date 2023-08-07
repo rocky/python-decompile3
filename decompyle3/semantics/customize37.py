@@ -386,7 +386,7 @@ def customize_for_version37(self, version):
             "or_parts": (
                 "%P or %p",
                 (0, -1, "or ", PRECEDENCE["or"]),
-                (1, "expr_pjif", PRECEDENCE["or"]),
+                (1, ("expr_pjif", "expr_pjit"), PRECEDENCE["or"]),
             ),
             "store_async_iter_end": ("%c", (0, "store")),
             "testfalsec": (
@@ -589,7 +589,7 @@ def customize_for_version37(self, version):
     # FIXME: we should be able to compress this into a single template
     def n_or_parts(node):
         if len(node) == 1:
-            self.template_engine(("%c", (0, "expr_pjit")), node)
+            self.template_engine(("%c", (0, "expr_pjit", "expr_pjif")), node)
             self.prune()
         else:
             self.default(node)

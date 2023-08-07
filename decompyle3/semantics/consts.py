@@ -322,7 +322,9 @@ TABLE_DIRECT = {
     # comprehension
     "comp_if_or": (
         "%p or %p ",
-        (0, ("or_parts", "or_parts_true_loop", "or_parts_false_loop"), PRECEDENCE["or"] ),
+        (0,
+         ("or_parts", "or_parts_true_loop", "or_parts_false_loop"), PRECEDENCE["or"]
+        ),
         (1, "expr", PRECEDENCE["or"] ),
         ),
 

@@ -23,7 +23,6 @@ SKIP_TESTS=(
     [test_dtrace.py]=1 # Multiple runtine errors
     [test_exceptions.py]=1 # parse error
     [test_ftplib.py]=1 #
-    [test_gc.py]=1 # Syntax error: cannot assign to operator: detector.gc_happened or i += 1
     [test_gzip.py]=1 #
     [test_iter.py]=1 # Syntax error starting with 8131525;  2e35252 compiles but is semantically wrong
     [test_itertools.py]=1 # Syntax error starting with 8131525;  2e35252 compiles but is semantically wrong
@@ -51,13 +50,11 @@ SKIP_TESTS=(
     [test_zipimport.py]=1 # test failures; works on uncompyle6
 
     [test_profile.py]=1 # FIXME: break outside of loop! works in c28a3d1c
-    [test_shelve.py]=1 # FIXME: probably incorrect parse to "or"; works in c28a3d1c
     [test_type_comments.py]=1 # FIXME: parse error works in c28a3d1c
     # And others!
 
     [test_c_locale_coercion.py]=1 # FIXME: parse error works in a810b68e
 
-    [test_shlex.py]=1 # FIXME: "or" is getting generated in a "for" instead of "if"
     [test_nis.py]=1 # FIXME: works on ac5594b0; probably a "for38" reduction check
     [test__xxsubinterpreters.py]=1 # FIXME: works on ac5594b0; probably a "for38" reduction checks
 

@@ -28,6 +28,7 @@ from decompyle3.parsers.reduce_check import (
 
 # from decompyle3.parsers.reduce_check.ifelsestmt_check import ifelsestmt_ok
 from decompyle3.parsers.reduce_check.ifstmt import ifstmt
+from decompyle3.parsers.reduce_check.or_cond_check import or_cond_check_invalid
 
 
 class Python38FullCustom(Python38LambdaCustom, PythonBaseParser):
@@ -797,6 +798,7 @@ class Python38FullCustom(Python38LambdaCustom, PythonBaseParser):
         self.reduce_check_table["break"] = break_invalid
         self.reduce_check_table["for38"] = for38_invalid
         self.reduce_check_table["joined_str"] = joined_str_check.joined_str_invalid
+        self.reduce_check_table["or"] = or_cond_check_invalid
         self.reduce_check_table["pop_return"] = pop_return_check
         self.reduce_check_table["whilestmt38"] = whilestmt38_check
         self.reduce_check_table["whileTruestmt38"] = whileTruestmt38_check
