@@ -141,6 +141,13 @@ def customize_for_version38(self, version):
                 -2,
             ),
             "ifpoplaststmtc": ("%|if %c:\n%+%c%-", (0, "testexpr"), (2, "c_stmts")),
+            "if_exp_compare38": (
+                "%p if %c else %c",
+                (2, "expr", PRECEDENCE["if_exp"] - 1),
+                (0, ("expr", "bool_op", "or_in_ifexp")),
+                -2,
+            ),
+            "or_in_ifexp": ("%c or %c", (0, "expr_pjit"), (1, "expr")),
             "pop_return": ("%|return %c\n", (1, "return_expr")),
             "popb_return": ("%|return %c\n", (0, "return_expr")),
             "pop_ex_return": ("%|return %c\n", (0, "return_expr")),

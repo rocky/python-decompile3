@@ -235,7 +235,7 @@ def customize_for_version37(self, version):
             "c_try_except": ("%|try:\n%+%c%-%c\n\n", 1, (3, "c_except_handler")),
             "if_exp_compare": (
                 "%p if %c else %c",
-                (1, "expr", 27),
+                (1, "expr", PRECEDENCE["if_exp"] - 1),
                 (0, ("expr", "bool_op")),
                 -2,  # Must be from end since beginnings might not match
             ),
@@ -243,15 +243,15 @@ def customize_for_version37(self, version):
             "except_return": ("%|except:\n%+%c%-", 3),
             "if_exp_37a": (
                 "%p if %p else %p",
-                (1, "expr", 27),
-                (0, 27),
-                (4, "expr", 27),
+                (1, "expr", PRECEDENCE["if_exp"] - 1),
+                (0, PRECEDENCE["if_exp"] - 1),
+                (4, "expr", PRECEDENCE["if_exp"] - 1),
             ),
             "if_exp_37b": (
                 "%p if %p else %p",
-                (1, "expr_pjif", 27),
-                (0, "expr_pjif", 27),
-                (3, "expr", 27),
+                (1, "expr_pjif", PRECEDENCE["if_exp"] - 1),
+                (0, "expr_pjif", PRECEDENCE["if_exp"] - 1),
+                (3, "expr", PRECEDENCE["if_exp"] - 1),
             ),
             "if_not_stmtc": (
                 "%|if not %c:\n%+%c%-",
