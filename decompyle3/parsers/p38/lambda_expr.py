@@ -39,12 +39,18 @@ class Python38LambdaParser(
 
         """
 
-    def p_expr38r(self, args):
+    def p_expr38(self, args):
         """
         expr ::= if_exp_compare38
-        or_in_ifexp ::= expr_pjit expr
-        if_exp_compare38 ::= or_in_ifexp jump_if_false_cf expr jf_cfs expr
-                             come_froms
+
+        if_exp_compare38 ::= or_in_ifexp jump_if_false_cf expr jf_cfs expr come_froms
+
+        list_iter        ::= list_if_not38
+        list_if_not38    ::= expr pjump_ift expr pjump_ift _come_froms list_iter
+                             come_from_opt
+
+        or_in_ifexp      ::= expr_pjit expr
+        or_in_ifexp      ::= or_in_ifexp POP_JUMP_IF_TRUE expr
         """
 
     def __init__(
