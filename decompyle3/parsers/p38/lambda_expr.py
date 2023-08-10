@@ -1,4 +1,4 @@
-#  Copyright (c) 2020-2022 Rocky Bernstein
+#  Copyright (c) 2020-2023 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -16,14 +16,11 @@
 Differences over Python 3.7 for Python 3.8 in the Earley-algorithm lambda grammar
 """
 
+from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+
 from decompyle3.parsers.p37.lambda_expr import Python37LambdaParser
 from decompyle3.parsers.p38.lambda_custom import Python38LambdaCustom
-from decompyle3.parsers.parse_heads import (
-    PythonParserLambda,
-    PythonBaseParser,
-)
-
-from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+from decompyle3.parsers.parse_heads import PythonBaseParser, PythonParserLambda
 
 
 class Python38LambdaParser(
@@ -39,6 +36,21 @@ class Python38LambdaParser(
     def p_lambda_start(self, args):
         """
         return_expr_lambda ::= genexpr_func LOAD_CONST RETURN_VALUE_LAMBDA
+
+        """
+
+    def p_expr38(self, args):
+        """
+        expr ::= if_exp_compare38
+
+        if_exp_compare38 ::= or_in_ifexp jump_if_false_cf expr jf_cfs expr come_froms
+
+        list_iter        ::= list_if_not38
+        list_if_not38    ::= expr pjump_ift expr pjump_ift _come_froms list_iter
+                             come_from_opt
+
+        or_in_ifexp      ::= expr_pjit expr
+        or_in_ifexp      ::= or_in_ifexp POP_JUMP_IF_TRUE expr
         """
 
     def __init__(

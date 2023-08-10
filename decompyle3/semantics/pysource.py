@@ -700,8 +700,10 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                 if len(tup) == 3:
                     (index, nonterm_name, self.prec) = tup
                     if isinstance(tup[1], str):
-                        # if node[index] != nonterm_name:
-                        #     from trepan.api import debug; debug()
+                        if node[index] != nonterm_name:
+                            from trepan.api import debug
+
+                            debug()
                         assert (
                             node[index] == nonterm_name
                         ), "at %s[%d], expected '%s' node; got '%s'" % (

@@ -740,6 +740,27 @@ class NonterminalActions:
 
     n_ifelsestmtr2 = n_ifelsestmtr
 
+    def n_import_as37(self, node):
+        if node[1].attr is not None:
+            self.template_engine(
+                (
+                    "%|from %c import %[1]{attr[0]} as %c\n",
+                    (2, "importlist37"),
+                    (-2, "store"),
+                ),
+                node,
+            )
+        else:
+            self.template_engine(
+                (
+                    "%|import %c as %c\n",
+                    (2, ("importlist37", "IMPORT_NAME_ATTR")),
+                    (-2, "store"),
+                ),
+                node,
+            )
+        self.prune()
+
     def n_lambda_body(self, node):
         make_function36(self, node, is_lambda=True, code_node=node[-2])
         self.prune()  # stop recursing
@@ -1035,7 +1056,7 @@ class NonterminalActions:
     def n_set_comp(self, node):
         self.write("{")
         if node[0] in ["LOAD_SETCOMP", "LOAD_DICTCOMP"]:
-            self.comprehension_walk_newer(node, 1, 0)
+            self.comprehension_walk_newer(node, 4, 0)
         elif node[0].kind == "load_closure":
             # Token GET_ITER forms or nonterminal "get_iter" forms
             assert node[-2].kind.lower() in ("get_iter", "get_aiter")

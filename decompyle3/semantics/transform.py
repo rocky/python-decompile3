@@ -56,6 +56,7 @@ STRIPPED_NODES = (
     "forelsestmt38",
     # "genexpr_func",
     "genexpr_func_async",
+    "if_exp_compare38",
     # "jifop",
     # "jitop",
     # "or",

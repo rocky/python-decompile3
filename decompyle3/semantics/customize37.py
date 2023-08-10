@@ -235,7 +235,7 @@ def customize_for_version37(self, version):
             "c_try_except": ("%|try:\n%+%c%-%c\n\n", 1, (3, "c_except_handler")),
             "if_exp_compare": (
                 "%p if %c else %c",
-                (1, "expr", 27),
+                (1, "expr", PRECEDENCE["if_exp"] - 1),
                 (0, ("expr", "bool_op")),
                 -2,  # Must be from end since beginnings might not match
             ),
@@ -243,15 +243,15 @@ def customize_for_version37(self, version):
             "except_return": ("%|except:\n%+%c%-", 3),
             "if_exp_37a": (
                 "%p if %p else %p",
-                (1, "expr", 27),
-                (0, 27),
-                (4, "expr", 27),
+                (1, "expr", PRECEDENCE["if_exp"] - 1),
+                (0, PRECEDENCE["if_exp"] - 1),
+                (4, "expr", PRECEDENCE["if_exp"] - 1),
             ),
             "if_exp_37b": (
                 "%p if %p else %p",
-                (1, "expr_pjif", 27),
-                (0, "expr_pjif", 27),
-                (3, "expr", 27),
+                (1, "expr_pjif", PRECEDENCE["if_exp"] - 1),
+                (0, "expr_pjif", PRECEDENCE["if_exp"] - 1),
+                (3, "expr", PRECEDENCE["if_exp"] - 1),
             ),
             "if_not_stmtc": (
                 "%|if not %c:\n%+%c%-",
@@ -301,7 +301,6 @@ def customize_for_version37(self, version):
                 (6, "stmts"),
                 (-2, "else_suite"),
             ),
-            "import_as37": ("%|import %c as %c\n", 2, -2),
             "import_from37": ("%|from %[2]{pattr} import %c\n", (3, "importlist37")),
             "import_from_as37": (
                 "%|from %c as %c\n",
@@ -385,8 +384,8 @@ def customize_for_version37(self, version):
             ),
             "or_parts": (
                 "%P or %p",
-                (0, -1, "or ", PRECEDENCE["or"]),
-                (1, "expr_pjif", PRECEDENCE["or"]),
+                (0, -1, " or ", PRECEDENCE["or"]),
+                (1, ("expr_pjif", "expr_pjit"), PRECEDENCE["or"]),
             ),
             "store_async_iter_end": ("%c", (0, "store")),
             "testfalsec": (
@@ -589,7 +588,7 @@ def customize_for_version37(self, version):
     # FIXME: we should be able to compress this into a single template
     def n_or_parts(node):
         if len(node) == 1:
-            self.template_engine(("%c", (0, "expr_pjit")), node)
+            self.template_engine(("%c", (0, "expr_pjit", "expr_pjif")), node)
             self.prune()
         else:
             self.default(node)
@@ -932,6 +931,7 @@ def customize_for_version37(self, version):
             self.default(node)
             return
         n = len(node) - 1
+        i = -1
         for i in range(n, -1, -1):
             if node[i] != "ROT_TWO":
                 break

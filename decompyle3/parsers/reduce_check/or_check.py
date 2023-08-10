@@ -1,4 +1,4 @@
-#  Copyright (c) 2020, 2022 Rocky Bernstein
+#  Copyright (c) 2020, 2022-2023 Rocky Bernstein
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation, either version 3 of the License, or
@@ -24,7 +24,7 @@ LOAD_ASSERT RAISE_VARARGS_1 STORE_FAST STORE_DEREF STORE_GLOBAL STORE_ATTR STORE
 )
 
 
-def or_check(
+def or_check37_invalid(
     self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
 ) -> bool:
 
