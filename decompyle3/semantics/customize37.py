@@ -301,7 +301,6 @@ def customize_for_version37(self, version):
                 (6, "stmts"),
                 (-2, "else_suite"),
             ),
-            "import_as37": ("%|import %c as %c\n", 2, -2),
             "import_from37": ("%|from %[2]{pattr} import %c\n", (3, "importlist37")),
             "import_from_as37": (
                 "%|from %c as %c\n",
@@ -385,7 +384,7 @@ def customize_for_version37(self, version):
             ),
             "or_parts": (
                 "%P or %p",
-                (0, -1, "or ", PRECEDENCE["or"]),
+                (0, -1, " or ", PRECEDENCE["or"]),
                 (1, ("expr_pjif", "expr_pjit"), PRECEDENCE["or"]),
             ),
             "store_async_iter_end": ("%c", (0, "store")),
@@ -932,6 +931,7 @@ def customize_for_version37(self, version):
             self.default(node)
             return
         n = len(node) - 1
+        i = -1
         for i in range(n, -1, -1):
             if node[i] != "ROT_TWO":
                 break
