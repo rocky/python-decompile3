@@ -1013,7 +1013,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                     t.kind = "RETURN_END_IF_LAMBDA"
                 elif t.kind == "RETURN_VALUE":
                     t.kind = "RETURN_VALUE_LAMBDA"
-            tokens.append(Token("LAMBDA_MARKER"))
+            tokens.append(Token("LAMBDA_MARKER", optype="pseudo"))
             try:
                 if self.p_lambda is None:
                     self.p_lambda = get_python_parser(

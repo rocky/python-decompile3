@@ -48,6 +48,7 @@ STRIPPED_NODES = (
     "compare_chained_right",
     "compare_chained_right_return",
     # "dict_comp_func",
+    "ending_return",
     # "expr_pjif",
     # "expr_pjit",
     # "for_jump_pop_iff",
