@@ -227,6 +227,7 @@ class Scanner37Base(Scanner):
         new_tokens.append(
             Token(
                 opname="COLLECTION_START",
+                optype="pseudo",
                 attr=collection_enum,
                 pattr=collection_type,
                 offset=f"{start_offset}_0",
