@@ -21,13 +21,17 @@ SKIP_TESTS=(
     [test_decorators.py]=1 # parse error
 
     [test_dtrace.py]=1 # Multiple runtine errors
+
     [test_exceptions.py]=1 # parse error
+    # ERROR: test_generator_leaking (__main__.ExceptionTests)
+    # ERROR: test_yield_in_nested_try_excepts (__main__.ExceptionTests)
+
     [test_ftplib.py]=1 #
     [test_gzip.py]=1 #
-    [test_iter.py]=1 # Syntax error starting with 8131525;  2e35252 compiles but is semantically wrong
-    [test_itertools.py]=1 # Syntax error starting with 8131525;  2e35252 compiles but is semantically wrong
+    [test_iter.py]=1 # test_iter_empty hangs (timeout occurs)
+    [test_itertools.py]=1 # Takes a long time to decompile
 
-    [test_builtin.py]=1 # too long to run test; works on uncompyle6 probably "while True" vs "while"
+    [test_builtin.py]=1 # parse error; works on uncompyle6
 
     [test_capi.py]=1 # too long to run; works on uncompyle6 ? probably "while True" vs "while"
     [test_codeccallbacks.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6 ?
@@ -40,17 +44,17 @@ SKIP_TESTS=(
     [test_fileio.py]=1 # test failures
     [test_format.py]=1 # assert failure works on uncompyle6?
 
-    [test_marshal.py]=1 # runs some but errors and times out; works on uncompyle6
+    [test_marshal.py]=1 # parse error; works on uncompyle6
     [test_smtplib.py]=1 # parse error; works on uncompyle6
     [test_threadedtempfile.py]=1 # parse error; works on uncompyle6
-    [test_time.py]=1 # parses but incorrect deparse; works on uncompyle6
+    [test_time.py]=1 # parses error; works on uncompyle6
     [test_urllib2net.py]=1 # parse error; works on uncompyle6
     [test_urllib.py]=1 # parser error; works on uncompyle6
     [test_venv.py]=1 # Fails on its own
     [test_zipimport.py]=1 # test failures; works on uncompyle6
 
     [test_profile.py]=1 # FIXME: break outside of loop! works in c28a3d1c
-    [test_type_comments.py]=1 # FIXME: parse error works in c28a3d1c
+    [test_type_comments.py]=1 # test fails; works in c28a3d1c
     # And others!
 
     [test_c_locale_coercion.py]=1 # FIXME: parse error works in a810b68e
@@ -64,7 +68,6 @@ SKIP_TESTS=(
     [test_argparse.py]=1 #- it fails on its own
     [test_asdl_parser.py]=1 # it fails on its own
     [test_ast.py]=1 # test fails - probably wrong python decompiled
-    [test_asynchat.py]=1 # Fails and takes more than 30 secons
     [test_asyncgen.py]=1 # parse error
     [test_atexit.py]=1  # The atexit test looks for specific comments in error lines
 
@@ -103,20 +106,21 @@ SKIP_TESTS=(
     [test_doctest.py]=1 # test check failures
     [test_docxmlrpc.py]=1
 
-    [test_enum.py]=1   # Test errors
-    [test_exception_hierarchy.py]=1 # UnboundLocalError: local variable 'errnames' referenced before assignment
-
+    [test_enum.py]=1   # Interesting Test error:
+    # TypeError: metaclass conflict: the metaclass of a derived class must be a (non-strict) subclass of the metaclasses of all its bases
     [test_file_eintr.py]=1 # too long to run test; works on 3.7.7
-    [test_fileinput.py]=1  # parse error
     [test_frame.py]=1 # Test failures - decompilation incorrect
     [test_fstring.py]=1 # Investigate: Syntax error unexcpeted EOF wile parsing
-    [test_functools.py]=1 # running tests takes too long
+    [test_functools.py]=1 # parse error
 
     [test_gdb.py]=1 # it fails on its own
     [test_generators.py]=1  # parse error
-    [test_glob.py]=1  # test errors
+    [test_glob.py]=1  # test error
+    # TypeError: join() argument must be str, bytes, or os.PathLike object, not 'tuple'
+
     [test_grammar.py]=1 # parse error (also takes a while to decompile)
-    [test_grp.py]=1 # takes too long to run
+    [test_grp.py]=1 # test error
+    # UnboundLocalError: local variable 'fakegid' referenced before assignment
 
     [test_httplib.py]=1 # parse error
     [test_httpservers.py]=1 # test check failure
@@ -138,7 +142,10 @@ SKIP_TESTS=(
     [test_mailbox.py]=1 # test failures
     [test_math.py]=1 # parser error; takes a long time to run
     [test_minidom.py]=1 # test failure
+
     [test_modulefinder.py]=1 # test failures
+    # AssertionError: Lists differ: ['a'] != ['a', 'b']
+
     [test_msilib.py]=1 # fails on its own
     [test_multiprocessing_fork.py]=1 # test takes too long to run: 62 seconds
     [test_multiprocessing_forkserver.py]=1
