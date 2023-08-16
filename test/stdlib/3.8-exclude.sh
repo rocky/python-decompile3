@@ -31,25 +31,27 @@ SKIP_TESTS=(
     [test_iter.py]=1 # test_iter_empty hangs (timeout occurs)
     [test_itertools.py]=1 # Takes a long time to decompile
 
-    [test_builtin.py]=1 # parse error; works on uncompyle6
+    [test_builtin.py]=1 # run error TypeError: pow() 3rd argument not allowed unless all arguments are integers
+    # works on uncompyle6
 
     [test_capi.py]=1 # too long to run; works on uncompyle6 ? probably "while True" vs "while"
     [test_codeccallbacks.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6 ?
 
-    [test_dataclasses.py]=1 # SyntaxError: f-string: empty expression not allowed
-    [test_deque.py]=1 # FAILS on test_long_steadystate_queue_popright; works on uncompyle6 ?
+    [test_dataclasses.py]=1 # run error: TypeError: non-default argument '__import__' follows default argument
+    # works on uncompyle6
+    [test_deque.py]=1 # ERROR on test_getitem
+    # FAILS on test_long_steadystate_queue_popright; works on uncompyle6 ?
 
     [test_parser.py]=1 # TypeError: unsupported operand type(s) for +=: 'int' and 'NoneType'
 
     [test_fileio.py]=1 # test failures
     [test_format.py]=1 # assert failure works on uncompyle6?
 
-    [test_marshal.py]=1 # parse error; works on uncompyle6
+    [test_marshal.py]=1 # takes too long to run; works on uncompyle6
     [test_smtplib.py]=1 # parse error; works on uncompyle6
     [test_threadedtempfile.py]=1 # parse error; works on uncompyle6
     [test_time.py]=1 # parses error; works on uncompyle6
     [test_urllib2net.py]=1 # parse error; works on uncompyle6
-    [test_urllib.py]=1 # parser error; works on uncompyle6
     [test_venv.py]=1 # Fails on its own
     [test_zipimport.py]=1 # test failures; works on uncompyle6
 

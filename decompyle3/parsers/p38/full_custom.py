@@ -17,10 +17,9 @@
 from decompyle3.parsers.p37.base import Python37BaseParser
 from decompyle3.parsers.p38.lambda_custom import Python38LambdaCustom
 from decompyle3.parsers.parse_heads import PythonBaseParser, nop_func
-from decompyle3.parsers.reduce_check import (
+from decompyle3.parsers.reduce_check import (  # joined_str_check,
     break_invalid,
     for38_invalid,
-    joined_str_check,
     pop_return_check,
     whilestmt38_check,
     whileTruestmt38_check,
@@ -797,7 +796,7 @@ class Python38FullCustom(Python38LambdaCustom, PythonBaseParser):
 
         self.reduce_check_table["break"] = break_invalid
         self.reduce_check_table["for38"] = for38_invalid
-        self.reduce_check_table["joined_str"] = joined_str_check.joined_str_invalid
+        # self.reduce_check_table["joined_str"] = joined_str_check.joined_str_invalid
         self.reduce_check_table["or"] = or_cond_check_invalid
         self.reduce_check_table["pop_return"] = pop_return_check
         self.reduce_check_table["whilestmt38"] = whilestmt38_check
