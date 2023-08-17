@@ -1,13 +1,13 @@
-#  Copyright (c) 2020 Rocky Bernstein
+#  Copyright (c) 2020, 2023 Rocky Bernstein
 
 from decompyle3.scanners.tok import Token
 
 
-def ifstmts_jump(
-    self, lhs: str, n: int, rule, ast, tokens: list, first: int, last: int
+def ifstmts_jump_invalid(
+    self, lhs: str, n: int, rule, tree, tokens: list, first: int, last: int
 ) -> bool:
 
-    come_froms = ast[-1]
+    come_froms = tree[-1]
     # This is complicated, but note that the JUMP_IF instruction comes immediately
     # *before* _ifstmts_jump so that's what we have to test
     # the COME_FROM against. This can be complicated by intervening
@@ -39,7 +39,7 @@ def ifstmts_jump(
 
     pop_jump_offset = jump_token.off2int(prefer_last=False)
     if isinstance(come_froms, Token):
-        if jump_token.attr < pop_jump_offset and ast[0] != "pass":
+        if jump_token.attr < pop_jump_offset and tree[0] != "pass":
             # This is a jump backwards to a loop. All bets are off here when there the
             # unless statement is "pass" which has no instructions associated with it.
             return False

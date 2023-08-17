@@ -16,7 +16,7 @@ from decompyle3.parsers.reduce_check import (
     ifelsestmt,
     iflaststmt,
     ifstmt,
-    ifstmts_jump,
+    ifstmts_jump_invalid,
     lastc_stmt,
     list_if_not,
     not_or_check,
@@ -1109,7 +1109,7 @@ class Python37BaseParser(PythonBaseParser):
             pass
 
         self.reduce_check_table = {
-            "ifstmts_jump": ifstmts_jump,
+            "ifstmts_jump": ifstmts_jump_invalid,
             "and": and_invalid,
             "and_cond": and_cond_check,
             "and_not": and_not_check,

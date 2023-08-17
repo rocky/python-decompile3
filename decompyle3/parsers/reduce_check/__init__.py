@@ -17,10 +17,11 @@ from decompyle3.parsers.reduce_check.for38_check import for38_invalid
 from decompyle3.parsers.reduce_check.forelse38_check import forelse38_invalid
 from decompyle3.parsers.reduce_check.if_and_elsestmt import *  # noqa
 from decompyle3.parsers.reduce_check.if_and_stmt import if_and_stmt
+from decompyle3.parsers.reduce_check.if_not_stmtc import if_not_stmtc_invalid
 from decompyle3.parsers.reduce_check.ifelsestmt import ifelsestmt
 from decompyle3.parsers.reduce_check.iflaststmt import *  # noqa
 from decompyle3.parsers.reduce_check.ifstmt import *  # noqa
-from decompyle3.parsers.reduce_check.ifstmts_jump import *  # noqa
+from decompyle3.parsers.reduce_check.ifstmts_jump import ifstmts_jump_invalid
 from decompyle3.parsers.reduce_check.lastc_stmt import *  # noqa
 from decompyle3.parsers.reduce_check.list_if_not import *  # noqa
 from decompyle3.parsers.reduce_check.not_or_check import *  # noqa
@@ -43,6 +44,8 @@ __all__ = [
     "for38_invalid",
     "forelse38_invalid",
     "if_and_stmt",
+    "if_not_stmtc_invalid",
+    "ifstmts_jump_invalid",
     "ifelsestmt",
     "pop_return_check",
     "whilestmt38_check",

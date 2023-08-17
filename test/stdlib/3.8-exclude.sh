@@ -31,11 +31,9 @@ SKIP_TESTS=(
     [test_iter.py]=1 # test_iter_empty hangs (timeout occurs)
     [test_itertools.py]=1 # Takes a long time to decompile
 
-    [test_builtin.py]=1 # run error TypeError: pow() 3rd argument not allowed unless all arguments are integers
-    # works on uncompyle6
-
     [test_capi.py]=1 # too long to run; works on uncompyle6 ? probably "while True" vs "while"
-    [test_codeccallbacks.py]=1 # parses but runs for more than 30 seconds; works on uncompyle6 ?
+    [test_codeccallbacks.py]=1 # UnboundLocalError: local variable 'callargs' referenced before assignment
+    # works on uncompyle6 ?
 
     [test_dataclasses.py]=1 # run error: TypeError: non-default argument '__import__' follows default argument
     # works on uncompyle6
@@ -45,7 +43,7 @@ SKIP_TESTS=(
     [test_parser.py]=1 # TypeError: unsupported operand type(s) for +=: 'int' and 'NoneType'
 
     [test_fileio.py]=1 # test failures
-    [test_format.py]=1 # assert failure works on uncompyle6?
+    [test_format.py]=1 # parse error; works on uncompyle6?
 
     [test_marshal.py]=1 # takes too long to run; works on uncompyle6
     [test_smtplib.py]=1 # parse error; works on uncompyle6
@@ -62,7 +60,10 @@ SKIP_TESTS=(
     [test_c_locale_coercion.py]=1 # FIXME: parse error works in a810b68e
 
     [test_nis.py]=1 # FIXME: works on ac5594b0; probably a "for38" reduction check
+    # SyntaxError: 'break' outside loop
+
     [test__xxsubinterpreters.py]=1 # FIXME: works on ac5594b0; probably a "for38" reduction checks
+    # self.end not in ('same', 'opposite', 'send', 'recv')ValueErrorself.end        elif self.action in ('close',
 
     [test_urllib2.py]=1 # FIXME: parse failure; works on uncompyle6?
 
