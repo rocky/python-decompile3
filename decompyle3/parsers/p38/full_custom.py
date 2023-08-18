@@ -20,6 +20,7 @@ from decompyle3.parsers.parse_heads import PythonBaseParser, nop_func
 from decompyle3.parsers.reduce_check import (  # joined_str_check,
     break_invalid,
     for38_invalid,
+    forelse38_invalid,
     if_not_stmtc_invalid,
     pop_return_check,
     whilestmt38_check,
@@ -787,6 +788,8 @@ class Python38FullCustom(Python38LambdaCustom, PythonBaseParser):
         self.check_reduce["testfalsec"] = "tokens"
 
         self.check_reduce["break"] = "tokens"
+        self.check_reduce["forelselaststmt38"] = "AST"
+        self.check_reduce["forelselaststmtc38"] = "AST"
         self.check_reduce["for38"] = "tokens"
         self.check_reduce["ifstmt"] = "AST"
         self.check_reduce["joined_str"] = "AST"
@@ -798,6 +801,8 @@ class Python38FullCustom(Python38LambdaCustom, PythonBaseParser):
         self.reduce_check_table["break"] = break_invalid
         self.reduce_check_table["if_not_stmtc"] = if_not_stmtc_invalid
         self.reduce_check_table["for38"] = for38_invalid
+        self.reduce_check_table["forelselaststmt38"] = forelse38_invalid
+        self.reduce_check_table["forelselaststmtc38"] = forelse38_invalid
         # self.reduce_check_table["joined_str"] = joined_str_check.joined_str_invalid
         self.reduce_check_table["or"] = or_cond_check_invalid
         self.reduce_check_table["pop_return"] = pop_return_check

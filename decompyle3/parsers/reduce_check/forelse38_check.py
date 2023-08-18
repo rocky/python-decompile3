@@ -22,8 +22,6 @@ def forelse38_invalid(
     for_iter.
     """
 
-    come_froms = tree[5]
-    else_start = come_froms.first_child().off2int()
     saw_break = False
     saw_break_to_last = False
     last_offset = tokens[last].off2int()
@@ -31,7 +29,11 @@ def forelse38_invalid(
     # for i in range(first, last):
     #     print(tokens[i])
 
-    # print("XXX", else_start, last_offset)
+    else_start = None
+    for node in tree:
+        if node.kind.startswith("else"):
+            else_start = node.first_child().off2int()
+    assert else_start is not None
 
     for i in range(first, last):
         t = tokens[i]

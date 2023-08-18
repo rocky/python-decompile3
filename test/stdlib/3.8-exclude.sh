@@ -53,14 +53,10 @@ SKIP_TESTS=(
     [test_venv.py]=1 # Fails on its own
     [test_zipimport.py]=1 # test failures; works on uncompyle6
 
-    [test_profile.py]=1 # FIXME: break outside of loop! works in c28a3d1c
     [test_type_comments.py]=1 # test fails; works in c28a3d1c
     # And others!
 
     [test_c_locale_coercion.py]=1 # FIXME: parse error works in a810b68e
-
-    [test_nis.py]=1 # FIXME: works on ac5594b0; probably a "for38" reduction check
-    # SyntaxError: 'break' outside loop
 
     [test__xxsubinterpreters.py]=1 # FIXME: works on ac5594b0; probably a "for38" reduction checks
     # self.end not in ('same', 'opposite', 'send', 'recv')ValueErrorself.end        elif self.action in ('close',
