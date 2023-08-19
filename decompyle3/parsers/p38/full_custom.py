@@ -760,6 +760,7 @@ class Python38FullCustom(Python38LambdaCustom, PythonBaseParser):
         self.check_reduce["annotate_tuple"] = "tokens"
         self.check_reduce["aug_assign1"] = "AST"
         self.check_reduce["aug_assign2"] = "AST"
+        self.check_reduce["c_forelsestmt38"] = "AST"
         self.check_reduce["c_try_except"] = "AST"
         self.check_reduce["c_tryelsestmt"] = "AST"
         self.check_reduce["if_and_stmt"] = "AST"
@@ -801,6 +802,7 @@ class Python38FullCustom(Python38LambdaCustom, PythonBaseParser):
         self.reduce_check_table["break"] = break_invalid
         self.reduce_check_table["if_not_stmtc"] = if_not_stmtc_invalid
         self.reduce_check_table["for38"] = for38_invalid
+        self.reduce_check_table["c_forelsestmt38"] = forelse38_invalid
         self.reduce_check_table["forelselaststmt38"] = forelse38_invalid
         self.reduce_check_table["forelselaststmtc38"] = forelse38_invalid
         # self.reduce_check_table["joined_str"] = joined_str_check.joined_str_invalid
@@ -819,13 +821,14 @@ class Python38FullCustom(Python38LambdaCustom, PythonBaseParser):
         )
 
         self.check_reduce["ifelsestmt"] = "AST"
+        self.check_reduce["ifelsestmtc"] = "AST"
         self.check_reduce["ifstmt"] = "AST"
         # self.check_reduce["import_from37"] = "AST"
 
     def customize_grammar_rules38(self, tokens, customize):
         Python37BaseParser.customize_grammar_rules37(self, tokens, customize)
         self.customize_reduce_checks_lambda38()
-        self.customize_reduce_checks_full38()
+        self.customize_reduce_checks_full38(tokens, customize)
 
         # include instructions that don't need customization,
         # but we'll do a finer check after the rough breakout.

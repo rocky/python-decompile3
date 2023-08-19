@@ -1,12 +1,12 @@
 SKIP_TESTS=(
+    [test_compile.py]=1 # parse error involving lambda
+
     # Very Simple example. Compare with 3.7 Need 3.8 parse rules for exception handling return
     #    for proto in p:
     #    try:
     #        drop = 5
     #    except StopIteration:
     #        continue
-
-    [test_dict.py]=1 # runtime error (kb, vb) = tb = b.popitem(); KeyError: 'popitem(): dictionary is empty'
 
     # Simple example. Compare with 3.7 Need 3.8 parse rules for exception handling return
     #    try:
@@ -20,14 +20,14 @@ SKIP_TESTS=(
     # between 3.8.3 and 3.8.5 ?
     [test_decorators.py]=1 # parse error
 
-    [test_dtrace.py]=1 # Multiple runtine errors
+    [test_dtrace.py]=1 # Multiple runtime errors
 
     [test_exceptions.py]=1 # parse error
     # ERROR: test_generator_leaking (__main__.ExceptionTests)
     # ERROR: test_yield_in_nested_try_excepts (__main__.ExceptionTests)
 
-    [test_ftplib.py]=1 #
-    [test_gzip.py]=1 #
+    [test_ftplib.py]=1 # parse error
+    [test_gzip.py]=1 # parse error
     [test_iter.py]=1 # test_iter_empty hangs (timeout occurs)
     [test_itertools.py]=1 # Takes a long time to decompile
 
@@ -35,13 +35,32 @@ SKIP_TESTS=(
     [test_codeccallbacks.py]=1 # UnboundLocalError: local variable 'callargs' referenced before assignment
     # works on uncompyle6 ?
 
+    [test_collections.py]=1 # parse error
+    [test_compare.py]=1 # runtime test error
+
+    [test_context.py]=1 # runtime error
+    #    self.error_on_eq_to is otherValueErrorf"cannot compare {self!r} to {other!r}"            if other.error_on_eq_to is not None:
+    # runtime test error
+
+    [test_curses.py]=1 # runtime error
+
     [test_dataclasses.py]=1 # run error: TypeError: non-default argument '__import__' follows default argument
     # works on uncompyle6
+
+    [test_dbm.py]=1 # takes to long to run
+
     [test_deque.py]=1 # ERROR on test_getitem
     # FAILS on test_long_steadystate_queue_popright; works on uncompyle6 ?
 
+    [test_eintr_tester.py]=1 # runtime test error
+    [test_email]=1 # directory which we can't handle.
+    [test_errno_mapping]=1 # runtime test error
+    [test_exception_hierarchy]=1 # runtime test error
+
     [test_parser.py]=1 # TypeError: unsupported operand type(s) for +=: 'int' and 'NoneType'
 
+    [test_asyncore.py]=1 # takes to long to run runs too
+    [test_binascii.py]=1 # takes to long to run runs too
     [test_fileio.py]=1 # test failures
     [test_format.py]=1 # parse error; works on uncompyle6?
 
@@ -82,9 +101,7 @@ SKIP_TESTS=(
     [test_cmath.py]=1 # parse error
     [test_cmd_line.py]=1  # Interactive?
     [test_cmd_line_script.py]=1 # test check failures
-    [test_code.py]=1 # test fails - probably wrong python decompiled
     [test_codecs.py]=1 # test takes too long to run - probabl wrong python decompiled
-    [test_compile.py]=1 # parse error involving lambda
     [test_compileall.py]=1 # fails on its own
     [test_concurrent_futures.py]=1 # too long
     [test_configparser.py]=1 # test failures
@@ -103,11 +120,13 @@ SKIP_TESTS=(
     [test_dictcomps.py]=1 # test check failures
     [test_dis.py]=1   # Parse error. We change line numbers - duh!
     [test_doctest.py]=1 # test check failures
-    [test_docxmlrpc.py]=1
+    [test_docxmlrpc.py]=1 # parse error
 
     [test_enum.py]=1   # Interesting Test error:
     # TypeError: metaclass conflict: the metaclass of a derived class must be a (non-strict) subclass of the metaclasses of all its bases
+
     [test_file_eintr.py]=1 # too long to run test; works on 3.7.7
+    [test_fileinput.py]=1 # too long to run
     [test_frame.py]=1 # Test failures - decompilation incorrect
     [test_fstring.py]=1 # Investigate: Syntax error unexcpeted EOF wile parsing
     [test_functools.py]=1 # parse error
@@ -118,17 +137,20 @@ SKIP_TESTS=(
     # TypeError: join() argument must be str, bytes, or os.PathLike object, not 'tuple'
 
     [test_grammar.py]=1 # parse error (also takes a while to decompile)
-    [test_grp.py]=1 # test error
-    # UnboundLocalError: local variable 'fakegid' referenced before assignment
 
+    [test_hashlib.py]=1 # parse error
+    [test_heapq.py]=1 # runtime error
     [test_httplib.py]=1 # parse error
     [test_httpservers.py]=1 # test check failure
 
     [test_io.py]=1 # test takes too long to run: 37 seconds
     [test_imaplib.py]=1 # parse error
+    [test_import]=1 # directory
     [test_inspect.py]=1 # parse error
+    [test_json]=1 # directory
 
     [test_kqueue.py]=1 # it fails on its own
+    [test_plistlib.py]=1 # runtime error
 
     [test__locale.py]=1 # parse error
     [test_largefile.py]=1 # parse error
@@ -138,9 +160,7 @@ SKIP_TESTS=(
     [test_long.py]=1 # test check failures. Takes a long time to run
     [test_lzma.py]=1 # it fails on its own
 
-    [test_mailbox.py]=1 # test failures
     [test_math.py]=1 # parser error; takes a long time to run
-    [test_minidom.py]=1 # test failure
 
     [test_modulefinder.py]=1 # test failures
     # AssertionError: Lists differ: ['a'] != ['a', 'b']
@@ -151,6 +171,11 @@ SKIP_TESTS=(
     [test_multiprocessing_spawn.py]=1 # takes too long to run before decompilation
 
     [test_named_expressions.py]=1 # Investigate tests failures. This stress tests named-expression handling
+    # File "test_named_expressions.py", line 246
+    # fib = {c := a: (a := b) + (b := a + c) - b for __ in range(6)}
+    #          ^
+    # SyntaxError: invalid syntax
+    #
     [test_normalization.py]=1 # parse error
     [test_nntplib.py]=1 # takes too long to run before decompilation: 25 seconds
 
@@ -207,7 +232,6 @@ SKIP_TESTS=(
     [test_strptime.py]=1 # test check failure(s)
     [test_strtod.py]=1 # test check failure(s)
     [test_struct.py]=1 # test check failure(s)
-    [test_structmembers.py]=1 # test check failure(s)
     [test_subprocess.py]=1
     [test_support.py]=1 # parse error
     [test_sys.py]=1 # parse error

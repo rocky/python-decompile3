@@ -27,7 +27,6 @@ def ifelsestmt(
     # print("XXX", first, last, rule)
     # for t in range(first, last): print(tokens[t])
     # print("="*40)
-    # from trepan.api import debug; debug()
 
     first_offset = tokens[first].off2int()
     last_offset = tokens[last].off2int(prefer_last=False)
@@ -182,11 +181,13 @@ def ifelsestmt(
 
         if if_condition == "and_cond" and if_condition[1] == "expr_pjif":
             if_condition = if_condition[1]
-        if len(if_condition) > 1 and if_condition[1].kind.startswith("POP_JUMP_IF_"):
+
+        if_condition_last = if_condition.last_child()
+        if if_condition_last.kind.startswith("POP_JUMP_IF_"):
             if last == n:
                 last -= 1
 
-            jmp = if_condition[1]
+            jmp = if_condition_last
             jump_target = jmp.attr
 
             # Below we check that jump_target is jumping to a feasible
@@ -216,14 +217,17 @@ def ifelsestmt(
                 jump_else_end in ("jf_cfs", "jump_forward_else")
                 and jump_else_end[0] == "JUMP_FORWARD"
             ):
-                # If the "else" jump jumps before the end of the the "if .. else end", then this
-                # is not this kind of "ifelsestmt".
+                # If the "else" jump jumps before the end of the the "if .. else end",
+                # then this is not this kind of "ifelsestmt".
                 jump_else_forward = jump_else_end[0]
                 jump_else_forward_target = jump_else_forward.attr
                 if jump_else_forward_target < last_offset:
                     return True
                 pass
-            if jump_else_end == "jf_cfs" and jump_else_end[-1] == "COME_FROM":
+            if (
+                jump_else_end in ("jf_cfs", "come_froms")
+                and jump_else_end[-1] == "COME_FROM"
+            ):
                 if jump_else_end[-1].off2int() != jump_target:
                     return True
 
@@ -243,7 +247,7 @@ def ifelsestmt(
             # words, tokens[last] should have be a COME_FROM. Otherwise the
             # "else" suite should be extended to cover the next instruction at
             # tokens[last].
-            if jump_else_end in ("jb_elsec", "jb_cfs") and tokens[last].kind not in (
+            if jump_else_end in ("jb_elsec", "jb_cfs") and tokens[last] not in (
                 "COME_FROM",
                 "JUMP_LOOP",
                 "COME_FROM_LOOP",
@@ -253,6 +257,13 @@ def ifelsestmt(
             # If the part before the "else" statement doesn't have a JUMP in it,
             # i.e. is a "COME_FROM", then the statement before he COME_FROM should
             # not fallthrough. Otherwise we have an "if" statement, not "if/else".
+
+            # if lhs == "ifelsestmtc":
+            #     print("XXX", first, last, tokens[first], tokens[last])
+            #     from trepan.api import debug; debug()
+
+            if jump_else_end == "come_froms":
+                jump_else_end = jump_else_end.last_child()
             if jump_else_end == "COME_FROM":
                 come_from_offset = jump_else_end.off2int(prefer_last=False)
                 before_come_from = self.insts[
