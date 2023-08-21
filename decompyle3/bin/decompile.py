@@ -24,7 +24,8 @@ def usage():
 
 
 @click.command()
-@click.option("--asm", "-a", "show_asm", count=True)
+@click.option("--asm++/--no-asm++", "-A", "asm_plus", default=False)
+@click.option("--asm/--no-asm", "-a", default=False)
 @click.option("--grammar/--no-grammar", "-g", "show_grammar", default=False)
 @click.option("--tree/--no-tree", "-t", default=False)
 @click.option("--tree++/--no-tree++", "-T", "tree_plus", default=False)
@@ -65,10 +66,11 @@ def usage():
 )
 @click.argument("files", nargs=-1, type=click.Path(readable=True), required=True)
 def main_bin(
-    show_asm: int,
+    asm: bool,
+    asm_plus: bool,
     show_grammar,
-    tree,
-    tree_plus,
+    tree: bool,
+    tree_plus: bool,
     verify,
     recurse_dirs,
     outfile,
@@ -129,8 +131,8 @@ def main_bin(
         outfile = None
 
     # A second -a turns show_asm="after" into show_asm="before"
-    if show_asm > 0:
-        asm_opt = "both" if show_asm > 1 else "after"
+    if asm_plus or asm:
+        asm_opt = "both" if asm_plus else "after"
     else:
         asm_opt = None
 

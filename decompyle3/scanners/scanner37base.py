@@ -306,6 +306,9 @@ class Scanner37Base(Scanner):
                 cells=bytecode._cell_names,
                 linestarts=bytecode._linestarts,
                 asm_format="extended",
+                filename=co.co_filename,
+                show_source=True,
+                first_line_number=co.co_firstlineno,
             )
 
         # "customize" is in the process of going away here
