@@ -41,7 +41,8 @@ jobs:
         - v1-dep-master-
         # Any branch if there are none on the default branch - this should be unnecessary if you have your default branch configured correctly
         - v1-dep-
-    # This is based on your 1.0 configuration file or project settings
+    # Until the next xdis release
+    - run: sudo pip install git+https://github.com/rocky/python-xdis#egg=xdis
     - run: sudo pip install -e .
     - run: sudo pip install pytest==3.2.5 hypothesis==3.0.0
     # Save dependency cache

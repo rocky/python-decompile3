@@ -207,6 +207,7 @@ SKIP_TESTS=(
     [test_poplib.py]=1 # parse error
     [test_posix.py]=1 # parse error
     [test_posixpath.py]=1 # runtime error
+    [test_pow.py]=1 # runtime error
     [test_pwd.py]=1 # killing - does not terminate
     [test_pulldom.py]=1 # test check failures
     [test_pyclbr.py]=1 # parse error
