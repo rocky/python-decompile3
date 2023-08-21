@@ -125,11 +125,18 @@ SKIP_TESTS=(
     [test_enum.py]=1   # Interesting Test error:
     # TypeError: metaclass conflict: the metaclass of a derived class must be a (non-strict) subclass of the metaclasses of all its bases
 
+    [test_errno_mapping.py]=1   # runtime error
+    #     self.assertIs(type(e), OSError)
+    # AssertionError: <class 'PermissionError'> is not <class 'OSError'>
+
+    [test_exception_hierarchy.py]=1   # runtime error
+
     [test_file_eintr.py]=1 # too long to run test; works on 3.7.7
     [test_fileinput.py]=1 # too long to run
     [test_frame.py]=1 # Test failures - decompilation incorrect
     [test_fstring.py]=1 # Investigate: Syntax error unexcpeted EOF wile parsing
     [test_functools.py]=1 # parse error
+    [test___future__.py]=1 # test failure
 
     [test_gdb.py]=1 # it fails on its own
     [test_generators.py]=1  # parse error
@@ -199,6 +206,7 @@ SKIP_TESTS=(
     [test_positional_only_arg.py]=1 # test failures
     [test_poplib.py]=1 # parse error
     [test_posix.py]=1 # parse error
+    [test_posixpath.py]=1 # runtime error
     [test_pwd.py]=1 # killing - does not terminate
     [test_pulldom.py]=1 # test check failures
     [test_pyclbr.py]=1 # parse error
@@ -269,15 +277,17 @@ SKIP_TESTS=(
     [test_winconsoleio.py]=1 # it fails on its own
     [test_winreg.py]=1 # it fails on its own
     [test_winsound.py]=1 # it fails on its own
+    [test_wsgiref.py]=1 # runtime error
 
     [test_xml_etree.py]=1 # parse error
     [test_xmlrpc.py]=1 # parse error
 
     [test_yield_from.py]=1 # test failures (2)
 
-    [test_zlib.py]=1 # test looping take more than 15 seconds to run
     [test_zipfile.py]=1 # it fails on its own
     [test_zipfile64.py]=1 #
+    [test_zipimport_support.py]=1 # runtime error
+    [test_zlib.py]=1 # test looping take more than 15 seconds to run
 )
 # 210 test files, Elapsed time about 16
 

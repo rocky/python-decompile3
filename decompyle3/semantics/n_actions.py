@@ -745,7 +745,7 @@ class NonterminalActions:
             self.template_engine(
                 (
                     "%|from %c import %[1]{attr[0]} as %c\n",
-                    (2, "importlist37"),
+                    (2, ("importlist37", "IMPORT_NAME_ATTR")),
                     (-2, "store"),
                 ),
                 node,
