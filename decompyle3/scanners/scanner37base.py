@@ -220,7 +220,7 @@ class Scanner37Base(Scanner):
 
         collection_enum = CONST_COLLECTIONS.index(collection_type)
 
-        # If we get here, all instructions before tokens[i] are LOAD_CONST and we can replace
+        # If we get here, all instructions before tokens[i] are LOAD_CONST and we can
         # add a boundary marker and change LOAD_CONST to something else.
         new_tokens = next_tokens[:-count]
         start_offset = tokens[collection_start].offset
@@ -298,7 +298,7 @@ class Scanner37Base(Scanner):
 
         if show_asm in ("both", "before"):
             print("\n# ---- before tokenization:")
-            bytecode.disassemble_bytes(
+            self.insts = bytecode.disassemble_bytes(
                 co.co_code,
                 varnames=co.co_varnames,
                 names=co.co_names,
@@ -665,6 +665,7 @@ class Scanner37Base(Scanner):
                     has_arg=inst.has_arg,
                     opc=self.opc,
                     has_extended_arg=inst.has_extended_arg,
+                    formatted=inst.formatted,
                 ),
             )
             if opname == "CONTINUE":
