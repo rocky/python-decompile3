@@ -9,7 +9,7 @@ The issue may be flagged to make it easier for those looking for illegal activit
 
 If you are reporting a bug in decompilation, it will probably not be acted upon
 unless it is narrowed to a small example. You may have to do some work remove
-extraneous code from the source example. Most bugs  can be expressed in 30 lines of
+extraneous code from the source example. Most bugs can be expressed in 30 lines of
 code.
 
 Bugs are not for asking questions about a problem you
@@ -17,9 +17,9 @@ are trying to solve that involve the use of decompyle3 along the way,
 although I may be more tolerant of this if you sponsor the project.
 
 Bugs are also not for general or novice kind help on how to install
-this Python program in your environment in the way you would like to
-have it set up, or how to interpret a Python traceback e.g. that winds
-up saying Python X.Y.Z is not supported.
+this Python program and its dependencies in your environment, or in
+the way you would like to have it set up, or how to interpret a Python
+traceback e.g. that winds up saying Python X.Y.Z is not supported.
 
 For these kinds of things, you will save yourself time by asking
 instead on forums like StackOverflow that are geared to helping people
@@ -57,7 +57,7 @@ Prerequisites/Caveats
   disassembler and produces valid results.
 * Try to make the bytecode that exhibits a bug as small as possible.
 * Don't put bytecode and corresponding source code on any service that
-  requires registration to download.
+  requires registration to download. Instead attach it as a zip file.
 * When you open a bug report there is no privacy. If you need privacy, then
   contact me by email and explain who you are and the need for privacy.
   But be mindful that you may be asked to sponsor the project for the
@@ -86,7 +86,7 @@ $ decompyle3 <command-line-options>
 $
 ```
 
-Provide links to the Python bytecode. For example, you can create a
+Attach a zip file to the Python bytecode or a
 gist with the information. If you have the correct source code, you
 can add that too.
 
