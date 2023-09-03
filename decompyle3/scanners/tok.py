@@ -74,16 +74,18 @@ class Token:
         # the instruction associated with opname sits
         # at next offset
         has_extended_arg=False,
-        formatted=None,
+        tos_str=None,
+        start_offset=None,
     ):
         self.attr = attr
-        self.formatted = formatted
         self.has_arg = has_arg
         self.kind = sys.intern(opname)
         self.linestart = linestart
         self.offset = f"{offset}_{offset+2}" if has_extended_arg else offset
         self.optype = optype
         self.pattr = pattr
+        self.start_offset = start_offset
+        self.tos_str = tos_str
         if has_arg is False:
             self.attr = None
             self.pattr = None
@@ -160,7 +162,7 @@ class Token:
         name = self.kind
 
         if self.has_arg:
-            pattr = self.formatted if self.formatted is not None else self.pattr
+            pattr = self.tos_str if self.tos_str is not None else self.pattr
             if self.opc:
                 if self.op in self.opc.JREL_OPS:
                     if not self.pattr.startswith("to "):

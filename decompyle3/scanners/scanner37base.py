@@ -381,6 +381,7 @@ class Scanner37Base(Scanner):
                         inst.is_jump_target,
                         inst.has_extended_arg,
                         None,
+                        None,
                     )
 
         # Get jump targets
@@ -665,7 +666,8 @@ class Scanner37Base(Scanner):
                     has_arg=inst.has_arg,
                     opc=self.opc,
                     has_extended_arg=inst.has_extended_arg,
-                    formatted=inst.formatted,
+                    tos_str=inst.tos_str,
+                    start_offset=inst.start_offset,
                 ),
             )
             if opname == "CONTINUE":
