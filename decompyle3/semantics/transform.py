@@ -37,6 +37,7 @@ STRIPPED_NODES = (
     # "async_for_loop",
     # "async_iter",
     # "branch_op",
+    "bb_start_opt",
     "come_froms",
     # "comp_if",
     # "comp_iter",

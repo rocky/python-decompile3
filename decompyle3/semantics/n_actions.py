@@ -761,7 +761,7 @@ class NonterminalActions:
             )
         self.prune()
 
-    def n_lambda_body(self, node):
+    def n_lambda_body(self, node: SyntaxTree):
         make_function36(self, node, is_lambda=True, code_node=node[-2])
         self.prune()  # stop recursing
 
@@ -1031,8 +1031,8 @@ class NonterminalActions:
             self.preorder(node[0])
             self.prune()
         else:
-            # We can't comment out like above because there may be a trailing ')'
-            # that needs to be written
+            # We can't comment out dead code like we do above because
+            # there may be a trailing ')' that needs to be written.
             assert len(node) == 3 and node[2] in (
                 "RETURN_VALUE_LAMBDA",
                 "LAMBDA_MARKER",
