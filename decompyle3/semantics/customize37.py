@@ -1190,7 +1190,7 @@ def customize_for_version37(self, version):
         if value == "":
             fmt = "%c(%p)"
         else:
-            fmt = "%%c(%s, %%p)" % value
+            fmt = "%c" + ("(%s, " % value).replace('%', '%%') + "%p)"
 
         self.template_engine(
             (fmt, (0, "expr"), (2, "build_map_unpack_with_call", 100)), node
@@ -1209,7 +1209,7 @@ def customize_for_version37(self, version):
         if value == "":
             fmt = "%c(%p)"
         else:
-            fmt = "%%c(%s, %%p)" % value
+            fmt = "%c" + ("(%s, " % value).replace('%', '%%') + "%p)"
 
         self.template_engine(
             (fmt, (0, "expr"), (2, "build_map_unpack_with_call", 100)), node
