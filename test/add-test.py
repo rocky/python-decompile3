@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 """ Trivial helper program to bytecompile and run an uncompile
 """
-import os, sys, py_compile
+import os
+import py_compile
+import sys
+
 import click
 from xdis.version_info import version_tuple_to_str
 
@@ -63,7 +66,7 @@ def main(code_format, show_asm, grammar, tree, tree_plus, optimize, files):
             os.system(f"../bin/decompyle3 {decompile_opts} {bytecode}")
         else:
             os.system(
-                f"../bin/decompile-code -F {code_format} {decompile_opts} {bytecode}"
+                f"../bin/decompyle-code -F {code_format} {decompile_opts} {bytecode}"
             )
 
 

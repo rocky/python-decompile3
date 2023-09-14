@@ -68,7 +68,6 @@ class ComprehensionMixin:
             assert tree == "set_for", tree.kind
             store = tree[2]
             iter_index = 3
-            collection_index = 4
         else:
             store = tree[4]
             iter_index = 5
@@ -318,6 +317,9 @@ class ComprehensionMixin:
 
         if tree.kind == "genexpr_func_async":
             genexpr_func_async = tree
+        elif tree.kind == "set_iter":
+            # Not sure if this is correct
+            node = tree = tree[0]
         elif tree.kind != "genexpr_func":
             # Not sure if this is still correct
             genexpr_func_async = tree[1]
@@ -384,6 +386,8 @@ class ComprehensionMixin:
         elif node == "list_comp" and tree[0] == "expr":
             tree = tree[0][0]
             n = tree[iter_index]
+        elif node == "set_comp" and tree[1] == "set_iter":
+            n = tree[1]
         else:
             n = tree[iter_index]
 
@@ -423,7 +427,7 @@ class ComprehensionMixin:
             if n.kind in ("RETURN_VALUE_LAMBDA", "return_expr_lambda"):
                 self.prune()
 
-            assert n.kind in ("list_iter", "comp_iter", "set_iter_async"), n
+            assert n.kind in ("list_iter", "comp_iter", "set_iter", "set_iter_async"), n
 
         # FIXME: I'm not totally sure this is right.
 
@@ -597,6 +601,8 @@ class ComprehensionMixin:
                 self.preorder(collection_node)
         else:
             if not collection_node:
+                if node[3] == "set_iter":
+                    self.preorder(tree[0])
                 collection_node = node[collection_node_index]
             self.preorder(collection_node)
 

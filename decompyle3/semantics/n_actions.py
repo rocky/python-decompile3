@@ -1066,8 +1066,11 @@ class NonterminalActions:
             self.closure_walk(node, collection_index=collection_index)
         else:
             # Token GET_ITER forms or nonterminal "get_iter" forms
-            assert node[-2].kind.lower() in ("get_iter", "get_aiter")
-            self.comprehension_walk(node, iter_index=-2)
+            if node[1] == "set_iter":
+                self.comprehension_walk_newer(node[1], iter_index=3)
+            else:
+                assert node[-2].kind.lower() in ("get_iter", "get_aiter")
+                self.comprehension_walk(node, iter_index=-2)
         self.write("}")
         self.prune()
 
