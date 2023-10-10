@@ -74,7 +74,7 @@ obfuscation.
 Checking if bytecode is valid is pretty simple: disassemble the code.
 Python comes with a disassembly module called `dis`. A prerequisite
 module for this package, `xdis` has a cross-python version
-disassembler called `pydisasm`.
+disassembler called `pydisasm`. Using that with the `-F extended` option, generally provides a more comprehensive disassembly than is provided by other disassemblers.
 
 ## Semantic equivalence vs. exact source code
 
