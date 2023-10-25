@@ -53,7 +53,7 @@ This I am *finally* slowly doing in yet another non-public project. It
 is a lot of work.  Funding in the form of sponsorhip while greatly
 appreciated isn't commensurate with the amount of effort, and
 currently I have a full-time job. So it may take time before it is
-available publicly.
+available publicly, if at all.
 
 Requirements
 ------------
