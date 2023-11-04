@@ -765,7 +765,7 @@ class NonterminalActions:
         make_function36(self, node, is_lambda=True, code_node=node[-2])
         self.prune()  # stop recursing
 
-    def n_list(self, node):
+    def n_list(self, node: SyntaxTree):
         """
         prettyprint a dict, list, set or tuple.
         """
@@ -837,11 +837,7 @@ class NonterminalActions:
                     sep += " "
             self.write(sep, value)
             sep = ","
-        if (
-            isinstance(lastnode, Token)
-            and lastnode.attr == 1
-            and lastnodetype.startswith("BUILD_TUPLE")
-        ):
+        if lastnodetype.startswith("BUILD_TUPLE") and lastnode.attr == 1:
             self.write(",")
         self.write(endchar)
         self.indent_less(INDENT_PER_LEVEL)
