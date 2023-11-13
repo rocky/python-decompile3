@@ -140,6 +140,11 @@ def customize_for_version38(self, version):
                 (3, "for_block"),
                 -2,
             ),
+            "if_or_not_stmt": (
+                "%|if %c:\n%+%c%-",
+                (0, "testfalse"),
+                (1, ("ifstmts_jump", "stmts")),
+            ),
             "ifpoplaststmtc": ("%|if %c:\n%+%c%-", (0, "testexpr"), (2, "c_stmts")),
             "if_exp_compare38": (
                 "%p if %c else %c",
@@ -150,6 +155,11 @@ def customize_for_version38(self, version):
             "list_if_not38": (" if not %c", (2, "expr", PRECEDENCE["unary_not"])),
             "or_in_ifexp": (
                 "%c or %c",
+                (0, ("or_in_ifexp", "expr_pjit")),
+                (-1, "expr"),
+            ),
+            "or_not": (
+                "%c or not %c",
                 (0, ("or_in_ifexp", "expr_pjit")),
                 (-1, "expr"),
             ),

@@ -181,7 +181,13 @@ class TreeTransform(GenericASTTraversal, object):
 
     def n_ifstmt(self, node):
         """Here we check if we can turn an `ifstmt` or 'iflaststmtc` into
-        some kind of `assert` statement"""
+        some kind of `assert` statement.
+
+        Also:
+          if or_in_ifexp ifstmts_jump becomes:
+          if "not_or ifstmts_jump
+
+        """
 
         testexpr = node[0]
 
@@ -191,6 +197,18 @@ class TreeTransform(GenericASTTraversal, object):
         if node.kind in ("ifstmt", "ifstmtc"):
             stmts = None
             ifstmts_jump = node[1]
+            if ifstmts_jump == "ifstmts_jump":
+                testtrue = copy(testexpr[0])
+                if testtrue == "testtrue" and testtrue[0] == "or_in_ifexp":
+                    testfalse = copy(testtrue)
+                    testfalse.kind = "testfalse"
+                    testfalse[0].kind = "or_not"
+                    node = SyntaxTree(
+                        "if_or_not_stmt",
+                        [testfalse, ifstmts_jump],
+                        transformed_by="n_ifstmt",
+                    )
+                    return node
 
             if ifstmts_jump == "ifstmts_jumpc" and ifstmts_jump[0] == "ifstmts_jump":
                 ifstmts_jump = ifstmts_jump[0]
@@ -256,7 +274,8 @@ class TreeTransform(GenericASTTraversal, object):
                     #                         call (3)
                     #                     1. RAISE_VARARGS_1
                     # becomes:
-                    # assert2 ::= assert_expr POP_JUMP_IF_TRUE LOAD_ASSERT expr RAISE_VARARGS_1 COME_FROM
+                    # assert2 ::= assert_expr POP_JUMP_IF_TRUE LOAD_ASSERT expr
+                    #             RAISE_VARARGS_1 COME_FROM
                     if jump_cond in ("POP_JUMP_IF_TRUE", NoneToken):
                         kind = "assert2"
                     else:
@@ -297,7 +316,8 @@ class TreeTransform(GenericASTTraversal, object):
                     #                  LOAD_ASSERT
                     #             1.   RAISE_VARARGS_1
                     # becomes:
-                    # assert ::= assert_expr POP_JUMP_IF_TRUE LOAD_ASSERT RAISE_VARARGS_1 COME_FROM
+                    # assert ::= assert_expr POP_JUMP_IF_TRUE LOAD_ASSERT
+                    #            RAISE_VARARGS_1 COME_FROM
                     assert_expr.transformed_by = "n_ifstmt"
                     if jump_cond in (
                         "POP_JUMP_IF_TRUE",
