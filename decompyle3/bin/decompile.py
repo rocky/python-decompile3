@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Mode: -*- python -*-
 #
-# Copyright (c) 2015-2017, 2019-2023 by Rocky Bernstein
+# Copyright (c) 2015-2017, 2019-2024 by Rocky Bernstein
 # Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 
@@ -24,11 +24,29 @@ def usage():
 
 
 @click.command()
-@click.option("--asm++/--no-asm++", "-A", "asm_plus", default=False)
+@click.option(
+    "--asm++/--no-asm++",
+    "-A",
+    "asm_plus",
+    default=False,
+    help="show xdis assembler and tokenized assembler",
+)
 @click.option("--asm/--no-asm", "-a", default=False)
 @click.option("--grammar/--no-grammar", "-g", "show_grammar", default=False)
 @click.option("--tree/--no-tree", "-t", default=False)
-@click.option("--tree++/--no-tree++", "-T", "tree_plus", default=False)
+@click.option(
+    "--tree++/--no-tree++",
+    "-T",
+    "tree_plus",
+    default=False,
+    help="show parse tree and Abstract Syntax Tree",
+)
+@click.option(
+    "--linemaps/--no-linemaps",
+    default=False,
+    help="show line number correspondencies between byte-code "
+    "and generated source output",
+)
 @click.option(
     "--verify",
     type=click.Choice(["run", "syntax"]),
@@ -71,6 +89,7 @@ def main_bin(
     show_grammar,
     tree: bool,
     tree_plus: bool,
+    linemaps: bool,
     verify,
     recurse_dirs,
     outfile,
@@ -153,6 +172,7 @@ def main_bin(
                 showgrammar=show_grammar,
                 showast=show_ast,
                 do_verify=verify,
+                do_linemaps=linemaps,
                 start_offset=start_offset,
                 stop_offset=stop_offset,
             )

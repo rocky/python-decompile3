@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2023 by Rocky Bernstein
+#  Copyright (c) 2015-2024 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -66,6 +66,7 @@ The node position 0 will be associated with "import".
 import re
 from bisect import bisect_right
 from collections import namedtuple
+from typing import Optional
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from spark_parser.ast import GenericASTTraversalPruningException
@@ -89,7 +90,12 @@ from decompyle3.semantics.consts import (
 )
 from decompyle3.semantics.customize import customize_for_version
 from decompyle3.semantics.make_function36 import make_function36
-from decompyle3.semantics.pysource import TREE_DEFAULT_DEBUG, ParserError, StringIO
+from decompyle3.semantics.pysource import (
+    DEFAULT_DEBUG_OPTS,
+    TREE_DEFAULT_DEBUG,
+    ParserError,
+    StringIO,
+)
 from decompyle3.show import maybe_show_tree
 
 NodeInfo = namedtuple("NodeInfo", "node start finish")
@@ -183,20 +189,11 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.hide_internal = False
         self.offsets = {}
         self.last_finish = -1
-        self.debug_parser = dict(debug_parser)
-
-        # FIXME: have p.insts update in a better way
-        # modularity is broken here
-        self.p.insts = scanner.insts
-        self.p.opc = scanner.opc
-        self.p.offset2inst_index = scanner.offset2inst_index
+        self.is_pypy = is_pypy
 
         # FIXME: is there a better way?
         global MAP_DIRECT_FRAGMENT
         MAP_DIRECT_FRAGMENT = (dict(TABLE_DIRECT, **TABLE_DIRECT_FRAGMENT),)
-        self.version = version
-        self.is_pypy = is_pypy
-        customize_for_version(self, is_pypy, version)
         return
 
     f = property(
@@ -1044,7 +1041,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                     subclass = load_closure[-2].attr
                 else:
                     raise RuntimeError(
-                        "Internal Error n_classdef: cannot find class" "body"
+                        "Internal Error n_classdef: cannot find class body"
                     )
                 if hasattr(buildclass[3], "__len__"):
                     subclass_info = buildclass[3]
@@ -1052,7 +1049,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                     subclass_info = buildclass[2]
                 else:
                     raise RuntimeError(
-                        "Internal Error n_classdef: cannot superclass" " name"
+                        "Internal Error n_classdef: cannot superclass name"
                     )
             else:
                 subclass = buildclass[1][0].attr
@@ -1107,7 +1104,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         customize,
         is_lambda=False,
         returnNone=False,
-        debug_opts=pysource.DEFAULT_DEBUG_OPTS,
+        debug_opts=DEFAULT_DEBUG_OPTS,
     ):
         """convert parse tree to Python source code"""
 
@@ -1121,7 +1118,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             self.println(self.indent, "pass")
         else:
             self.customize(customize)
-            self.text = self.traverse(ast)
+            self.text = self.traverse(ast, is_lambda=is_lambda)
         self.name = old_name
         self.return_none = rn
 
@@ -1189,7 +1186,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         if len(tokens) == 0:
             return PASS
 
-        # Build parse tree from tokenized and massaged disassembly.
+        # Build a parse tree from tokenized and massaged disassembly.
         try:
             # FIXME: have p.insts update in a better way
             # modularity is broken here
@@ -1334,7 +1331,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             selectedText = text[start:finish]
 
         # Compute offsets relative to the beginning of the
-        # line rather than the beginning of the text
+        # line rather than the beginning of the text.
         try:
             lineStart = text[:start].rindex("\n") + 1
         except ValueError:
@@ -1342,7 +1339,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         adjustedStart = start - lineStart
 
         # If selected text is greater than a single line
-        # just show the first line plus ellipses.
+        # just show the first line plus ellipsis.
         lines = selectedText.split("\n")
         if len(lines) > 1:
             adjustedEnd = len(lines[0]) - adjustedStart
@@ -1415,7 +1412,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         p = node.parent
         orig_parent = p
         # If we can get different text, use that as the parent,
-        # otherwise we'll use the immeditate parent
+        # otherwise we'll use the immediatate parent.
         while p and (
             hasattr(p, "parent") and p.start == node.start and p.finish == node.finish
         ):
@@ -1897,12 +1894,12 @@ def deparse_code(
 
 def code_deparse(
     co,
-    out,
+    out=StringIO(),
     version=None,
+    is_pypy=IS_PYPY,
     debug_opts=DEFAULT_DEBUG_OPTS,
     code_objects={},
     compile_mode="exec",
-    is_pypy=IS_PYPY,
     walker=FragmentsWalker,
     start_offset: int = 0,
     stop_offset: int = -1,
@@ -1930,13 +1927,14 @@ def code_deparse(
 
     if version is None:
         version = PYTHON_VERSION_TRIPLE
+    if is_pypy is None:
+        is_pypy = IS_PYPY
 
     # store final output stream for case of error
     scanner = get_scanner(version, is_pypy=is_pypy, show_asm=debug_opts["asm"])
 
-    tokens, customize = scanner.ingest(
-        co, code_objects=code_objects, show_asm=debug_opts["asm"]
-    )
+    show_asm = debug_opts.get("asm", None)
+    tokens, customize = scanner.ingest(co, code_objects=code_objects, show_asm=show_asm)
 
     if start_offset > 0:
         for i, t in enumerate(tokens):
@@ -1980,12 +1978,12 @@ def code_deparse(
     # convert leading '__doc__ = "..." into doc string
     assert deparsed.ast == "stmts"
 
-    (deparsed.mod_globs, nonlocals) = pysource.find_globals_and_nonlocals(
+    (deparsed.mod_globs, _) = pysource.find_globals_and_nonlocals(
         deparsed.ast, set(), set(), co, version
     )
 
     # Just when you think we've forgotten about what we
-    # were supposed to to: Generate source from the Syntax ree!
+    # were supposed to do: Generate source from the Syntax tree!
     deparsed.gen_source(deparsed.ast, co.co_name, customize)
 
     deparsed.set_pos_info(deparsed.ast, 0, len(deparsed.text))
@@ -2028,8 +2026,8 @@ def code_deparse_around_offset(
     offset,
     co,
     out=StringIO(),
-    version=None,
-    is_pypy=None,
+    version: Optional[tuple] = None,
+    is_pypy: bool = False,
     debug_opts=DEFAULT_DEBUG_OPTS,
 ):
     """

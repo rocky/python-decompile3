@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2023 Rocky Bernstein <rocky@gnu.org>
+# Copyright (C) 2018-2024 Rocky Bernstein <rocky@gnu.org>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -133,15 +133,15 @@ def decompile(
             if isinstance(mapstream, str):
                 mapstream = _get_outstream(mapstream)
 
+            debug_opts = {"asm": showasm, "tree": showast, "grammar": grammar}
+
             deparsed = deparse_code_with_map(
-                bytecode_version,
-                co,
-                out,
-                showasm,
-                showast,
-                showgrammar,
+                co=co,
+                out=out,
+                version=bytecode_version,
                 code_objects=code_objects,
                 is_pypy=is_pypy,
+                debug_opts=debug_opts,
             )
             header_count = 3 + len(sys_version_lines)
             if deparsed is not None:
@@ -159,8 +159,8 @@ def decompile(
                 co,
                 out,
                 bytecode_version,
-                debug_opts=debug_opts,
                 is_pypy=is_pypy,
+                debug_opts=debug_opts,
                 compile_mode=compile_mode,
                 start_offset=start_offset,
                 stop_offset=stop_offset,
