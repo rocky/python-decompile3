@@ -1,4 +1,4 @@
-#  Copyright (c) 2016, 2018-2021, 2023 by Rocky Bernstein
+#  Copyright (c) 2016, 2018-2021, 2024 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -64,6 +64,10 @@ class Code(object):
     """
 
     def __init__(self, co, scanner, classname=None, show_asm=None):
+        # Full initialization is given below, but for linters
+        # well set up some initial values.
+        self.co_code = None  # Really either bytes for >= 3.0 and string in < 3.0
+
         for i in dir(co):
             if i.startswith("co_"):
                 setattr(self, i, getattr(co, i))
