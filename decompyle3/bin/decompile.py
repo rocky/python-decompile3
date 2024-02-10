@@ -161,8 +161,8 @@ def main_bin(
 
     numproc = 1
     if numproc <= 1:
+        show_ast = {"before": tree or tree_plus, "after": tree_plus}
         try:
-            show_ast = {"before": tree or tree_plus, "after": tree_plus}
             result = main(
                 src_base,
                 out_base,

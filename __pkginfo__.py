@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2023 Rocky Bernstein <rocky@gnu.org>
+# Copyright (C) 2018-2024 Rocky Bernstein <rocky@gnu.org>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -21,9 +21,11 @@
 # less elegant than having it here with reduced code, albeit there
 # still is some room for improvement.
 
+import os.path as osp
+
 # Things that change more often go here.
 copyright = """
-Copyright (C) 2015-2021, 2023 Rocky Bernstein <rb@dustyfeet.com>.
+Copyright (C) 2015-2021, 2024 Rocky Bernstein <rb@dustyfeet.com>.
 """
 
 classifiers = [
@@ -33,6 +35,7 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: Implementation :: PyPy",
     "Topic :: Software Development :: Debuggers",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
@@ -61,19 +64,16 @@ web = "https://github.com/rocky/python-decompile3/"
 zip_safe = True
 
 
-import os.path
-
-
 def get_srcdir():
-    filename = os.path.normcase(os.path.dirname(os.path.abspath(__file__)))
-    return os.path.realpath(filename)
+    filename = osp.normcase(osp.dirname(osp.abspath(__file__)))
+    return osp.realpath(filename)
 
 
 srcdir = get_srcdir()
 
 
 def read(*rnames):
-    return open(os.path.join(srcdir, *rnames)).read()
+    return open(osp.join(srcdir, *rnames)).read()
 
 
 # Get info from files; set: long_description and VERSION
