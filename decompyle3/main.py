@@ -64,7 +64,7 @@ def decompile(
     co,
     bytecode_version: Tuple[int] = PYTHON_VERSION_TRIPLE,
     out: Optional[TextIO] = sys.stdout,
-    showasm=None,
+    showasm: Optional[str] = None,
     showast={},
     timestamp=None,
     showgrammar=False,
@@ -103,7 +103,7 @@ def decompile(
     run_pypy_str = "PyPy " if IS_PYPY else ""
     sys_version_lines = sys.version.split("\n")
     if source_encoding:
-        write("# -*- coding: %s -*-" % source_encoding)
+        write(f"# -*- coding: {source_encoding} -*-")
     write(
         "# decompyle3 version %s\n"
         "# %sPython bytecode version base %s%s\n# Decompiled from: %sPython %s"
@@ -117,15 +117,16 @@ def decompile(
         )
     )
     if co.co_filename:
-        write("# Embedded file name: %s" % co.co_filename)
+        write(f"# Embedded file name: {co.co_filename}")
     if timestamp:
-        write("# Compiled at: %s" % datetime.datetime.fromtimestamp(timestamp))
+        write(f"# Compiled at: {datetime.datetime.fromtimestamp(timestamp)}")
     if source_size:
         write("# Size of source mod 2**32: %d bytes" % source_size)
 
     grammar = dict(PARSER_DEFAULT_DEBUG)
     if showgrammar:
         grammar["reduce"] = True
+
     debug_opts = {"asm": showasm, "tree": showast, "grammar": grammar}
 
     try:
@@ -180,11 +181,11 @@ def compile_file(source_path: str) -> str:
         basename = source_path
 
     if hasattr(sys, "pypy_version_info"):
-        bytecode_path = "%s-pypy%s.pyc" % (basename, version_tuple_to_str())
+        bytecode_path = f"{basename}-pypy{version_tuple_to_str()}.pyc"
     else:
-        bytecode_path = "%s-%s.pyc" % (basename, version_tuple_to_str())
+        bytecode_path = f"{basename}-{version_tuple_to_str()}.pyc"
 
-    print("compiling %s to %s" % (source_path, bytecode_path))
+    print(f"compiling {source_path} to {bytecode_path}")
     py_compile.compile(source_path, bytecode_path, "exec")
     return bytecode_path
 
@@ -208,7 +209,7 @@ def decompile_file(
 
     filename = check_object_path(filename)
     code_objects = {}
-    (version, timestamp, magic_int, co, is_pypy, source_size, sip_hash) = load_module(
+    version, timestamp, magic_int, co, is_pypy, source_size, _ = load_module(
         filename, code_objects
     )
 
@@ -255,7 +256,6 @@ def decompile_file(
                 stop_offset=stop_offset,
             )
         ]
-    co = None
     return deparsed
 
 
@@ -287,7 +287,7 @@ def main(
     - files below out_base	out_base=...
     - stdout			out_base=None, outfile=None
     """
-    tot_files = okay_files = failed_files = skipped = 0
+    tot_files = okay_files = failed_files = 0
     verify_failed_files = 0 if do_verify else 0
     current_outfile = outfile
     linemap_stream = None
@@ -299,8 +299,7 @@ def main(
         infile = osp.join(in_base, filename)
         # print("XXX", infile)
         if not osp.exists(infile):
-            sys.stderr.write("File '%s' doesn't exist. Skipped\n" % infile)
-            skipped += 1
+            sys.stderr.write(f"File '{infile}' doesn't exist. Skipped\n")
             continue
 
         if do_linemaps:
@@ -332,7 +331,7 @@ def main(
 
         # print(current_outfile, file=sys.stderr)
 
-        # Try to uncompile the input file
+        # Try to decompile the input file.
         try:
             deparsed_objects = decompile_file(
                 infile,
@@ -355,13 +354,13 @@ def main(
                     ):
                         if e[0] != last_mod:
                             line = "=" * len(e[0])
-                            outstream.write("%s\n%s\n%s\n" % (line, e[0], line))
+                            outstream.write(f"{line}\n{e[0]}\n{line}\n")
                         last_mod = e[0]
                         info = offsets[e]
-                        extractInfo = deparsed_object.extract_node_info(info)
-                        outstream.write("%s" % info.node.format().strip() + "\n")
-                        outstream.write(extractInfo.selectedLine + "\n")
-                        outstream.write(extractInfo.markerLine + "\n\n")
+                        extract_info = deparse_object.extract_node_info(info)
+                        outstream.write(f"{info.node.format().strip()}" + "\n")
+                        outstream.write(extract_info.selectedLine + "\n")
+                        outstream.write(extract_info.markerLine + "\n\n")
                     pass
                 pass
             if do_verify:
@@ -400,6 +399,7 @@ def main(
                             )
 
                     # sys.stderr.write(f"Ran {deparsed_object.f.name}\n")
+                pass
             tot_files += 1
         except (ValueError, SyntaxError, ParserError, pysource.SourceWalkerError) as e:
             sys.stdout.write("\n")
@@ -417,15 +417,13 @@ def main(
             sys.stdout.write(f"\n{str(e)}\n")
             if str(e).startswith("Unsupported Python"):
                 sys.stdout.write("\n")
-                sys.stderr.write(
-                    "\n# Unsupported bytecode in file %s\n# %s\n" % (infile, e)
-                )
+                sys.stderr.write(f"\n# Unsupported bytecode in file {infile}\n# {e}\n")
             else:
                 if outfile:
                     outstream.close()
                     os.remove(outfile)
                 sys.stdout.write("\n")
-                sys.stderr.write("\nLast file: %s   " % (infile))
+                sys.stderr.write(f"\nLast file: {infile}   ")
                 raise
 
         # except:
@@ -473,7 +471,7 @@ def main(
         except Exception:
             pass
         pass
-    return (tot_files, okay_files, failed_files, verify_failed_files)
+    return tot_files, okay_files, failed_files, verify_failed_files
 
 
 # ---- main ----
