@@ -7,6 +7,7 @@
 
 import os
 import sys
+from typing import List
 
 import click
 from xdis.version_info import version_tuple_to_str
@@ -91,14 +92,14 @@ def main_bin(
     tree_plus: bool,
     linemaps: bool,
     verify,
-    recurse_dirs,
+    recurse_dirs: bool,
     outfile,
     start_offset: int,
     stop_offset: int,
     files,
 ):
     """
-    Python bytecode decompiler for Python 3.7-3.8 bytecode
+    Cross Python bytecode decompiler for Python 3.7-3.8 bytecode
     """
     version_tuple = sys.version_info[0:2]
     if version_tuple < (3, 7):
@@ -109,13 +110,13 @@ def main_bin(
         sys.exit(-1)
 
     out_base = None
-    source_paths = []
+    source_paths: List[str] = []
     # timestamp = False
     # timestampfmt = "# %Y.%m.%d %H:%M:%S %Z"
 
     pyc_paths = files
 
-    # expand directory if specified
+    # Expand directory if "recurse" was specified.
     if recurse_dirs:
         expanded_files = []
         for f in pyc_paths:
