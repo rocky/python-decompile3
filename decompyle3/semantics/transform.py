@@ -165,6 +165,7 @@ class TreeTransform(GenericASTTraversal, object):
         if isinstance(mkfunc_pattr, tuple):
             assert isinstance(mkfunc_pattr, tuple)
             assert len(mkfunc_pattr) == 4 and isinstance(mkfunc_pattr, int)
+
         if len(code.co_consts) > 0 and isinstance(code.co_consts[0], str):
             docstring_node = SyntaxTree(
                 "docstring",
