@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2023 by Rocky Bernstein
+#  Copyright (c) 2015-2020, 2022-2024 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
@@ -15,7 +15,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-Python 37 bytecode scanner/deparser base.
+Python 3.7 bytecode scanner/deparser base.
 
 Also we *modify* the instruction sequence to assist deparsing code.
 For example:
@@ -39,7 +39,7 @@ import xdis.opcodes.opcode_37 as op3
 from xdis import Instruction, instruction_size, iscode
 from xdis.bytecode import _get_const_info
 
-from decompyle3.scanner import Scanner, Token
+from decompyle3.scanner import Scanner, Token, prefer_double_quote
 
 globals().update(op3.opmap)
 
@@ -471,6 +471,7 @@ class Scanner37Base(Scanner):
                     pattr = "<code_object " + const.co_name + ">"
                 elif isinstance(const, str):
                     opname = "LOAD_STR"
+                    pattr = prefer_double_quote(inst.argrepr)
                 else:
                     if isinstance(inst.arg, int) and inst.arg < len(co.co_consts):
                         argval, _ = _get_const_info(inst.arg, co.co_consts)

@@ -508,6 +508,16 @@ class Scanner:
         return self.Token
 
 
+def prefer_double_quote(string: str) -> str:
+    """
+    Prefer a double quoted string over a
+    single quoted string when possible
+    """
+    if string.find("'") == -1 and not string.startswith("'''"):
+        return f'"{string[1:-2]}"'
+    return string
+
+
 def parse_fn_counts(argc: int):
     return ((argc & 0xFF), (argc >> 8) & 0xFF, (argc >> 16) & 0x7FFF)
 
