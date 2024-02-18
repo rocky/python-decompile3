@@ -134,7 +134,7 @@ from io import StringIO
 from typing import Optional
 
 from spark_parser import GenericASTTraversal
-from xdis import COMPILER_FLAG_BIT, iscode
+from xdis import COMPILER_FLAG_BIT, IS_PYPY, iscode
 from xdis.version_info import PYTHON_VERSION_TRIPLE
 
 import decompyle3.parsers.main as python_parser
@@ -166,8 +166,6 @@ from decompyle3.semantics.transform import TreeTransform
 from decompyle3.show import maybe_show_tree
 from decompyle3.util import better_repr
 
-IS_PYPY = "__pypy__" in sys.builtin_module_names
-
 PARSER_DEFAULT_DEBUG = {
     "rules": False,
     "transition": False,
@@ -196,7 +194,8 @@ class SourceWalkerError(Exception):
 
 class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
     """
-    Class to traverses a Parse Tree of the bytecode instruction built from parsing to produce some sort of source text.
+    Class to traverse a Parse Tree of the bytecode instruction built from parsing to
+    produce some sort of source text.
     The Parse tree may be turned an Abstract Syntax tree as an intermediate step.
     """
 
@@ -261,17 +260,16 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
             str_with_template=self.str_with_template,
         )
 
-        self.ERROR = None
-        self.ast_errors = []
-        self.classes = []
-        self.currentclass = None
-        self.debug_parser = dict(debug_parser)
-
         # FIXME: have p.insts update in a better way
         # modularity is broken here
         self.p.insts = scanner.insts
 
+        self.ERROR = None
+        self.ast_errors = []
+        self.classes = []
         self.compile_mode = compile_mode
+        self.currentclass = None
+        self.debug_parser = dict(debug_parser)
         self.is_module = False
         self.is_pypy = is_pypy
         self.line_number = 1
