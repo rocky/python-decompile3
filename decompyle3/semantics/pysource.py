@@ -150,6 +150,7 @@ from decompyle3.semantics.consts import (
     MAP,
     MAP_DIRECT,
     NAME_MODULE,
+    NO_PARENTHESIS_EVER,
     NONE,
     PASS,
     PRECEDENCE,
@@ -280,7 +281,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         self.param_stack = []
         self.params = params
         self.pending_newlines = 0
-        self.prec = 100
+        self.prec = NO_PARENTHESIS_EVER
         self.return_none = False
         self.showast = showast
         self.source_linemap = {}
