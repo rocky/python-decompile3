@@ -371,20 +371,21 @@ class Scanner37Base(Scanner):
                     # but the operator and operand properties come from the other
                     # instruction
                     self.insts[i] = Instruction(
-                        jump_inst.opname,
-                        jump_inst.opcode,
-                        jump_inst.optype,
-                        jump_inst.inst_size,
-                        jump_inst.arg,
-                        jump_inst.argval,
-                        jump_inst.argrepr,
-                        jump_inst.has_arg,
-                        inst.offset,
-                        inst.starts_line,
-                        inst.is_jump_target,
-                        inst.has_extended_arg,
-                        None,
-                        None,
+                        opcode=jump_inst.opcode,
+                        opname=jump_inst.opname,
+                        arg=jump_inst.arg,
+                        argval=jump_inst.argval,
+                        argrepr=jump_inst.argrepr,
+                        offset=inst.offset,
+                        starts_line=inst.starts_line,
+                        is_jump_target=inst.is_jump_target,
+                        positions=None,
+                        optype=jump_inst.optype,
+                        has_arg=jump_inst.has_arg,
+                        inst_size=jump_inst.inst_size,
+                        has_extended_arg=inst.has_extended_arg,
+                        tos_str=None,
+                        start_offset=None,
                     )
 
         # Get jump targets
@@ -1091,5 +1092,8 @@ if __name__ == "__main__":
         for t in tokens:
             print(t)
     else:
-        print(f"Need to be Python 3.7 to demo; I am version {version_tuple_to_str()}.")
+        print(
+            "Need to be Python 3.7..3.8 to demo; "
+            f"I am version {version_tuple_to_str()}."
+        )
     pass
