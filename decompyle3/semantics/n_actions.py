@@ -1,4 +1,4 @@
-#  Copyright (c) 2022-2023 by Rocky Bernstein
+#  Copyright (c) 2022-2024 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -228,9 +228,16 @@ class NonterminalActions:
             keys = flat_elems[-1].attr
             assert isinstance(keys, tuple)
             assert len(keys) == len(flat_elems) - 1
+
             for i, elem in enumerate(flat_elems[:-1]):
                 assert elem.kind == "ADD_VALUE"
-                value = elem.pattr
+                if elem.optype in ("local", "name"):
+                    value = elem.attr
+                elif elem.optype == "const" and not isinstance(elem.attr, str):
+                    value = elem.attr
+                else:
+                    value = elem.pattr
+
                 if elem.linestart is not None:
                     if elem.linestart != self.line_number:
                         sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]
@@ -243,7 +250,13 @@ class NonterminalActions:
         else:
             for elem in flat_elems:
                 assert elem.kind == "ADD_VALUE"
-                value = elem.pattr
+                if elem.optype in ("local", "name"):
+                    value = elem.attr
+                elif elem.optype == "const" and not isinstance(elem.attr, str):
+                    value = elem.attr
+                else:
+                    value = elem.pattr
+
                 if elem.linestart is not None:
                     if elem.linestart != self.line_number:
                         sep += "\n" + self.indent + INDENT_PER_LEVEL[:-1]

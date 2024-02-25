@@ -98,7 +98,7 @@ SKIP_TESTS=(
 
     [test_cgi.py]=1  # parse error
     [test_clinic.py]=1 # it fails on its own
-    [test_cmath.py]=1 # parse error
+    [test_cmath.py]=pytest
     [test_cmd_line.py]=1  # Interactive?
     [test_cmd_line_script.py]=1 # test check failures
     [test_codecs.py]=1 # test takes too long to run - probabl wrong python decompiled

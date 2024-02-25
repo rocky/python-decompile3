@@ -227,20 +227,19 @@ class Scanner37Base(Scanner):
         new_tokens.append(
             Token(
                 opname="COLLECTION_START",
-                optype="pseudo",
                 attr=collection_enum,
                 pattr=collection_type,
                 offset=f"{start_offset}_0",
                 has_arg=True,
                 opc=self.opc,
                 has_extended_arg=False,
+                optype=None,
             )
         )
         for j in range(collection_start, i):
             new_tokens.append(
                 Token(
                     opname="ADD_VALUE",
-                    optype="pseudo",
                     attr=tokens[j].attr,
                     pattr=tokens[j].pattr,
                     offset=tokens[j].offset,
@@ -248,6 +247,7 @@ class Scanner37Base(Scanner):
                     linestart=tokens[j].linestart,
                     opc=self.opc,
                     has_extended_arg=False,
+                    optype=tokens[j].optype,
                 )
             )
         new_tokens.append(
@@ -432,13 +432,13 @@ class Scanner37Base(Scanner):
                         j,
                         Token(
                             opname=come_from_name,
-                            optype="pseudo",
                             attr=jump_offset,
                             pattr=repr(jump_offset),
                             offset="%s_%s" % (inst.offset, jump_idx),
                             has_arg=True,
                             opc=self.opc,
                             has_extended_arg=False,
+                            optype=inst.optype,
                         ),
                     )
                     jump_idx += 1
@@ -516,6 +516,7 @@ class Scanner37Base(Scanner):
                         has_arg=inst.has_arg,
                         opc=self.opc,
                         has_extended_arg=inst.has_extended_arg,
+                        optype=inst.optype,
                     ),
                 )
                 continue

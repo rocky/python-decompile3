@@ -18,10 +18,10 @@ function displaytime {
   local H=$((T/60/60%24))
   local M=$((T/60%60))
   local S=$((T%60))
-  (( $D > 0 )) && printf '%d days ' $D
-  (( $H > 0 )) && printf '%d hours ' $H
-  (( $M > 0 )) && printf '%d minutes ' $M
-  (( $D > 0 || $H > 0 || $M > 0 )) && printf 'and '
+  (( D > 0 )) && printf '%d days ' $D
+  (( H > 0 )) && printf '%d hours ' $H
+  (( M > 0 )) && printf '%d minutes ' $M
+  (( D > 0 || H > 0 || M > 0 )) && printf 'and '
   printf '%d seconds\n' $S
 }
 
@@ -125,7 +125,11 @@ if [[ -n $1 ]] ; then
     files=$@
     typeset -a files_ary=( $(echo $@) )
     if (( ${#files_ary[@]} == 1 || DONT_SKIP_TESTS == 1 )) ; then
-	SKIP_TESTS=()
+	for file in $files; do
+	    if (( SKIP_TESTS[$file] != "pytest" )); then
+	       SKIP_TESTS[$file]=1;
+	    fi
+	done
     fi
 else
     files=$(echo test_*.py)
@@ -139,9 +143,14 @@ NOT_INVERTED_TESTS=${NOT_INVERTED_TESTS:-1}
 for file in $files; do
     # AIX bash doesn't grok [[ -v SKIP... ]]
     [[ -z ${SKIP_TESTS[$file]} ]] && SKIP_TESTS[$file]=0
-    if [[ ${SKIP_TESTS[$file]} == ${NOT_INVERTED_TESTS} ]] ; then
-	((skipped++))
-	continue
+
+    if [[ ${SKIP_TESTS[$file]} == "pytest" ]]; then
+	PYTHON=pytest
+    else
+	if [[ ${SKIP_TESTS[$file]}s == ${NOT_INVERTED_TESTS} ]] ; then
+	    ((skipped++))
+	    continue
+	fi
     fi
 
     # If the fails *before* decompiling, skip it!
@@ -156,7 +165,7 @@ for file in $files; do
     typeset -i ENDTIME=$(date +%s)
     typeset -i time_diff
     (( time_diff =  ENDTIME - STARTTIME))
-    if (( time_diff > $timeout )) ; then
+    if (( time_diff > timeout )) ; then
 	echo "Skipping test $file -- test takes too long to run: $time_diff seconds"
 	continue
     fi
