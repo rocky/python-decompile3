@@ -39,7 +39,7 @@ class Python38PyPyLambdaParser(
 
         """
 
-    def p_comprehension_list(self, args):
+    def p_pypy38_comprehension(self, args):
         """
         list_comp  ::= LOAD_ARG
                        BUILD_LIST_FROM_ARG

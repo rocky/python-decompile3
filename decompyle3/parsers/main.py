@@ -118,9 +118,9 @@ def get_python_parser(
                 p = Python38ParserSingle(debug_parser=debug_parser)
         elif compile_mode == "lambda":
             if is_pypy:
-                p = Python38ParserLambda(debug_parser=debug_parser)
-            else:
                 p = Python38PyPyParserLambda(debug_parser=debug_parser)
+            else:
+                p = Python38ParserLambda(debug_parser=debug_parser)
         elif compile_mode == "eval":
             if is_pypy:
                 p = Python38PyPyParserEval(debug_parser=debug_parser)
@@ -131,8 +131,11 @@ def get_python_parser(
                 p = Python38PyPyParserExpr(debug_parser=debug_parser)
             else:
                 p = Python38ParserExpr(debug_parser=debug_parser)
-        else:
+        elif is_pypy:
             p = Python38PyPyParserSingle(debug_parser)
+        else:
+            p = Python38ParserSingle(debug_parser)
+
     elif version > (3, 8):
         raise RuntimeError(
             f"""Version {version_tuple_to_str(version)} is not supported."""

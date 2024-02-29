@@ -24,11 +24,18 @@ Step 2: Run the test:
   test_pythonlib.py --mylib --syntax-verify # decompile verify 'mylib'
 """
 
-import getopt, os, py_compile, sys, shutil, tempfile, time
+import getopt
+import os
+import py_compile
+import shutil
+import sys
+import tempfile
+import time
+from fnmatch import fnmatch
 
 from xdis.version_info import version_tuple_to_str
+
 from decompyle3.main import main
-from fnmatch import fnmatch
 
 
 def get_srcdir():
@@ -56,7 +63,7 @@ test_options = {
     "test": ("test", PYC, "test"),
 }
 
-for vers in (3.7, 3.8):
+for vers in ("3.7", "3.8", "3.8pypy"):
     bytecode = "bytecode_%s" % vers
     key = "bytecode-%s" % vers
     test_options[key] = (bytecode, PYC, bytecode, vers)

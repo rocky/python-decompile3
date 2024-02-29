@@ -10,6 +10,9 @@ PYTHON3 ?= python3
 RM      ?= rm
 LINT    = flake8
 
+IS_PYPY = $(shell $(PYTHON) -c 'import platform; print("pypy" if platform.python_implementation() == "PyPy" else "")')
+PYTHON_VERSION = $(shell $(PYTHON) -V 2>&1 | cut -d ' ' -f 2 | cut -d'.' -f1,2 | head -1)$(IS_PYPY)
+
 #EXTRA_DIST=ipython/ipy_trepan.py trepan
 PHONY=all test check clean distcheck pytest check-long dist distclean lint flake8 test rmChangeLog clean_pyc
 
@@ -20,8 +23,7 @@ all: check
 
 #: Run all tests
 test check:
-	@PYTHON_VERSION=`$(PYTHON) -V 2>&1 | cut -d ' ' -f 2 | cut -d'.' -f1,2`; \
-	$(MAKE) check-$$PYTHON_VERSION
+	$(MAKE) check-$(PYTHON_VERSION)
 
 #: Run all quick tests
 check-short: pytest
@@ -34,6 +36,11 @@ check-3.9 check-3.10: pytest
 	$(MAKE) -C test check-bytecode-3.7
 
 check-3.9 check-3.10: pytest
+
+#: Run working tests from Python 3.8
+check-3.8pypy:
+	$(MAKE) -C test $@
+
 
 # FIXME
 #: pypy3.8-7.3.7

@@ -29,11 +29,7 @@ class Python38PyPyLambdaCustom(Python38PyPyBaseParser):
     def remove_rules_pypy38(self):
         self.remove_rules(
             """
-              list_for  ::= expr_or_arg
-                            for_iter
-                            store list_iter
-                            jb_or_c _come_froms
-           """
+            """
         )
 
     def customize_grammar_rules_lambda38(self, tokens, customize):
