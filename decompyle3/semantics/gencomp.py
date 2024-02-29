@@ -1,4 +1,4 @@
-#  Copyright (c) 2022-2023 by Rocky Bernstein
+#  Copyright (c) 2022-2024 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -608,7 +608,7 @@ class ComprehensionMixin:
 
         # Here is where we handle nested list iterations which
         # includes their corresponding "if" conditions.
-        if tree in ("list_comp", "set_comp"):
+        if tree in ("list_comp", "set_comp") and not self.is_pypy:
             list_iter = tree[1]
             assert list_iter in ("list_iter", "set_iter")
             list_for = list_iter[0]
