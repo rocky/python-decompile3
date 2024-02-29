@@ -13,17 +13,22 @@ Adding own test-trees:
 Step 1) Edit this file and add a new entry to 'test_options', eg.
           test_options['mylib'] = ('/usr/lib/mylib', PYOC, 'mylib')
 Step 2: Run the test:
-	  test_pyenvlib --mylib	  # decompile 'mylib'
-	  test_pyenvlib --mylib --syntax-verify # decompile verify 'mylib'
+          test_pyenvlib --mylib	  # decompile 'mylib'
+          test_pyenvlib --mylib --syntax-verify # decompile verify 'mylib'
 """
 
 from __future__ import print_function
 
-import os, time, re, shutil, sys
+import os
+import re
+import shutil
+import sys
+import time
 from fnmatch import fnmatch
 
-from decompyle3 import main
 import xdis.magics as magics
+
+from decompyle3 import main
 
 # ----- configure this for your needs
 
@@ -136,7 +141,8 @@ def do_tests(
 
 
 if __name__ == "__main__":
-    import getopt, sys
+    import getopt
+    import sys
 
     do_coverage = do_verify = False
     test_dirs = []
@@ -147,7 +153,14 @@ if __name__ == "__main__":
     opts, args = getopt.getopt(
         sys.argv[1:],
         "",
-        ["start-with=", "verify-run", "syntax-verify", "max=", "coverage", "all",]
+        [
+            "start-with=",
+            "verify-run",
+            "syntax-verify",
+            "max=",
+            "coverage",
+            "all",
+        ]
         + test_options_keys,
     )
     vers = ""

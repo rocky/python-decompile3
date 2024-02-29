@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2020, 2022-2023 by Rocky Bernstein
+#  Copyright (c) 2019-2020, 2022-2024 by Rocky Bernstein
 
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -551,18 +551,11 @@ class TreeTransform(GenericASTTraversal, object):
         try:
             for i in range(n):
                 if is_docstring(self.ast[i], code.co_consts):
-                    load_const = self.ast[i].first_child()
+                    load_const = copy(self.ast[i].first_child())
+                    store_name = copy(self.ast[i].last_child())
                     docstring_ast = SyntaxTree(
                         "docstring",
-                        [
-                            Token(
-                                "LOAD_STR",
-                                has_arg=True,
-                                offset=0,
-                                attr=load_const.attr,
-                                pattr=load_const.pattr,
-                            )
-                        ],
+                        [load_const, store_name],
                         transformed_by="transform",
                     )
                     del self.ast[i]

@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2023 Rocky Bernstein
+#  Copyright (c) 2019-2024 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -41,6 +41,13 @@ from decompyle3.parsers.p38.heads import (
     Python38ParserExpr,
     Python38ParserLambda,
     Python38ParserSingle,
+)
+from decompyle3.parsers.p38pypy.heads import (
+    Python38PyPyParserEval,
+    Python38PyPyParserExec,
+    Python38PyPyParserExpr,
+    Python38PyPyParserLambda,
+    Python38PyPyParserSingle,
 )
 from decompyle3.parsers.treenode import SyntaxTree
 from decompyle3.show import maybe_show_asm
@@ -99,17 +106,36 @@ def get_python_parser(
             p = Python37ParserSingle(debug_parser)
     elif version == (3, 8):
         if compile_mode == "exec":
-            p = Python38ParserExec(debug_parser=debug_parser)
+            if is_pypy:
+                p = Python38PyPyParserExec(debug_parser=debug_parser)
+            else:
+                p = Python38ParserExec(debug_parser=debug_parser)
+
         elif compile_mode == "single":
-            p = Python38ParserSingle(debug_parser=debug_parser)
+            if is_pypy:
+                p = Python38PyPyParserSingle(debug_parser=debug_parser)
+            else:
+                p = Python38ParserSingle(debug_parser=debug_parser)
         elif compile_mode == "lambda":
-            p = Python38ParserLambda(debug_parser=debug_parser)
+            if is_pypy:
+                p = Python38PyPyParserLambda(debug_parser=debug_parser)
+            else:
+                p = Python38ParserLambda(debug_parser=debug_parser)
         elif compile_mode == "eval":
-            p = Python38ParserEval(debug_parser=debug_parser)
+            if is_pypy:
+                p = Python38PyPyParserEval(debug_parser=debug_parser)
+            else:
+                p = Python38ParserEval(debug_parser=debug_parser)
         elif compile_mode == "expr":
-            p = Python38ParserExpr(debug_parser=debug_parser)
+            if is_pypy:
+                p = Python38PyPyParserExpr(debug_parser=debug_parser)
+            else:
+                p = Python38ParserExpr(debug_parser=debug_parser)
+        elif is_pypy:
+            p = Python38PyPyParserSingle(debug_parser)
         else:
             p = Python38ParserSingle(debug_parser)
+
     elif version > (3, 8):
         raise RuntimeError(
             f"""Version {version_tuple_to_str(version)} is not supported."""

@@ -1,4 +1,4 @@
-#  Copyright (c) 2017-2020, 2022-2023 by Rocky Bernstein
+#  Copyright (c) 2017-2020, 2022-2024 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -141,7 +141,7 @@ ASSIGN_DOC_STRING = lambda doc_string, doc_load: SyntaxTree(    # noqa
                 Token(doc_load, pattr=doc_string, attr=doc_string),
                     ]
         ),
-        SyntaxTree("store", [Token("STORE_NAME", pattr="__doc__")]),
+        SyntaxTree("store", [Token("STORE_NAME", pattr="__doc__", optype="name")]),
     ],
 )
 
@@ -149,10 +149,10 @@ NAME_MODULE = SyntaxTree(
     "assign",
     [
         SyntaxTree(
-            "expr", [Token("LOAD_NAME", pattr="__name__", offset=0, has_arg=True)]
+            "expr", [Token("LOAD_NAME", pattr="__name__", offset=0, has_arg=True, optype="name")]
         ),
         SyntaxTree(
-            "store", [Token("STORE_NAME", pattr="__module__", offset=3, has_arg=True)]
+            "store", [Token("STORE_NAME", pattr="__module__", offset=3, has_arg=True, optype="name")]
         ),
     ],
 )
