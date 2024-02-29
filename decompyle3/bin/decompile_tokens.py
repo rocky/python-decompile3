@@ -16,6 +16,11 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+"""
+Command-line interface to first phase of decompliation -
+taking a disassembly and "tokenizing" this to make it easier for
+parsing.
+"""
 
 import getopt
 import os
@@ -31,13 +36,13 @@ Usage:
   {0} [OPTIONS]... FILE
   {0} [--help | -h | -V | --version]
 
-Disassemble/Tokenize FILE with in the way that is done to
-assist decompyle3 in parsing the instruction stream. For example
-instructions with variable-length arguments like CALL_FUNCTION and
-BUILD_LIST have argument counts appended to the instruction name, and
-COME_FROM pseudo instructions are inserted into the instruction stream.
-Bit flag values encoded in an operand are expanding, EXTENDED_ARG
-value are folded into the following instruction operand.
+Disassemble/Tokenize FILE with in the way that is done to assist
+decompyle3 in parsing the instruction stream. For example instructions
+with variable-length arguments like CALL_FUNCTION and BUILD_LIST have
+argument counts appended to the instruction name, and COME_FROM pseudo
+instructions are inserted into the instruction stream.  Bit flag
+values encoded in an operand are expanding, EXTENDED_ARG value are
+folded into the following instruction operand.
 
 Like the parser, you may find this more high-level and or helpful.
 However if you want a true disassembler see the Standard built-in

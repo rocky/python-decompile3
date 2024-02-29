@@ -47,7 +47,7 @@ entry_points = {
     "console_scripts": [
         "decompyle3=decompyle3.bin.decompile:main_bin",
         "decompyle3-code=decompyle3.bin.decompile_code_type:main",
-        "py3disassemble=decompyle3.bin.py3disassemble:main",
+        "decompyle3-tokens=decompyle3.bin.decompile_tokens:main",
     ]
 }
 ftp_url = None
