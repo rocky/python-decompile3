@@ -1,4 +1,4 @@
-#  Copyright (c) 2020, 2023 Rocky Bernstein
+#  Copyright (c) 2020, 2023-2024 Rocky Bernstein
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation, either version 3 of the License, or
@@ -18,7 +18,7 @@ def or_cond_check_invalid(
 ) -> bool:
     if rule == ("or_cond", ("or_parts", "expr_pjif", "come_froms")):
         if tokens[last - 1] == "COME_FROM":
-            return tokens[last - 1].attr < tokens[first].offset
+            return tokens[last - 1].attr < tokens[first].off2int()
     last_offset = tokens[last].off2int()
     for i in range(first, last):
         t = tokens[i]
