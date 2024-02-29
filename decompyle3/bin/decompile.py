@@ -85,8 +85,8 @@ def usage():
 )
 @click.argument("files", nargs=-1, type=click.Path(readable=True), required=True)
 def main_bin(
-    asm: bool,
     asm_plus: bool,
+    asm: bool,
     show_grammar,
     tree: bool,
     tree_plus: bool,
@@ -96,7 +96,7 @@ def main_bin(
     outfile,
     start_offset: int,
     stop_offset: int,
-    files,
+    files: List[str],
 ):
     """
     Cross Python bytecode decompiler for Python 3.7-3.8 bytecode
