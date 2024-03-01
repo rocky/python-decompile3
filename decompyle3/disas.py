@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2016, 2818-2020 by Rocky Bernstein
+#  Copyright (c) 2015-2016, 2818-2020, 2024 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -33,6 +33,7 @@ import sys
 from collections import deque
 
 from xdis import check_object_path, iscode, load_module
+
 from decompyle3.scanner import get_scanner
 
 
@@ -100,7 +101,7 @@ def disassemble_file(filename: str, outstream=None) -> None:
     (version, timestamp, magic_int, co, is_pypy, source_size, sip_hash) = load_module(
         filename
     )
-    if type(co) == list:
+    if isinstance(co, list):
         for con in co:
             disco(version, con, outstream)
     else:
@@ -115,7 +116,7 @@ def _test() -> None:
         if argc == 1:
             fn = __file__
         else:
-            sys.stderr.write("usage: %s [-|CPython compiled file]\n" % __file__)
+            sys.stderr.write(f"usage: {__file__} [-|CPython compiled file]\n")
             sys.exit(2)
     else:
         fn = sys.argv[1]

@@ -17,7 +17,7 @@
 """
 Python 3.7 bytecode scanner/deparser base.
 
-Also we *modify* the instruction sequence to assist deparsing code.
+Also, we *modify* the instruction sequence to assist deparsing code.
 For example:
  -  we add "COME_FROM" instructions to help in figuring out
     conditional branching and looping.
@@ -153,27 +153,23 @@ class Scanner37Base(Scanner):
         # FIXME: remove this and use instead info from xdis.
         # Opcodes that take a variable number of arguments
         # (expr's)
-        varargs_ops = set(
-            [
-                self.opc.BUILD_LIST,
-                self.opc.BUILD_TUPLE,
-                self.opc.BUILD_SET,
-                self.opc.BUILD_SLICE,
-                self.opc.BUILD_MAP,
-                self.opc.UNPACK_SEQUENCE,
-                self.opc.RAISE_VARARGS,
-            ]
-        )
+        varargs_ops = {
+            self.opc.BUILD_LIST,
+            self.opc.BUILD_TUPLE,
+            self.opc.BUILD_SET,
+            self.opc.BUILD_SLICE,
+            self.opc.BUILD_MAP,
+            self.opc.UNPACK_SEQUENCE,
+            self.opc.RAISE_VARARGS,
+        }
 
         varargs_ops.add(self.opc.CALL_METHOD)
-        varargs_ops |= set(
-            [
-                self.opc.BUILD_SET_UNPACK,
-                self.opc.BUILD_MAP_UNPACK,  # we will handle this later
-                self.opc.BUILD_LIST_UNPACK,
-                self.opc.BUILD_TUPLE_UNPACK,
-            ]
-        )
+        varargs_ops |= {
+            self.opc.BUILD_SET_UNPACK,
+            self.opc.BUILD_MAP_UNPACK,
+            self.opc.BUILD_LIST_UNPACK,
+            self.opc.BUILD_TUPLE_UNPACK,
+        }
         varargs_ops.add(self.opc.BUILD_CONST_KEY_MAP)
         # Below is in bit order, "default = bit 0, closure = bit 3
         self.MAKE_FUNCTION_FLAGS = tuple(
@@ -220,8 +216,8 @@ class Scanner37Base(Scanner):
 
         collection_enum = CONST_COLLECTIONS.index(collection_type)
 
-        # If we get here, all instructions before tokens[i] are LOAD_CONST and we can
-        # add a boundary marker and change LOAD_CONST to something else.
+        # If we get here, all instructions before tokens[i] are LOAD_CONST, and
+        # we can add a boundary marker and change LOAD_CONST to something else.
         new_tokens = next_tokens[:-count]
         start_offset = tokens[collection_start].offset
         new_tokens.append(
@@ -265,7 +261,7 @@ class Scanner37Base(Scanner):
         return new_tokens
 
     def ingest(self, co, classname=None, code_objects={}, show_asm=None):
-        """Create "tokens" the bytecode of an Python code object. Largely these
+        """Create "tokens" the bytecode of a Python code object. Largely these
         are the opcode name, but in some cases that has been modified to make parsing
         easier.
         returning a list of decompyle3s Token's.
@@ -409,7 +405,7 @@ class Scanner37Base(Scanner):
             if inst.offset in jump_targets:
                 jump_idx = 0
                 # We want to process COME_FROMs to the same offset to be in *descending*
-                # offset order so we have the larger range or biggest instruction interval
+                # offset order, so we have the larger range or biggest instruction interval
                 # last. (I think they are sorted in increasing order, but for safety
                 # we sort them). That way, specific COME_FROM tags will match up
                 # properly. For example, a "loop" with an "if" nested in it should have the
@@ -568,7 +564,7 @@ class Scanner37Base(Scanner):
                     # 'Continue's include jumps to loops that are not
                     # and the end of a block which follow with
                     # POP_BLOCK and COME_FROM_LOOP.  If the
-                    # JUMP_ABSOLUTE is to a FOR_ITER and it is
+                    # JUMP_ABSOLUTE is to a FOR_ITER, and it is
                     # followed by another JUMP_FORWARD then we'll take
                     # it as a "continue".
                     next_inst = self.insts[i + 1]
@@ -636,7 +632,7 @@ class Scanner37Base(Scanner):
                             # We have a situation like:
                             # loop ... for or while)
                             #   loop
-                            #     if ..:   # code below starts here
+                            #     if ...:   # code below starts here
                             #       break  # not continue
                             #
                             #   POP_JUMP_IF_FALSE_LOOP   # to outer loop
@@ -724,7 +720,7 @@ class Scanner37Base(Scanner):
             # FIXME: this code is going to get removed.
             # Determine structures and fix jumps in Python versions
             # since 2.3
-            self.detect_control_flow(offset, targets, i)
+            self.detect_control_flow(offset, i)
 
             if inst.has_arg:
                 # FIXME: fix grammar so we don't have to exclude FOR_ITER
@@ -840,9 +836,7 @@ class Scanner37Base(Scanner):
         # Finish filling the list for last statement
         slist += [codelen] * (codelen - len(slist))
 
-    def detect_control_flow(
-        self, offset: int, targets: Dict[Any, Any], inst_index: int
-    ):
+    def detect_control_flow(self, offset: int, inst_index: int):
         """
         Detect type of block structures and their boundaries to fix optimized jumps
         in python2.3+
@@ -857,7 +851,7 @@ class Scanner37Base(Scanner):
         start: int = parent["start"]
         end: int = parent["end"]
 
-        # Pick inner-most parent for our offset
+        # Pick innermost parent for our offset
         for struct in self.structs:
             current_start = struct["start"]
             current_end = struct["end"]
@@ -1089,9 +1083,9 @@ if __name__ == "__main__":
 
         co = inspect.currentframe().f_code  # type: ignore
 
-        tokens, customize = Scanner37Base(PYTHON_VERSION_TRIPLE).ingest(co)
-        for t in tokens:
-            print(t)
+        my_tokens, customize = Scanner37Base(PYTHON_VERSION_TRIPLE).ingest(co)
+        for token in my_tokens:
+            print(token)
     else:
         print(
             "Need to be Python 3.7..3.8 to demo; "

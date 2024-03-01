@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2016, 2818-2023 by Rocky Bernstein
+#  Copyright (c) 2015-2016, 2818-2024 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -253,7 +253,7 @@ def decompile_generators(
     stop_offset: int = -1,
 ) -> Optional[bool]:
     """
-    decompile all of the generator functions in a python byte-code file (.pyc)
+    decompile all the generator functions in a python byte-code file (.pyc)
 
     If given a Python source file (".py") file, we'll
     decompile all dict_comprehensions of the corresponding compiled object.
@@ -280,7 +280,7 @@ def decompile_lambda_fns(
     stop_offset: int = -1,
 ) -> Optional[bool]:
     """
-    decompile all of the lambda functions in a python byte-code file (.pyc)
+    decompile all the lambda functions in a python byte-code file (.pyc)
 
     If given a Python source file (".py") file, we'll
     decompile all lambdas of the corresponding compiled object.

@@ -21,6 +21,7 @@ scanner/ingestion module. From here we call various version-specific
 scanners, e.g. for Python 3.7 or 3.8.
 """
 
+from abc import ABC
 from array import array
 from collections import namedtuple
 from types import ModuleType
@@ -55,7 +56,7 @@ def long(num):
     return num
 
 
-class Code(object):
+class Code:
     """
     Class for representing code-objects.
 
@@ -74,7 +75,7 @@ class Code(object):
         self._tokens, self._customize = scanner.ingest(co, classname, show_asm=show_asm)
 
 
-class Scanner:
+class Scanner(ABC):
     def __init__(self, version: tuple, show_asm=None, is_pypy=False):
         self.version = version
         self.show_asm = show_asm
@@ -183,6 +184,12 @@ class Scanner:
         if opname != "JUMP_ABSOLUTE":
             return False
         return offset < self.get_target(offset)
+
+    def ingest(self, co, classname=None, code_objects={}, show_asm=None):
+        """
+        Code to tokenize disassembly. Subclasses must implement this.
+        """
+        raise NotImplementedError("This method should have been implemented")
 
     def prev_offset(self, offset: int) -> int:
         return self.insts[self.offset2inst_index[offset] - 1].offset
