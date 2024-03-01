@@ -392,9 +392,11 @@ class Python38LambdaCustom(Python38BaseParser):
                     dict_comp_async      ::= BUILD_MAP_0 genexpr_func_async
 
                     async_iter           ::= _come_froms
-                                             SETUP_FINALLY GET_ANEXT LOAD_CONST YIELD_FROM POP_BLOCK
+                                             SETUP_FINALLY GET_ANEXT LOAD_CONST
+                                             YIELD_FROM POP_BLOCK
 
-                    func_async_prefix    ::= _come_froms SETUP_EXCEPT GET_ANEXT LOAD_CONST YIELD_FROM
+                    func_async_prefix    ::= _come_froms SETUP_EXCEPT GET_ANEXT
+                                              LOAD_CONST YIELD_FROM
 
                     genexpr_func_async   ::= LOAD_ARG async_iter
                                              store

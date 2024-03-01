@@ -419,7 +419,7 @@ class Python38PyPyLambdaCustom(Python38PyPyBaseParser):
                                              store
                                              comp_iter
                                              JUMP_LOOP
-                                             COME_FROM_FINALLY
+                                             COME_FROM_EXCEPT
                                              END_ASYNC_FOR
 
                     genexpr_func_async   ::= LOAD_ARG func_async_prefix
