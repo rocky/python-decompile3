@@ -332,7 +332,8 @@ class ComprehensionMixin:
             #  list_comp_async  ::= BUILD_LIST_0 LOAD_ARG list_afor2
             if tree[0] == "expr" and tree[0][0] == "list_comp_async":
                 tree = tree[0][0]
-            if tree[0] == "BUILD_LIST_0":
+            # PyPy 3.8 has LOAD_ARG
+            if tree[0] in ("BUILD_LIST_0", "LOAD_ARG"):
                 list_afor2 = tree[2]
                 assert list_afor2 == "list_afor2"
                 store = list_afor2[1]
@@ -717,7 +718,9 @@ class ComprehensionMixin:
         if tree == "lambda_start":
             tree = tree[0]
 
-        while len(tree) == 1 or (tree in ("stmt", "sstmt", "return", "return_expr")):
+        while len(tree) == 1 or (
+            tree in ("stmt", "sstmt", "return", "return_expr", "return_expr_lambda")
+        ):
             self.prec = 100
             tree = tree[0]
         return tree
