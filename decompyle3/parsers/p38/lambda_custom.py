@@ -356,10 +356,12 @@ class Python38LambdaCustom(Python38BaseParser):
                     expr                 ::= set_comp_async
 
                     func_async_middle   ::= POP_BLOCK JUMP_FORWARD COME_FROM_EXCEPT
-                                            DUP_TOP LOAD_GLOBAL COMPARE_OP POP_JUMP_IF_TRUE
+                                            DUP_TOP LOAD_GLOBAL COMPARE_OP
+                                            POP_JUMP_IF_TRUE
                                             END_FINALLY _come_froms
 
-                    # async_iter         ::= block_break SETUP_EXCEPT GET_ANEXT LOAD_CONST YIELD_FROM
+                    # async_iter         ::= block_break SETUP_EXCEPT GET_ANEXT
+                                             LOAD_CONST YIELD_FROM
 
                     get_aiter            ::= expr GET_AITER
 
@@ -390,9 +392,11 @@ class Python38LambdaCustom(Python38BaseParser):
                     dict_comp_async      ::= BUILD_MAP_0 genexpr_func_async
 
                     async_iter           ::= _come_froms
-                                             SETUP_FINALLY GET_ANEXT LOAD_CONST YIELD_FROM POP_BLOCK
+                                             SETUP_FINALLY GET_ANEXT LOAD_CONST
+                                             YIELD_FROM POP_BLOCK
 
-                    func_async_prefix    ::= _come_froms SETUP_EXCEPT GET_ANEXT LOAD_CONST YIELD_FROM
+                    func_async_prefix    ::= _come_froms SETUP_EXCEPT GET_ANEXT
+                                              LOAD_CONST YIELD_FROM
 
                     genexpr_func_async   ::= LOAD_ARG async_iter
                                              store

@@ -332,7 +332,8 @@ class ComprehensionMixin:
             #  list_comp_async  ::= BUILD_LIST_0 LOAD_ARG list_afor2
             if tree[0] == "expr" and tree[0][0] == "list_comp_async":
                 tree = tree[0][0]
-            if tree[0] == "BUILD_LIST_0":
+            # PyPy 3.8 has LOAD_ARG
+            if tree[0] in ("BUILD_LIST_0", "LOAD_ARG"):
                 list_afor2 = tree[2]
                 assert list_afor2 == "list_afor2"
                 store = list_afor2[1]
@@ -389,7 +390,13 @@ class ComprehensionMixin:
         elif node == "set_comp" and tree[1] == "set_iter":
             n = tree[1]
         else:
-            n = tree[iter_index]
+            for k in tree:
+                if k.kind in ("comp_iter", "list_iter", "set_iter", "lc_body"):
+                    n = k
+                    break
+                pass
+            else:
+                n = tree[iter_index]
 
         if tree in (
             "dict_comp_func",
@@ -497,7 +504,7 @@ class ComprehensionMixin:
                 "comp_if_not",
             ):
                 if n in ("list_if37", "list_if37_not", "comp_if"):
-                    if n == "comp_if":
+                    if n in ("comp_if", "list_if37", "list_if"):
                         if_nodes.append(n[0])
                     n = n[1]
                 else:
@@ -631,7 +638,7 @@ class ComprehensionMixin:
                 comp_store = None
             pass
 
-        if tree == "set_comp_func":
+        elif tree == "set_comp_func":
             # Handle nested comp_for iterations.
             comp_iter = tree[4]
             assert comp_iter in ("comp_iter", "await_expr")
@@ -652,6 +659,7 @@ class ComprehensionMixin:
             if if_node != "comp_if_or":
                 self.write(" if ")
             if if_node in (
+                "c_compare_chained37_false",
                 "comp_if_not_and",
                 "comp_if_not_or",
                 "comp_if_or",
@@ -717,7 +725,9 @@ class ComprehensionMixin:
         if tree == "lambda_start":
             tree = tree[0]
 
-        while len(tree) == 1 or (tree in ("stmt", "sstmt", "return", "return_expr")):
+        while len(tree) == 1 or (
+            tree in ("stmt", "sstmt", "return", "return_expr", "return_expr_lambda")
+        ):
             self.prec = 100
             tree = tree[0]
         return tree

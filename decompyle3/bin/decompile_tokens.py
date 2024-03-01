@@ -29,7 +29,7 @@ import sys
 from decompyle3.disas import disassemble_file
 from decompyle3.version import __version__
 
-program, ext = os.path.splitext(os.path.basename(__file__))
+program = "decompile-tokens"
 
 __doc__ = """
 Usage:

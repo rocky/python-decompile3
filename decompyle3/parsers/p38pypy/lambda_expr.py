@@ -36,7 +36,6 @@ class Python38PyPyLambdaParser(
     def p_lambda_start(self, args):
         """
         return_expr_lambda ::= genexpr_func LOAD_CONST RETURN_VALUE_LAMBDA
-
         """
 
     def p_pypy38_comprehension(self, args):
@@ -46,6 +45,11 @@ class Python38PyPyLambdaParser(
                        COME_FROM FOR_ITER
                        store lc_body
                        JUMP_LOOP _come_froms
+
+        list_afor2 ::= async_iter store list_iter
+                       JUMP_LOOP COME_FROM_EXCEPT
+                       END_ASYNC_FOR
+
 
         lc_body ::= expr LIST_APPEND
         """
