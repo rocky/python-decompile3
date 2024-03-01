@@ -498,7 +498,7 @@ class ComprehensionMixin:
                 "comp_if_not",
             ):
                 if n in ("list_if37", "list_if37_not", "comp_if"):
-                    if n == "comp_if":
+                    if n in ("comp_if", "list_if37"):
                         if_nodes.append(n[0])
                     n = n[1]
                 else:
@@ -632,7 +632,7 @@ class ComprehensionMixin:
                 comp_store = None
             pass
 
-        if tree == "set_comp_func":
+        elif tree == "set_comp_func":
             # Handle nested comp_for iterations.
             comp_iter = tree[4]
             assert comp_iter in ("comp_iter", "await_expr")
@@ -653,6 +653,7 @@ class ComprehensionMixin:
             if if_node != "comp_if_or":
                 self.write(" if ")
             if if_node in (
+                "c_compare_chained37_false",
                 "comp_if_not_and",
                 "comp_if_not_or",
                 "comp_if_or",
