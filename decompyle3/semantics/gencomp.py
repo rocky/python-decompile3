@@ -390,7 +390,13 @@ class ComprehensionMixin:
         elif node == "set_comp" and tree[1] == "set_iter":
             n = tree[1]
         else:
-            n = tree[iter_index]
+            for k in tree:
+                if k.kind in ("comp_iter", "list_iter", "set_iter", "lc_body"):
+                    n = k
+                    break
+                pass
+            else:
+                n = tree[iter_index]
 
         if tree in (
             "dict_comp_func",
@@ -498,7 +504,7 @@ class ComprehensionMixin:
                 "comp_if_not",
             ):
                 if n in ("list_if37", "list_if37_not", "comp_if"):
-                    if n in ("comp_if", "list_if37"):
+                    if n in ("comp_if", "list_if37", "list_if"):
                         if_nodes.append(n[0])
                     n = n[1]
                 else:

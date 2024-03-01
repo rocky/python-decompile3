@@ -428,6 +428,7 @@ class Python38PyPyLambdaCustom(Python38PyPyBaseParser):
                                              POP_TOP POP_TOP POP_TOP POP_EXCEPT POP_TOP
 
                     list_comp_async      ::= LOAD_ARG BUILD_LIST_FROM_ARG list_afor2
+                    list_comp_async      ::= BUILD_LIST_0 LOAD_ARG list_afor2
 
                     set_afor2            ::= async_iter
                                              store
