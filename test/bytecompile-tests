@@ -11,93 +11,134 @@ for further information
 
 from __future__ import print_function
 
-import py_compile, os, sys, getopt
+import getopt
+import os
+import py_compile
+import sys
 from fnmatch import fnmatch
 
 work_dir = os.path.dirname(sys.argv[0])
 src_dir = work_dir
 
-opts, args = getopt.getopt(sys.argv[1:], 's:w:')
+opts, args = getopt.getopt(sys.argv[1:], "s:w:")
 
 for opt, val in opts:
-    if opt == '-s':
+    if opt == "-s":
         src_dir = val
-    if opt == '-w':
+    if opt == "-w":
         work_dir = val
     else:
-        raise "Unknown Option '%s'" % opt
+        raise SyntaxError("Unknown Option '%s'" % opt)
 if args:
-    raise 'This tool does not want any arguments'
+    raise SyntaxError("This tool does not want any arguments")
 
 print("Using files in dir %s" % src_dir)
-print( "Compiling into dir %s" % work_dir)
+print("Compiling into dir %s" % work_dir)
 
 tests = {}
 
-tests['1.5'] = ["class", "del", "docstring", 'empty', "exec",
-                "exceptions", "expressions", "functions", "global",
-                "globals", "import", "integers", "lambda", "loops",
-                "misc", "nested_elif", "prettyprint", "print",
-                'single_stmt', "slices", "tuple_params", 'tuples']
+tests["1.5"] = [
+    "class",
+    "del",
+    "docstring",
+    "empty",
+    "exec",
+    "exceptions",
+    "expressions",
+    "functions",
+    "global",
+    "globals",
+    "import",
+    "integers",
+    "lambda",
+    "loops",
+    "misc",
+    "nested_elif",
+    "prettyprint",
+    "print",
+    "single_stmt",
+    "slices",
+    "tuple_params",
+    "tuples",
+]
 
-tests['1.6'] = ["applyEquiv", ] + tests['1.5']
+tests["1.6"] = [
+    "applyEquiv",
+] + tests["1.5"]
 
-tests['2.0'] = ["augmentedAssign", "extendedImport", "extendedPrint",
-                "import_as", "listComprehensions", 'print_to'] + \
-                tests['1.6'] # [ "--extendedarg", ]
+tests["2.0"] = [
+    "augmentedAssign",
+    "extendedImport",
+    "extendedPrint",
+    "import_as",
+    "listComprehensions",
+    "print_to",
+] + tests[
+    "1.6"
+]  # [ "--extendedarg", ]
 
-tests['2.1'] = ['loops2', 'nested_scopes'] + tests['2.0']
+tests["2.1"] = ["loops2", "nested_scopes"] + tests["2.0"]
 
-tests['2.2'] = ['divide_future', 'divide_no_future', 'iterators',
-                'yield'] + tests['2.1']
+tests["2.2"] = ["divide_future", "divide_no_future", "iterators", "yield"] + tests[
+    "2.1"
+]
 
-tests['2.3'] = tests['2.2']
-tests['2.5'] = tests['2.3']
+tests["2.3"] = tests["2.2"]
+tests["2.5"] = tests["2.3"]
 # tests['2.7'] = ['mine'] + tests['2.6']
+
 
 def file_matches(files, root, basenames, patterns):
     files.extend(
-        [os.path.normpath(os.path.join(root, n))
-         for n in basenames for pat in patterns
-        if fnmatch(n, pat)])
+        [
+            os.path.normpath(os.path.join(root, n))
+            for n in basenames
+            for pat in patterns
+            if fnmatch(n, pat)
+        ]
+    )
 
-PY = ('*.py', )
-files = ['simple_source']
+
+PY = ("*.py",)
+files = ["simple_source"]
 simple_source = []
-for root, dirs, basenames in os.walk('simple_source'):
+for root, dirs, basenames in os.walk("simple_source"):
     for basename in basenames:
-        if basename.endswith('.py'):
+        if basename.endswith(".py"):
             simple_source.append(os.path.join(root, basename)[0:-3])
     pass
 
-tests['2.6'] = tests['2.7'] = tests['3.2'] = \
-  tests['3.3'] = tests['3.4'] = tests['3.5'] = simple_source
+tests["2.6"] = tests["2.7"] = tests["3.2"] = tests["3.3"] = tests["3.4"] = tests[
+    "3.5"
+] = simple_source
 
-total_tests = len(tests['2.7'])
-#tests['2.2'].sort(); print tests['2.2']
+total_tests = len(tests["2.7"])
+# tests['2.2'].sort(); print tests['2.2']
 
-extension = '.py' + (__debug__ and 'c' or 'o')
+extension = ".py" + (__debug__ and "c" or "o")
+
 
 def compile(filename, target_dir):
-    sfile = os.path.join(src_dir,    '%s.py' % filename)
-    cfile = os.path.join(target_dir, '%s%s'
-                         % (os.path.basename(filename),  extension) )
+    sfile = os.path.join(src_dir, "%s.py" % filename)
+    cfile = os.path.join(target_dir, "%s%s" % (os.path.basename(filename), extension))
     py_compile.compile(sfile, cfile=cfile)
 
+
 def compile_for_version(version):
-    target_dir = os.path.join(work_dir, 'bytecode_' + version)
+    target_dir = os.path.join(work_dir, "bytecode_" + version)
     if not os.path.exists(target_dir):
         os.mkdir(target_dir)
     for filename in tests[version]:
         compile(filename, target_dir)
 
+
 try:
-    version = '%i.%i' % sys.version_info[:2]
+    version = "%i.%i" % sys.version_info[:2]
 except AttributeError:
     version = sys.version[:3]
 
-print('Compiling test files for Python', version)
+print("Compiling test files for Python", version)
 # print('(%i/%i files)' % (len(tests[version]), total_tests))
-print('%i files' % len(tests[version]))
+print("%i files" % len(tests[version]))
 compile_for_version(version)
-print('Done.')
+print("Done.")

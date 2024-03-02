@@ -1064,7 +1064,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 subclass = buildclass[-3][1].attr
                 currentclass = node[0][0].pattr
             else:
-                raise "Internal Error n_classdef: cannot find class name"
+                raise RuntimeError("Internal Error n_classdef: cannot find class name")
 
         if node == "classdefdeco2":
             self.write("\n")

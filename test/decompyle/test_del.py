@@ -9,7 +9,7 @@ See http://www.goebel-consult.de/decompyle/ for download and
 for further information
 """
 
-raise "This program can't be run"
+raise RuntimeError("This program can't be run")
 
 print 0
 a = b[5]

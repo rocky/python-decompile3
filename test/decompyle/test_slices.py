@@ -9,7 +9,7 @@ See http://www.goebel-consult.de/decompyle/ for download and
 for further information
 """
 
-raise "This program can't be run"
+raise RuntimeError("This program can't be run")
 
 testme[1]
 testme[1] = 1
@@ -31,13 +31,13 @@ testme[:42, ..., :24:, 24, 100] = "Strange"
 del testme[:42, ..., :24:, 24, 100]
 
 testme[:]
-testme[:] = 'Take all'
+testme[:] = "Take all"
 del testme[:]
 
 testme[40:42]
-testme[40:42] = 'Three'
+testme[40:42] = "Three"
 del testme[40:42]
 
-testme[40,41,42]
-testme[40,41,42] = 'Another Three'
-del testme[40,41,42]
+testme[40, 41, 42]
+testme[40, 41, 42] = "Another Three"
+del testme[40, 41, 42]

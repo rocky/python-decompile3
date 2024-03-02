@@ -11,7 +11,7 @@ def f():
     x = x+1
     print x
 
-raise "This program can't be run"
+raise RuntimeError("This program can't be run")
 
 x = 1
 f()

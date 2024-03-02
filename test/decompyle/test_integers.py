@@ -10,7 +10,8 @@ for further information
 """
 
 import sys
-#raise "This program can't be run"
+
+#raise RuntimeError("This program can't be run")
 
 i = 1
 i = 42
