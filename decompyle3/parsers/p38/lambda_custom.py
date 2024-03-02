@@ -1,4 +1,4 @@
-#  Copyright (c) 2020-2023 Rocky Bernstein
+#  Copyright (c) 2020-2024 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -49,22 +49,22 @@ class Python38LambdaCustom(Python38BaseParser):
             )
         )
 
-        # Opcode names in the custom_ops_processed set have rules that get added
-        # unconditionally and the rules are constant. So they need to be done
-        # only once and if we see the opcode a second we don't have to consider
-        # adding more rules.
+        # Opcode names in the custom_ops_processed set have rules that get
+        # added unconditionally and the rules are constant. So they need to be
+        # done only once, and if we see the opcode a second time, we don't have
+        # to consider adding more rules.
         #
         custom_ops_processed = frozenset()
 
         # A set of instruction operation names that exist in the token stream.
-        # We use this customize the grammar that we create.
+        # We use this to customize the grammar that we create.
         # 2.6-compatible set comprehensions
         self.seen_ops = frozenset([t.kind for t in tokens])
         self.seen_op_basenames = frozenset(
             [opname[: opname.rfind("_")] for opname in self.seen_ops]
         )
 
-        custom_ops_processed = set(["DICT_MERGE"])
+        custom_ops_processed = {"DICT_MERGE"}
 
         # Loop over instructions adding custom grammar rules based on
         # a specific instruction seen.
@@ -96,7 +96,7 @@ class Python38LambdaCustom(Python38BaseParser):
             opname = token.kind
 
             # Do a quick breakout before testing potentially
-            # each of the dozen or so instruction in if elif.
+            # each of the dozen or so instructions in "if"/"elif".
             if (
                 opname[: opname.find("_")] not in customize_instruction_basenames
                 or opname in custom_ops_processed
@@ -106,7 +106,7 @@ class Python38LambdaCustom(Python38BaseParser):
             opname_base = opname[: opname.rfind("_")]
 
             # Do a quick breakout before testing potentially
-            # each of the dozen or so instruction in if elif.
+            # each of the dozen or so instructions in "if"/"elif".
             if (
                 opname[: opname.find("_")] not in customize_instruction_basenames
                 or opname in custom_ops_processed
@@ -221,7 +221,7 @@ class Python38LambdaCustom(Python38BaseParser):
 
                 if not is_LOAD_CLOSURE or v == 0:
                     # We do this complicated test to speed up parsing of
-                    # pathelogically long literals, especially those over 1024.
+                    # pathologically long literals, especially those over 1024.
                     build_count = token.attr
                     thousands = build_count // 1024
                     thirty32s = (build_count // 32) % 32
@@ -298,7 +298,7 @@ class Python38LambdaCustom(Python38BaseParser):
             elif opname == "GET_AITER":
                 self.add_unique_doc_rules("get_aiter ::= expr GET_AITER", customize)
 
-                if not {"MAKE_FUNCTION_0", "MAKE_FUNCTION_CLOSURE"} in self.seen_ops:
+                if {"MAKE_FUNCTION_0", "MAKE_FUNCTION_CLOSURE"} not in self.seen_ops:
                     self.addRule(
                         """
                         expr                ::= dict_comp_async
@@ -568,13 +568,13 @@ class Python38LambdaCustom(Python38BaseParser):
                         # line 447:
                         #    lambda i: lambda n, m=None, l=None: ...
                         # which has
-                        #  L. 447         0  LOAD_CONST               (None, None)
-                        #                 2  LOAD_CLOSURE             'i'
-                        #                 4  LOAD_CLOSURE             'predicate'
-                        #                 6  BUILD_TUPLE_2         2
-                        #                 8  LOAD_LAMBDA              '<code_object <lambda>>'
-                        #                10  LOAD_STR                 '_tgrep_relation_action.<locals>.<lambda>.<locals>.<lambda>'
-                        #                12  MAKE_FUNCTION_CLOSURE_POS   'default, closure'
+                        #  L. 447 0  LOAD_CONST          (None, None)
+                        #         2  LOAD_CLOSURE        'i'
+                        #         4  LOAD_CLOSURE        'predicate'
+                        #         6  BUILD_TUPLE_2    2
+                        #         8  LOAD_LAMBDA         '<code_object <lambda>>'
+                        #        10  LOAD_STR            '_tgrep_relation_action.<locals>...'
+                        #        12  MAKE_FUNCTION_CLOSURE_POS   'default, closure'
                         # FIXME: Possibly we need to generalize for more nested lambda's of lambda's?
                         rule = """
                              expr        ::= lambda_body
@@ -670,8 +670,9 @@ class Python38LambdaCustom(Python38BaseParser):
             rule = "call_kw36 ::= expr {values} LOAD_CONST {opname}".format(**locals())
             self.add_unique_rule(rule, token.kind, token.attr, customize)
         elif opname == "CALL_FUNCTION_EX_KW":
-            # Note that we don't add to customize token.kind here. Instead, the non-terminal
-            # names call_ex_kw... are is in semantic actions.
+            # Note that we don't add to customize token.kind here.
+            # Instead, the non-terminal names, "call_ex_kw"...
+            # are in semantic actions.
             self.addRule(
                 """expr        ::= call_ex_kw4
                                    call_ex_kw4 ::= expr

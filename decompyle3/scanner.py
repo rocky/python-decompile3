@@ -89,11 +89,10 @@ class Scanner(ABC):
             if is_pypy:
                 v_str += "pypy"
             exec(f"""from xdis.opcodes import {v_str}""")
-            exec("self.opc = %s" % v_str)
+            exec(f"self.opc = {v_str}")
         else:
             raise TypeError(
-                "%s is not a Python version I know about"
-                % version_tuple_to_str(version)
+                f"{version_tuple_to_str(version)} is not a Python version I know about"
             )
 
         self.opname = self.opc.opname
@@ -370,7 +369,7 @@ class Scanner(ABC):
                         pass
                     pass
                 pass
-            if isinstance(inst, int) and inst.offset >= end:
+            if isinstance(inst.offset, int) and inst.offset >= end:
                 break
             pass
 
@@ -450,6 +449,7 @@ class Scanner(ABC):
         new_instructions = []
         last_was_extarg = False
         n = len(instructions)
+        starts_line = False
         for i, inst in enumerate(instructions):
             if (
                 inst.opname == "EXTENDED_ARG"
@@ -514,8 +514,8 @@ class Scanner(ABC):
             target = parent["end"]
         return target
 
-    def setTokenClass(self, tokenClass: Token) -> Token:
-        self.Token = tokenClass
+    def setTokenClass(self, token_class: Token) -> Token:
+        self.Token = token_class
         return self.Token
 
 
@@ -538,35 +538,36 @@ def get_scanner(version: Union[str, tuple], is_pypy=False, show_asm=None) -> Sca
             import importlib
 
             if is_pypy:
-                scan = importlib.import_module("decompyle3.scanners.pypy%s" % v_str)
+                scan = importlib.import_module(f"decompyle3.scanners.pypy{v_str}")
             else:
-                scan = importlib.import_module("decompyle3.scanners.scanner%s" % v_str)
+                scan = importlib.import_module(f"decompyle3.scanners.scanner{v_str}")
             if False:
                 print(scan)  # Avoid unused scan
         except ImportError:
             if is_pypy:
                 exec(
-                    "import decompyle3.scanners.pypy%s as scan" % v_str,
+                    f"import decompyle3.scanners.pypy{v_str} as scan",
                     locals(),
                     globals(),
                 )
             else:
                 exec(
-                    "import decompyle3.scanners.scanner%s as scan" % v_str,
+                    f"import decompyle3.scanners.scanner{v_str} as scan",
                     locals(),
                     globals(),
                 )
         if is_pypy:
             scanner = eval(
-                "scan.ScannerPyPy%s(show_asm=show_asm)" % v_str, locals(), globals()
+                f"scan.ScannerPyPy{v_str}(show_asm=show_asm)", locals(), globals()
             )
         else:
             scanner = eval(
-                "scan.Scanner%s(show_asm=show_asm)" % v_str, locals(), globals()
+                f"scan.Scanner{v_str}(show_asm=show_asm)", locals(), globals()
             )
     else:
         raise RuntimeError(
-            f"Unsupported Python version, {version_tuple_to_str(version)}, for decompilation"
+            "Unsupported Python version, "
+            f"{version_tuple_to_str(version)}, for decompilation"
         )
     return scanner
 
@@ -574,8 +575,8 @@ def get_scanner(version: Union[str, tuple], is_pypy=False, show_asm=None) -> Sca
 if __name__ == "__main__":
     import inspect
 
-    co = inspect.currentframe().f_code
+    my_co = inspect.currentframe().f_code
     from xdis.version_info import PYTHON_VERSION_TRIPLE
 
     scanner = get_scanner(PYTHON_VERSION_TRIPLE, IS_PYPY, True)
-    tokens, customize = scanner.ingest(co, {}, show_asm="after")
+    tokens, customize = scanner.ingest(my_co, {}, show_asm="after")

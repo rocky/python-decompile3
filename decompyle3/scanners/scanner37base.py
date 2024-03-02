@@ -1081,9 +1081,9 @@ if __name__ == "__main__":
     if PYTHON_VERSION_TRIPLE[:2] >= (3, 7):
         import inspect
 
-        co = inspect.currentframe().f_code  # type: ignore
+        my_co = inspect.currentframe().f_code  # type: ignore
 
-        my_tokens, customize = Scanner37Base(PYTHON_VERSION_TRIPLE).ingest(co)
+        my_tokens, customize = Scanner37Base(PYTHON_VERSION_TRIPLE).ingest(my_co)
         for token in my_tokens:
             print(token)
     else:
