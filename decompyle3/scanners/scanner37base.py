@@ -343,8 +343,13 @@ class Scanner37Base(Scanner):
                 if (
                     load_global_inst.opname == "LOAD_GLOBAL"
                     and load_global_inst.argval == "AssertionError"
+                    and inst.argval is not None
                 ):
-                    self.load_asserts.add(load_global_inst.offset)
+                    raise_inst = self.get_inst(self.prev_op[inst.argval])
+                    if raise_inst.opname.startswith("RAISE_VARARGS"):
+                        self.load_asserts.add(load_global_inst.offset)
+                        pass
+                    pass
                 pass
 
         # Operand values in Python wordcode are small. As a result,
