@@ -127,11 +127,10 @@ class Scanner(ABC):
 
         # Offset: lineno pairs, only for offsets which start line.
         # Locally we use list for more convenient iteration using indices
-        if self.version > (1, 4):
-            linestarts = list(self.opc.findlinestarts(code_obj))
-        else:
-            linestarts = [[0, 1]]
+        linestarts = list(self.opc.findlinestarts(code_obj))
         self.linestarts = dict(linestarts)
+        if not self.linestarts:
+            return []
 
         # 'List-map' which shows line number of current op and offset of
         # first op on following line, given offset of op as index
@@ -195,13 +194,18 @@ class Scanner(ABC):
         return self.insts[self.offset2inst_index[offset] - 1].offset
 
     def get_inst(self, offset: int):
-        # Instructions can get moved as a result of EXTENDED_ARGS removal.
-        # So if "offset" is not in self.offset2inst_index, then
-        # we assume that it was an instruction moved back.
-        # We check that assumption though by looking at
-        # self.code's opcode.
-        # Sadly instructions can get moved _forward too.
-        # So we have to check which direction we are going
+        """
+        Returns the instruction from ``self.insts`` that has at offset
+        ``offset``.
+
+        Instructions can get moved as a result of ``EXTENDED_ARGS`` removal.
+        So if ``offset`` is not in self.offset2inst_index, then
+        we assume that it was an instruction moved back.
+        We check that assumption though by looking at
+        self.code's opcode.
+        Sadly instructions can get moved forward too.
+        So we have to check which direction we are going.
+        """
         offset_increment = instruction_size(self.opc.EXTENDED_ARG, self.opc)
         if offset not in self.offset2inst_index:
             if self.code[offset] != self.opc.EXTENDED_ARG:
@@ -513,10 +517,6 @@ class Scanner(ABC):
     def setTokenClass(self, tokenClass: Token) -> Token:
         self.Token = tokenClass
         return self.Token
-
-
-def parse_fn_counts(argc: int):
-    return ((argc & 0xFF), (argc >> 8) & 0xFF, (argc >> 16) & 0x7FFF)
 
 
 def get_scanner(version: Union[str, tuple], is_pypy=False, show_asm=None) -> Scanner:

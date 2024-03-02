@@ -1,4 +1,4 @@
-#  Copyright (c) 2016-2019, 2021-2022 by Rocky Bernstein
+#  Copyright (c) 2016-2019, 2021-2022, 2024 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -24,10 +24,10 @@ scanner routine for Python 3.
 
 from typing import Tuple
 
-from decompyle3.scanners.scanner37base import Scanner37Base
-
 # bytecode verification, verify(), uses JUMP_OPs from here
 from xdis.opcodes import opcode_37 as opc
+
+from decompyle3.scanners.scanner37base import Scanner37Base
 
 # bytecode verification, verify(), uses JUMP_OPS from here
 JUMP_OPs = opc.JUMP_OPS
@@ -78,7 +78,7 @@ class Scanner37(Scanner37Base):
                     if t.kind.startswith("BUILD_CONST_KEY_MAP")
                     else t.kind.split("_")[1]
                 )
-                new_tokens = self.bound_collection(
+                new_tokens = self.bound_collection_from_tokens(
                     tokens, new_tokens, t, i, f"CONST_{collection_type}"
                 )
                 continue

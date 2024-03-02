@@ -182,7 +182,7 @@ class Scanner37Base(Scanner):
         # self.varargs_ops = frozenset(self.opc.hasvargs)
         return
 
-    def bound_collection(
+    def bound_collection_from_tokens(
         self, tokens: list, next_tokens: list, t: Token, i: int, collection_type: str
     ):
         count = t.attr
