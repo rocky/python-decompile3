@@ -577,6 +577,11 @@ TABLE_DIRECT = {
     "importlist": ("%C", (0, maxint, ", ")),
     "import_from": ("%|from %[2]{pattr} import %c\n", (3, "importlist")),
     "import_from_star": ("%|from %[2]{pattr} import *\n",),
+
+    # If there are situations where we need "with ... as ()"
+    # We may need to customize this in n_withasstmt
+    "withasstmt": ("%|with %c as %c:\n%+%c%-", 0, 2, 3),
+
 }
 # fmt: on
 

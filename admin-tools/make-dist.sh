@@ -29,3 +29,4 @@ for pyversion in $PYVERSIONS; do
 done
 
 python ./setup.py bdist_wheel sdist
+finish

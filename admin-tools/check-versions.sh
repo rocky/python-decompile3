@@ -27,3 +27,4 @@ for version in $PYVERSIONS; do
     fi
     echo === $version ===
 done
+finish
