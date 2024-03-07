@@ -1003,6 +1003,7 @@ class Python37BaseParser(PythonBaseParser):
             elif opname == "SETUP_WITH":
                 rules_str = """
                   stmt        ::= with
+                  stmt        ::= with_as_pass
                   stmt        ::= withasstmt
                   c_stmt      ::= c_with
 
@@ -1040,6 +1041,7 @@ class Python37BaseParser(PythonBaseParser):
                                   SETUP_WITH store suite_stmts_opt
                                   POP_BLOCK LOAD_CONST COME_FROM_WITH
                                   with_suffix
+
                 """
                 if self.version < (3, 8):
                     rules_str += """

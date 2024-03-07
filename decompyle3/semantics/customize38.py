@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2023 by Rocky Bernstein
+#  Copyright (c) 2019-2024 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -153,6 +153,11 @@ def customize_for_version38(self, version):
                 -2,
             ),
             "list_if_not38": (" if not %c", (2, "expr", PRECEDENCE["unary_not"])),
+            "named_expr": (  # AKA "walrus operator"
+                "%c := %p",
+                (2, "store"),
+                (0, "expr", PRECEDENCE["named_expr"] - 1),
+            ),
             "or_in_ifexp": (
                 "%c or %c",
                 (0, ("or_in_ifexp", "expr_pjit")),
@@ -315,10 +320,11 @@ def customize_for_version38(self, version):
                 (2, "suite_stmts_opt"),
                 (8, "suite_stmts_opt"),
             ),
-            "named_expr": (  # AKA "walrus operator"
-                "%c := %p",
+            "with_as_pass": (
+                "%|with %c as %c:\n%+%c%-",
+                (0, "expr"),
                 (2, "store"),
-                (0, "expr", PRECEDENCE["named_expr"] - 1),
+                (3, "pass"),
             ),
         }
     )

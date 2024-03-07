@@ -660,7 +660,9 @@ class Python38FullCustom(Python38LambdaCustom, PythonBaseParser):
             elif opname == "SETUP_WITH":
                 rules_str = """
                   stmt        ::= with
+                  stmt        ::= with_as_pass
                   stmt        ::= withasstmt
+
                   c_stmt      ::= c_with
 
                   c_with      ::= expr SETUP_WITH POP_TOP
@@ -696,6 +698,11 @@ class Python38FullCustom(Python38LambdaCustom, PythonBaseParser):
                   withasstmt  ::= expr
                                   SETUP_WITH store suite_stmts_opt
                                   POP_BLOCK LOAD_CONST COME_FROM_WITH
+                                  with_suffix
+
+                  with_as_pass ::= expr
+                                  SETUP_WITH store pass
+                                  POP_BLOCK BEGIN_FINALLY COME_FROM_WITH
                                   with_suffix
                 """
                 if self.version < (3, 8):
