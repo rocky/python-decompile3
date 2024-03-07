@@ -612,8 +612,8 @@ class Python38LambdaCustom(Python38BaseParser):
                                WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
                 # Removes POP_BLOCK LOAD_CONST from 3.6-
-                withasstmt ::= expr SETUP_WITH store suite_stmts_opt COME_FROM_WITH
-                               WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+                with_as    ::= expr SETUP_WITH store suite_stmts_opt COME_FROM_WITH
+a                               WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
                 """
                 if self.version < (3, 8):
                     rules_str += """

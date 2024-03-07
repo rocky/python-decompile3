@@ -660,7 +660,7 @@ class Python38PyPyFullCustom(Python38LambdaCustom, PythonBaseParser):
             elif opname == "SETUP_WITH":
                 rules_str = """
                   stmt        ::= with
-                  stmt        ::= withasstmt
+                  stmt        ::= with_as
                   c_stmt      ::= c_with
 
                   c_with      ::= expr SETUP_WITH POP_TOP
@@ -677,14 +677,14 @@ class Python38PyPyFullCustom(Python38LambdaCustom, PythonBaseParser):
                                   COME_FROM_WITH
                                   with_suffix
 
-                  withasstmt  ::= expr SETUP_WITH store suite_stmts_opt COME_FROM_WITH
+                  with_as  ::= expr SETUP_WITH store suite_stmts_opt COME_FROM_WITH
                                   with_suffix
 
                   with        ::= expr
                                   SETUP_WITH POP_TOP suite_stmts_opt
                                   POP_BLOCK LOAD_CONST COME_FROM_WITH
                                   with_suffix
-                  withasstmt  ::= expr
+                  with_as  ::= expr
                                   SETUP_WITH store suite_stmts_opt
                                   POP_BLOCK LOAD_CONST COME_FROM_WITH
                                   with_suffix
@@ -693,7 +693,7 @@ class Python38PyPyFullCustom(Python38LambdaCustom, PythonBaseParser):
                                   SETUP_WITH POP_TOP suite_stmts_opt
                                   POP_BLOCK LOAD_CONST COME_FROM_WITH
                                   with_suffix
-                  withasstmt  ::= expr
+                  with_as  ::= expr
                                   SETUP_WITH store suite_stmts_opt
                                   POP_BLOCK LOAD_CONST COME_FROM_WITH
                                   with_suffix
@@ -722,16 +722,16 @@ class Python38PyPyFullCustom(Python38LambdaCustom, PythonBaseParser):
                                      with_suffix
 
 
-                      withasstmt ::= expr
+                      with_as    ::= expr
                                      SETUP_WITH store suite_stmts
                                      POP_BLOCK LOAD_CONST COME_FROM_WITH
 
-                      withasstmt ::= expr
+                      with_as    ::= expr
                                      SETUP_WITH store suite_stmts
                                      POP_BLOCK BEGIN_FINALLY COME_FROM_WITH
                                      with_suffix
 
-                      # withasstmt ::= expr SETUP_WITH store suite_stmts
+                      # with_as ::= expr SETUP_WITH store suite_stmts
                       #                COME_FROM expr COME_FROM POP_BLOCK ROT_TWO
                       #                BEGIN_FINALLY WITH_CLEANUP_START WITH_CLEANUP_FINISH
                       #                POP_FINALLY RETURN_VALUE COME_FROM_WITH
@@ -1222,7 +1222,7 @@ class Python38PyPyFullCustom(Python38LambdaCustom, PythonBaseParser):
             elif opname == "SETUP_WITH":
                 rules_str = """
                   stmt        ::= with
-                  stmt        ::= withasstmt
+                  stmt        ::= with_as
                   c_stmt      ::= c_with
 
                   c_with      ::= expr SETUP_WITH POP_TOP
@@ -1239,14 +1239,14 @@ class Python38PyPyFullCustom(Python38LambdaCustom, PythonBaseParser):
                                   COME_FROM_WITH
                                   with_suffix
 
-                  withasstmt  ::= expr SETUP_WITH store suite_stmts_opt COME_FROM_WITH
+                  with_as  ::= expr SETUP_WITH store suite_stmts_opt COME_FROM_WITH
                                   with_suffix
 
                   with        ::= expr
                                   SETUP_WITH POP_TOP suite_stmts_opt
                                   POP_BLOCK LOAD_CONST COME_FROM_WITH
                                   with_suffix
-                  withasstmt  ::= expr
+                  with_as     ::= expr
                                   SETUP_WITH store suite_stmts_opt
                                   POP_BLOCK LOAD_CONST COME_FROM_WITH
                                   with_suffix
@@ -1255,7 +1255,7 @@ class Python38PyPyFullCustom(Python38LambdaCustom, PythonBaseParser):
                                   SETUP_WITH POP_TOP suite_stmts_opt
                                   POP_BLOCK LOAD_CONST COME_FROM_WITH
                                   with_suffix
-                  withasstmt  ::= expr
+                  with_as  ::= expr
                                   SETUP_WITH store suite_stmts_opt
                                   POP_BLOCK LOAD_CONST COME_FROM_WITH
                                   with_suffix
@@ -1284,20 +1284,20 @@ class Python38PyPyFullCustom(Python38LambdaCustom, PythonBaseParser):
                                      with_suffix
 
 
-                      withasstmt ::= expr
+                      with_as    ::= expr
                                      SETUP_WITH store suite_stmts
                                      POP_BLOCK LOAD_CONST COME_FROM_WITH
 
-                      withasstmt ::= expr
+                      with_as    ::= expr
                                      SETUP_WITH store suite_stmts
                                      POP_BLOCK BEGIN_FINALLY COME_FROM_WITH
                                      with_suffix
 
-                      # withasstmt ::= expr SETUP_WITH store suite_stmts
-                      #                COME_FROM expr COME_FROM POP_BLOCK ROT_TWO
-                      #                BEGIN_FINALLY WITH_CLEANUP_START WITH_CLEANUP_FINISH
-                      #                POP_FINALLY RETURN_VALUE COME_FROM_WITH
-                      #                WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
+                      # with_as   ::= expr SETUP_WITH store suite_stmts
+                      #               COME_FROM expr COME_FROM POP_BLOCK ROT_TWO
+                      #               BEGIN_FINALLY WITH_CLEANUP_START WITH_CLEANUP_FINISH
+                      #               POP_FINALLY RETURN_VALUE COME_FROM_WITH
+                      #               WITH_CLEANUP_START WITH_CLEANUP_FINISH END_FINALLY
 
                       with         ::= expr SETUP_WITH POP_TOP suite_stmts_opt POP_BLOCK
                                        BEGIN_FINALLY COME_FROM_WITH
