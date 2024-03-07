@@ -577,12 +577,12 @@ TABLE_DIRECT = {
     "import_from_star": ("%|from %[2]{pattr} import *\n",),
 
     # If there are situations where we need "with ... as ()"
-    # We may need to customize this in n_withasstmt
-    "withasstmt": (
+    # We may need to customize this in n_with_as
+    "with_as": (
         "%|with %c as %c:\n%+%c%-",
         (0, "expr"),
         (2, "store"),
-        (3, "suite_stmts_opt"),
+        (3, ("suite_stmts_opt", "_stmts")),
     ),
 
 }

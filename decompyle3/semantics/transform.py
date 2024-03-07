@@ -67,7 +67,7 @@ STRIPPED_NODES = (
     # "return_expr",
     # "set_comp_func",
     "tryfinallystmt",
-    "withasstmt",
+    "with_as",
 )
 
 
