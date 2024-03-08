@@ -372,20 +372,20 @@ class Scanner37Base(Scanner):
                     # but the operator and operand properties come from the other
                     # instruction
                     self.insts[i] = Instruction(
-                        opcode=jump_inst.opcode,
+                        is_jump_target=inst.is_jump_target,
+                        starts_line=inst.starts_line,
+                        offset=inst.offset,
                         opname=jump_inst.opname,
+                        opcode=jump_inst.opcode,
+                        has_arg=jump_inst.has_arg,
                         arg=jump_inst.arg,
                         argval=jump_inst.argval,
                         argrepr=jump_inst.argrepr,
-                        offset=inst.offset,
-                        starts_line=inst.starts_line,
-                        is_jump_target=inst.is_jump_target,
+                        tos_str=None,
                         positions=None,
                         optype=jump_inst.optype,
-                        has_arg=jump_inst.has_arg,
                         inst_size=jump_inst.inst_size,
                         has_extended_arg=inst.has_extended_arg,
-                        tos_str=None,
                         start_offset=None,
                     )
 
