@@ -19,7 +19,6 @@ you'll usually import a call something here, such as:
 * get_python_parser().parse(), or
 * python_parser() which does the above
 
-Note however all of this is imported from the __init__ module
 """
 
 import sys
@@ -53,7 +52,7 @@ from decompyle3.parsers.treenode import SyntaxTree
 from decompyle3.show import maybe_show_asm
 
 
-def parse(p, tokens, customize, is_lambda) -> SyntaxTree:
+def parse(p, tokens, customize, is_lambda: bool) -> SyntaxTree:
     was_lambda = p.is_lambda
     p.is_lambda = is_lambda
     p.customize_grammar_rules(tokens, customize)
@@ -150,22 +149,26 @@ def python_parser(
     co,
     version: tuple = PYTHON_VERSION_TRIPLE,
     out=sys.stdout,
-    showasm=False,
+    showasm: bool = False,
     parser_debug=PARSER_DEFAULT_DEBUG,
-    compile_mode="exec",
-    is_pypy=False,
-    is_lambda=False,
-):
+    compile_mode: str = "exec",
+    is_pypy: bool = False,
+    is_lambda: bool = False,
+) -> SyntaxTree:
     """
     Parse a code object to an abstract syntax tree representation.
 
-    :param version:         The python version this code is from as a float, for
-                            example 2.6, 2.7, 3.2, 3.3, 3.4, 3.5 etc.
     :param co:              The code object to parse.
+    :param version:         The python version of this code is from as a float, for
+                            example, 2.6, 2.7, 3.2, 3.3, 3.4, 3.5 etc.
     :param out:             File like object to write the output to.
     :param showasm:         Flag which determines whether the disassembled and
                             ingested code is written to sys.stdout or not.
     :param parser_debug:    dict containing debug flags for the spark parser.
+    :param compile_mode:    compile mode that we want to parse input `co` as.
+                            This is either "exec", "eval" or, "single".
+    :param is_pypy:         True if ``co`` comes is PyPy code
+    :param is_lambda        True if ``co`` is a lambda expression
 
     :return: Abstract syntax tree representation of the code object.
     """
@@ -196,7 +199,6 @@ def python_parser(
 if __name__ == "__main__":
 
     def parse_test(co) -> None:
-        from decompyle3 import IS_PYPY
 
         tree = python_parser(co, (3, 8, 2), showasm=True, is_pypy=IS_PYPY)
         print(tree)

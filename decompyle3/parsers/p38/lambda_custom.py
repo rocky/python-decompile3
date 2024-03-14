@@ -24,6 +24,14 @@ from decompyle3.parsers.parse_heads import nop_func
 class Python38LambdaCustom(Python38BaseParser):
     def __init__(self):
         self.new_rules = set()
+
+        # Special opcodes we see that trigger adding new grammar rules.
+        self.seen_ops = frozenset()
+
+        # Special opcodes we see that trigger adding new grammar rules.
+        self.seen_ops_basenames = frozenset()
+
+        # Customized grammar rules
         self.customized = {}
 
     def customize_grammar_rules_lambda38(self, tokens, customize):
@@ -194,8 +202,11 @@ class Python38LambdaCustom(Python38BaseParser):
                             is_LOAD_CLOSURE = False
                             break
                     if is_LOAD_CLOSURE:
-                        rule = "load_closure ::= %s%s" % (("LOAD_CLOSURE " * v), opname)
-                        self.add_unique_rule(rule, opname, token.attr, customize)
+                        rule_str = "load_closure ::= %s%s" % (
+                            ("LOAD_CLOSURE " * v),
+                            opname,
+                        )
+                        self.add_unique_doc_rules(rule_str, customize)
 
                 elif opname_base == "BUILD_LIST":
                     v = token.attr

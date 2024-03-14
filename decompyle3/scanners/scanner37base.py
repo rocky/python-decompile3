@@ -54,7 +54,12 @@ class Scanner37Base(Scanner):
         super(Scanner37Base, self).__init__(version, show_asm, is_pypy)
         self.offset2tok_index = None
         self.debug = debug
+
+        # True is code is from PyPy
         self.is_pypy = is_pypy
+
+        # Bytecode converted into instruction
+        self.insts = []
 
         # Create opcode classification sets
         # Note: super initialization above initializes self.opc
@@ -409,12 +414,13 @@ class Scanner37Base(Scanner):
 
             if inst.offset in jump_targets:
                 jump_idx = 0
-                # We want to process COME_FROMs to the same offset to be in *descending*
-                # offset order, so we have the larger range or biggest instruction interval
-                # last. (I think they are sorted in increasing order, but for safety
-                # we sort them). That way, specific COME_FROM tags will match up
-                # properly. For example, a "loop" with an "if" nested in it should have the
-                # "loop" tag last so the grammar rule matches that properly.
+                # We want to process COME_FROMs to the same offset to be in
+                # *descending* offset order, so we have the larger range or
+                # biggest instruction interval last. (I think they are sorted
+                # in increasing order, but for safety we sort them). That way,
+                # specific COME_FROM tags will match up properly. For example,
+                # a "loop" with an "if" nested in it should have the "loop" tag
+                # last so the grammar rule matches that properly.
                 for jump_offset in sorted(jump_targets[inst.offset], reverse=True):
                     come_from_name = "COME_FROM"
 
@@ -1089,8 +1095,8 @@ if __name__ == "__main__":
         my_co = inspect.currentframe().f_code  # type: ignore
 
         my_tokens, customize = Scanner37Base(PYTHON_VERSION_TRIPLE).ingest(my_co)
-        for token in my_tokens:
-            print(token)
+        for my_token in my_tokens:
+            print(my_token)
     else:
         print(
             "Need to be Python 3.7..3.8 to demo; "

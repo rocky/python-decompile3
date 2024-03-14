@@ -13,11 +13,12 @@
 /.venv*
 /README
 /__pkginfo__.pyc
+/decompyle3.egg-info
 /dist
 /how-to-make-a-release.txt
 /nose-*.egg
+/pycharm-venv
 /tmp
-/decompyle3.egg-info
 /unpyc
 ChangeLog
 __pycache__

@@ -1,4 +1,4 @@
-#  Copyright (c) 2020-2022 Rocky Bernstein
+#  Copyright (c) 2020-2022, 2024 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -12,6 +12,10 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+Python 3.8 base code. We keep non-custom-generated grammar rules out of this file.
+"""
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 
