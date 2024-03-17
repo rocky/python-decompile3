@@ -12,4 +12,12 @@ if SYS_VERSION < (3, 7):
     print(mess)
     raise Exception(mess)
 
-setup(packages=["decompyle3"])
+setup(
+    packages=[
+        "decompyle3",
+        "decompyle3.bin",
+        "decompyle3.parsers",
+        "decompyle3.scanners",
+        "decompyle3.semantics",
+    ]
+)

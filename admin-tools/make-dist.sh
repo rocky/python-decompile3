@@ -18,6 +18,7 @@ cd ..
 source $PACKAGE/version.py
 echo $VERSION
 
+PYVERSIONS=3.11
 for pyversion in $PYVERSIONS; do
     if ! pyenv local $pyversion ; then
 	exit $?
