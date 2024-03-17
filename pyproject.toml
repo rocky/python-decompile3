@@ -1,0 +1,54 @@
+[build-system]
+requires = [
+    "setuptools>=61.2",
+]
+
+build-backend = "setuptools.build_meta"
+
+[project]
+authors = [
+    {name = "Rocky Bernstein",	email = "rb@dustyfeet.com"},
+]
+
+name = "decompyle3"
+description = "Python cross-version byte-code library and disassembler"
+dependencies = [
+    "click",
+    "spark-parser >= 1.8.9, < 1.9.0",
+    "xdis >= 6.0.8, < 6.2.0",
+]
+readme = "README.rst"
+license = {text = "GPL"}
+keywords = ["Python bytecode", "bytecode", "disassembler"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/rocky/python-decompile3"
+Downloads = "https://github.com/rocky/python-decompile3/releases"
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit",
+    "pytest",
+]
+
+[project.scripts]
+decompyle3 = "decompyle3.bin.decompile:main_bin"
+decompyle3-code = "decompyle3.bin.decompile_code_type:main"
+decompyle3-tokenize = "decompyle3.bin.decompile_tokens:main"
+
+[tool.setuptools.dynamic]
+version = {attr = "decompyle3.version.__version__"}
