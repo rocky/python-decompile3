@@ -3,7 +3,23 @@
 
 import sys
 
-from setuptools import setup
+import setuptools
+
+from __pkginfo__ import (
+    __version__,
+    author,
+    author_email,
+    classifiers,
+    entry_points,
+    install_requires,
+    license,
+    long_description,
+    modname,
+    py_modules,
+    short_desc,
+    web,
+    zip_safe,
+)
 
 SYS_VERSION = sys.version_info[0:2]
 if SYS_VERSION < (3, 7):
@@ -12,12 +28,28 @@ if SYS_VERSION < (3, 7):
     print(mess)
     raise Exception(mess)
 
-setup(
-    packages=[
-        "decompyle3",
-        "decompyle3.bin",
-        "decompyle3.parsers",
-        "decompyle3.scanners",
-        "decompyle3.semantics",
-    ]
+setuptools.setup(
+    author=author,
+    author_email=author_email,
+    classifiers=classifiers,
+    description=short_desc,
+    # entry_points=entry_points,
+    entry_points={
+        "console_scripts": [
+            "decompyle3=decompyle3.bin.decompile:main_bin",
+            "decompyle3-code=decompyle3.bin.decompile_code_type:main",
+            "decompyle3-tokens=decompyle3.bin.decompile_tokens:main",
+        ]
+    },
+    install_requires=install_requires,
+    license=license,
+    long_description=long_description,
+    name=modname,
+    packages=setuptools.find_packages(),
+    py_modules=py_modules,
+    test_suite="nose.collector",
+    url=web,
+    tests_require=["nose>=1.0"],
+    version=__version__,
+    zip_safe=zip_safe,
 )
