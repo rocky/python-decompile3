@@ -1,4 +1,4 @@
-#  Copyright (c) 2020, 2022-2023 Rocky Bernstein
+#  Copyright (c) 2020, 2022-2024 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -27,10 +27,13 @@ def ifstmt(
     self, lhs: str, n: int, rule, tree, tokens: list, first: int, last: int
 ) -> bool:
 
-    # print("XXX", first, last, rule)
+    # print("XXX", tokens[first].offset , tokens[last].offset, rule)
     # for t in range(first, last):
     #     print(tokens[t])
     # print("=" * 40)
+
+    if rule == ("ifstmt", ("bool_op", "stmts", "\\e__come_froms")):
+        return False
 
     ltm1_index = last - 1
     while tokens[ltm1_index] == "COME_FROM":
@@ -182,7 +185,7 @@ def ifstmt(
         pass
 
     # If there is a final COME_FROM and that test jumps to that, this is a strong
-    # indication that this is ok, s we'll skip jumps jumping too far test.
+    # indication that this is ok, so we'll skip jumps jumping too far test.
     if (
         pop_jump_if is not None
         and ltm1 == "COME_FROM"
@@ -221,5 +224,7 @@ def ifstmt(
     # been a prior reduction that doesn't include the last COME_FROM.
     if ltm1 == "COME_FROM":
         return ltm1.attr < first_offset
+    elif tokens[last] == "COME_FROM":
+        return tokens[last].attr < first_offset
 
     return False

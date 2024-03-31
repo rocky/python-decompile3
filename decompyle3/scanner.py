@@ -116,6 +116,12 @@ class Scanner(ABC):
         self.offset2inst_index = {}
         for i, inst in enumerate(self.insts):
             self.offset2inst_index[inst.offset] = i
+            offset = inst.offset
+            inst_size = inst.inst_size
+            while inst_size > 0:
+                self.offset2inst_index[offset] = i
+                offset += 2
+                inst_size -= 2
 
         return bytecode
 

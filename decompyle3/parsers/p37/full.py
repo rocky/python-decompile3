@@ -579,6 +579,7 @@ class Python37Parser(Python37LambdaParser):
         # empty they have to be reasonable, e.g. testexpr has to
         # jump to one of the COME_FROMS
         ifstmt      ::= testexpr stmts _come_froms
+        ifstmt      ::= bool_op stmts _come_froms
         ifstmt      ::= testexpr ifstmts_jump _come_froms
 
         stmt        ::= ifstmt_bool

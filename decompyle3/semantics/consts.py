@@ -487,7 +487,9 @@ TABLE_DIRECT = {
     #    "yield":	        ( "yield %c", 0),
     #    "return":	        ( "%|return %c\n", 0),
     "return_if_stmt": ("return %c\n", 0),
-    "ifstmt": ("%|if %c:\n%+%c%-", (0, "testexpr"), (1, ("ifstmts_jump", "stmts"))),
+    "ifstmt": (
+        "%|if %c:\n%+%c%-", (0, ("testexpr", "bool_op")), (1, ("ifstmts_jump", "stmts"))
+    ),
     "iflaststmt": ("%|if %c:\n%+%c%-", 0, 1),
     "iflaststmtc": ("%|if %c:\n%+%c%-", 0, 1),
     "testtrue": ("not %p", (0, PRECEDENCE["unary_not"])),
