@@ -56,7 +56,7 @@ class Python37LambdaCustom(Python37BaseParser):
         # Note: BUILD_TUPLE_UNPACK_WITH_CALL gets considered by
         # default because it starts with BUILD. So we'll set to ignore it from
         # the start.
-        custom_ops_processed = set(("BUILD_TUPLE_UNPACK_WITH_CALL",))
+        custom_ops_processed = {"BUILD_TUPLE_UNPACK_WITH_CALL"}
 
         for i, token in enumerate(tokens):
             opname = token.kind
