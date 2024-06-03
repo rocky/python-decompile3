@@ -52,11 +52,12 @@ PRECEDENCE = {
     "named_expr":             40,  # :=
     "dict_unpack":            38,  # **kwargs
     "list_unpack":            38,  # *args
+    "yield_from":             38,
     "tuple_list_starred":     38,  # *x, *y, *z - about at the level of yield?
     "unpack":                 38,  # A guess. Used in "async with ... as ...
                                    # This might also get used in tuple assignment?
-    "yield_from":             38,
 
+    "_lambda_body":           30,
     "lambda_body":            32,  # lambda ... : lambda_body
 
     "yield":                  30,  # Needs to be below named_expr and lambda_body
@@ -137,12 +138,14 @@ ASSIGN_DOC_STRING = lambda doc_string, doc_load: SyntaxTree(    # noqa
     "assign",
     [
         SyntaxTree(
-            "expr", [
-                Token(doc_load, pattr=doc_string, attr=doc_string),
-                    ]
+            "expr", [Token(doc_load, pattr=doc_string, attr=doc_string)]
         ),
         SyntaxTree("store", [Token("STORE_NAME", pattr="__doc__", optype="name")]),
     ],
+)
+
+PASS = SyntaxTree(
+    "stmts", [SyntaxTree("sstmt", [SyntaxTree("stmt", [SyntaxTree("pass", [])])])]
 )
 
 NAME_MODULE = SyntaxTree(
@@ -157,7 +160,10 @@ NAME_MODULE = SyntaxTree(
     ],
 )
 
+NEWLINE = SyntaxTree("newline", [])
 NONE = SyntaxTree("expr", [NoneToken])
+
+RETURN_NONE = SyntaxTree("stmt", [SyntaxTree("return", [NONE, Token("RETURN_VALUE")])])
 
 RETURN_LOCALS = SyntaxTree(
     "return",
@@ -167,15 +173,6 @@ RETURN_LOCALS = SyntaxTree(
     ],
 )
 
-RETURN_NONE = SyntaxTree("stmt",
-                  [ SyntaxTree("return",
-                        [ NONE, Token("RETURN_VALUE")]) ])
-
-PASS = SyntaxTree("stmts",
-           [ SyntaxTree("sstmt",
-                 [ SyntaxTree("stmt",
-                       [ SyntaxTree("pass", [])])])])
-
 # God intended \t, but Python has decided to use 4 spaces.
 # If you want real tabs, use Go.
 # TAB = "\t"
@@ -183,8 +180,8 @@ TAB = " " * 4
 INDENT_PER_LEVEL = " "  # additional intent per pretty-print level
 
 TABLE_R = {
+    "STORE_ATTR": ("%c.%[1]{pattr}", 0),
     "DELETE_ATTR": ("%|del %c.%[-1]{pattr}\n", 0),
-    "STORE_ATTR":  ("%c.%[1]{pattr}", 0),
 }
 
 TABLE_DIRECT = {
@@ -239,81 +236,78 @@ TABLE_DIRECT = {
     "UNARY_NOT":                ( "not ", ),
     "UNARY_POSITIVE":           ( "+",),
 
-    # bin_op (formerly "binary_expr") is the Python AST BinOp
-    "bin_op": ("%c %c %c", 0, (-1, "binary_operator"), (1, "expr")),
-    # unary_op (formerly "unary_expr") is the Python AST UnaryOp
-    "unary_op": ("%c%c", (1, "unary_operator"), (0, "expr")),
-    "unary_not": ("not %c", (0, "expr")),
-    "unary_convert": ("`%c`", (0, "expr"),),
-    "get_iter": ("iter(%c)", (0, "expr"),),
+    "and": (
+        "%c and %c",
+        (0, ("and_parts", "expr", "expr_pjif", "expr_jifop_cfs", "not")),
+        (1, ("expr", "expr_pjif", "expr_jifop_cfs")),
+    ),
 
-    "set_iter":        ( "%c", 0 ),
+    "and2": ("%c", 3),
 
-    "slice0": (
-        "%c[:]",
-        (0, "expr"),
-        ),
-    "slice1": (
-        "%c[%p:]",
-        (0, "expr"),
-        (1, NO_PARENTHESIS_EVER)
-        ),
-
-    "slice2": ( "[%c:%p]",
-        (0, "expr"),
-        (1, NO_PARENTHESIS_EVER)
-        ),
-
-    "slice3": (
-        "%c[%p:%p]",
-        (0, "expr"),
-        (1, NO_PARENTHESIS_EVER),
-        (2, NO_PARENTHESIS_EVER)
+    "assign": (
+        "%|%c = %p\n",
+        -1,
+        (0, ("expr", "branch_op"), PRECEDENCE["tuple_list_starred"] + 1)
         ),
 
     "attribute": ("%c.%[1]{pattr}", (0, "expr")),
-    "delete_subscript": (
-        "%|del %p[%c]\n",
-        (0, "expr", PRECEDENCE["subscript"]),
-        (1, "expr"),
-    ),
 
-    "subscript": (
-        "%p[%p]",
-        (0, "expr", PRECEDENCE["subscript"]),
-        (1, "expr", NO_PARENTHESIS_EVER)
-    ),
-
-    "subscript2": (
-        "%p[%p]",
-        (0, "expr", PRECEDENCE["subscript"]),
-        (1, "expr", NO_PARENTHESIS_EVER)
-    ),
-
-
-    "store_subscript": ("%p[%c]", (0, "expr", PRECEDENCE["subscript"]), (1, "expr")),
-    "unpack": ("%C%,", (1, maxint, ", ")),
-    # This nonterminal we create on the fly in semantic routines
-    "unpack_w_parens": ("(%C%,)", (1, maxint, ", ")),
     # This nonterminal we create on the fly in semantic routines
     "attribute_w_parens": ("(%c).%[1]{pattr}", (0, "expr")),
-    # This nonterminal we create on the fly in semantic routines
-    "store_w_parens": ("(%c).%[1]{pattr}", (0, "expr")),
-    "unpack_list": ("[%C]", (1, maxint, ", ")),
-    "build_tuple2": ("%P", (0, -1, ", ", NO_PARENTHESIS_EVER)),
-    "list_iter": ("%c", 0),
-    "list_for": (" for %c in %c%c", 2, 0, 3),
-    "list_if": (" if %p%c", (0, "expr", 27), 2),
-    "list_if_not": (" if not %p%c", (0, "expr", PRECEDENCE["unary_not"]), 2),
-    "list_if_or_not": (
-        " if %c or not %c %c",
-        (0, "expr_pjit"),
-        (1, "expr_pjit"),
-        (3, "list_iter"),
-    ),
-    "lc_body": ("",),  # ignore when recursing
 
-    "comp_iter": ("%c", 0),
+    # The 2nd parameter should have a = suffix.
+    # There is a rule with a 4th parameter "store"
+    # which we don't use here.
+    "aug_assign1":  (
+        "%|%c %c %c\n", 0, 2, 1
+        ),
+
+    # There is a rule with a 4th parameter "store"
+    # which we don't use here.
+    "aug_assign2": (
+        "%|%c.%[2]{pattr} %c %c\n", 0, -3, -4
+        ),
+
+    # bin_op (formerly "binary_expr") is the Python AST BinOp
+    "bin_op": ("%c %c %c", 0, (-1, "binary_operator"), (1, "expr")),
+
+    "break": ("%|break\n",),
+    "build_tuple2": (
+        "%P",
+        (0, -1, ", ", NO_PARENTHESIS_EVER)
+    ),
+
+    "c_compare_chained": ("%p %p", (0, 29), (1, 30)),
+
+    "c_except": (
+        "%|except:\n%+%c%-",
+        (3, ("c_stmts_opt", "c_returns", "c_stmts", "pass")),
+    ),
+
+    "c_tryelsestmt": ("%|try:\n%+%c%-%c%|else:\n%+%c%-", 1, 3, 4),
+
+    "c_tryfinallystmt": (
+        "%|try:\n%+%c%-%|finally:\n%+%c%-\n\n",
+        (1, "c_suite_stmts_opt"),
+        (5, "c_suite_stmts_opt"),
+    ),
+
+    "call_stmt": (
+        "%|%p\n",
+        # When a call statement contains only a named_expr (:=)
+        # the named_expr should have parenthesis around it.
+        (0, PRECEDENCE["named_expr"] - 1),
+    ),
+
+    # "classdef": (), # handled by n_classdef()
+    # A custom rule in n_function def distinguishes whether to call this or
+    # function_def_async
+
+    "classdefdeco": ("\n\n%c", 0),
+    "classdefdeco1": ("%|@%c\n%c", 0, 1),
+
+    "comp_body": ("",),  # ignore when recursing
+
     "comp_if": (" if %c%c", 0, 1),
 
     # Note: Adding "if" is handled inside the
@@ -347,44 +341,80 @@ TABLE_DIRECT = {
         (1, "expr", PRECEDENCE["and"] ),
         ),
 
-    "comp_body": ("",),  # ignore when recursing
+    "comp_iter": ("%c", 0),
 
-    "set_comp_body": ("%c", 0),
-    "gen_comp_body": ("%c", 0),
+    "compare_single": ('%p %[-1]{pattr.replace("-", " ")} %p', (0, 19), (1, 19)),
+    "compare_chained": ("%p %p", (0, 29), (1, 30)),
+    "compare_chained_middle": ('%[3]{pattr.replace("-", " ")} %p %p', (0, 19), (-2, 19)),
+    "compare_chained_right": ('%[1]{pattr.replace("-", " ")} %p', (0, 19)),
+
+    "conditional_not_lambda": ("%p if not %c else %c", (2, "expr", 27), 0, 4),
+    "continue": ("%|continue\n",),
+
+    "delete_subscript": (
+        "%|del %p[%c]\n",
+        (0, "expr", PRECEDENCE["subscript"]),
+        (1, "expr"),
+    ),
+    "designList": ("%c = %c", 0, -1),
     "dict_comp_body": ("%c: %c", 1, 0),
 
-    "and": (
-        "%c and %c",
-        (0, ("and_parts", "expr", "expr_pjif", "expr_jifop_cfs", "not")),
-        (1, ("expr", "expr_pjif", "expr_jifop_cfs")),
+    "elifelifstmt": ("%|elif %c:\n%+%c%-%c", 0, 1, 3),
+    "elifelsestmt": ("%|elif %c:\n%+%c%-%|else:\n%+%c%-", 0, 1, 3),
+    "elifelsestmtr": ("%|elif %c:\n%+%c%-%|else:\n%+%c%-\n\n", 0, 1, 2),
+    "elifelsestmtr2": (
+        "%|elif %c:\n%+%c%-%|else:\n%+%c%-\n\n",
+        0,
+        1,
+        3,
+    ),  # has COME_FROM
+    "elifstmt": ("%|elif %c:\n%+%c%-", 0, 1),
+
+    "except": ("%|except:\n%+%c%-", 3),
+    "except_cond1": ("%|except %c:\n", 1),
+    "except_suite": ("%+%c%-%C", 0, (1, maxint, "")),
+
+    # In Python 3.6+, this is more complicated in the presence of "returns"
+    "except_suite_finalize": ("%+%c%-%C", 1, (3, maxint, "")),
+
+    "expr_stmt": (
+        "%|%p\n",
+        # When a statement contains only a named_expr (:=)
+        # the named_expr should have parenthesis around it.
+        (0, "expr", PRECEDENCE["named_expr"] - 1)
     ),
 
-    "assign": (
-        "%|%c = %p\n",
-        -1,
-        (0, ("expr", "branch_op"), PRECEDENCE["tuple_list_starred"] + 1)
-        ),
+    # Note: Python 3.8+ changes this
+    "for": ("%|for %c in %c:\n%+%c%-\n\n", (3, "store"), (1, "expr"), (4, "for_block")),
 
-    # The 2nd parameter should have a = suffix.
-    # The 2nd parameter should have a = suffix.
-    # There is a rule with a 4th parameter "store"
-    # which we don't use here.
-    "aug_assign1":  (
-        "%|%c %c %c\n", 0, 2, 1
-        ),
+    "forelsestmt": (
+        "%|for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n",
+        (3, "store"),
+        (1, "expr"),
+        (4, "for_block"),
+        -2,
+    ),
+    "forelselaststmt": (
+        "%|for %c in %c:\n%+%c%-%|else:\n%+%c%-",
+        (3, "store"),
+        (1, "expr"),
+        (4, "for_block"),
+        -2,
+    ),
+    "forelselaststmtc": (
+        "%|for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n",
+        (3, "store"),
+        (1, "expr"),
+        (4, "for_block"),
+        -2,
+    ),
 
-    # There is a rule with a 4th parameter "store"
-    # which we don't use here.
-    "aug_assign2": (
-        "%|%c.%[2]{pattr} %c %c\n", 0, -3, -4
-        ),
+    "function_def": ("\n\n%|def %c\n", -2),  # -2 to handle closures
+    "function_def_deco": ("\n\n%c", (0, "mkfuncdeco")),
 
-    "designList": ("%c = %c", 0, -1),
-    "ret_and": ("%c and %c", 0, 2),
-    "and2": ("%c", 3),
-    "or": ("%c or %c", 0, 1),
-    "or_expr": ("%c or %c", (0, "expr"), (2, "expr"),),
-    "ret_or": ("%c or %c", 0, 2),
+    "gen_comp_body": ("%c", 0),
+    "get_iter": ("iter(%c)", (0, "expr"),),
+
     "if_exp": (
         "%p if %c else %c",
         (1, 27),  # "expr-like thing
@@ -433,115 +463,163 @@ TABLE_DIRECT = {
         (0, "expr", PRECEDENCE["unary_not"]),
         (4, 27),
     ),
-    "conditional_not_lambda": ("%p if not %c else %c", (2, "expr", 27), 0, 4),
-    "compare_single": ('%p %[-1]{pattr.replace("-", " ")} %p', (0, 19), (1, 19)),
-    "compare_chained": ("%p %p", (0, 29), (1, 30)),
-    "compare_chained_middle": ('%[3]{pattr.replace("-", " ")} %p %p', (0, 19), (-2, 19)),
-    "compare_chained_right": ('%[1]{pattr.replace("-", " ")} %p', (0, 19)),
-    "c_compare_chained": ("%p %p", (0, 29), (1, 30)),
-    #   "classdef": 	(), # handled by n_classdef()
-    # A custom rule in n_function def distinguishes whether to call this or
-    # function_def_async
-    "function_def": ("\n\n%|def %c\n", -2),  # -2 to handle closures
-    "function_def_deco": ("\n\n%c", (0, "mkfuncdeco")),
+
+    # Generally the args here are 0: (some sort of) "testexpr",
+    #                             1: (some sort of) "cstmts_opt",
+    #                             2 or 3: "else_suite"
+    # But unfortunately there are irregularities, For example, 2.6- uses "testexpr_then"
+    # and sometimes "cstmts" instead of "cstmts_opt" happens.
+    # Down the line we might isolate these into version-specific rules.
+    "ifelsestmt": ("%|if %c:\n%+%c%-%|else:\n%+%c%-", 0, 1, 3),
+    "ifelsestmtc": ("%|if %c:\n%+%c%-%|else:\n%+%c%-", 0, 1, 3),
+
+    #  This are created only via transformation
+    "ifelifstmt": ("%|if %c:\n%+%c%-%c", 0, 1, 3),
+
+    "ifelsestmtr": ("%|if %c:\n%+%c%-%|else:\n%+%c%-", 0, 1, 2),
+    "ifelsestmtr2": ("%|if %c:\n%+%c%-%|else:\n%+%c%-\n\n", 0, 1, 3),  # has COME_FROM
+
+    "iflaststmt": ("%|if %c:\n%+%c%-", 0, 1),
+    "iflaststmtc": ("%|if %c:\n%+%c%-", 0, 1),
+
+    "ifstmt": (
+        "%|if %c:\n%+%c%-", (0, ("testexpr", "bool_op")), (1, ("ifstmts_jump", "stmts"))
+    ),
+
+    "import": ("%|import %c\n", 2),
+    "importlist": ("%C", (0, maxint, ", ")),
+
+    # Note: the below rule isn't really complete:
+    # n_import_from() smashes node[2].pattr
+    "import_from": (
+        "%|from %[2]{pattr} import %c\n",
+        (3, "importlist")
+     ),
+
+    "import_from_star": ("%|from %[2]{pattr} import *\n",),
+
+    "kv": ("%c: %c", 3, 1),
+    "kv2": ("%c: %c", 1, 2),
+
+    "kwarg": ("%[0]{attr}=%c", 1),
+    "kwargs": ("%D", (0, maxint, ", ")),
+    "kwargs1": ("%D", (0, maxint, ", ")),
+
+    "lc_body": ("",),  # ignore when recursing
+    "list_iter": ("%c", 0),
+    "list_for": (" for %c in %c%c", 2, 0, 3),
+    "list_if": (" if %p%c", (0, "expr", 27), 2),
+    "list_if_not": (" if not %p%c", (0, "expr", PRECEDENCE["unary_not"]), 2),
+    "list_if_or_not": (
+        " if %c or not %c %c",
+        (0, "expr_pjit"),
+        (1, "expr_pjit"),
+        (3, "list_iter"),
+    ),
+
     "mkfuncdeco": ("%|@%c\n%c", (0, "expr"), 1),
     # A custom rule in n_function def distinguishes whether to call this or
     # function_def_async
     "mkfuncdeco0": ("%|def %c\n", (0, "mkfunc")),
-    "classdefdeco": ("\n\n%c", 0),
-    "classdefdeco1": ("%|@%c\n%c", 0, 1),
-    "kwarg": ("%[0]{attr}=%c", 1),
-    "kwargs": ("%D", (0, maxint, ", ")),
-    "kwargs1": ("%D", (0, maxint, ", ")),
-    "print_items_nl_stmt": ("%|print %c%c\n", 0, 2),
-    "print_item": (", %c", 0),
-    "print_nl": ("%|print\n",),
-    "print_to": ("%|print >> %c, %c,\n", 0, 1),
-    "print_to_nl": ("%|print >> %c, %c\n", 0, 1),
-    "print_nl_to": ("%|print >> %c\n", 0),
-    "print_to_items": ("%C", (0, 2, ", ")),
+
+    # In cases where we desire an explict new line.
+    # After docstrings which are followed by a "def" is
+    # one situations where Python formatting desires two newlines,
+    # and this is added, as a transformation rule.
+    "newline": ("\n"),
+
+    "or": ("%c or %c", 0, 1),
+    "or_expr": ("%c or %c", (0, "expr"), (2, "expr"),),
+
+    "pass": ("%|pass\n",),
+
+    "raise_stmt0": ("%|raise\n",),
+    "raise_stmt1": ("%|raise %c\n", 0),
+    "raise_stmt3": ("%|raise %c, %c, %c\n", 0, 1, 2),
+
+    #    "yield":	        ( "yield %c", 0),
+    #    "return":	        ( "%|return %c\n", 0),
+    "return_if_stmt": ("return %c\n", 0),
+
+    "ret_and": ("%c and %c", 0, 2),
+    "ret_or": ("%c or %c", 0, 2),
+
+    "set_comp_body": ("%c", 0),
+    "set_iter":      ( "%c", 0 ),
+
+    "slice0": (
+        "%c[:]",
+        (0, "expr"),
+        ),
+    "slice1": (
+        "%c[%p:]",
+        (0, "expr"),
+        (1, NO_PARENTHESIS_EVER)
+        ),
+
+    "slice2": ( "[%c:%p]",
+        (0, "expr"),
+        (1, NO_PARENTHESIS_EVER)
+        ),
+
+    "slice3": (
+        "%c[%p:%p]",
+        (0, "expr"),
+        (1, NO_PARENTHESIS_EVER),
+        (2, NO_PARENTHESIS_EVER)
+        ),
+
+    "store_subscript": ("%p[%c]", (0, "expr", PRECEDENCE["subscript"]), (1, "expr")),
+
+    # This nonterminal we create on the fly in semantic routines
+    "store_w_parens": (
+        "(%c).%[1]{pattr}",
+        (0, "expr")
+    ),
+
     # This is only generated by transform
     # it is a string at the beginning of a function that is *not* a docstring
     # 3.7 test_fstring.py tests for this kind of crap.
     # For compatibility with older Python, we"ll use "%" instead of
     # a format string.
     "string_at_beginning": ('%|"%%s" %% %c\n', 0),
-    "call_stmt": (
-        "%|%p\n",
-        # When a call statement contains only a named_expr (:=)
-        # the named_expr should have parenthesis around it.
-        (0, PRECEDENCE["named_expr"] - 1),
+
+    "subscript": (
+        "%p[%p]",
+        (0, "expr", PRECEDENCE["subscript"]),
+        (1, "expr", NO_PARENTHESIS_EVER)
     ),
 
-    "expr_stmt": (
-        "%|%p\n",
-        # When a statement contains only a named_expr (:=)
-        # the named_expr should have parenthesis around it.
-        (0, "expr", PRECEDENCE["named_expr"] - 1)
+    "subscript2": (
+        "%p[%p]",
+        (0, "expr", PRECEDENCE["subscript"]),
+        (1, "expr", NO_PARENTHESIS_EVER)
     ),
-    "break": ("%|break\n",),
-    "continue": ("%|continue\n",),
-    "raise_stmt0": ("%|raise\n",),
-    "raise_stmt1": ("%|raise %c\n", 0),
-    "raise_stmt3": ("%|raise %c, %c, %c\n", 0, 1, 2),
-    #    "yield":	        ( "yield %c", 0),
-    #    "return":	        ( "%|return %c\n", 0),
-    "return_if_stmt": ("return %c\n", 0),
-    "ifstmt": (
-        "%|if %c:\n%+%c%-", (0, ("testexpr", "bool_op")), (1, ("ifstmts_jump", "stmts"))
-    ),
-    "iflaststmt": ("%|if %c:\n%+%c%-", 0, 1),
-    "iflaststmtc": ("%|if %c:\n%+%c%-", 0, 1),
+
+
     "testtrue": ("not %p", (0, PRECEDENCE["unary_not"])),
-    "ifelsestmt": ("%|if %c:\n%+%c%-%|else:\n%+%c%-", 0, 1, 3),
-    "ifelsestmtc": ("%|if %c:\n%+%c%-%|else:\n%+%c%-", 0, 1, 3),
-    #  These are created only via transformation
-    "ifelifstmt": ("%|if %c:\n%+%c%-%c", 0, 1, 3),
-    "elifelifstmt": ("%|elif %c:\n%+%c%-%c", 0, 1, 3),
-    "elifstmt": ("%|elif %c:\n%+%c%-", 0, 1),
-    "elifelsestmt": ("%|elif %c:\n%+%c%-%|else:\n%+%c%-", 0, 1, 3),
-    "ifelsestmtr": ("%|if %c:\n%+%c%-%|else:\n%+%c%-", 0, 1, 2),
-    "ifelsestmtr2": ("%|if %c:\n%+%c%-%|else:\n%+%c%-\n\n", 0, 1, 3),  # has COME_FROM
-    "elifelsestmtr": ("%|elif %c:\n%+%c%-%|else:\n%+%c%-\n\n", 0, 1, 2),
-    "elifelsestmtr2": (
-        "%|elif %c:\n%+%c%-%|else:\n%+%c%-\n\n",
-        0,
-        1,
-        3,
-    ),  # has COME_FROM
+
+    "try_except": ("%|try:\n%+%c%-%c\n\n", 1, 3),
+    "tryelsestmt": ("%|try:\n%+%c%-%c%|else:\n%+%c%-\n\n", 1, 3, 4),
+    "tryelsestmt3": ("%|try:\n%+%c%-%c%|else:\n%+%c%-\n\n", 1, 3, 5),
+
+    # unary_op (formerly "unary_expr") is the Python AST UnaryOp
+    "unary_op": ("%c%c", (1, "unary_operator"), (0, "expr")),
+    "unary_not": ("not %c", (0, "expr")),
+    "unary_convert": ("`%c`", (0, "expr"),),
+
+    "unpack": ("%C%,", (1, maxint, ", ")),
+    # This nonterminal we create on the fly in semantic routines
+    "unpack_w_parens": ("(%C%,)", (1, maxint, ", ")),
+
+    "unpack_list": ("[%C]", (1, maxint, ", ")),
+
     "whileTruestmt": ("%|while True:\n%+%c%-\n\n", 1),
     "whilestmt": ("%|while %c:\n%+%c%-\n\n", 1, 2),
     "while1stmt": ("%|while 1:\n%+%c%-\n\n", 1),
     "while1elsestmt": ("%|while 1:\n%+%c%-%|else:\n%+%c%-\n\n", 1, -2),
     "whileelsestmt": ("%|while %c:\n%+%c%-%|else:\n%+%c%-\n\n", 1, 2, -2),
     "whileelselaststmt": ("%|while %c:\n%+%c%-%|else:\n%+%c%-", 1, 2, -2),
-    # Note: Python 3.8+ changes this
-    "for": ("%|for %c in %c:\n%+%c%-\n\n", (3, "store"), (1, "expr"), (4, "for_block")),
-    "forelsestmt": (
-        "%|for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n",
-        (3, "store"),
-        (1, "expr"),
-        (4, "for_block"),
-        -2,
-    ),
-    "forelselaststmt": (
-        "%|for %c in %c:\n%+%c%-%|else:\n%+%c%-",
-        (3, "store"),
-        (1, "expr"),
-        (4, "for_block"),
-        -2,
-    ),
-    "forelselaststmtc": (
-        "%|for %c in %c:\n%+%c%-%|else:\n%+%c%-\n\n",
-        (3, "store"),
-        (1, "expr"),
-        (4, "for_block"),
-        -2,
-    ),
-    "try_except": ("%|try:\n%+%c%-%c\n\n", 1, 3),
-    "tryelsestmt": ("%|try:\n%+%c%-%c%|else:\n%+%c%-\n\n", 1, 3, 4),
-    "tryelsestmt3": ("%|try:\n%+%c%-%c%|else:\n%+%c%-\n\n", 1, 3, 5),
-    "c_tryelsestmt": ("%|try:\n%+%c%-%c%|else:\n%+%c%-", 1, 3, 4),
     "tryelsestmtl": ("%|try:\n%+%c%-%c%|else:\n%+%c%-", 1, 3, 4),
     # Note: this is generated generated by grammar rules but in this phase.
     "tf_try_except": ("%c%-%c%+", 1, 3),
@@ -556,27 +634,6 @@ TABLE_DIRECT = {
         (1, "suite_stmts_opt"),
         (-2, "suite_stmts_opt"),
      ),
-    "c_tryfinallystmt": (
-        "%|try:\n%+%c%-%|finally:\n%+%c%-\n\n",
-        (1, "c_suite_stmts_opt"),
-        (5, "c_suite_stmts_opt"),
-    ),
-    "except": ("%|except:\n%+%c%-", 3),
-    "except_cond1": ("%|except %c:\n", 1),
-    "except_suite": ("%+%c%-%C", 0, (1, maxint, "")),
-    "c_except": (
-        "%|except:\n%+%c%-",
-        (3, ("c_stmts_opt", "c_returns", "c_stmts", "pass")),
-    ),
-    # In Python 3.6+, this is more complicated in the presence of "returns"
-    "except_suite_finalize": ("%+%c%-%C", 1, (3, maxint, "")),
-    "pass": ("%|pass\n",),
-    "kv": ("%c: %c", 3, 1),
-    "kv2": ("%c: %c", 1, 2),
-    "import": ("%|import %c\n", 2),
-    "importlist": ("%C", (0, maxint, ", ")),
-    "import_from": ("%|from %[2]{pattr} import %c\n", (3, "importlist")),
-    "import_from_star": ("%|from %[2]{pattr} import *\n",),
 
     # If there are situations where we need "with ... as ()"
     # We may need to customize this in n_with_as
