@@ -19,7 +19,7 @@
 # Python 3.8+ changes
 #######################
 
-from decompyle3.semantics.consts import PRECEDENCE, TABLE_DIRECT
+from decompyle3.semantics.consts import NO_PARENTHESIS_EVER, PRECEDENCE, TABLE_DIRECT
 from decompyle3.semantics.customize37 import FSTRING_CONVERSION_MAP
 from decompyle3.semantics.helper import escape_string, strip_quotes
 
@@ -396,7 +396,7 @@ def customize_for_version38(self, version):
 
     def n_formatted_value_debug(node):
         p = self.prec
-        self.prec = 100
+        self.prec = NO_PARENTHESIS_EVER
 
         formatted_value = node[1]
         value_equal = node[0].attr
