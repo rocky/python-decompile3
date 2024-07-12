@@ -26,11 +26,11 @@ Work done in preparation for Blackhat Asia 2024
 * Reorganize semantic actions so that n_actions are separate; likewise for comprehensions and generators
 * Improve 3.8 decompilation
 * Support decompiling code fragment of comprehensions
-* Correct various operator precendence, and show operator precedence in -T/--tree++
-* Correct PyPy decompilation, suport pyston-3.8-2.3.3
+* Correct various operator precedence, and show operator precedence in -T/--tree++
+* Correct PyPy decompilation, support pyston-3.8-2.3.3
 * Reorganize parsing modules and classes, to support fragment deparsing
 * Add `BINARY_MATRIX_MULTPILY` in grammar
-* Add psuedo opcode: LOAD_ARG; `JUMP_BACK` -> `JUMP_LOOP`; `MAKE_FUNCTION_8` -> `MAKE_FUNCTION_CLOSURE`
+* Add pseudo opcode: LOAD_ARG; `JUMP_BACK` -> `JUMP_LOOP`; `MAKE_FUNCTION_8` -> `MAKE_FUNCTION_CLOSURE`
 * Numerous bugs fixed, especially comprehension bugs
 * Code cleanup
 * Black format more files
@@ -58,7 +58,7 @@ Work done in preparation for Blackhat Asia 2024
 
 * Fix fragment comprehension bugs
 * Makefile tolerance for pyston
-* Revise for xdis 6.0.0 - in  Python version comparisions use tuples instead of floats
+* Revise for xdis 6.0.0 - in  Python version comparisons use tuples instead of floats
 
 3.7.5
 =====
