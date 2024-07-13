@@ -39,6 +39,7 @@ EMPTY_DICT = SyntaxTree(
     "dict", [Token("BUILD_MAP_0", attr=0, pattr="", offset=0, has_arg=True)]
 )
 
+# FIXME: Get this from a newer xdis!
 FSTRING_CONVERSION_MAP = {1: "!s", 2: "!r", 3: "!a", "X": ":X"}
 
 #######################
@@ -1190,7 +1191,7 @@ def customize_for_version37(self, version):
         if value == "":
             fmt = "%c(%p)"
         else:
-            fmt = "%c" + ("(%s, " % value).replace('%', '%%') + "%p)"
+            fmt = "%c" + ("(%s, " % value).replace("%", "%%") + "%p)"
 
         self.template_engine(
             (fmt, (0, "expr"), (2, "build_map_unpack_with_call", 100)), node
@@ -1209,7 +1210,7 @@ def customize_for_version37(self, version):
         if value == "":
             fmt = "%c(%p)"
         else:
-            fmt = "%c" + ("(%s, " % value).replace('%', '%%') + "%p)"
+            fmt = "%c" + ("(%s, " % value).replace("%", "%%") + "%p)"
 
         self.template_engine(
             (fmt, (0, "expr"), (2, "build_map_unpack_with_call", 100)), node
