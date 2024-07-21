@@ -167,6 +167,14 @@ class Scanner38(Scanner37):
                     pass
                 pass
             new_tokens.append(token)
+
+        if show_asm in ("both", "after"):
+            print("\n# ---- tokenization:")
+            # FIXME: t.format() is changing tokens!
+            for t in new_tokens.copy():
+                print(t.format(line_prefix=""))
+            print()
+
         return new_tokens, customize
 
 

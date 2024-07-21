@@ -302,7 +302,7 @@ class Scanner37Base(Scanner):
 
         if show_asm in ("both", "before"):
             print("\n# ---- disassembly:")
-            self.insts = bytecode.disassemble_bytes(
+            bytecode.disassemble_bytes(
                 co.co_code,
                 varnames=co.co_varnames,
                 names=co.co_names,
@@ -613,7 +613,6 @@ class Scanner37Base(Scanner):
                         #           return
                         #        break  # A "continue" but not the innermost one
 
-                        # CONTINUE as well.
                         if tokens[-1].kind == "JUMP_LOOP" and tokens[-1].attr <= argval:
                             if tokens[-2].kind == "BREAK_LOOP":
                                 del tokens[-1]
@@ -687,9 +686,10 @@ class Scanner37Base(Scanner):
 
             pass
 
-        if show_asm in ("both", "after"):
+        if show_asm in ("both", "after") and self.version < (3, 8):
             print("\n# ---- tokenization:")
-            for t in tokens:
+            # FIXME: t.format() is changing tokens!
+            for t in tokens.copy():
                 print(t.format(line_prefix=""))
             print()
         return tokens, customize
