@@ -1,7 +1,13 @@
+3.9.2
+=====
+
+* track xdis API changes
+* bug fixes (many more remain)
+
 3.9.1
 =====
 
-Lots of changes major changes. track xdis API has changes.
+Lots of changes major changes. track xdis API changes.
 
 Separate Phases more clearly:
 * disassembly
