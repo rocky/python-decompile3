@@ -3,7 +3,7 @@ Here we have checks done before a grammar rule reduction for that nonterminal ta
 
 These check the validity of rule reduction based on properties that aren't in
 the tokens. These checks basically have full access to everything.
-Optionally it can have access to the tree built for the reduction nonterminal
+Optionally, it can have access to the tree built for the reduction nonterminal
 it checks.
 """
 

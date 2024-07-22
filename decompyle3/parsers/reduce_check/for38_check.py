@@ -1,4 +1,4 @@
-#  Copyright (c) 2020, 2022-2023 Rocky Bernstein
+#  Copyright (c) 2020, 2022-2024 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -19,8 +19,8 @@ from decompyle3.scanners.tok import off2int
 def for38_invalid(
     self, lhs: str, n: int, rule, tree, tokens: list, first: int, last: int
 ) -> bool:
-    """The only difference between a "for" and and a "for else" is that
-    that jumps within the "for" never go past the "FOR_ITER" offset.
+    """The only difference between a "for" and a "for else" is that
+    jumps within the "for" never go past the "FOR_ITER" offset.
     """
 
     first_offset = tokens[first].off2int(prefer_last=False)
@@ -31,7 +31,7 @@ def for38_invalid(
     start = self.offset2inst_index[first_offset]
     end = off2int(self.offset2inst_index[last_offset], prefer_last=True)
 
-    # In the loop below we expect the first "FOR_ITER" to
+    # In the loop below, we expect the first "FOR_ITER" to
     # be before any jumps that go to the end of it (in the case of "for")
     # or beyond it (in the case of "for else").
 
@@ -39,13 +39,13 @@ def for38_invalid(
     for i in range(start, end):
         inst = self.insts[i]
 
-        # Hack alert for magic number 2's below:  in Python 3.8+ instructions are 2 bytes
+        # Hack alert for magic number 2's below: in Python 3.8+ instructions are 2 bytes
         # inst.argval - 2 is the offset of the instruction *before* inst.argval and
         # +2 for the instruction that follows.
 
         if not for_body_end_offset and inst.opname == "FOR_ITER":
             # There can be some slop in "last" as to where the body ends. If the rule
-            # end in "JUMP_LOOP", then "last" doesn't need adjusting.
+            # ends in "JUMP_LOOP", then "last" doesn't need adjusting.
             for_body_end_offset = (
                 inst.argval if rule[1][-1] == "JUMP_LOOP" else inst.argval - 2
             )
@@ -60,7 +60,13 @@ def for38_invalid(
             and inst.is_jump()
             and inst.argval > for_body_end_offset + 2
         ):
-            # Another weird case. Guard against misclassifying things like:
+            # Another weird case.
+            # Guard against misclassified things like:
+            #   if a:
+            #     for n in l:
+            #       if b: break # jumps past "else" which is after the end of the "for"
+            #       eird case.
+            # Guard against misclassified things like:
             #   if a:
             #     for n in l:
             #       if b: break # jumps past "else" which is after the end of the "for"
@@ -69,8 +75,8 @@ def for38_invalid(
             #   else:
             #        r = 3
             # The way we distinguish this is to check if the instruction after the body end
-            # starts with a jump (the start of the encompassing if/else. The "else" part
-            # of a "for/else" never starts with a jump.
+            # starts with a jump, the start of the encompassing if/else.
+            # The "else" part of a "for/else" never starts with a jump.
             body_end_next_inst = self.insts[
                 self.offset2inst_index[for_body_end_offset + 2]
             ]

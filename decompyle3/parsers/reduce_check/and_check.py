@@ -1,4 +1,4 @@
-#  Copyright (c) 2020, 2022 Rocky Bernstein
+#  Copyright (c) 2020, 2022, 2024 Rocky Bernstein
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation, either version 3 of the License, or
@@ -81,7 +81,7 @@ def and_invalid(
                 return jump_target != tokens[last].attr
             elif tokens[last] in ("POP_JUMP_IF_TRUE", "JUMP_IF_TRUE_OR_POP"):
                 # Ok if jump_target jumps to a COME_FROM after
-                # the last instruction or jumps right after last instruction
+                # the last instruction or jumps right after the last instruction
                 if last + 1 < n and tokens[last + 1] == "COME_FROM":
                     return jump_target != tokens[last + 1].off2int()
                 return jump_target + 2 != tokens[last].attr

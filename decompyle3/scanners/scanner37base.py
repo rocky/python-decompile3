@@ -284,7 +284,7 @@ class Scanner37Base(Scanner):
         Also, when we encounter certain tokens, we add them to a set
         which will cause custom grammar rules. Specifically, variable
         arg tokens like MAKE_FUNCTION or BUILD_LIST cause specific
-        rules for the specific number of arguments they take.
+        rules for the specific number of arguments they take./src/external-vcs/github/rocky/python-decompile3
 
         """
 
