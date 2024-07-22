@@ -43,7 +43,7 @@ def iflaststmt(
         ("testexprc", "c_stmts"),
     ):
 
-        # "stmts" (end of then) should not end in a fallthough instruction
+        # "stmts" (end of then) should not end in a fallthrough instruction
         # other wise this is just a plain ol' stmt.
         ltm1 = tokens[last - 1]
         if ltm1 == "COME_FROM":
@@ -121,7 +121,7 @@ def iflaststmt(
                 if last_inst.is_jump():
                     return target_offset == last_offset
                 else:
-                    # A fallthough can't jump *beyond* the end in the nested
+                    # A fallthrough can't jump *beyond* the end in the nested
                     # "if" around and outer "else"
                     return True
             pass

@@ -1,6 +1,7 @@
 import sys
 
 from xdis import iscode
+
 from decompyle3.parsers.treenode import SyntaxTree
 
 minint = -sys.maxsize - 1
@@ -29,8 +30,8 @@ def escape_string(s: str, quotes=('"', "'", '"""', "'''")):
     return "%s%s%s" % (quote, s, quote)
 
 
-# FIXME: this and find_globals could be paramaterized with one of the
-# above global ops
+# FIXME: This and find_globals could be parameterized with one of the
+# above global ops.
 def find_all_globals(node, globs):
     """Search Syntax Tree node to find variable names that are global."""
     for n in node:

@@ -1,4 +1,4 @@
-#  Copyright (c) 2022-2023 Rocky Bernstein
+#  Copyright (c) 2022-2024 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -99,7 +99,7 @@ class PythonBaseParser(GenericASTBuilder):
         self.insts = []
 
         # True if we are parsing inside a lambda expression.
-        # because a lambda expression are wrtten on a single line, certain line-oriented
+        # because a lambda expression are written on a single line, certain line-oriented
         # statements behave differently
         self.is_lambda = is_lambda
 
@@ -422,6 +422,6 @@ class PythonParser(PythonBaseParser):
         self.insts = []
 
         # true if we are parsing inside a lambda expression.
-        # because a lambda expression are wrtten on a single line, certain line-oriented
+        # because a lambda expression are written on a single line, certain line-oriented
         # statements behave differently
         self.is_lambda = False

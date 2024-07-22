@@ -314,7 +314,7 @@ class Python37LambdaCustom(Python37BaseParser):
                     generator_exp_async ::= load_genexpr LOAD_STR MAKE_FUNCTION_0
                                             get_aiter CALL_FUNCTION_1
 
-                    # FIXME this is a workaround for probalby some bug in the Earley parser
+                    # FIXME this is a workaround for probably some bug in the Earley parser
                     # if we use get_aiter, then list_comp_async doesn't match, and I don't
                     # understand why.
                     expr_get_aiter      ::= expr GET_AITER

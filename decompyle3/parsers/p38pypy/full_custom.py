@@ -521,9 +521,9 @@ class Python38PyPyFullCustom(Python38LambdaCustom, PythonBaseParser):
                                            COME_FROM_FINALLY
                                            END_ASYNC_FOR
 
-                    # FIXME: come froms after the else_suite or
+                    # FIXME: COME_FROMs after the else_suite or
                     # END_ASYNC_FOR distinguish which of for / forelse
-                    # is used. Add come froms and check of add up
+                    # is used. Add COME_FROMs and check of add up
                     # control-flow detection phase.
                     # async_forelse_stmt38 ::= expr async_for store
                     # for_block COME_FROM_FINALLY END_ASYNC_FOR

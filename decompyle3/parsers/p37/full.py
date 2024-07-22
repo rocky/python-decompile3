@@ -1,4 +1,4 @@
-#  Copyright (c) 2020-2023 Rocky Bernstein
+#  Copyright (c) 2020-2024 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -790,7 +790,7 @@ class Python37Parser(Python37LambdaParser):
     def p_come_from3(self, args):
         """
         # In 3.7+ a SETUP_LOOP to a JUMP_FORWARD can
-        # get replaced by the JUMP_FORWARD addressed. Therefore come froms may
+        # get replaced by the JUMP_FORWARD addressed. Therefore COME_FROMs may
         # appear out of nesting order. For example:
         #   if x
         #     for ... jump forward endif (1)
@@ -935,7 +935,7 @@ class Python37Parser(Python37LambdaParser):
         return_closure   ::= LOAD_CLOSURE DUP_TOP STORE_NAME RETURN_VALUE RETURN_LAST
 
         # 3.6 due to jump optimization, we sometimes add RETURN_END_IF where
-        # RETURN_VALUE is meant. Specifcally this can happen in
+        # RETURN_VALUE is meant. Specifically this can happen in
         # ifelsestmt -> ...else_suite _. suite_stmts... (last) stmt
         return ::= return_expr RETURN_END_IF
         return ::= return_expr RETURN_VALUE

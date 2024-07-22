@@ -74,7 +74,7 @@ def ifelsestmt(
         if come_from_target < first_offset:
             return True
 
-    # Make sure all the offsets from the "come froms" at the
+    # Make sure all the offsets from the "COME_FROMs" at the
     # end of the "if" come from somewhere inside the "if".
     # Since the come_froms are ordered so that lowest
     # offset COME_FROM is last, it is sufficient to test

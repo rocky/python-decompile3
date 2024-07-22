@@ -123,8 +123,6 @@ def ifstmt(
                     return True
                 pass
 
-            print("XXX", self)
-            print("XXX1", dir(self))
             endif_inst_index = self.offset2inst_index[ltm1.off2int(prefer_last=False)]
 
             # FIXME: RAISE_VARARGS is an instance of a no-follow instruction.

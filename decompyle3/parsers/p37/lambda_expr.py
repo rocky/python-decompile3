@@ -210,7 +210,7 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
 
     def p_37chained(self, args):
         """
-        # A compare_chained is two comparisions like x <= y <= z
+        # A compare_chained is two comparisons like x <= y <= z
         compare_chained     ::= expr compare_chained_middle ROT_TWO POP_TOP _come_froms
         compare_chained     ::= compare_chained37
         compare_chained     ::= compare_chained37_false
@@ -545,7 +545,7 @@ class Python37LambdaParser(Python37LambdaCustom, PythonParserLambda):
         comp_if         ::= or_jump_if_false_loop_cf comp_iter
 
         # We need to have a reduction rule to disambiguate
-        # these "comp_if_not" and "comp_if". The difference is burried in the
+        # these "comp_if_not" and "comp_if". The difference is buried in the
         # sense of the jump in
         #     comp_iter -> comp_if_or -> or_parts_false_loop
         # vs.:
