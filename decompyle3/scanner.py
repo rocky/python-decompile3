@@ -41,8 +41,8 @@ from xdis.version_info import IS_PYPY, version_tuple_to_str
 from decompyle3.scanners.tok import Token
 
 # The byte code versions we support.
-# Note: these all have to be floats
-PYTHON_VERSIONS = frozenset(((3, 7), (3, 8), (3, 9)))
+# Note: these all have to be tuples
+PYTHON_VERSIONS = frozenset(((3, 7), (3, 8)))
 
 CANONIC2VERSION = dict(
     (canonic_python_version[version_tuple_to_str(python_version)], python_version)
@@ -81,7 +81,7 @@ class Scanner(ABC):
         self.show_asm = show_asm
         self.is_pypy = is_pypy
 
-        # Temoorary initialization.
+        # Temporary initialization.
         self.opc = ModuleType("uninitialized")
 
         if version[:2] in PYTHON_VERSIONS:

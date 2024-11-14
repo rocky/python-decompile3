@@ -68,13 +68,14 @@ from bisect import bisect_right
 from collections import namedtuple
 from typing import Optional
 
-from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
+from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG, GenericASTTraversal
 from spark_parser.ast import GenericASTTraversalPruningException
 from xdis import iscode
 from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE
 
 import decompyle3.parsers.main as python_parser
 import decompyle3.parsers.parse_heads as heads
+from decompyle3.parsers.main import get_python_parser
 from decompyle3.parsers.treenode import SyntaxTree
 from decompyle3.scanner import Code, Token, get_scanner
 from decompyle3.semantics import pysource
@@ -88,7 +89,6 @@ from decompyle3.semantics.consts import (
     TABLE_DIRECT,
     escape,
 )
-from decompyle3.semantics.customize import customize_for_version
 from decompyle3.semantics.make_function36 import make_function36
 from decompyle3.semantics.pysource import (
     DEFAULT_DEBUG_OPTS,
@@ -180,7 +180,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         )
 
         # hide_internal suppresses displaying the additional instructions that sometimes
-        # exist in code but but were not written in the source code.
+        # exist in code but were not written in the source code.
         # An example is:
         # __module__ = __name__
         # If showing source code we generally don't want to show this. However in fragment
@@ -192,8 +192,8 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.is_pypy = is_pypy
 
         # FIXME: is there a better way?
-        global MAP_DIRECT_FRAGMENT
-        MAP_DIRECT_FRAGMENT = (dict(TABLE_DIRECT, **TABLE_DIRECT_FRAGMENT),)
+        self.TABLE_DIRECT = TABLE_DIRECT.copy()
+        self.MAP_DIRECT_FRAGMENT = (dict(self.TABLE_DIRECT, **TABLE_DIRECT_FRAGMENT),)
         return
 
     f = property(
@@ -1130,7 +1130,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         is_lambda=False,
         noneInNames=False,
         is_top_level_module=False,
-    ):
+    ) -> GenericASTTraversal:
         # FIXME: DRY with pysource.py
 
         # assert isinstance(tokens[0], Token)
@@ -1141,24 +1141,28 @@ class FragmentsWalker(pysource.SourceWalker, object):
                     t.kind = "RETURN_END_IF_LAMBDA"
                 elif t.kind == "RETURN_VALUE":
                     t.kind = "RETURN_VALUE_LAMBDA"
-            tokens.append(Token("LAMBDA_MARKER"))
+            tokens.append(Token("LAMBDA_MARKER", optyhpe="pseudo"))
             try:
-                # FIXME: have p.insts update in a better way
-                # modularity is broken here
-                p_insts = self.p.insts
-                self.p.insts = self.scanner.insts
-                self.p.offset2inst_index = self.scanner.offset2inst_index
-                self.p.opc = self.scanner.opc
-                ast = python_parser.parse(self.p, tokens, customize, is_lambda)
-                self.p.insts = p_insts
+                if self.p_lambda is None:
+                    self.p_lambda = get_python_parser(
+                        self.version,
+                        self.debug_parser,
+                        compile_mode="lambda",
+                        is_pypy=self.is_pypy,
+                    )
+                p = self.p_lambda
+                p.insts = self.scanner.insts
+                p.offset2inst_index = self.scanner.offset2inst_index
+                parse_tree = python_parser.parse(p, tokens, customize, is_lambda)
+                self.customize(customize)
+
             except (heads.ParserError, AssertionError) as e:
                 raise ParserError(e, tokens, self.debug_parser.get("reduce", False))
 
             # FIXME: So as not to remove tokens with offsets,
             # remove this phase until we have a chance to go over,
             # transform_tree = self.treeTransform.transform(ast)
-            maybe_show_tree(self, ast)
-            return ast
+            return parse_tree
             # del ast # Save memory
             # return transform_tree
 
@@ -1192,16 +1196,18 @@ class FragmentsWalker(pysource.SourceWalker, object):
             # modularity is broken here
             p_insts = self.p.insts
             self.p.insts = self.scanner.insts
-            ast = python_parser.parse(self.p, tokens, customize, is_lambda=is_lambda)
+            self.p.offset2inst_index = self.scanner.offset2inst_index
+            self.p.opc = self.scanner.opc
+            parse_tree = python_parser.parse(
+                self.p, tokens, customize, is_lambda=is_lambda
+            )
             self.p.insts = p_insts
         except (heads.ParserError, AssertionError) as e:
             raise ParserError(e, tokens, self.debug_parser.get("reduce", False))
 
-        maybe_show_tree(self, ast)
+        checker(parse_tree, False, self.ast_errors)
 
-        checker(ast, False, self.ast_errors)
-
-        return ast
+        return parse_tree
 
     # FIXME: we could provide another customized routine
     # that fixes up parents along a particular path to a node that
@@ -1283,6 +1289,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.pending_newlines = 0
         self.params = {
             "_globals": {},
+            "_nonlocals": {},  # Python 3 has nonlocal
             "f": StringIO(),
             "indent": indent,
             "is_lambda": is_lambda,
@@ -1640,7 +1647,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
 
     def template_engine(self, entry, startnode):
         """The format template interpretation engine.  See the comment at the
-        beginning of this module for the how we interpret format
+        beginning of this module for how we interpret format
         specifications such as %c, %C, and so on.
         """
 
@@ -1727,6 +1734,16 @@ class FragmentsWalker(pysource.SourceWalker, object):
                     arg,
                     type(index),
                 )
+
+                try:
+                    node[index]
+                except IndexError:
+                    raise RuntimeError(
+                        f"""
+                        Expanding '{node.kind}' in template '{entry}[{arg}]':
+                        {index} is invalid; has only {len(node)} entries
+                        """
+                    )
                 self.preorder(node[index])
 
                 finish = len(self.f.getvalue())
@@ -1734,6 +1751,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
                 arg += 1
             elif typ == "p":
                 p = self.prec
+                # entry[arg]
                 tup = entry[arg]
                 assert isinstance(tup, tuple)
                 if len(tup) == 3:
@@ -1848,8 +1866,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             self.set_pos_info(last_node, startnode_start, self.last_finish)
         return
 
-    @classmethod
-    def _get_mapping(cls, node):
+    def _get_mapping(self, node):
         if (
             hasattr(node, "data")
             and len(node) > 0
@@ -1857,7 +1874,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             and not hasattr(node[-1], "parent")
         ):
             node[-1].parent = node
-        return MAP.get(node, MAP_DIRECT_FRAGMENT)
+        return MAP.get(node, self.MAP_DIRECT_FRAGMENT)
 
     pass
 
