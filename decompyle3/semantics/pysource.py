@@ -247,7 +247,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         self.version = version
         self.p = get_python_parser(
             version,
-            debug_parser=dict(debug_parser),
+            debug_parser=debug_parser,
             compile_mode=compile_mode,
             is_pypy=is_pypy,
         )

@@ -191,7 +191,7 @@ def decompile_file(
     outstream: Optional[TextIO] = None,
     showasm: Optional[str] = None,
     showast={},
-    showgrammar=False,
+    showgrammar=dict(PARSER_DEFAULT_DEBUG),
     source_encoding=None,
     mapstream=None,
     do_fragments=False,

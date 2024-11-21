@@ -159,6 +159,15 @@ def main_bin(
     # if timestamp:
     #     print(time.strftime(timestampfmt))
 
+    show_grammar = {
+        "rules": False,
+        "transition": False,
+        "reduce": show_grammar,
+        "errorstack": "full",
+        "context": True,
+        "dups": False,
+    }
+
     numproc = 1
     if numproc <= 1:
         show_ast = {"before": tree or tree_plus, "after": tree_plus}
