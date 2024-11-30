@@ -19,7 +19,7 @@
 # Python 3.8+ changes
 #######################
 
-from decompyle3.semantics.consts import PRECEDENCE, TABLE_DIRECT
+from decompyle3.semantics.consts import PRECEDENCE
 from decompyle3.semantics.customize37 import FSTRING_CONVERSION_MAP
 from decompyle3.semantics.helper import escape_string, strip_quotes
 
@@ -31,7 +31,7 @@ def customize_for_version38(self, version):
     # forelselaststmt ' 'forelselaststmtc tryfinally38'.split(): del
     # TABLE_DIRECT[lhs]
 
-    TABLE_DIRECT.update(
+    self.TABLE_DIRECT.update(
         {
             "async_for_stmt38": (
                 "%|async for %c in %c:\n%+%c%-",

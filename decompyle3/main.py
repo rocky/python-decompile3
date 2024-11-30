@@ -38,12 +38,15 @@ from decompyle3.version import __version__
 
 
 def _get_outstream(outfile: str) -> Any:
-    dir = osp.dirname(outfile)
+    """
+    Return an opened output file descriptor for ``outfile``.
+    """
+    dir_name = osp.dirname(outfile)
     failed_file = outfile + "_failed"
     if osp.exists(failed_file):
         os.remove(failed_file)
     try:
-        os.makedirs(dir)
+        os.makedirs(dir_name)
     except OSError:
         pass
     return open(outfile, mode="w", encoding="utf-8")
@@ -67,7 +70,7 @@ def decompile(
     showasm: Optional[str] = None,
     showast={},
     timestamp=None,
-    grammar=dict(PARSER_DEFAULT_DEBUG),
+    showgrammar=False,
     source_encoding=None,
     code_objects={},
     source_size=None,
@@ -123,6 +126,10 @@ def decompile(
     if source_size:
         write("# Size of source mod 2**32: %d bytes" % source_size)
 
+    grammar = dict(PARSER_DEFAULT_DEBUG)
+    if showgrammar:
+        grammar["reduce"] = True
+
     debug_opts = {"asm": showasm, "tree": showast, "grammar": grammar}
 
     try:
@@ -146,7 +153,7 @@ def decompile(
                     (line_no, deparsed.source_linemap[line_no] + header_count)
                     for line_no in sorted(deparsed.source_linemap.keys())
                 ]
-                mapstream.write("\n\n# %s\n" % linemap)
+                mapstream.write(f"\n\n# {linemap}\n")
         else:
             if do_fragments:
                 deparse_fn = code_deparse_fragments
@@ -353,7 +360,7 @@ def main(
                             outstream.write(f"{line}\n{e[0]}\n{line}\n")
                         last_mod = e[0]
                         info = offsets[e]
-                        extract_info = deparse_object.extract_node_info(info)
+                        extract_info = deparsed_object.extract_node_info(info)
                         outstream.write(f"{info.node.format().strip()}" + "\n")
                         outstream.write(extract_info.selectedLine + "\n")
                         outstream.write(extract_info.markerLine + "\n\n")

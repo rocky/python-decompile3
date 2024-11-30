@@ -96,7 +96,6 @@ from decompyle3.semantics.pysource import (
     ParserError,
     StringIO,
 )
-from decompyle3.show import maybe_show_tree
 
 NodeInfo = namedtuple("NodeInfo", "node start finish")
 ExtractInfo = namedtuple(

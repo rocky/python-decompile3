@@ -1,4 +1,4 @@
-#  Copyright (c) 2018-2022 by Rocky Bernstein
+#  Copyright (c) 2018-2022, 2024 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@ from decompyle3.semantics.consts import (
     INDENT_PER_LEVEL,
     NO_PARENTHESIS_EVER,
     PRECEDENCE,
-    TABLE_DIRECT,
 )
 from decompyle3.semantics.helper import flatten_list
 
@@ -31,7 +30,7 @@ def customize_for_version(self, is_pypy, version):
         # PyPy changes
         #######################
         # fmt: off
-        TABLE_DIRECT.update(
+        self.TABLE_DIRECT.update(
             {
                 "assert":       ("%|assert %c\n", 0),
                 # This can happen as a result of an if transformation
@@ -109,7 +108,7 @@ def customize_for_version(self, is_pypy, version):
         ########################
         # Without PyPy
         #######################
-        TABLE_DIRECT.update(
+        self.TABLE_DIRECT.update(
             {
                 # "assert" and "assert_expr" are added via transform rules.
                 "assert": ("%|assert %c\n", 0),
@@ -128,7 +127,7 @@ def customize_for_version(self, is_pypy, version):
         )
 
     if version >= (3, 2):
-        TABLE_DIRECT.update(
+        self.TABLE_DIRECT.update(
             {
                 "del_deref_stmt": ("%|del %c\n", 0),
                 "DELETE_DEREF": ("%{pattr}", 0),

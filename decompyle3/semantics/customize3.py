@@ -1,4 +1,4 @@
-#  Copyright (c) 2018-2022 by Rocky Bernstein
+#  Copyright (c) 2018-2022, 2024 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -19,14 +19,13 @@
 from xdis import co_flags_is_async, iscode
 
 from decompyle3.scanner import Code
-from decompyle3.semantics.consts import TABLE_DIRECT
 from decompyle3.semantics.customize37 import customize_for_version37
 from decompyle3.semantics.customize38 import customize_for_version38
 from decompyle3.semantics.helper import is_lambda_mode
 
 
 def customize_for_version3(self, version):
-    TABLE_DIRECT.update(
+    self.TABLE_DIRECT.update(
         {
             "comp_for": (" for %c in %c", (2, "store"), (0, "expr")),
             "if_exp_not": (
@@ -177,7 +176,7 @@ def customize_for_version3(self, version):
 
     self.listcomp_closure3 = listcomp_closure3
 
-    TABLE_DIRECT.update(
+    self.TABLE_DIRECT.update(
         {
             "c_tryelsestmt": (
                 "%|try:\n%+%c%-%c%|else:\n%+%c%-",
@@ -189,7 +188,7 @@ def customize_for_version3(self, version):
         }
     )
 
-    TABLE_DIRECT.update({"LOAD_CLASSDEREF": ("%{pattr}",)})
+    self.TABLE_DIRECT.update({"LOAD_CLASSDEREF": ("%{pattr}",)})
 
     if version >= (3, 7):
         customize_for_version37(self, version)
