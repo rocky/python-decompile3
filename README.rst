@@ -8,6 +8,7 @@ decompyle3
 A native Python cross-version decompiler and fragment decompiler.
 A reworking of uncompyle6_.
 
+I gave a talk on this at `BlackHat Asia 2024 <https://youtu.be/H-7ZNrpsV50?si=nOaixgYHr7RbILVS>`_.
 
 Introduction
 ------------
