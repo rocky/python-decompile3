@@ -1,4 +1,4 @@
-# Copyright (C) 2018-2024 Rocky Bernstein <rocky@gnu.org>
+# Copyright (C) 2018-2025 Rocky Bernstein <rocky@gnu.org>
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -67,7 +67,7 @@ def decompile(
     showasm: Optional[str] = None,
     showast={},
     timestamp=None,
-    grammar=dict(PARSER_DEFAULT_DEBUG),
+    showgrammar=False,
     source_encoding=None,
     code_objects={},
     source_size=None,
@@ -122,6 +122,10 @@ def decompile(
         write(f"# Compiled at: {datetime.datetime.fromtimestamp(timestamp)}")
     if source_size:
         write("# Size of source mod 2**32: %d bytes" % source_size)
+
+    grammar = dict(PARSER_DEFAULT_DEBUG)
+    if showgrammar:
+        grammar["reduce"] = True
 
     debug_opts = {"asm": showasm, "tree": showast, "grammar": grammar}
 

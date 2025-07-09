@@ -178,7 +178,11 @@ def do_tests(src_dir, obj_patterns, target_dir, opts):
     print("Output directory: ", target_dir)
     try:
         _, _, failed_files, failed_verify = main(
-            src_dir, target_dir, files, [], do_verify=opts["do_verify"]
+            in_base=src_dir,
+            out_base=target_dir,
+            compiled_files=files,
+            source_files=[],
+            do_verify=opts["do_verify"],
         )
         if failed_files != 0:
             sys.exit(2)
