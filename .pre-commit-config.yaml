@@ -6,21 +6,21 @@ repos:
     hooks:
     - id: check-merge-conflict
     - id: debug-statements
-      stages: [commit]
+      stages: [pre-commit]
     - id: end-of-file-fixer
-      stages: [commit]
+      stages: [pre-commit]
     - id: trailing-whitespace
 -   repo: https://github.com/pycqa/isort
     rev: 5.11.5
     hooks:
       - id: isort
-        stages: [commit]
+        stages: [pre-commit]
 -   repo: https://github.com/psf/black
     rev: 22.6.0
     hooks:
     - id: black
       language_version: python
-      stages: [commit]
+      stages: [pre-commit]
       additional_dependencies: ["click"]
 # -   repo: https://github.com/pycqa/flake8
 #     rev: 5.0.4

@@ -9,6 +9,7 @@ from io import StringIO
 
 from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE
 
+import pytest
 from decompyle3.code_fns import disco_deparse
 from decompyle3.semantics.pysource import DEFAULT_DEBUG_OPTS, deparse_code2str
 
@@ -24,6 +25,10 @@ def assign_stmts():
 lambda_fn = lambda a: 5 if a else 6  # noqa
 
 
+@pytest.mark.skipif(
+    not ((3, 6) <= PYTHON_VERSION_TRIPLE < (3, 9)),
+    reason="Only works for Python 3.7 and 3.8",
+)
 def test_assign_stmts_with_offset():
     assign_code = assign_stmts.__code__
     out = StringIO()

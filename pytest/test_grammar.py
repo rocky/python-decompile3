@@ -1,8 +1,15 @@
 import re
-from xdis import PYTHON_VERSION_TRIPLE, IS_PYPY
+
+from xdis import IS_PYPY, PYTHON_VERSION_TRIPLE
+
+import pytest
 from decompyle3.parsers.main import get_python_parser, python_parser
 
 
+@pytest.mark.skipif(
+    not ((3, 6) <= PYTHON_VERSION_TRIPLE < (3, 9)),
+    reason="Only works for Python 3.7 and 3.8",
+)
 def test_grammar():
     def check_tokens(tokens, opcode_set):
         remain_tokens = set(tokens) - opcode_set
@@ -77,6 +84,10 @@ def test_grammar():
     # )
 
 
+@pytest.mark.skipif(
+    not ((3, 6) <= PYTHON_VERSION_TRIPLE < (3, 9)),
+    reason="Only works for Python 3.7 and 3.8",
+)
 def test_dup_rule():
     import inspect
 

@@ -32,7 +32,7 @@ check-short: pytest
 check-3.7 check-3.8: pytest
 	PYTHONLIB_OPTS="--run --verify-run" $(MAKE) -C test check
 
-check-3.9 check-3.10: pytest
+check-3.9 check-3.10 check-3.11 check-3.12 check-3.13: pytest
 	$(MAKE) -C test check-bytecode-3.7
 
 check-3.9 check-3.10: pytest
