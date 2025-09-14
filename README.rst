@@ -16,45 +16,38 @@ Introduction
 *decompyle3* translates Python bytecode back into equivalent Python
 source code. It accepts bytecodes from Python version 3.7 on.
 
-For decompilation of older Python bytecode see uncompyle6_.
+For decompilation of older Python bytecode, see uncompyle6_.
 
 Why this?
 ---------
 
 Uncompyle6 is awesome, but it has a fundamental problem in the way
-it handles control flow. In the early days of Python when there was
-little optimization and code was generated in a very template-oriented
-way, figuring out control flow-structures could be done by simply looking at code patterns.
+it handles control flow. In the early days of Python, when there was
+little optimization and code was generated in a very template-oriented way, figuring out control flow structures could be done by simply looking at code patterns.
 
-Over the years more code optimization, specifically around handling
-jumps has made it harder to support detecting control flow strictly
-from code patterns. This was noticed as far back as Python 2.4 (2004)
-but since this is a difficult problem, so far it hasn't been tackled
+Over the years, more code optimization, specifically around handling jumps, has made it harder to support detecting control flow strictly
+from code patterns. This was noticed as far back as Python 2.4 (2004), but since this is a difficult problem, so far it hasn't been tackled
 in a satisfactory way.
 
-The initial attempt to fix to this problem was to add markers in the
-instruction stream, initially this was a `COME_FROM` instruction, and
-then use that in pattern detection.
+The initial attempt to fix this problem was to add markers in the
+instruction stream, initially this was a `COME_FROM` instruction, and then use that in pattern detection.
 
 Over the years, I've extended that to be more specific, so
 `COME_FROM_LOOP` and `COME_FROM_WITH` were added. And I added checks
-at grammar-reduce time to make try to make sure jumps match with
-supposed `COME_FROM` targets.
+at grammar-reduce time to try to make sure jumps match with the supposed `COME_FROM` targets.
 
-However all of this is complicated, not robust, has greatly slowed
-down deparsing and is not really tenable.
+However, all of this is complicated, not robust, has greatly slowed down deparsing and is not really tenable.
 
-So in this project we started rewriting and refactoring the grammar.
+In this project, we began rewriting and refactoring the grammar.
 
-However it is clear that even this isn't enough. Control flow needs
-to be addressed by using dominators and reverse-dominators which
-the python-control-flow_ project can give.
+However, even this isn't enough. Control flow needs
+to be addressed by using dominators and reverse-dominators, which the python-control-flow_ project can give.
 
 This I am *finally* slowly doing in yet another non-public project. It
-is a lot of work.  Funding in the form of sponsorhip while greatly
-appreciated isn't commensurate with the amount of effort, and
-currently I have a full-time job. So it may take time before it is
-available publicly, if at all.
+is a lot of work.  Funding in the form of sponsorship, while greatly
+appreciated, isn't commensurate with the amount of effort, and
+currently, I have a full-time job. So it may take time before it is
+available publicly.
 
 Requirements
 ------------
@@ -89,7 +82,7 @@ Running Tests
 
    make check
 
-A GNU makefile has been added to smooth over setting running the right
+A GNU makefile has been added to smooth over setting up and running the right
 command, and running tests from fastest to slowest.
 
 If you have remake_ installed, you can see the list of all tasks
@@ -115,20 +108,18 @@ Verification
 ------------
 
 If you want Python syntax verification of the correctness of the
-decompilation process, add the :code:`--syntax-verify` option. However since
-Python syntax changes, you should use this option if the bytecode is
+decompilation process, add the :code:`--syntax-verify` option. However, since Python syntax changes, you should use this option if the bytecode is
 the right bytecode for the Python interpreter that will be checking
 the syntax.
 
-You can also cross compare the results with another python decompiler
+You can also cross-compare the results with another Python decompiler
 like unpyc37_ . Since they work differently, bugs here often aren't in
 that, and vice versa.
 
 There is an interesting class of these programs that is readily
-available give stronger verification: those programs that when run
-test themselves. Our test suite includes these.
+available to give stronger verification: those programs that, when run, test themselves. Our test suite includes these.
 
-And Python comes with another a set of programs like this: its test
+And Python comes with another set of programs like this: its test
 suite for the standard library. We have some code in :code:`test/stdlib` to
 facilitate this kind of checking too.
 
@@ -146,20 +137,19 @@ This program can't decompile Microsoft Windows EXE files created by
 Py2EXE_, although we can probably decompile the code after you extract
 the bytecode properly. `Pydeinstaller <https://github.com/charles-dyfis-net/pydeinstaller>`_ may help with unpacking Pyinstaller bundlers.
 
-Handling pathologically long lists of expressions or statements is
-slow. We don't handle Cython_ or MicroPython which don't use bytecode.
+Handling pathologically long lists of expressions or statements is slow. We don't handle Cython_ or MicroPython, which don't use bytecode.
 
 There are numerous bugs in decompilation. And that's true for every
-other CPython decompiler I have encountered, even the ones that
+other CPython decompilers I have encountered, even the ones that
 claimed to be "perfect" on some particular version like 2.4.
 
-As Python progresses decompilation also gets harder because the
+As Python progresses, decompilation also gets harder because the
 compilation is more sophisticated and the language itself is more
 sophisticated. I suspect that attempts there will be fewer ad-hoc
 attempts like unpyc37_ (which is based on a 3.3 decompiler) simply
 because it is harder to do so. The good news, at least from my
 standpoint, is that I think I understand what's needed to address the
-problems in a more robust way. But right now until such time as
+problems in a more robust way. But right now, until such time as
 project is better funded, I do not intend to make any serious effort
 to support Python versions 3.8 or 3.9, including bugs that might come
 in. I imagine at some point I may be interested in it.
@@ -178,10 +168,10 @@ issues above the queue of other things I might be doing instead.
 See Also
 --------
 
-* https://github.com/andrew-tavera/unpyc37/ : indirect fork of https://code.google.com/archive/p/unpyc3/ The above projects use a different decompiling technique than what is used here. Instructions are walked. Some instructions use the stack to generate strings, while others don't. Because control flow isn't dealt with directly, it too suffers the same problems as the various `uncompyle` and `decompyle` programs.
+* https://github.com/andrew-tavera/unpyc37/ : indirect fork of https://code.google.com/archive/p/unpyc3/. The above projects use a different decompiling technique than what is used here. Instructions are walked. Some instructions use the stack to generate strings, while others don't. Because control flow isn't dealt with directly, it too suffers the same problems as the various `uncompyle` and `decompyle` programs.
 * https://github.com/rocky/python-xdis : Cross Python version disassembler
 * https://github.com/rocky/python-xasm : Cross Python version assembler
-* https://github.com/rocky/python-decompile3/wiki : Wiki Documents which describe the code and aspects of it in more detail
+* https://github.com/rocky/python-decompile3/wiki : Wiki Documents that describe the code and aspects of it in more detail
 
 .. _Cython: https://en.wikipedia.org/wiki/Cython
 .. _MicroPython: https://micropython.org
