@@ -29,12 +29,14 @@ Over the years, more code optimization, specifically around handling jumps, has 
 from code patterns. This was noticed as far back as Python 2.4 (2004), but since this is a difficult problem, so far it hasn't been tackled
 in a satisfactory way.
 
-The initial attempt to fix this problem was to add markers in the
-instruction stream, initially this was a `COME_FROM` instruction, and then use that in pattern detection.
+The initial attempt to fix to this problem was to add markers in the
+instruction stream, initially this was a ``COME_FROM`` instruction, and
+then use that in pattern detection.
 
 Over the years, I've extended that to be more specific, so
-`COME_FROM_LOOP` and `COME_FROM_WITH` were added. And I added checks
-at grammar-reduce time to try to make sure jumps match with the supposed `COME_FROM` targets.
+``COME_FROM_LOOP`` and ``COME_FROM_WITH`` were added. And I added checks
+at grammar-reduce time to make try to make sure jumps match with
+supposed ``COME_FROM`` targets.
 
 However, all of this is complicated, not robust, has greatly slowed down deparsing and is not really tenable.
 
@@ -44,10 +46,10 @@ However, even this isn't enough. Control flow needs
 to be addressed by using dominators and reverse-dominators, which the python-control-flow_ project can give.
 
 This I am *finally* slowly doing in yet another non-public project. It
-is a lot of work.  Funding in the form of sponsorship, while greatly
-appreciated, isn't commensurate with the amount of effort, and
-currently, I have a full-time job. So it may take time before it is
-available publicly.
+is a lot of work.  Funding in the form of sponsorship while greatly
+appreciated isn't commensurate with the amount of effort, and
+currently I have a full-time job. So it may take time before it is
+available publicly, if at all.
 
 Requirements
 ------------
@@ -168,7 +170,7 @@ issues above the queue of other things I might be doing instead.
 See Also
 --------
 
-* https://github.com/andrew-tavera/unpyc37/ : indirect fork of https://code.google.com/archive/p/unpyc3/. The above projects use a different decompiling technique than what is used here. Instructions are walked. Some instructions use the stack to generate strings, while others don't. Because control flow isn't dealt with directly, it too suffers the same problems as the various `uncompyle` and `decompyle` programs.
+* https://github.com/andrew-tavera/unpyc37/ : indirect fork of https://code.google.com/archive/p/unpyc3/ The above projects use a different decompiling technique than what is used here. Instructions are walked. Some instructions use the stack to generate strings, while others don't. Because control flow isn't dealt with directly, it too suffers the same problems as the various ``uncompyle`` and ``decompyle`` programs.
 * https://github.com/rocky/python-xdis : Cross Python version disassembler
 * https://github.com/rocky/python-xasm : Cross Python version assembler
 * https://github.com/rocky/python-decompile3/wiki : Wiki Documents that describe the code and aspects of it in more detail
