@@ -1,13 +1,13 @@
 #!/bin/bash
-PACKAGE=uncompyle6
+PACKAGE=decompyle6
 
 # FIXME put some of the below in a common routine
 function finish {
-  cd $make_uncompyle6_newest_owd
+  cd $decompyle6_newest_owd
 }
 
 cd $(dirname ${BASH_SOURCE[0]})
-make_uncompyle6_newest_owd=$(pwd)
+decompyle6_newest_owd=$(pwd)
 trap finish EXIT
 
 if ! source ./pyenv-newest-versions ; then

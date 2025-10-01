@@ -1,5 +1,5 @@
 #!/bin/bash
-PACKAGE=uncompyle6
+PACKAGE=decompyle3
 
 # FIXME put some of the below in a common routine
 function finish {
@@ -13,9 +13,9 @@ trap finish EXIT
 if ! source ./pyenv-3.7-3.10-versions ; then
     exit $?
 fi
-if ! source ./setup-python-3.7.sh ; then
-    exit $?
-fi
+# if ! source ./setup-python-3.7.sh ; then
+#     exit $?
+# fi
 
 cd ..
 source $PACKAGE/version.py
