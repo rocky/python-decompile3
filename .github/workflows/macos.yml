@@ -1,4 +1,4 @@
-name: decompyle3 (windows)
+name: decompyle3 (macos)
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
 jobs:
   build-master:
     if: github.ref == 'refs/heads/master'
-    runs-on: windows-latest
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@v4
       with:
@@ -30,7 +30,7 @@ jobs:
 
   build-37-to-310:
     if: github.ref == 'refs/heads/python-3.7-to-3.10'
-    runs-on: windows-latest
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@v4
       with:
