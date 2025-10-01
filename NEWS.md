@@ -1,11 +1,28 @@
+3.9.3
+=====
+
+October 1, 2025
+
+
+* Submit to Python packaging hassle imposed by Python 3.13+
+* Handle Python 3.10-3.13 more gracefully
+* track xdis API changes
+* bug fixes (many more remain)
+
+
 3.9.2
 =====
+
+July 22, 2024
 
 * track xdis API changes
 * bug fixes (many more remain)
 
 3.9.1
 =====
+
+March 17, 2024
+
 
 Lots of changes major changes. track xdis API changes.
 
