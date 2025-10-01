@@ -1,5 +1,7 @@
 #!/bin/bash
-PYTHON_VERSION=3.13
+# Check out git branch python-3.7-to-3.10 and dependent development branches.
+
+PYTHON_VERSION=3.7
 
 bs=${BASH_SOURCE[0]}
 if [[ $0 == $bs ]] ; then
@@ -7,15 +9,14 @@ if [[ $0 == $bs ]] ; then
     exit 1
 fi
 
-mydir=$(dirname $bs)
 decompyle3_owd=$(pwd)
-fulldir=$(readlink -f $mydir)
+mydir=$(dirname $bs)
 cd $mydir
-. ./checkout_common.sh
 fulldir=$(readlink -f $mydir)
 . ./checkout_common.sh
 cd $fulldir/..
 (cd $fulldir/.. && \
-     setup_version python-spark master && \
-     setup_version python-xdis master )
-checkout_finish master
+     setup_version python-spark python-3.6 && \
+     setup_version python-xdis python-3.6 )
+
+checkout_finish python-3.7-to-3.10
