@@ -55,16 +55,7 @@ pytest:
 
 #: Clean up temporary files and .pyc files
 clean: clean_pyc
-	$(PYTHON) ./setup.py $@
 	(cd test && $(MAKE) clean)
-
-#: Create source (tarball) and wheel distribution
-dist: distcheck
-	$(PYTHON) ./setup.py sdist bdist_wheel
-
-# perform some checks on the package via setup.py
-distcheck:
-	$(PYTHON) ./setup.py check
 
 #: Remove .pyc files
 clean_pyc:
