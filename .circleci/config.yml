@@ -1,15 +1,51 @@
-# This configuration was automatically generated from a CircleCI 1.0 config.
-# It should include any build commands you had, along with commands that CircleCI
-# inferred from your project structure. We strongly recommend you read all the
-# comments in this file to understand the structure of CircleCI 2.0, as the idiom
-# for configuration has changed substantially in 2.0 to allow arbitrary jobs rather
-# than the prescribed lifecycle of 1.0. In general, we recommend using this generated
-# configuration as a reference rather than using it in production, though in most
-# cases it should duplicate the execution of your original 1.0 config.
-version: 2.1
+# This is a CircleCI configuration to run decompile3 tests on github branches python-3.7-to-3.10
+# as well as the master branch.
 
+version: 2.1
 jobs:
-  build:
+  build-python-3-11:
+    working_directory: ~/rocky/python-decompyle3
+    parallelism: 1
+    shell: /bin/bash --login
+    environment:
+      CIRCLE_ARTIFACTS: /tmp/circleci-artifacts
+      CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
+      COMPILE: --compile
+    docker:
+    - image: cimg/python:3.11
+    steps:
+    - checkout
+    - restore_cache:
+        keys:
+        - v1-dep-{{ .Branch }}-
+        - v1-dep-master-
+        - v1-dep-
+    - run: sudo apt update
+    - run: sudo apt install python3-pip
+    # - run: sudo pip install git+https://github.com/rocky/python-xdis#egg=xdis
+    - run: sudo pip install -e .
+    - run: sudo pip install pytest
+    - save_cache:
+        key: v1-dep-{{ .Branch }}-{{ epoch }}
+        paths:
+        - vendor/bundle
+        - ~/virtualenvs
+        - ~/.m2
+        - ~/.ivy2
+        - ~/.bundle
+        - ~/.go_workspace
+        - ~/.gradle
+        - ~/.cache/bower
+    - run: pip install pytest
+    - run: pip install -e . && make check
+    - store_test_results:
+        path: /tmp/circleci-test-results
+    - store_artifacts:
+        path: /tmp/circleci-artifacts
+    - store_artifacts:
+        path: /tmp/circleci-test-results
+
+  build-python-3-8:
     working_directory: ~/rocky/python-decompyle3
     parallelism: 1
     shell: /bin/bash --login
@@ -28,7 +64,7 @@ jobs:
         - v1-dep-
     - run: sudo pip install git+https://github.com/rocky/python-xdis@python-3.6-to-3.10#egg=xdis
     - run: sudo pip install -e .
-    - run: sudo pip install pytest==3.2.5 hypothesis==3.0.0
+    - run: sudo pip install pytest
     - save_cache:
         key: v1-dep-{{ .Branch }}-{{ epoch }}
         paths:
@@ -50,9 +86,13 @@ jobs:
 
 workflows:
   version: 2
-  build-only-on-specific-branch:
+  build-on-branches:
     jobs:
-      - build:
+      - build-python-3-11:
+          filters:
+            branches:
+              only: master
+      - build-python-3-8:
           filters:
             branches:
               only: python-3.7-to-3.10
