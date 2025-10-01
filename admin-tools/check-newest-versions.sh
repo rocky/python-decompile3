@@ -1,14 +1,14 @@
 #!/bin/bash
 function finish {
-  cd $owd
+  cd $decompyle3_check_owd
 }
 
 # FIXME put some of the below in a common routine
-owd=$(pwd)
+decompyle3_check_owd=$(pwd)
 trap finish EXIT
 
 cd $(dirname ${BASH_SOURCE[0]})
-if ! source ./pyenv-versions ; then
+if ! source ./pyenv-newest-versions ; then
     exit $?
 fi
 if ! source ./setup-master.sh ; then
@@ -21,8 +21,7 @@ for version in $PYVERSIONS; do
 	exit $?
     fi
     make clean && pip install -e .
-    # if ! remake -! check; then
-     if make check; then
+    if ! make check; then
 	exit $?
     fi
     echo === $version ===
