@@ -1,4 +1,6 @@
-|TravisCI| |CircleCI| |Pypi Installs|
+|Pypi Installs| |Latest Version| |Supported Python Versions|
+
+|packagestatus|
 
 .. contents::
 
@@ -74,7 +76,7 @@ or::
 
     $ python setup.py install # may need sudo
 
-A GNU Makefile is also provided so :code:`make install` (possibly as root or
+A GNU Makefile is also provided, so :code:`make install` (possibly as root or
 sudo) will do the steps above.
 
 Running Tests
@@ -110,7 +112,8 @@ Verification
 ------------
 
 If you want Python syntax verification of the correctness of the
-decompilation process, add the :code:`--syntax-verify` option. However, since Python syntax changes, you should use this option if the bytecode is
+decompilation process, add the :code:`--syntax-verify` option. However since
+Python syntax changes. You should use this option if the bytecode is
 the right bytecode for the Python interpreter that will be checking
 the syntax.
 
@@ -152,7 +155,7 @@ attempts like unpyc37_ (which is based on a 3.3 decompiler) simply
 because it is harder to do so. The good news, at least from my
 standpoint, is that I think I understand what's needed to address the
 problems in a more robust way. But right now, until such time as
-project is better funded, I do not intend to make any serious effort
+the project is better funded, I do not intend to make any serious effort
 to support Python versions 3.8 or 3.9, including bugs that might come
 in. I imagine at some point I may be interested in it.
 
@@ -165,7 +168,10 @@ there aren't that many people who have been working on bug fixing.
 You may run across a bug, that you want to report. Please do so. But
 be aware that it might not get my attention for a while. If you
 sponsor or support the project in some way, I'll prioritize your
-issues above the queue of other things I might be doing instead.
+issues above the queue of other things I might be doing instead. In
+rare situations, I can do a hand decompilation of bytecode for a fee.
+However, this is expensive, usually beyond what most people are willing
+to spend.
 
 See Also
 --------
@@ -175,6 +181,10 @@ See Also
 * https://github.com/rocky/python-xasm : Cross Python version assembler
 * https://github.com/rocky/python-decompile3/wiki : Wiki Documents that describe the code and aspects of it in more detail
 
+.. |buildstatus| image:: https://circleci.com/gh/rocky/python-decompyle3.svg?style=svg
+		 :target: https://app.circleci.com/pipelines/github/rocky/python-decompyle3
+.. |packagestatus| image:: https://repology.org/badge/vertical-allrepos/python:uncompyle6.svg
+		 :target: https://repology.org/project/python:decompyle3/versions
 .. _Cython: https://en.wikipedia.org/wiki/Cython
 .. _MicroPython: https://micropython.org
 .. _uncompyle6: https://pypi.python.org/pypi/uncompyle6
