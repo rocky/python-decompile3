@@ -1,4 +1,4 @@
-|Pypi Installs| |Latest Version| |Supported Python Versions|
+|buildstatus| |Pypi Installs| |Latest Version| |Supported Python Versions|
 
 |packagestatus|
 
@@ -181,8 +181,8 @@ See Also
 * https://github.com/rocky/python-xasm : Cross Python version assembler
 * https://github.com/rocky/python-decompile3/wiki : Wiki Documents that describe the code and aspects of it in more detail
 
-.. |buildstatus| image:: https://circleci.com/gh/rocky/python-decompyle3.svg?style=svg
-		 :target: https://app.circleci.com/pipelines/github/rocky/python-decompyle3
+.. |buildstatus| image:: https://dl.circleci.com/status-badge/img/gh/rocky/python-decompile3/tree/master.svg?style=svg
+        :target: https://dl.circleci.com/status-badge/redirect/gh/rocky/python-decompile3/tree/master
 .. |packagestatus| image:: https://repology.org/badge/vertical-allrepos/python:uncompyle6.svg
 		 :target: https://repology.org/project/python:decompyle3/versions
 .. _Cython: https://en.wikipedia.org/wiki/Cython
