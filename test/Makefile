@@ -33,7 +33,7 @@ check-3.7:
 	$(PYTHON) test_pythonlib.py --bytecode-3.7 $(PYTHONLIB_OPTS) $(COMPILE) --run --verify
 	$(PYTHON) test_pythonlib.py --bytecode-3.8 $(COMPILE)
 
-check-pypy37: check-bytecode
+check-pypy37 check-3.7pypy: check-bytecode
 	$(PYTHON) test_pythonlib.py --bytecode-pypy37
 
 #: Run working tests from Python 3.8

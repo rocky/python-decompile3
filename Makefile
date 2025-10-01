@@ -37,7 +37,12 @@ check-3.9 check-3.10 check-3.11 check-3.12 check-3.13: pytest
 
 check-3.9 check-3.10: pytest
 
+#: Run working tests from Python 3.7
+check-3.7pypy:
+	$(MAKE) -C test $@
+
 #: Run working tests from Python 3.8
+
 check-3.8pypy:
 	$(MAKE) -C test $@
 
@@ -55,7 +60,16 @@ pytest:
 
 #: Clean up temporary files and .pyc files
 clean: clean_pyc
+	$(PYTHON) ./setup.py $@
 	(cd test && $(MAKE) clean)
+
+#: Create source (tarball) and wheel distribution
+dist: distcheck
+	$(PYTHON) ./setup.py sdist bdist_wheel
+
+# perform some checks on the package via setup.py
+distcheck:
+	$(PYTHON) ./setup.py check
 
 #: Remove .pyc files
 clean_pyc:
