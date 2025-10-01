@@ -14,6 +14,7 @@ function setup_version {
 
 function checkout_finish {
     branch=$1
+    pyenv local $PYTHON_VERSION
     cd $decompyle3_owd
     git checkout $branch && pyenv local $PYTHON_VERSION && git pull
     rc=$?
