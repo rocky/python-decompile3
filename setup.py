@@ -34,13 +34,7 @@ setuptools.setup(
     classifiers=classifiers,
     description=short_desc,
     # entry_points=entry_points,
-    entry_points={
-        "console_scripts": [
-            "decompyle3=decompyle3.bin.decompile:main_bin",
-            "decompyle3-code=decompyle3.bin.decompile_code_type:main",
-            "decompyle3-tokens=decompyle3.bin.decompile_tokens:main",
-        ]
-    },
+    entry_points=entry_points,
     install_requires=install_requires,
     license=license,
     long_description=long_description,

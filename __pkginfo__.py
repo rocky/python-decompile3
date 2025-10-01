@@ -83,4 +83,5 @@ def read(*rnames):
 
 # Get info from files; set: long_description and VERSION
 long_description = read("README.rst") + "\n"
+__version__ = "should have been set in version.py"
 exec(read("decompyle3/version.py"))
