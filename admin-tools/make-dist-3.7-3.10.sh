@@ -3,11 +3,11 @@ PACKAGE=decompyle3
 
 # FIXME put some of the below in a common routine
 function finish {
-  cd $decompyle3_36_make_owd
+  cd $decompyle3_37_make_owd
 }
 
 cd $(dirname ${BASH_SOURCE[0]})
-decompyle3_36_make_owd=$(pwd)
+decompyle3_37_make_owd=$(pwd)
 trap finish EXIT
 
 if ! source ./pyenv-3.7-3.10-versions ; then
