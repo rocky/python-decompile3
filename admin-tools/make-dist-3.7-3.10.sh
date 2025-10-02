@@ -30,6 +30,10 @@ for pyversion in $PYVERSIONS; do
     if ! pyenv local $pyversion ; then
 	exit $?
     fi
+    if [[ ${pyversion:0:6} == "pyston" ]] ; then
+	echo "$pyversion - Pyston does not get special packaging"
+	continue
+    fi
     # pip bdist_egg create too-general wheels. So
     # we narrow that by moving the generated wheel.
 
