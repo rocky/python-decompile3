@@ -269,7 +269,7 @@ def main(
     showasm: Optional[str] = None,
     showast={},
     do_verify: Optional[str] = None,
-    showgrammar: bool = False,
+    showgrammar: dict = {},
     source_encoding=None,
     do_linemaps=False,
     do_fragments=False,
