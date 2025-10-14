@@ -230,4 +230,4 @@ or constants in the source code.
 
 If there is some legitimate reason to keep confidentiality, you can contact me by email to explain the extenuating circumstances. However, I tend to discard without reading anonymous emails.
 
-Private consulting available via https://calendly.com/rb3216 rates: $150 for 30 minutes; $250 for 60 minutes.
+Private consulting available. Rates: $150 for 30 minutes; $250 for 60 minutes.
