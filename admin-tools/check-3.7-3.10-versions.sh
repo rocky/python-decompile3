@@ -10,11 +10,11 @@ python_control_flow_owd=$(pwd)
 # trap finish EXIT
 
 cd $(dirname ${BASH_SOURCE[0]})
-if ! source ./pyenv-3.8-3.10-versions ; then
+if ! source ./pyenv-3.7-3.10-versions ; then
     exit $?
 fi
 
-. ./setup-python-3.8.sh
+. ./setup-python-3.7.sh
 
 cd ..
 for version in $PYVERSIONS; do
