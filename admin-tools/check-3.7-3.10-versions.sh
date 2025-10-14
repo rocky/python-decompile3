@@ -1,30 +1,30 @@
 #!/bin/bash
-# Run tests over all Python versions in branch python-3.7-3.10
-set -e
 function finish {
-  cd $decompyle3_check_owd
+    if [[ -n ${python_control_flow_owd} ]] && [[ -d $python_control_flow_owd ]]; then
+	cd $python_control_flow_owd
+    fi
 }
-decompyle3_check_owd=$(pwd)
-trap finish EXIT
+
+# FIXME put some of the below in a common routine
+python_control_flow_owd=$(pwd)
+# trap finish EXIT
 
 cd $(dirname ${BASH_SOURCE[0]})
 if ! source ./pyenv-3.7-3.10-versions ; then
     exit $?
 fi
-if ! source ./setup-python-3.7.sh ; then
-    exit $?
-fi
+
+. ./setup-python-3.7.sh
 
 cd ..
 for version in $PYVERSIONS; do
-    echo --- $version ---
     if ! pyenv local $version ; then
 	exit $?
     fi
-    make clean && python setup.py develop
-    if ! make check ; then
+    python --version
+    make clean && pip install -e .
+    if ! make check; then
 	exit $?
     fi
     echo === $version ===
 done
-finish
