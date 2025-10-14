@@ -1,10 +1,10 @@
 #!/usr/bin/bash
-PACKAGE_MODULE=python_control_flow
-python_control_flow_owd=$(pwd)
+PACKAGE_MODULE=decompyle3
+decompyle3_owd=$(pwd)
 bs=${BASH_SOURCE[0]}
 mydir=$(dirname $bs)
-python_control_flow_fulldir=$(readlink -f $mydir)
-cd $python_control_flow_fulldir
+decompyle3_fulldir=$(readlink -f $mydir)
+cd $decompyle3_fulldir
 . ./checkout_common.sh
 
 pyenv_file="pyenv-3.7-3.10-versions"
