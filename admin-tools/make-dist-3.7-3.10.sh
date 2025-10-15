@@ -26,7 +26,8 @@ if ! source ./setup-python-3.7.sh ; then
     exit $?
 fi
 
-source ${PACKAGE_MODULE}/version.py
+cd ..
+source ./${PACKAGE_MODULE}/version.py
 if [[ ! -n $__version__ ]]; then
     echo "Something is wrong: __version__ should have been set."
     exit 1
@@ -68,6 +69,7 @@ tarball=dist/${PACKAGE}-${__version__}.tar.gz
 
 if [[ -f $tarball ]]; then
     version_specific_tarball=dist/${PACKAGE_NAME}_37-${__version__}.tar.gz
+    mv -v $tarball $version_specific_tarball
     twine check $version_specific_tarball
 fi
 twine check dist/${PACKAGE_MODULE}-${__version__}-py3*.whl
