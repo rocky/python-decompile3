@@ -8,8 +8,6 @@ PACKAGE_MODULE="decompyle3"
 PACKAGE_NAME="decompyle3"
 PACKAGE=${PACKAGE_NAME}
 
-
-
 # FIXME put some of the below in a common routine
 function finish {
   if [[ -n "$decompyle3_37_owd" ]] then
@@ -17,16 +15,16 @@ function finish {
   fi
 }
 
-cd $(dirname ${BASH_SOURCE[0]})
 decompyle3_37_make_owd=$(pwd)
+cd $(dirname ${BASH_SOURCE[0]})
 trap finish EXIT
 
 if ! source ./pyenv-3.7-3.10-versions ; then
     exit $?
 fi
-# if ! source ./setup-python-3.7.sh ; then
-#     exit $?
-# fi
+if ! source ./setup-python-3.7.sh ; then
+    exit $?
+fi
 
 source ${PACKAGE_MODULE}/version.py
 if [[ ! -n $__version__ ]]; then
