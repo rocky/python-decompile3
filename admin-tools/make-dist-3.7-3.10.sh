@@ -26,7 +26,7 @@ if ! source ./setup-python-3.7.sh ; then
     exit $?
 fi
 
-source ${PACKAGE_MODULE}/version.py
+source ../${PACKAGE_MODULE}/version.py
 if [[ ! -n $__version__ ]]; then
     echo "Something is wrong: __version__ should have been set."
     exit 1
