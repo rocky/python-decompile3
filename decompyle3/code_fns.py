@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2016, 2818-2024 by Rocky Bernstein
+#  Copyright (c) 2015-2016, 2818-2025 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -49,7 +49,7 @@ def disco_deparse(
     co,
     codename_map: dict,
     out,
-    is_pypy,
+    python_implementation,
     debug_opts,
     start_offset: int = 0,
     stop_offset: int = -1,
@@ -66,7 +66,7 @@ def disco_deparse(
     if co.co_filename:
         print(f"# Embedded file name: {co.co_filename}", file=real_out)
 
-    scanner = get_scanner(version, is_pypy=is_pypy)
+    scanner = get_scanner(version, python_implementation=python_implementation)
 
     queue = deque([co])
     disco_deparse_loop(
@@ -75,7 +75,7 @@ def disco_deparse(
         codename_map,
         queue,
         real_out,
-        is_pypy,
+        python_implementation,
         debug_opts,
         start_offset=start_offset,
         stop_offset=stop_offset,
@@ -88,7 +88,7 @@ def disco_deparse_loop(
     codename_map: dict,
     queue,
     real_out,
-    is_pypy,
+    python_implementation,
     debug_opts,
     start_offset: int = 0,
     stop_offset: int = -1,
@@ -108,7 +108,7 @@ def disco_deparse_loop(
                 real_out,
                 version=version,
                 debug_opts=debug_opts,
-                is_pypy=is_pypy,
+                python_implementation=python_implementation,
                 compile_mode=codename_map[co.co_name],
                 start_offset=start_offset,
                 stop_offset=stop_offset,
@@ -149,7 +149,7 @@ def decompile_code_type(
         print(f"Skipping {filename}:\n{e}")
         return False
 
-    (version, _, _, co, is_pypy, _, _) = load_module(filename)
+    (version, _, _, co, python_implementation, _, _, _) = load_module(filename)
 
     # maybe a second -a will do before as well
     # asm = "after" if showasm else None
@@ -162,7 +162,7 @@ def decompile_code_type(
                 bytecode,
                 codename_map,
                 outstream,
-                is_pypy,
+                python_implementation,
                 debug_opts,
                 start_offset=start_offset,
                 stop_offset=stop_offset,
@@ -173,7 +173,7 @@ def decompile_code_type(
             co,
             codename_map,
             outstream,
-            is_pypy,
+            python_implementation,
             debug_opts,
             start_offset=start_offset,
             stop_offset=stop_offset,

@@ -37,7 +37,11 @@ from xdis import (
     instruction_size,
     next_offset,
 )
-from xdis.version_info import IS_PYPY, version_tuple_to_str
+from xdis.version_info import (
+    PYTHON_IMPLEMENTATION,
+    PythonImplementation,
+    version_tuple_to_str,
+)
 
 from decompyle3.scanners.tok import Token
 
@@ -526,7 +530,9 @@ class Scanner(ABC):
         return self.Token
 
 
-def get_scanner(version: Union[str, tuple], is_pypy=False, show_asm=None) -> Scanner:
+def get_scanner(
+    version: Union[str, tuple], python_implementation, show_asm=None
+) -> Scanner:
     # If version is a string, turn that into the corresponding float.
     if isinstance(version, str):
         if version not in canonic_python_version:
@@ -544,14 +550,14 @@ def get_scanner(version: Union[str, tuple], is_pypy=False, show_asm=None) -> Sca
         try:
             import importlib
 
-            if is_pypy:
+            if python_implementation is PythonImplementation.PyPy:
                 scan = importlib.import_module(f"decompyle3.scanners.pypy{v_str}")
             else:
                 scan = importlib.import_module(f"decompyle3.scanners.scanner{v_str}")
             if False:
                 print(scan)  # Avoid unused scan
         except ImportError:
-            if is_pypy:
+            if python_implementation is PythonImplementation.PyPy:
                 exec(
                     f"import decompyle3.scanners.pypy{v_str} as scan",
                     locals(),
@@ -563,7 +569,7 @@ def get_scanner(version: Union[str, tuple], is_pypy=False, show_asm=None) -> Sca
                     locals(),
                     globals(),
                 )
-        if is_pypy:
+        if python_implementation is PythonImplementation.PyPy:
             scanner = eval(
                 f"scan.ScannerPyPy{v_str}(show_asm=show_asm)", locals(), globals()
             )
@@ -585,5 +591,5 @@ if __name__ == "__main__":
     my_co = inspect.currentframe().f_code
     from xdis.version_info import PYTHON_VERSION_TRIPLE
 
-    scanner = get_scanner(PYTHON_VERSION_TRIPLE, IS_PYPY, True)
+    scanner = get_scanner(PYTHON_VERSION_TRIPLE, PYTHON_IMPLEMENTATION, True)
     tokens, customize = scanner.ingest(my_co, {}, show_asm="after")

@@ -5,9 +5,10 @@ Much of the code here is the same as using decompyle3 using using the
 --start-offset and --end--offset options.
 
 """
+
 from io import StringIO
 
-from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE
+from xdis.version_info import PYTHON_IMPLEMENTATION, PYTHON_VERSION_TRIPLE
 
 import pytest
 from decompyle3.code_fns import disco_deparse
@@ -46,7 +47,7 @@ def test_assign_stmts_with_offset():
         co=ifelse_code,
         codename_map={"<lambda>": "lambda"},
         out=out,
-        is_pypy=IS_PYPY,
+        python_implementation=PYTHON_IMPLEMENTATION,
         debug_opts=DEFAULT_DEBUG_OPTS,
     )
     last_line = out.getvalue().split("\n")[-1]
@@ -59,7 +60,7 @@ def test_assign_stmts_with_offset():
         co=ifelse_code,
         codename_map={"<lambda>": "lambda"},
         out=out,
-        is_pypy=IS_PYPY,
+        python_implementation=PYTHON_IMPLEMENTATION,
         debug_opts=DEFAULT_DEBUG_OPTS,
         start_offset=4,
         stop_offset=8,
@@ -74,7 +75,7 @@ def test_assign_stmts_with_offset():
         co=ifelse_code,
         codename_map={"<lambda>": "lambda"},
         out=out,
-        is_pypy=IS_PYPY,
+        python_implementation=PYTHON_IMPLEMENTATION,
         debug_opts=DEFAULT_DEBUG_OPTS,
         start_offset=8,
     )

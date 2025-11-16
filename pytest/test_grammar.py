@@ -1,6 +1,6 @@
 import re
 
-from xdis import IS_PYPY, PYTHON_VERSION_TRIPLE
+from xdis import PYTHON_IMPLEMENTATION, PYTHON_VERSION_TRIPLE
 
 import pytest
 from decompyle3.parsers.main import get_python_parser, python_parser
@@ -22,7 +22,9 @@ def test_grammar():
             p.dump_grammar(),
         )
 
-    p = get_python_parser(PYTHON_VERSION_TRIPLE, is_pypy=IS_PYPY)
+    p = get_python_parser(
+        PYTHON_VERSION_TRIPLE, python_implementation=PYTHON_IMPLEMENTATION
+    )
     (lhs, rhs, tokens, right_recursive, dup_rhs) = p.check_sets()
 
     expect_lhs = set([])
@@ -94,7 +96,7 @@ def test_dup_rule():
     python_parser(
         inspect.currentframe().f_code,
         PYTHON_VERSION_TRIPLE,
-        is_pypy=IS_PYPY,
+        python_implementation=PYTHON_IMPLEMENTATION,
         parser_debug={
             "dups": True,
             "transition": False,

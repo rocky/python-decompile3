@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2016, 2018-2020 by Rocky Bernstein
+#  Copyright (c) 2015-2016, 2018-2020, 2025 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -17,12 +17,12 @@ from collections import deque
 
 from xdis import (
     Bytecode,
-    iscode,
     findlinestarts,
     get_opcode,
-    offset2line,
+    iscode,
     load_file,
     load_module,
+    offset2line,
 )
 
 
@@ -32,9 +32,10 @@ def line_number_mapping(pyc_filename, src_filename):
         timestamp,
         magic_int,
         code1,
-        is_pypy,
+        python_implementation,
         source_size,
         sip_hash,
+        _,
     ) = load_module(pyc_filename)
     try:
         code2 = load_file(src_filename)
@@ -45,7 +46,7 @@ def line_number_mapping(pyc_filename, src_filename):
 
     mappings = []
 
-    opc = get_opcode(version, is_pypy)
+    opc = get_opcode(version, python_implementation)
     number_loop(queue, mappings, opc)
     return sorted(mappings, key=lambda x: x[1])
 

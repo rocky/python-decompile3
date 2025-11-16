@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2024 by Rocky Bernstein
+#  Copyright (c) 2015-2025 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -134,8 +134,8 @@ from io import StringIO
 from typing import Optional
 
 from spark_parser import GenericASTTraversal
-from xdis import COMPILER_FLAG_BIT, IS_PYPY, iscode
-from xdis.version_info import PYTHON_VERSION_TRIPLE
+from xdis import COMPILER_FLAG_BIT, iscode
+from xdis.version_info import PYTHON_IMPLEMENTATION, PYTHON_VERSION_TRIPLE
 
 import decompyle3.parsers.main as python_parser
 import decompyle3.parsers.parse_heads as heads
@@ -210,7 +210,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         showast=TREE_DEFAULT_DEBUG,
         debug_parser=PARSER_DEFAULT_DEBUG,
         compile_mode="exec",
-        is_pypy=IS_PYPY,
+        python_implementation=PYTHON_IMPLEMENTATION,
         linestarts={},
         tolerate_errors=False,
     ):
@@ -233,7 +233,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         was used to create the Syntax Tree and specifies a grammar
         variant within a Python version to use.
 
-        `is_pypy` should be True if the Syntax Tree was generated for PyPy.
+        `python_implementation` reflects the platform.pythons_implementation for Syntax Tree.
 
         `linestarts` is a dictionary of line number to bytecode offset. This
         can sometimes assist in determining which kind of source-code construct
@@ -249,7 +249,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
             version,
             debug_parser=debug_parser,
             compile_mode=compile_mode,
-            is_pypy=is_pypy,
+            python_implementation=python_implementation,
         )
 
         # Initialize p_lambda on demand
@@ -272,7 +272,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         self.currentclass = None
         self.debug_parser = dict(debug_parser)
         self.is_module = False
-        self.is_pypy = is_pypy
+        self.python_implementation = python_implementation
         self.line_number = 1
         self.linestarts = linestarts
         self.mod_globs = set()
@@ -307,7 +307,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
         # An example is:
         # __module__ = __name__
         self.hide_internal = True
-        customize_for_version(self, is_pypy, version)
+        customize_for_version(self, python_implementation, version)
         return
 
     def maybe_show_tree(self, tree, phase):
@@ -1021,7 +1021,7 @@ class SourceWalker(GenericASTTraversal, NonterminalActions, ComprehensionMixin):
                         self.version,
                         self.debug_parser,
                         compile_mode="lambda",
-                        is_pypy=self.is_pypy,
+                        python_implementation=self.python_implementation,
                     )
                 p = self.p_lambda
                 p.insts = self.scanner.insts
@@ -1097,7 +1097,7 @@ def code_deparse(
     debug_opts=DEFAULT_DEBUG_OPTS,
     code_objects={},
     compile_mode="exec",
-    is_pypy=IS_PYPY,
+    python_implementation=PYTHON_IMPLEMENTATION,
     walker=SourceWalker,
     start_offset: int = 0,
     stop_offset: int = -1,
@@ -1116,7 +1116,9 @@ def code_deparse(
         version = PYTHON_VERSION_TRIPLE
 
     # store final output stream for case of error
-    scanner = get_scanner(version, is_pypy=is_pypy, show_asm=debug_opts["asm"])
+    scanner = get_scanner(
+        version, python_implementation=python_implementation, show_asm=debug_opts["asm"]
+    )
 
     tokens, customize = scanner.ingest(
         co, code_objects=code_objects, show_asm=debug_opts["asm"]
@@ -1148,7 +1150,7 @@ def code_deparse(
         showast=debug_opts.get("tree", TREE_DEFAULT_DEBUG),
         debug_parser=debug_parser,
         compile_mode=compile_mode,
-        is_pypy=is_pypy,
+        python_implementation=python_implementation,
         linestarts=linestarts,
     )
 
@@ -1241,7 +1243,7 @@ def deparse_code2str(
     debug_opts=DEFAULT_DEBUG_OPTS,
     code_objects={},
     compile_mode="exec",
-    is_pypy=IS_PYPY,
+    python_implementation=PYTHON_IMPLEMENTATION,
     walker=SourceWalker,
     start_offset: int = 0,
     stop_offset: int = -1,
@@ -1261,7 +1263,7 @@ def deparse_code2str(
         debug_opts,
         code_objects=code_objects,
         compile_mode=compile_mode,
-        is_pypy=is_pypy,
+        python_implementation=python_implementation,
         walker=walker,
         start_offset=start_offset,
         stop_offset=stop_offset,

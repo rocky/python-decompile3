@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2024 by Rocky Bernstein
+#  Copyright (c) 2015-2025 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -71,7 +71,12 @@ from typing import Optional
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG, GenericASTTraversal
 from spark_parser.ast import GenericASTTraversalPruningException
 from xdis import iscode
-from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE
+from xdis.version_info import (
+    IS_PYPY,
+    PYTHON_IMPLEMENTATION,
+    PYTHON_VERSION_TRIPLE,
+    PythonImplementation,
+)
 
 import decompyle3.parsers.main as python_parser
 import decompyle3.parsers.parse_heads as heads
@@ -96,7 +101,6 @@ from decompyle3.semantics.pysource import (
     ParserError,
     StringIO,
 )
-from decompyle3.show import maybe_show_tree
 
 NodeInfo = namedtuple("NodeInfo", "node start finish")
 ExtractInfo = namedtuple(
@@ -162,7 +166,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         showast=TREE_DEFAULT_DEBUG,
         debug_parser=PARSER_DEFAULT_DEBUG,
         compile_mode="exec",
-        is_pypy=IS_PYPY,
+        python_implementation=PYTHON_IMPLEMENTATION,
         linestarts={},
         tolerate_errors=True,
     ):
@@ -174,7 +178,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
             showast=showast,
             debug_parser=debug_parser,
             compile_mode=compile_mode,
-            is_pypy=is_pypy,
+            python_implementation=python_implementation,
             linestarts=linestarts,
             tolerate_errors=tolerate_errors,
         )
@@ -189,7 +193,7 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.hide_internal = False
         self.offsets = {}
         self.last_finish = -1
-        self.is_pypy = is_pypy
+        self.python_implementation = python_implementation
 
         # FIXME: is there a better way?
         self.TABLE_DIRECT = TABLE_DIRECT.copy()
@@ -1141,14 +1145,14 @@ class FragmentsWalker(pysource.SourceWalker, object):
                     t.kind = "RETURN_END_IF_LAMBDA"
                 elif t.kind == "RETURN_VALUE":
                     t.kind = "RETURN_VALUE_LAMBDA"
-            tokens.append(Token("LAMBDA_MARKER", optyhpe="pseudo"))
+            tokens.append(Token("LAMBDA_MARKER", optype="pseudo"))
             try:
                 if self.p_lambda is None:
                     self.p_lambda = get_python_parser(
                         self.version,
                         self.debug_parser,
                         compile_mode="lambda",
-                        is_pypy=self.is_pypy,
+                        python_implementation=self.python_implementation,
                     )
                 p = self.p_lambda
                 p.insts = self.scanner.insts
@@ -1490,7 +1494,10 @@ class FragmentsWalker(pysource.SourceWalker, object):
         self.write("{")
         self.set_pos_info(node[0], start, start + 1)
 
-        if self.version >= (3, 0) and not self.is_pypy:
+        if (
+            self.version >= (3, 0)
+            and not self.python_implementation is PythonImplementation.CPython
+        ):
             if node[0].kind.startswith("kvlist"):
                 # Python 3.5+ style key/value list in dict
                 kv_node = node[0]

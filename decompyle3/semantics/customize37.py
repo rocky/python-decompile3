@@ -19,6 +19,7 @@ import re
 
 from spark_parser.ast import GenericASTTraversalPruningException
 from xdis import co_flags_is_async, iscode
+from xdis.version_info import PythonImplementation
 
 from decompyle3.parsers.treenode import SyntaxTree
 from decompyle3.scanners.tok import Token
@@ -41,6 +42,7 @@ EMPTY_DICT = SyntaxTree(
 
 # FIXME: Get this from a newer xdis!
 FSTRING_CONVERSION_MAP = {1: "!s", 2: "!r", 3: "!a", "X": ":X"}
+
 
 #######################
 def customize_for_version37(self, version):
@@ -818,7 +820,10 @@ def customize_for_version37(self, version):
         if node == "classdefdeco2":
             if isinstance(node[1][1].attr, str):
                 class_name = node[1][1].attr
-                if self.is_pypy and class_name.find("<locals>") > 0:
+                if (
+                    self.python_implementation is PythonImplementation.PyPy
+                    and class_name.find("<locals>") > 0
+                ):
                     class_name = class_name.split(".")[-1]
 
             else:

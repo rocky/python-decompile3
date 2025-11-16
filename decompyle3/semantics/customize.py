@@ -1,4 +1,4 @@
-#  Copyright (c) 2018-2022 by Rocky Bernstein
+#  Copyright (c) 2018-2022, 2025 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
 """Isolate Python version-specific semantic actions here.
 """
 
+from xdis.version_info import PythonImplementation
+
 from decompyle3.semantics.consts import (
     INDENT_PER_LEVEL,
     NO_PARENTHESIS_EVER,
@@ -25,8 +27,8 @@ from decompyle3.semantics.consts import (
 from decompyle3.semantics.helper import flatten_list
 
 
-def customize_for_version(self, is_pypy, version):
-    if is_pypy:
+def customize_for_version(self, python_implementation, version):
+    if python_implementation is PythonImplementation.PyPy:
         ########################
         # PyPy changes
         #######################

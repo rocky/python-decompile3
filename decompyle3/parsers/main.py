@@ -1,4 +1,4 @@
-#  Copyright (c) 2019-2024 Rocky Bernstein
+#  Copyright (c) 2019-2025 Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -25,7 +25,12 @@ import sys
 
 from spark_parser import DEFAULT_DEBUG as PARSER_DEFAULT_DEBUG
 from xdis import iscode
-from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE, version_tuple_to_str
+from xdis.version_info import (
+    PYTHON_IMPLEMENTATION,
+    PYTHON_VERSION_TRIPLE,
+    PythonImplementation,
+    version_tuple_to_str,
+)
 
 from decompyle3.parsers.p37.heads import (
     Python37ParserEval,
@@ -63,7 +68,10 @@ def parse(p, tokens, customize, is_lambda: bool) -> SyntaxTree:
 
 
 def get_python_parser(
-    version, debug_parser=PARSER_DEFAULT_DEBUG, compile_mode="exec", is_pypy=False
+    version,
+    debug_parser=PARSER_DEFAULT_DEBUG,
+    compile_mode="exec",
+    python_implementation=PythonImplementation.CPython,
 ):
     """
     Returns parser object for Python version 3.7, 3.8, etc. depending on the parameters
@@ -105,32 +113,32 @@ def get_python_parser(
             p = Python37ParserSingle(debug_parser)
     elif version == (3, 8):
         if compile_mode == "exec":
-            if is_pypy:
+            if python_implementation is PythonImplementation.PyPy:
                 p = Python38PyPyParserExec(debug_parser=debug_parser)
             else:
                 p = Python38ParserExec(debug_parser=debug_parser)
 
         elif compile_mode == "single":
-            if is_pypy:
+            if python_implementation is PythonImplementation.PyPy:
                 p = Python38PyPyParserSingle(debug_parser=debug_parser)
             else:
                 p = Python38ParserSingle(debug_parser=debug_parser)
         elif compile_mode == "lambda":
-            if is_pypy:
+            if python_implementation is PythonImplementation.PyPy:
                 p = Python38PyPyParserLambda(debug_parser=debug_parser)
             else:
                 p = Python38ParserLambda(debug_parser=debug_parser)
         elif compile_mode == "eval":
-            if is_pypy:
+            if python_implementation is PythonImplementation.PyPy:
                 p = Python38PyPyParserEval(debug_parser=debug_parser)
             else:
                 p = Python38ParserEval(debug_parser=debug_parser)
         elif compile_mode == "expr":
-            if is_pypy:
+            if python_implementation is PythonImplementation.PyPy:
                 p = Python38PyPyParserExpr(debug_parser=debug_parser)
             else:
                 p = Python38ParserExpr(debug_parser=debug_parser)
-        elif is_pypy:
+        elif python_implementation is PythonImplementation.PyPy:
             p = Python38PyPyParserSingle(debug_parser)
         else:
             p = Python38ParserSingle(debug_parser)
@@ -152,7 +160,7 @@ def python_parser(
     showasm: bool = False,
     parser_debug=PARSER_DEFAULT_DEBUG,
     compile_mode: str = "exec",
-    is_pypy: bool = False,
+    python_implementation: PythonImplementation = PythonImplementation.CPython,
     is_lambda: bool = False,
 ) -> SyntaxTree:
     """
@@ -176,7 +184,7 @@ def python_parser(
     assert iscode(co)
     from decompyle3.scanner import get_scanner
 
-    scanner = get_scanner(version, is_pypy)
+    scanner = get_scanner(version, python_implementation)
     tokens, customize = scanner.ingest(co)
     maybe_show_asm(showasm, tokens)
 
@@ -184,7 +192,10 @@ def python_parser(
     # parser_debug = {'rules': True, 'transition': True, 'reduce' : True,
     #                 'showstack': 'full'}
     p = get_python_parser(
-        version, parser_debug, compile_mode=compile_mode, is_pypy=IS_PYPY
+        version,
+        parser_debug,
+        compile_mode=compile_mode,
+        python_implementation=PYTHON_IMPLEMENTATION,
     )
 
     # FIXME: have p.insts update in a better way
@@ -199,8 +210,12 @@ def python_parser(
 if __name__ == "__main__":
 
     def parse_test(co) -> None:
-
-        tree = python_parser(co, (3, 8, 2), showasm=True, is_pypy=IS_PYPY)
+        tree = python_parser(
+            co,
+            (3, 8, 2),
+            showasm=True,
+            python_implementation=PythonImplementation.CPython,
+        )
         print(tree)
         print("+" * 30)
         return
