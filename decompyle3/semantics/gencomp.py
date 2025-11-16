@@ -1,4 +1,4 @@
-#  Copyright (c) 2022-2024 by Rocky Bernstein
+#  Copyright (c) 2022-2025 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ from typing import Optional
 
 from spark_parser.ast import GenericASTTraversalPruningException
 from xdis import iscode
+from xdis.version_info import PythonImplementation
 
 from decompyle3.parsers.main import get_python_parser
 from decompyle3.scanner import Code
@@ -176,7 +177,7 @@ class ComprehensionMixin:
             self.p = get_python_parser(
                 self.version,
                 compile_mode="exec",
-                is_pypy=self.is_pypy,
+                python_implementation=self.python_implementation,
             )
             tree = self.build_ast(code._tokens, code._customize, code)
             self.p = p_save
@@ -615,7 +616,10 @@ class ComprehensionMixin:
 
         # Here is where we handle nested list iterations which
         # includes their corresponding "if" conditions.
-        if tree in ("list_comp", "set_comp") and not self.is_pypy:
+        if (
+            tree in ("list_comp", "set_comp")
+            and self.python_implementation is PythonImplementation.CPython
+        ):
             list_iter = tree[1]
             assert list_iter in ("list_iter", "set_iter")
             list_for = list_iter[0]
@@ -707,7 +711,7 @@ class ComprehensionMixin:
             self.p = get_python_parser(
                 self.version,
                 compile_mode="exec",
-                is_pypy=self.is_pypy,
+                python_implementation=self.python_implementation,
             )
             tree = self.build_ast(
                 code._tokens, code._customize, code, is_lambda=self.is_lambda

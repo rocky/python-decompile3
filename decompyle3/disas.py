@@ -1,4 +1,4 @@
-#  Copyright (c) 2015-2016, 2818-2020, 2024 by Rocky Bernstein
+#  Copyright (c) 2015-2016, 2818-2020, 2024-2025 by Rocky Bernstein
 #  Copyright (c) 2005 by Dan Pascu <dan@windowmaker.org>
 #  Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #  Copyright (c) 1999 John Aycock
@@ -98,14 +98,21 @@ def disassemble_file(filename: str, outstream=None) -> None:
     try to find the corresponding compiled object.
     """
     filename = check_object_path(filename)
-    (version, timestamp, magic_int, co, is_pypy, source_size, sip_hash) = load_module(
-        filename
-    )
+    (
+        version,
+        timestamp,
+        magic_int,
+        co,
+        python_implementation,
+        source_size,
+        sip_hash,
+        _,
+    ) = load_module(filename)
     if isinstance(co, list):
         for con in co:
             disco(version, con, outstream)
     else:
-        disco(version, co, outstream, is_pypy=is_pypy)
+        disco(version, co, outstream, python_implementation)
     co = None
 
 

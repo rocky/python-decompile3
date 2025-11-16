@@ -24,7 +24,12 @@ import tempfile
 from typing import Any, Optional, TextIO, Tuple
 
 from xdis import iscode, load_module
-from xdis.version_info import IS_PYPY, PYTHON_VERSION_TRIPLE, version_tuple_to_str
+from xdis.version_info import (
+    IS_PYPY,
+    PYTHON_VERSION_TRIPLE,
+    PythonImplementation,
+    version_tuple_to_str,
+)
 
 from decompyle3.disas import check_object_path
 from decompyle3.parsers.parse_heads import ParserError
@@ -71,7 +76,7 @@ def decompile(
     source_encoding=None,
     code_objects={},
     source_size=None,
-    is_pypy: bool = False,
+    python_implementation=PythonImplementation.CPython,
     magic_int=None,
     mapstream=None,
     do_fragments=False,
@@ -99,7 +104,7 @@ def decompile(
 
     assert iscode(co), f"""{co} does not smell like code"""
 
-    co_pypy_str = "PyPy " if is_pypy else ""
+    co_pypy_str = "PyPy " if python_implementation is PythonImplementation.PyPy else ""
     run_pypy_str = "PyPy " if IS_PYPY else ""
     sys_version_lines = sys.version.split("\n")
     if source_encoding:
@@ -141,7 +146,7 @@ def decompile(
                 out=out,
                 version=bytecode_version,
                 code_objects=code_objects,
-                is_pypy=is_pypy,
+                python_implementation=python_implementation,
                 debug_opts=debug_opts,
             )
             header_count = 3 + len(sys_version_lines)
@@ -160,7 +165,7 @@ def decompile(
                 co,
                 out,
                 bytecode_version,
-                is_pypy=is_pypy,
+                python_implementation=python_implementation,
                 debug_opts=debug_opts,
                 compile_mode=compile_mode,
                 start_offset=start_offset,
@@ -209,9 +214,16 @@ def decompile_file(
 
     filename = check_object_path(filename)
     code_objects = {}
-    version, timestamp, magic_int, co, is_pypy, source_size, _ = load_module(
-        filename, code_objects
-    )
+    (
+        version,
+        timestamp,
+        magic_int,
+        co,
+        python_implementation,
+        source_size,
+        _,
+        _,
+    ) = load_module(filename, code_objects)
 
     if isinstance(co, list):
         deparsed = []
@@ -227,7 +239,7 @@ def decompile_file(
                     showgrammar,
                     source_encoding,
                     code_objects=code_objects,
-                    is_pypy=is_pypy,
+                    python_implementation=python_implementation,
                     magic_int=magic_int,
                     mapstream=mapstream,
                     start_offset=start_offset,
@@ -247,7 +259,7 @@ def decompile_file(
                 source_encoding,
                 code_objects=code_objects,
                 source_size=source_size,
-                is_pypy=is_pypy,
+                python_implementation=python_implementation,
                 magic_int=magic_int,
                 mapstream=mapstream,
                 do_fragments=do_fragments,

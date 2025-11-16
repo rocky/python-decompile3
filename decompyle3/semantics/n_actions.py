@@ -1,4 +1,4 @@
-#  Copyright (c) 2022-2024 by Rocky Bernstein
+#  Copyright (c) 2022-2025 by Rocky Bernstein
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@ Custom Nonterminal action functions. See NonterminalActions docstring.
 
 from spark_parser.ast import GenericASTTraversalPruningException
 from xdis import iscode
+from xdis.version_info import PythonImplementation
 
 from decompyle3.parsers.treenode import SyntaxTree
 from decompyle3.scanners.tok import Token
@@ -303,7 +304,10 @@ class NonterminalActions:
             self.write("{")
         line_number = self.line_number
 
-        if self.version >= (3, 0) and not self.is_pypy:
+        if (
+            self.version >= (3, 0)
+            and self.python_implementation is PythonImplementation.CPython
+        ):
             if node[0].kind.startswith("kvlist"):
                 # Python 3.5+ style key/value list in dict
                 kv_node = node[0]
@@ -406,7 +410,10 @@ class NonterminalActions:
                 sep = ""
 
             pass
-        elif self.version >= (3, 6) and self.is_pypy:
+        elif (
+            self.version >= (3, 6)
+            and self.python_implementation is PythonImplementation.PyPy
+        ):
             # FIXME: DRY with above
             if node[-1].kind.startswith("BUILD_CONST_KEY_MAP"):
                 # Python 3.6+ style const map
@@ -958,7 +965,9 @@ class NonterminalActions:
                 # there isn't an iter_index at the top level
                 list_iter_index = None
             else:
-                list_iter_index = 5 if self.is_pypy else 1
+                list_iter_index = (
+                    5 if self.python_implementation is PythonImplementation.PyPy else 1
+                )
             self.comprehension_walk_newer(node, list_iter_index, 0)
         self.write("]")
         self.prune()
@@ -966,7 +975,6 @@ class NonterminalActions:
     n_list_comp_async = n_list_comp
 
     def n_mkfunc(self, node):
-
         # MAKE_FUNCTION ..
         code_node = node[-3]
         if not iscode(code_node.attr):
@@ -1010,7 +1018,6 @@ class NonterminalActions:
             self.prune()  # stop recursing
 
     def n_return_call_lambda(self, node):
-
         # Understand where the non-psuedo instructions lie.
         opt_start = 1 if node[0].kind in ("come_from_", "COME_FROM") else 0
         call_index = -3 if node[-1].kind == "COME_FROM" else -2
