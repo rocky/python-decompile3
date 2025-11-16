@@ -22,7 +22,8 @@ jobs:
         - v1-dep-
     - run: sudo apt update
     - run: sudo apt install python3-pip
-    # - run: sudo pip install git+https://github.com/rocky/python-xdis#egg=xdis
+      # Until the next xdis release...
+    - run: sudo pip install git+https://github.com/rocky/python-xdis#egg=xdis
     - run: sudo pip install -e .
     - run: sudo pip install pytest
     - save_cache:
