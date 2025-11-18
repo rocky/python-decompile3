@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Mode: -*- python -*-
 #
-# Copyright (c) 2015-2017, 2019-2024 by Rocky Bernstein
+# Copyright (c) 2015-2017, 2019-2025 by Rocky Bernstein
 # Copyright (c) 2000-2002 by hartmut Goebel <h.goebel@crazy-compilers.com>
 #
 
@@ -24,7 +24,7 @@ def usage():
     sys.exit(1)
 
 
-@click.command()
+@click.command(context_settings={"help_option_names": ["--help", "-help", "-h"]})
 @click.option(
     "--asm++/--no-asm++",
     "-A",
@@ -73,14 +73,14 @@ def usage():
     "--start-offset",
     "start_offset",
     default=0,
-    help="start decomplation at offset; default is 0 or the starting offset.",
+    help="start decompilation at offset; default is 0 or the starting offset.",
 )
 @click.version_option(version=__version__)
 @click.option(
     "--stop-offset",
     "stop_offset",
     default=-1,
-    help="stop decomplation when seeing an offset greater or equal to this; default is "
+    help="stop decompilation when seeing an offset greater or equal to this; default is "
     "-1 which indicates no stopping point.",
 )
 @click.argument("files", nargs=-1, type=click.Path(readable=True), required=True)
