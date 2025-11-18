@@ -21,8 +21,13 @@ fi
 
 cd ../dist/
 
+<<<<<<< HEAD
 install_file="python-control-flow_37-${__version__}.tar.gz"
 install_check_command="python-cfg --version"
+=======
+install_file="decompyle3_37-${__version__}.tar.gz"
+install_check_command="decompyle3 --version"
+>>>>>>> master
 for version in $PYVERSIONS; do
     echo "*** Installing ${install_file} for Python ${version} ***"
     echo $version
