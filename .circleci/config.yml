@@ -12,7 +12,7 @@ jobs:
       CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
       COMPILE: --compile
     docker:
-    - image: cimg/python:3.11
+    - image: cimg/python:3.12
     steps:
     - checkout
     - restore_cache:
@@ -46,44 +46,44 @@ jobs:
     - store_artifacts:
         path: /tmp/circleci-test-results
 
-  build-python-3-8:
-    working_directory: ~/rocky/python-decompyle3
-    parallelism: 1
-    shell: /bin/bash --login
-    environment:
-      CIRCLE_ARTIFACTS: /tmp/circleci-artifacts
-      CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
-      COMPILE: --compile
-    docker:
-    - image: circleci/python:3.8
-    steps:
-    - checkout
-    - restore_cache:
-        keys:
-        - v1-dep-{{ .Branch }}-
-        - v1-dep-master-
-        - v1-dep-
-    - run: sudo pip install git+https://github.com/rocky/python-xdis#egg=xdis
-    - run: sudo pip install -e .
-    - run: sudo pip install pytest
-    - save_cache:
-        key: v1-dep-{{ .Branch }}-{{ epoch }}
-        paths:
-        - vendor/bundle
-        - ~/virtualenvs
-        - ~/.m2
-        - ~/.ivy2
-        - ~/.bundle
-        - ~/.go_workspace
-        - ~/.gradle
-        - ~/.cache/bower
-    - run: sudo python ./setup.py install && make check
-    - store_test_results:
-        path: /tmp/circleci-test-results
-    - store_artifacts:
-        path: /tmp/circleci-artifacts
-    - store_artifacts:
-        path: /tmp/circleci-test-results
+  # build-python-3-8:
+  #   working_directory: ~/rocky/python-decompyle3
+  #   parallelism: 1
+  #   shell: /bin/bash --login
+  #   environment:
+  #     CIRCLE_ARTIFACTS: /tmp/circleci-artifacts
+  #     CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
+  #     COMPILE: --compile
+  #   docker:
+  #   - image: circleci/python:3.8
+  #   steps:
+  #   - checkout
+  #   - restore_cache:
+  #       keys:
+  #       - v1-dep-{{ .Branch }}-
+  #       - v1-dep-master-
+  #       - v1-dep-
+  #   - run: sudo pip install git+https://github.com/rocky/python-xdis#egg=xdis
+  #   - run: sudo pip install -e .
+  #   - run: sudo pip install pytest
+  #   - save_cache:
+  #       key: v1-dep-{{ .Branch }}-{{ epoch }}
+  #       paths:
+  #       - vendor/bundle
+  #       - ~/virtualenvs
+  #       - ~/.m2
+  #       - ~/.ivy2
+  #       - ~/.bundle
+  #       - ~/.go_workspace
+  #       - ~/.gradle
+  #       - ~/.cache/bower
+  #   - run: sudo python ./setup.py install && make check
+  #   - store_test_results:
+  #       path: /tmp/circleci-test-results
+  #   - store_artifacts:
+  #       path: /tmp/circleci-artifacts
+  #   - store_artifacts:
+  #       path: /tmp/circleci-test-results
 
 workflows:
   version: 2
@@ -93,7 +93,7 @@ workflows:
           filters:
             branches:
               only: master
-      - build-python-3-8:
-          filters:
-            branches:
-              only: python-3.7-to-3.10
+      # - build-python-3-8:
+      #     filters:
+      #       branches:
+      #         only: python-3.7-to-3.10
