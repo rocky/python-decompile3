@@ -12,7 +12,7 @@ jobs:
       CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
       COMPILE: --compile
     docker:
-    - image: cimg/python:3.12
+    - image: cimg/python:3.13
     steps:
     - checkout
     - restore_cache:
@@ -21,11 +21,10 @@ jobs:
         - v1-dep-master-
         - v1-dep-
     - run: sudo apt update
-    - run: sudo apt install python3-pip
       # Until the next xdis release...
-    - run: sudo pip install git+https://github.com/rocky/python-xdis#egg=xdis
-    - run: sudo pip install -e .
-    - run: sudo pip install pytest
+    - run: pip install git+https://github.com/rocky/python-xdis#egg=xdis
+    - run: pip install -e .
+    - run: pip install pytest
     - save_cache:
         key: v1-dep-{{ .Branch }}-{{ epoch }}
         paths:
