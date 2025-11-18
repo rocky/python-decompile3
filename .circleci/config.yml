@@ -12,7 +12,7 @@ jobs:
       CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
       COMPILE: --compile
     docker:
-    - image: cimg/python:3.11
+    - image: cimg/python:3.10
     steps:
     - checkout
     - restore_cache:
