@@ -25,6 +25,7 @@ from decompyle3.parsers.treenode import SyntaxTree
 from decompyle3.scanners.tok import Token
 from decompyle3.semantics.consts import (
     INDENT_PER_LEVEL,
+    NO_PARENTHESIS_EVER,
     PRECEDENCE,
     TABLE_DIRECT,
     TABLE_R,
@@ -165,7 +166,7 @@ def customize_for_version37(self, version):
             "await_expr": ("await %p", (0, PRECEDENCE["await_expr"] - 1)),
             "await_stmt": ("%|%c\n", 0),
             "c_async_with_stmt": ("%|async with %c:\n%+%c%-", (0, "expr"), 3),
-            "call_ex": ("%c(%p)", (0, "expr"), (1, 100)),
+            "call_ex": ("%c(%p)", (0, "expr"), (1, NO_PARENTHESIS_EVER)),
             "compare_chained_middlea_37": (
                 "%p %p",
                 (0, PRECEDENCE["compare"] - 1),
@@ -422,7 +423,7 @@ def customize_for_version37(self, version):
 
     TABLE_R.update(
         {
-            "CALL_FUNCTION_EX": ("%c(*%P)", 0, (1, 2, ", ", 100)),
+            "CALL_FUNCTION_EX": ("%c(*%P)", 0, (1, 2, ", ", NO_PARENTHESIS_EVER)),
             # Not quite right
             "CALL_FUNCTION_EX_KW": ("%c(**%C)", 0, (2, 3, ",")),
         }
@@ -468,7 +469,7 @@ def customize_for_version37(self, version):
         We will source-code use line breaks to guide us when to break.
         """
         p = self.prec
-        self.prec = 100
+        self.prec = NO_PARENTHESIS_EVER
 
         self.indent_more(INDENT_PER_LEVEL)
         sep = INDENT_PER_LEVEL[:-1]
@@ -773,7 +774,7 @@ def customize_for_version37(self, version):
             if args_node in ("pos_arg", "expr"):
                 args_node = args_node[0]
             if args_node == "build_list_unpack":
-                template = ("*%P)", (0, len(args_node) - 1, ", *", 100))
+                template = ("*%P)", (0, len(args_node) - 1, ", *", NO_PARENTHESIS_EVER))
                 self.template_engine(template, args_node)
             else:
                 if len(node) - nargs > 3:
@@ -792,10 +793,19 @@ def customize_for_version37(self, version):
             and opname == "CALL_FUNCTION_1"
             or not re.match(r"\d", opname[-1])
         ):
-            template = "(%c)(%p)" if node[0][0] == "lambda_body" else "%c(%p)"
-            self.template_engine(
-                (template, (0, "expr"), (1, PRECEDENCE["yield"] - 1)), node
-            )
+            if node[0][0] == "lambda_body":
+                self.template_engine(
+                    (
+                        "(\n%+%|%c%-\n)(%p)",
+                        (0, ("expr", "arg")),
+                        (1, PRECEDENCE["yield"] - 1),
+                    ),
+                    node,
+                )
+            else:
+                self.template_engine(
+                    ("%c(%p)", (0, ("expr", "arg")), (1, NO_PARENTHESIS_EVER)), node
+                )
             self.prec = p
             self.prune()
         else:

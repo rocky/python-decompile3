@@ -667,9 +667,12 @@ MAP = {
     "store": MAP_R,
 }
 
-ASSIGN_TUPLE_PARAM = lambda param_name: SyntaxTree(  # noqa
-    "expr", [Token("LOAD_FAST", pattr=param_name)]
-)
+
+def assign_tuple_parameter_tree(param_name) -> SyntaxTree:
+    return SyntaxTree("expr", [Token("LOAD_FAST", pattr=param_name)])
+
+
+ASSIGN_TUPLE_PARAM = assign_tuple_parameter_tree
 
 escape = re.compile(
     r"""
