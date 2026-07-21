@@ -1,6 +1,6 @@
 # Pick up stuff from setup.py
 hypothesis==6.24.2
-pytest~=7.1.3
+pytest>=9.0.3
 -e .
 
 Click~=7.0
